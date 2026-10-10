@@ -203,10 +203,11 @@ window.TRAVELERS_TALES = {
       location: "璃月-天衡山", trigger: "需游戏内夜间出现", prerequisite: "",
       description: "天衡山以北，你遇见了夜晚练剑的万叶。天亮时，你们就要各自踏上旅程，但无论路途多么遥远，仍在同一片星空之下。" },
 
+
     /* ==================== 5.7 ==================== */
     { id: 46, character: "八重神子", version: "5.7", title: "好运气", hidden: false,
       location: "稻妻-鸣神大社", trigger: "", prerequisite: "",
-      description: "在八重神子的「帮助」下，你抽到了一根特殊的签。总之…还是好好收起来吧。说不定，真有神奇的力量…？" },
+      description: "在八重神子的「帮助」下，你抽到了一根特殊的签。总之…还是好好收起来吧。\n说不定，真有神奇的力量…？" },
 
     { id: 47, character: "神里绫人", version: "5.7", title: "事务", hidden: false,
       location: "稻妻-稻妻城", trigger: "", prerequisite: "",
@@ -214,15 +215,15 @@ window.TRAVELERS_TALES = {
 
     { id: 48, character: "梦见月瑞希", version: "5.7", title: "新患者", hidden: false,
       location: "稻妻-稻妻城-秋沙钱汤", trigger: "", prerequisite: "",
-      description: "在导师的建议下，莱依拉来到了「秋沙钱汤」。在放松的同时，也想寻求梦见月瑞希的帮助。但是，莱依拉的状况似乎越来越糟糕…或许，梦见月瑞希会有什么办法…" },
+      description: "在导师的建议下，莱依拉来到了「秋沙钱汤」。在放松的同时，也想寻求梦见月瑞希的帮助。但是，莱依拉的状况似乎越来越糟糕…\n或许，梦见月瑞希会有什么办法…" },
 
     { id: 49, character: "梦见月瑞希", version: "5.7", title: "诊疗", hidden: false,
       location: "稻妻-稻妻城-秋沙钱汤", trigger: "", prerequisite: "",
       description: "在诊疗过程里，莱依拉又进入了「梦游状态」。在和「莱依拉」聊过后，梦见月瑞希更加了解了莱依拉如今的状态。或许，她能想出一个更加完备的治疗方案…？" },
 
     { id: 50, character: "早柚", version: "5.7", title: "长高的…方法？", hidden: false,
-      location: "稻妻 稻妻城", trigger: "", prerequisite: "鹿野院平藏·静待…",
-      description: "在你的「监督」下，多莉终于答应免费将药水提供给早柚先行体验。不过，这位商人永远不会做亏本的生意，或许…这一次的「优惠」也早就在她的预料之内了…？" },
+      location: "稻妻-稻妻城", trigger: "", prerequisite: "鹿野院平藏·静待…",
+      description: "在你的「监督」下，多莉终于答应免费将药水提供给早柚先行体验。\n不过，这位商人永远不会做亏本的生意，或许…这一次的「优惠」也早就在她的预料之内了…？" },
 
     { id: 51, character: "托马", version: "5.7", title: "培训考试", hidden: false,
       location: "稻妻-稻妻城", trigger: "", prerequisite: "",
@@ -234,7 +235,7 @@ window.TRAVELERS_TALES = {
 
     { id: 53, character: "绮良良", version: "5.7", title: "热腾腾", hidden: false,
       location: "璃月-璃月港", trigger: "", prerequisite: "",
-      description: "在桌子上用来洗菜的水不知道换了多少杯之后，绮良良终于吃饱了。…但下次，能不能把这道菜做成不辣的呢？" },
+      description: "在桌子上用来洗菜的水不知道换了多少杯之后，绮良良终于吃饱了。\n…但下次，能不能把这道菜做成不辣的呢？" },
 
     { id: 54, character: "绮良良", version: "5.7", title: "凉丝丝", hidden: false,
       location: "璃月-璃月港", trigger: "", prerequisite: "",
@@ -242,7 +243,7 @@ window.TRAVELERS_TALES = {
 
     { id: 55, character: "绮良良", version: "5.7", title: "我的快递！", hidden: false,
       location: "稻妻-镇守之森", trigger: "", prerequisite: "",
-      description: "在镇守之森里，绮良良被五百藏拦住，陪着小妖狸们不停地玩着捉迷藏。虽然五百藏让另外一只小妖狸将快递送给了收件人…" },
+      description: "在镇守之森里，绮良良被五百藏拦住，陪着小妖狸们不停地玩着捉迷藏。虽然五百藏让另外一只小妖狸将快递送给了收件人…\n但是，却不知道快递送到收件人手里时，必须要「签收」才行。已然送到收件人手里的快递，又怎么才能签收呢…" },
 
     { id: 56, character: "鹿野院平藏", version: "5.7", title: "怪案", hidden: false,
       location: "稻妻-稻妻城", trigger: "", prerequisite: "",
@@ -250,11 +251,11 @@ window.TRAVELERS_TALES = {
 
     { id: 57, character: "鹿野院平藏", version: "5.7", title: "真相", hidden: false,
       location: "稻妻-稻妻城", trigger: "", prerequisite: "",
-      description: "犯下那桩「怪案」的犯人被缉拿归案。而这位犯人做下罪案的原因，则是因为自己无心将一份「表白信」夹在了一本旧书之中，当他意识到问题，并赶去店里想要拿回表白信时，却得知那本陈旧的《应避忌的食人树》已然被他人买走。六神无主之下，他决定按照书中描述的犯罪方法，将自己的那封信偷回来…" },
+      description: "犯下那桩「怪案」的犯人被缉拿归案。而这位犯人做下罪案的原因，则是因为自己无心将一份「表白信」夹在了一本旧书之中，当他意识到问题，并赶去店里想要拿回表白信时，却得知那本陈旧的《应避忌的食人树》已然被他人买走。六神无主之下，他决定按照书中描述的犯罪方法，将自己的那封信偷回来…\n至此，这桩案件已然结案。但侦破这桩案件的侦探，却显得有些无可奈何…" },
 
     { id: 58, character: "鹿野院平藏", version: "5.7", title: "追缉", hidden: false,
       location: "稻妻-稻妻城", trigger: "", prerequisite: "",
-      description: "又一桩案件找上了鹿野院平藏。这次的犯罪团伙似乎颇有经验和手段，鹿野院平藏一时半会居然找不到案件的突破口。" },
+      description: "又一桩案件找上了鹿野院平藏。这次的犯罪团伙似乎颇有经验和手段，鹿野院平藏一时半会居然找不到案件的突破口。\n或许，还需要静待其他机会…" },
 
     { id: 59, character: "鹿野院平藏", version: "5.7", title: "静待…", hidden: true,
       location: "稻妻-白狐之野", trigger: "随机触发1~5日，但不重复获得逸闻印签", prerequisite: "鹿野院平藏·破案日",
@@ -262,7 +263,7 @@ window.TRAVELERS_TALES = {
 
     { id: 60, character: "鹿野院平藏", version: "5.7", title: "破案日", hidden: false,
       location: "稻妻-白狐之野", trigger: "", prerequisite: "早柚·长高的…方法？",
-      description: "在多莉的「慷慨帮助」下，鹿野院平藏终于找到了贩卖违禁药物的元凶，并且将其绳之以法。但是，那位商人…似乎也已经拿到了自己的「报酬」。" },
+      description: "在多莉的「慷慨帮助」下，鹿野院平藏终于找到了贩卖违禁药物的元凶，并且将其绳之以法。\n但是，那位商人…似乎也已经拿到了自己的「报酬」。" },
 
     { id: 61, character: "迪希雅", version: "5.7", title: "机关舞步", hidden: false,
       location: "枫丹-枫丹廷", trigger: "", prerequisite: "",
@@ -282,7 +283,7 @@ window.TRAVELERS_TALES = {
 
     { id: 65, character: "赛诺", version: "5.7", title: "职责", hidden: false,
       location: "须弥-寂静园", trigger: "", prerequisite: "",
-      description: "大风纪官，即将履行他的职责。昨日，今日，明日，每日皆如此。" },
+      description: "大风纪官，即将履行他的职责。\n昨日，今日，明日，每日皆如此。" },
 
     { id: 66, character: "柯莱", version: "5.7", title: "学习会", hidden: false,
       location: "须弥-教令院-智慧宫", trigger: "", prerequisite: "",
@@ -290,7 +291,7 @@ window.TRAVELERS_TALES = {
 
     { id: 67, character: "林尼", version: "5.7", title: "魔术", hidden: false,
       location: "枫丹-枫丹动能工程科学研究院区", trigger: "", prerequisite: "",
-      description: "在枫丹科学院外，遇见了正打算去科学院做魔术交流的林尼。听起来，他对于那种「近景魔术」也很感兴趣。等等，他刚才是不是已经变过一次「近景魔术」了？" },
+      description: "在枫丹科学院外，遇见了正打算去科学院做魔术交流的林尼。听起来，他对于那种「近景魔术」也很感兴趣。\n等等，他刚才是不是已经变过一次「近景魔术」了？" },
 
     { id: 68, character: "那维莱特", version: "5.7", title: "雨中", hidden: false,
       location: "枫丹-伊黎耶林区", trigger: "", prerequisite: "",
@@ -302,7 +303,7 @@ window.TRAVELERS_TALES = {
 
     { id: 70, character: "那维莱特", version: "5.7", title: "拜访", hidden: false,
       location: "枫丹-厄里那斯", trigger: "", prerequisite: "",
-      description: "每一位美露莘都有的礼物，来自那维莱特。…而「鱼鱼咏唱派」，则来自美露莘。" },
+      description: "每一位美露莘都有的礼物，来自那维莱特。\n…而「鱼鱼咏唱派」，则来自美露莘。" },
 
     { id: 71, character: "琳妮特", version: "5.7", title: "修理…？", hidden: false,
       location: "枫丹-枫丹廷-灰河", trigger: "", prerequisite: "",
@@ -310,11 +311,11 @@ window.TRAVELERS_TALES = {
 
     { id: 72, character: "菲米尼", version: "5.7", title: "故事", hidden: false,
       location: "枫丹-塞洛海原（水下）", trigger: "", prerequisite: "",
-      description: "在水下，菲米尼对膨膨兽讲完了自己手上绘本的故事。希望，这个故事里的人和膨膨兽能有一个好结局。" },
+      description: "在水下，菲米尼对膨膨兽讲完了自己手上绘本的故事。\n希望，这个故事里的人和膨膨兽能有一个好结局。" },
 
     { id: 73, character: "夏沃蕾", version: "5.7", title: "再加把劲！", hidden: false,
       location: "枫丹-枫丹廷", trigger: "", prerequisite: "",
-      description: "继续训练！别掉队了！在夏沃蕾的督促下，特巡队队员们继续展开着艰苦的训练…" },
+      description: "继续训练！别掉队了！\n在夏沃蕾的督促下，特巡队队员们继续展开着艰苦的训练…" },
 
     { id: 74, character: "夏洛蒂", version: "5.7", title: "耐心", hidden: false,
       location: "枫丹-枫丹廷", trigger: "", prerequisite: "",
@@ -330,11 +331,11 @@ window.TRAVELERS_TALES = {
 
     { id: 77, character: "基尼奇", version: "5.7", title: "委托", hidden: true,
       location: "纳塔-冒险家协会", trigger: "与纳塔凯瑟琳对话后概率出现", prerequisite: "",
-      description: "在冒险家协会旁遇见了基尼奇，他似乎已经完成了手上的委托。如果有机会的话…下次挑选委托时，或许能请基尼奇过来给点意见？" },
+      description: "在冒险家协会旁遇见了基尼奇，他似乎已经完成了手上的委托。\n如果有机会的话…下次挑选委托时，或许能请基尼奇过来给点意见？" },
 
     { id: 78, character: "希诺宁", version: "5.7", title: "面谈实务", hidden: true,
       location: "纳塔-冒险家协会", trigger: "与纳塔凯瑟琳对话后概率出现", prerequisite: "",
-      description: "希诺宁接到了一封委托信，当她正准备以「必须面谈」的理由将信退回原处时。这次委托的「客户」玛薇卡，却已经在希诺宁的工坊里，等着和她「面谈」了。" },
+      description: "希诺宁接到了一封委托信，当她正准备以「必须面谈」的理由将信退回原处时。\n这次委托的「客户」玛薇卡，却已经在希诺宁的工坊里，等着和她「面谈」了。" },
 
     { id: 79, character: "伊法", version: "5.7", title: "药物", hidden: true,
       location: "纳塔-合成台", trigger: "使用纳塔合成台后概率出现", prerequisite: "",
@@ -342,7 +343,8 @@ window.TRAVELERS_TALES = {
 
     { id: 80, character: "伊安珊", version: "5.7", title: "训练问题", hidden: true,
       location: "纳塔-合成台", trigger: "使用纳塔合成台后概率出现", prerequisite: "",
-      description: "为了治疗因为训练而受伤的部族成员，伊安珊来到这里，想要制作一些药物带回去…自由器械有风险，强上重量需谨慎。" },
+      description: "为了治疗因为训练而受伤的部族成员，伊安珊来到这里，想要制作一些药物带回去…\n自由器械有风险，强上重量需谨慎。" },
+
 
     /* ==================== 月之一 ==================== */
     { id: 81, character: "鹿野院平藏", version: "月之一", title: "他人之罪", hidden: false,
@@ -451,16 +453,18 @@ window.TRAVELERS_TALES = {
 
     { id: 107, character: "烟绯", version: "月之一", title: "学术所致", hidden: false,
       location: "挪德卡莱-伦波岛-那夏镇", trigger: "", prerequisite: "",
-      description: "在挪德卡莱，你遇见了烟排。这位律法咨询师似乎正在为了研究学术而取材。不过，她到底想在这片「无法之地」里取得何种材料？这种材料又能怎样帮助她研究律法问题呢？" },
+      description: "在挪德卡莱，你遇见了烟绯。这位律法咨询师似乎正在为了研究学术而取材。不过，她到底想在这片「无法之地」里取得何种材料？这种材料又能怎样帮助她研究律法问题呢？" },
 
     { id: 108, character: "烟绯", version: "月之一", title: "噢，角…", hidden: false,
       location: "挪德卡莱-希汐岛-霜月之坊", trigger: "", prerequisite: "",
       description: "在希汐岛，你遇见了烟绯。她似乎已经将自己的仙人血脉之事告诉了菈乌玛，而菈乌玛也…似乎很平静地接受了这个事实，并且允许了烟绯去「霜月之子」的书库查阅资料…好吧，看来一切都很顺利。" },
 
+
     /* ==================== 月之二 ==================== */
     { id: 109, character: "夜兰", version: "月之二", title: "所为所求", hidden: false,
       location: "挪德卡莱-伦波岛-那夏镇", trigger: "", prerequisite: "魔神任务【空月之歌第四幕】「回望湮灭的月光」",
       description: "在那夏镇，你遇见了夜兰。她似乎是为了向「秘闻馆」求购情报才远道而来。但听她的口气，似乎对「秘闻馆」的老板奈芙尔很是提防…" },
+
 
     /* ==================== 月之五 ==================== */
     { id: 110, character: "尼可", version: "月之五", title: "灵感来！", hidden: false,
@@ -547,6 +551,7 @@ window.TRAVELERS_TALES = {
       location: "蒙德-蒙德城", trigger: "", prerequisite: "法尔伽·骑士的恋情",
       description: "在法尔伽的敦促下，古德温最终还是做出了自己的选择…" },
 
+
     /* ==================== 月之六 ==================== */
     { id: 131, character: "法尔伽", version: "月之六", title: "劳碌之故", hidden: true,
       location: "蒙德-蒙德城", trigger: "与凯瑟琳对话后概率出现", prerequisite: "塔利雅·告解日",
@@ -555,6 +560,7 @@ window.TRAVELERS_TALES = {
     { id: 132, character: "塔利雅", version: "月之六", title: "告解日", hidden: false,
       location: "蒙德-蒙德城", trigger: "", prerequisite: "魔神任务【空月之歌第八幕】「真实之月」",
       description: "塔利雅的「告解」结束了，但那位聆听他告解的「枢机卿」，却依然若有所思…" },
+
 
     /* ==================== 7.1 ==================== */
     { id: 133, character: "林尼", version: "7.1", title: "表演场所", hidden: true,
@@ -651,6 +657,6 @@ window.TRAVELERS_TALES = {
 
     { id: 156, character: "薇斯纳", version: "7.1", title: "休息日…？", hidden: true,
       location: "至冬-圣遗物副本（逆悬的冰河）", trigger: "进入圣遗物副本（消耗体力）退出副本后概率出现", prerequisite: "",
-      description: "正打算休息的薇斯纳，似乎又要因为某事而奔忙起来了…" }
+      description: "正打算休息的薇斯纳，似乎又要因为某事而奔忙起来了…" },
   ]
 };
