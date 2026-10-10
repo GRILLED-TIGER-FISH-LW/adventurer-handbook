@@ -41,8 +41,8 @@
     </div>
   </div>
 
-  <!-- 行 2：搜索框 -->
-  <div class="header-row row-search">
+  <!-- 行 2：搜索框 + 导出/导入 -->
+  <div class="header-row row-search-actions">
     <div class="search-wrap">
       <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="11" cy="11" r="7"></circle>
@@ -51,60 +51,56 @@
       <input type="text" id="searchInput" class="search-input" placeholder="搜索角色名 / 旅闻名" autocomplete="off" spellcheck="false">
       <button type="button" class="search-clear" id="searchClear" aria-label="清除">×</button>
     </div>
+
+    <button type="button" class="action-btn" id="btnExport" aria-label="导出存档" title="导出存档">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+      <span class="action-btn-text">导出存档</span>
+    </button>
+
+    <button type="button" class="action-btn" id="btnImport" aria-label="导入存档" title="导入存档">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="17 8 12 3 7 8"></polyline>
+        <line x1="12" y1="3" x2="12" y2="15"></line>
+      </svg>
+      <span class="action-btn-text">导入存档</span>
+    </button>
   </div>
 
-  <!-- 行 3：下拉 + 导出导入 -->
-  <div class="header-row row-controls">
-    <div class="dropdowns">
-      <div class="dropdown-wrap" data-key="version">
-        <button type="button" class="dropdown-trigger" id="versionTrigger">
-          <span class="dropdown-label" id="versionLabel">全部版本</span>
-          <svg class="dropdown-arrow" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M1 1.5L6 6.5L11 1.5"/>
-          </svg>
-        </button>
-        <div class="dropdown-panel" id="versionPanel"></div>
-      </div>
-
-      <div class="dropdown-wrap" data-key="status">
-        <button type="button" class="dropdown-trigger" id="statusTrigger">
-          <span class="dropdown-label" id="statusLabel">全部状态</span>
-          <svg class="dropdown-arrow" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M1 1.5L6 6.5L11 1.5"/>
-          </svg>
-        </button>
-        <div class="dropdown-panel" id="statusPanel"></div>
-      </div>
-
-      <div class="dropdown-wrap" data-key="visibility">
-        <button type="button" class="dropdown-trigger" id="visibilityTrigger">
-          <span class="dropdown-label" id="visibilityLabel">全部类型</span>
-          <svg class="dropdown-arrow" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M1 1.5L6 6.5L11 1.5"/>
-          </svg>
-        </button>
-        <div class="dropdown-panel" id="visibilityPanel"></div>
-      </div>
+  <!-- 行 3：三个下拉 -->
+  <div class="header-row row-filters">
+    <div class="dropdown-wrap" data-key="version">
+      <button type="button" class="dropdown-trigger" id="versionTrigger">
+        <span class="dropdown-label" id="versionLabel">全部版本</span>
+        <svg class="dropdown-arrow" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 1.5L6 6.5L11 1.5"/>
+        </svg>
+      </button>
+      <div class="dropdown-panel" id="versionPanel"></div>
     </div>
 
-    <div class="header-actions">
-      <button type="button" class="action-btn" id="btnExport">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-          <polyline points="7 10 12 15 17 10"></polyline>
-          <line x1="12" y1="15" x2="12" y2="3"></line>
+    <div class="dropdown-wrap" data-key="status">
+      <button type="button" class="dropdown-trigger" id="statusTrigger">
+        <span class="dropdown-label" id="statusLabel">全部状态</span>
+        <svg class="dropdown-arrow" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 1.5L6 6.5L11 1.5"/>
         </svg>
-        <span>导出存档</span>
       </button>
+      <div class="dropdown-panel" id="statusPanel"></div>
+    </div>
 
-      <button type="button" class="action-btn" id="btnImport">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-          <polyline points="17 8 12 3 7 8"></polyline>
-          <line x1="12" y1="3" x2="12" y2="15"></line>
+    <div class="dropdown-wrap" data-key="visibility">
+      <button type="button" class="dropdown-trigger" id="visibilityTrigger">
+        <span class="dropdown-label" id="visibilityLabel">全部类型</span>
+        <svg class="dropdown-arrow" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 1.5L6 6.5L11 1.5"/>
         </svg>
-        <span>导入存档</span>
       </button>
+      <div class="dropdown-panel" id="visibilityPanel"></div>
     </div>
   </div>
 
