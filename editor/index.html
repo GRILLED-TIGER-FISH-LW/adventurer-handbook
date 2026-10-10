@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>游逸旅闻编辑器</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/GRILLED-TIGER-FISH-LW/genshin-guide@main/shared/theme.css">
+<link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+<header class="ed-header">
+  <div class="ed-title-wrap">
+    <h1 class="ed-title">游逸旅闻编辑器</h1>
+    <span class="dirty-dot" id="dirtyDot" hidden title="有未保存的修改"></span>
+  </div>
+  <div class="ed-header-actions">
+    <button type="button" class="ed-btn" id="btnImport">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="17 8 12 3 7 8"></polyline>
+        <line x1="12" y1="3" x2="12" y2="15"></line>
+      </svg>
+      <span>导入 data.js</span>
+    </button>
+    <button type="button" class="ed-btn ed-btn-primary" id="btnExport">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+      <span>导出 data.js</span>
+    </button>
+    <button type="button" class="ed-icon-btn" id="btnTheme" aria-label="切换主题">
+      <svg class="theme-icon theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="4.5"></circle>
+        <line x1="12" y1="2" x2="12" y2="4"></line>
+        <line x1="12" y1="20" x2="12" y2="22"></line>
+        <line x1="4.2" y1="4.2" x2="5.6" y2="5.6"></line>
+        <line x1="18.4" y1="18.4" x2="19.8" y2="19.8"></line>
+        <line x1="2" y1="12" x2="4" y2="12"></line>
+        <line x1="20" y1="12" x2="22" y2="12"></line>
+        <line x1="4.2" y1="19.8" x2="5.6" y2="18.4"></line>
+        <line x1="18.4" y1="5.6" x2="19.8" y2="4.2"></line>
+      </svg>
+      <svg class="theme-icon theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<main class="ed-main">
+  <aside class="ed-list-pane" id="edListPane">
+    <div class="ed-filters">
+      <input type="text" id="searchInput" class="ed-search-input" placeholder="搜索角色名 / 旅闻名" autocomplete="off" spellcheck="false">
+      <div class="ed-filter-row">
+        <button type="button" class="ed-filter-btn" id="versionTrigger">
+          <span id="versionLabel">全部版本</span>
+          <svg class="filter-arrow" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1.5L6 6.5L11 1.5"/></svg>
+        </button>
+        <button type="button" class="ed-filter-btn" id="visibilityTrigger">
+          <span id="visibilityLabel">全部</span>
+          <svg class="filter-arrow" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1.5L6 6.5L11 1.5"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="ed-list" id="edList"></div>
+    <div class="ed-list-footer">
+      <button type="button" class="ed-add-btn" id="btnAdd">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        <span>新增条目</span>
+      </button>
+    </div>
+  </aside>
+
+  <section class="ed-form-pane" id="edFormPane"></section>
+</main>
+
+<input type="file" id="fileInput" accept=".js,.txt,text/javascript,application/javascript" hidden>
+
+<script src="https://cdn.jsdelivr.net/gh/GRILLED-TIGER-FISH-LW/genshin-guide@main/shared/gi-icons/icon-dict.js"></script>
+<script src="index.js"></script>
+</body>
+</html>
