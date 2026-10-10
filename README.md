@@ -5,6 +5,7 @@
 支持搜索、版本筛选、完成状态筛选、勾选记录、导出 / 导入存档。
 
 🔗 在线访问：https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/
+
 📦 仓库地址：https://github.com/GRILLED-TIGER-FISH-LW/genshin-travelers-tales
 
 > 若在线访问打不开，请到仓库 Settings → Pages 开启 Pages，Source 选 `main` 分支根目录。
