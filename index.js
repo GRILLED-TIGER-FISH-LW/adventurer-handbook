@@ -4,7 +4,6 @@
 (function () {
   'use strict';
 
-  /* ============ 数据校验 ============ */
   const DATA = window.TRAVELERS_TALES;
   if (!DATA || !Array.isArray(DATA.entries) || DATA.entries.length === 0) {
     document.body.innerHTML = '<p style="padding:40px;text-align:center;color:#999;">数据加载失败：请检查 data.js 是否存在。</p>';
@@ -18,6 +17,40 @@
 
   const STORAGE_KEY = 'genshin_travelers_tales_completed_v1';
   const THEME_KEY   = 'genshin_travelers_tales_theme_v1';
+
+  /* ============ 显示排序：先角色（order），后版本，再 id ============ */
+  const ORDER_MAP = (function () {
+    const m = new Map();
+    if (window.ICON_DICT && window.ICON_DICT.characters) {
+      for (const key in window.ICON_DICT.characters) {
+        const item = window.ICON_DICT.characters[key];
+        if (item && item.name) {
+          m.set(item.name, typeof item.order === 'number' ? item.order : 9999);
+        }
+      }
+    }
+    return m;
+  })();
+
+  const VERSION_INDEX = (function () {
+    const m = new Map();
+    (DATA.versions || []).forEach((v, i) => m.set(v, i));
+    return m;
+  })();
+
+  function sortEntries(list) {
+    return list.slice().sort((a, b) => {
+      const oa = ORDER_MAP.has(a.character) ? ORDER_MAP.get(a.character) : 9999;
+      const ob = ORDER_MAP.has(b.character) ? ORDER_MAP.get(b.character) : 9999;
+      if (oa !== ob) return oa - ob;
+      const va = VERSION_INDEX.has(a.version) ? VERSION_INDEX.get(a.version) : 9999;
+      const vb = VERSION_INDEX.has(b.version) ? VERSION_INDEX.get(b.version) : 9999;
+      if (va !== vb) return va - vb;
+      return (a.id || 0) - (b.id || 0);
+    });
+  }
+
+  const DISPLAY_ENTRIES = sortEntries(ENTRIES);
 
   /* ============ 状态 ============ */
   const state = {
@@ -218,10 +251,10 @@
     if (e.key === 'Escape' && state.openDropdown) closeDropdown();
   });
 
-  /* ============ 过滤 ============ */
+  /* ============ 过滤（基于已排序的 DISPLAY_ENTRIES） ============ */
   function getFiltered() {
     const kw = state.search.trim().toLowerCase();
-    return ENTRIES.filter(e => {
+    return DISPLAY_ENTRIES.filter(e => {
       if (state.version !== 'all' && e.version !== state.version) return false;
       if (state.status === 'done'   && !state.done.has(e.id)) return false;
       if (state.status === 'undone' &&  state.done.has(e.id)) return false;
@@ -279,7 +312,7 @@
     const metaHtml = metaRows.length ? `<div class="tale-meta">${metaRows.join('')}</div>` : '';
 
     const descHtml = (e.description && e.description.trim())
-      ? `<div class="tale-desc">${escapeHtml(cleanText(e.description))}</div>` : '';
+      ? `<div class="tale-desc">${escapeHtml(e.description)}</div>` : '';
 
     return (
       `<div class="tale-card${isDone ? ' done' : ''}" data-id="${e.id}" tabindex="0">` +
