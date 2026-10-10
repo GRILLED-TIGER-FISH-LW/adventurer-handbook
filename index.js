@@ -304,25 +304,27 @@
     const descHtml = (e.description && e.description.trim())
       ? `<div class="tale-desc">${escapeHtml(e.description)}</div>` : '';
 
+    // 结构：
+    //   .tale-avatar (grid-area: avatar)
+    //   .tale-head   (grid-area: head)
+    //   .tale-check  (grid-area: check)
+    //   .tale-meta   (grid-area: meta)   — 可缺省
+    //   .tale-desc   (grid-area: desc)   — 可缺省
     return (
       `<div class="tale-card${isDone ? ' done' : ''}" data-id="${e.id}" tabindex="0">` +
-        `<div class="tale-left">` +
-          `<div class="tale-check" role="checkbox" aria-checked="${isDone}">` +
-            `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">` +
-              `<polyline points="5 13 10 18 19 7"></polyline>` +
-            `</svg>` +
-          `</div>` +
-          `<div class="tale-avatar">${avatarHtml}</div>` +
+        `<div class="tale-avatar">${avatarHtml}</div>` +
+        `<div class="tale-head">` +
+          `<span class="tale-char">${escapeHtml(e.character)}</span>` +
+          `<span class="tale-version">${escapeHtml(e.version)}</span>` +
+          `<span class="tale-title${e.hidden ? ' hidden' : ''}">${escapeHtml(e.title)}</span>` +
         `</div>` +
-        `<div class="tale-body">` +
-          `<div class="tale-head">` +
-            `<span class="tale-char">${escapeHtml(e.character)}</span>` +
-            `<span class="tale-version">${escapeHtml(e.version)}</span>` +
-            `<span class="tale-title${e.hidden ? ' hidden' : ''}">${escapeHtml(e.title)}</span>` +
-          `</div>` +
-          metaHtml +
-          descHtml +
+        `<div class="tale-check" role="checkbox" aria-checked="${isDone}">` +
+          `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">` +
+            `<polyline points="5 13 10 18 19 7"></polyline>` +
+          `</svg>` +
         `</div>` +
+        metaHtml +
+        descHtml +
       `</div>`
     );
   }
