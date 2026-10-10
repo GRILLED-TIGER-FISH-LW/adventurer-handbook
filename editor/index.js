@@ -7,6 +7,20 @@
   const DRAFT_KEY = 'genshin_travelers_tales_editor_draft_v1';
   const THEME_KEY = 'genshin_travelers_tales_theme_v1';
 
+  /* ============ 排序：先角色（order），后版本，再 id ============ */
+  const ORDER_MAP = (function () {
+    const m = new Map();
+    if (window.ICON_DICT && window.ICON_DICT.characters) {
+      for (const key in window.ICON_DICT.characters) {
+        const item = window.ICON_DICT.characters[key];
+        if (item && item.name) {
+          m.set(item.name, typeof item.order === 'number' ? item.order : 9999);
+        }
+      }
+    }
+    return m;
+  })();
+
   const state = {
     data: null,
     selectedId: null,
@@ -177,6 +191,10 @@
     return data;
   }
 
+  /* ============================================================
+   * 导出：data.js 保持「先版本、后角色」的物理顺序
+   * （角色顺序按 icon-dict order 升序）
+   * ============================================================ */
   function serializeData(data) {
     const lines = [];
     lines.push('/* ============================================================');
@@ -188,7 +206,8 @@
     lines.push(' *   · hidden = 「隐藏（地图不显示）触发条件」列非空');
     lines.push(' *   · 头像 URL 由 window.ICON_DICT 运行时匹配，本文件不含图片地址');
     lines.push(' *   · trigger / prerequisite 字段不含「备注：」「前置：」前缀，也不含 <br>');
-    lines.push(' *   · 排序规则：先按版本（versions 顺序），再按角色（icon-dict order 升序），最后按 id 升序');
+    lines.push(' *   · 字典物理顺序：先按版本（versions 顺序），再按角色（icon-dict order 升序），最后按 id 升序');
+    lines.push(' *   · 主站/编辑器的显示顺序：先角色，后版本（动态排序）');
     lines.push(' *   · 标点统一用中文全角');
     lines.push(' * ============================================================ */');
     lines.push('');
@@ -204,18 +223,7 @@
     lines.push('');
     lines.push('  entries: [');
 
-    // === 从 icon-dict 建 角色名 → order 表（运行时读取，改 icon-dict 自动生效） ===
-    const orderMap = new Map();
-    if (window.ICON_DICT && window.ICON_DICT.characters) {
-      for (const key in window.ICON_DICT.characters) {
-        const item = window.ICON_DICT.characters[key];
-        if (item && item.name) {
-          orderMap.set(item.name, typeof item.order === 'number' ? item.order : 9999);
-        }
-      }
-    }
-
-    // === 按版本分组 ===
+    // 按版本分组
     const grouped = new Map();
     data.versions.forEach(v => grouped.set(v, []));
     for (const e of data.entries) {
@@ -223,11 +231,11 @@
       grouped.get(e.version).push(e);
     }
 
-    // === 组内排序：角色 order 升序 → 同角色按 id 升序；找不到 order → 9999 排最后 ===
+    // 组内排序：角色 order → id
     for (const [, list] of grouped) {
       list.sort((a, b) => {
-        const oa = orderMap.has(a.character) ? orderMap.get(a.character) : 9999;
-        const ob = orderMap.has(b.character) ? orderMap.get(b.character) : 9999;
+        const oa = ORDER_MAP.has(a.character) ? ORDER_MAP.get(a.character) : 9999;
+        const ob = ORDER_MAP.has(b.character) ? ORDER_MAP.get(b.character) : 9999;
         if (oa !== ob) return oa - ob;
         return (a.id || 0) - (b.id || 0);
       });
@@ -259,10 +267,11 @@
     return lines.join('\n');
   }
 
+  /* ============ 过滤 + 显示排序 ============ */
   function getFilteredEntries() {
     if (!state.data) return [];
     const kw = state.search.trim().toLowerCase();
-    return state.data.entries.filter(e => {
+    const filtered = state.data.entries.filter(e => {
       if (state.versionFilter !== 'all' && e.version !== state.versionFilter) return false;
       if (state.visibilityFilter === 'normal' && e.hidden) return false;
       if (state.visibilityFilter === 'hidden' && !e.hidden) return false;
@@ -272,6 +281,21 @@
       }
       return true;
     });
+
+    // 显示排序：先角色 order，后版本，再 id
+    const vIdx = new Map();
+    (state.data.versions || []).forEach((v, i) => vIdx.set(v, i));
+    filtered.sort((a, b) => {
+      const oa = ORDER_MAP.has(a.character) ? ORDER_MAP.get(a.character) : 9999;
+      const ob = ORDER_MAP.has(b.character) ? ORDER_MAP.get(b.character) : 9999;
+      if (oa !== ob) return oa - ob;
+      const va = vIdx.has(a.version) ? vIdx.get(a.version) : 9999;
+      const vb = vIdx.has(b.version) ? vIdx.get(b.version) : 9999;
+      if (va !== vb) return va - vb;
+      return (a.id || 0) - (b.id || 0);
+    });
+
+    return filtered;
   }
 
   function renderList() {
