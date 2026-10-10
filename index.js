@@ -13,10 +13,15 @@
   const ENTRIES = DATA.entries;
   const META = DATA.meta || {};
   const TOTAL = META.total || ENTRIES.length;
-  const VALID_IDS = new Set(ENTRIES.map(e => e.id));
 
-  const STORAGE_KEY = 'genshin_travelers_tales_completed_v1';
+  const STORAGE_KEY = 'genshin_travelers_tales_completed_v2';   // 新格式：字符串数组
+  const LEGACY_KEY  = 'genshin_travelers_tales_completed_v1';   // 旧格式：数字数组，检测到即清空
   const THEME_KEY   = 'genshin_travelers_tales_theme_v1';
+
+  /* ============ 旅闻唯一键（角色名·旅闻名） ============ */
+  function entryKey(e) {
+    return (e.character || '') + '·' + (e.title || '');
+  }
 
   /* ============ 显示排序：先角色（order），后版本，再 id ============ */
   const ORDER_MAP = (function () {
@@ -52,12 +57,28 @@
 
   const DISPLAY_ENTRIES = sortEntries(ENTRIES);
 
+  /* ============ localStorage：新格式存字符串数组 ============ */
+  function loadDone() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return [];
+      const arr = JSON.parse(raw);
+      return Array.isArray(arr) ? arr.filter(s => typeof s === 'string') : [];
+    } catch (e) { return []; }
+  }
+  function saveDone() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify([...state.done]));
+    } catch (e) {}
+  }
+
+  /* ============ 状态 ============ */
   const state = {
     search: '',
     version: 'all',
     status: 'all',
     visibility: 'all',
-    done: new Set(loadDone()),
+    done: new Set(loadDone()),   // Set<string>（角色名·旅闻名）
     avatarCache: buildAvatarCache(),
     openDropdown: null
   };
@@ -80,22 +101,7 @@
     return cache;
   }
 
-  function entryKey(e) {
-    return (e.character || '') + '·' + (e.title || '');
-  }
-
-  function loadDone() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return [];
-      const arr = JSON.parse(raw);
-      return Array.isArray(arr) ? arr.filter(n => typeof n === 'number') : [];
-    } catch (e) { return []; }
-  }
-  function saveDone() {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify([...state.done])); } catch (e) {}
-  }
-
+  /* ============ DOM ============ */
   const $ = (id) => document.getElementById(id);
   const els = {
     listHost: $('listHost'),
@@ -120,6 +126,7 @@
   };
   const dropWraps = [...document.querySelectorAll('.dropdown-wrap')];
 
+  /* ============ 工具 ============ */
   function escapeHtml(str) {
     if (str == null) return '';
     return String(str)
@@ -143,6 +150,7 @@
     return cleanText(str).replace(/^(前置|备注)[:：]\s*/, '').trim();
   }
 
+  /* ============ 版本 / 状态 / 可见性 ============ */
   function getVersions() {
     if (Array.isArray(DATA.versions) && DATA.versions.length) return DATA.versions.slice();
     const set = new Set();
@@ -167,6 +175,7 @@
     { value: 'hidden', label: '隐藏' }
   ];
 
+  /* ============ 下拉 ============ */
   const CHECK_SVG = '<svg class="dropdown-item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 13 10 18 19 7"></polyline></svg>';
 
   function renderItems(panelEl, items, current) {
@@ -243,24 +252,29 @@
     if (e.key === 'Escape' && state.openDropdown) closeDropdown();
   });
 
+  /* ============ 过滤 ============ */
   function getFiltered() {
     const kw = state.search.trim().toLowerCase();
     return DISPLAY_ENTRIES.filter(e => {
+      const key = entryKey(e);
       if (state.version !== 'all' && e.version !== state.version) return false;
-      if (state.status === 'done'   && !state.done.has(e.id)) return false;
-      if (state.status === 'undone' &&  state.done.has(e.id)) return false;
+      if (state.status === 'done'   && !state.done.has(key)) return false;
+      if (state.status === 'undone' &&  state.done.has(key)) return false;
       if (state.visibility === 'normal' && e.hidden) return false;
       if (state.visibility === 'hidden' && !e.hidden) return false;
       if (kw) {
-        const hay = (e.character + ' ' + e.title).toLowerCase();
-        if (!hay.includes(kw)) return false;
+        const name = (e.character || '').toLowerCase();
+        const title = (e.title || '').toLowerCase();
+        if (!name.includes(kw) && !title.includes(kw)) return false;
       }
       return true;
     });
   }
 
+  /* ============ 渲染卡片 ============ */
   function renderCard(e) {
-    const isDone = state.done.has(e.id);
+    const key = entryKey(e);
+    const isDone = state.done.has(key);
     const avatarUrl = state.avatarCache.get(e.character);
     const initial = e.character ? e.character.charAt(0) : '?';
 
@@ -304,14 +318,8 @@
     const descHtml = (e.description && e.description.trim())
       ? `<div class="tale-desc">${escapeHtml(e.description)}</div>` : '';
 
-    // 结构：
-    //   .tale-avatar (grid-area: avatar)
-    //   .tale-head   (grid-area: head)
-    //   .tale-check  (grid-area: check)
-    //   .tale-meta   (grid-area: meta)   — 可缺省
-    //   .tale-desc   (grid-area: desc)   — 可缺省
     return (
-      `<div class="tale-card${isDone ? ' done' : ''}" data-id="${e.id}" tabindex="0">` +
+      `<div class="tale-card${isDone ? ' done' : ''}" data-key="${escapeHtml(key)}" tabindex="0">` +
         `<div class="tale-avatar">${avatarHtml}</div>` +
         `<div class="tale-head">` +
           `<span class="tale-char">${escapeHtml(e.character)}</span>` +
@@ -329,6 +337,7 @@
     );
   }
 
+  /* ============ 主渲染 ============ */
   function render() {
     const list = getFiltered();
     if (list.length === 0) {
@@ -346,19 +355,20 @@
     els.counterTotal.textContent = TOTAL;
   }
 
-  function toggle(id) {
-    if (state.done.has(id)) state.done.delete(id);
-    else state.done.add(id);
+  /* ============ 勾选 ============ */
+  function toggle(key) {
+    if (state.done.has(key)) state.done.delete(key);
+    else state.done.add(key);
     saveDone();
     updateCounter();
 
     if (state.status !== 'all') render();
-    else updateCardState(id);
+    else updateCardState(key);
   }
-  function updateCardState(id) {
-    const card = els.listHost.querySelector(`.tale-card[data-id="${id}"]`);
+  function updateCardState(key) {
+    const card = els.listHost.querySelector(`.tale-card[data-key="${CSS.escape(key)}"]`);
     if (!card) return;
-    const isDone = state.done.has(id);
+    const isDone = state.done.has(key);
     card.classList.toggle('done', isDone);
     const check = card.querySelector('.tale-check');
     if (check) check.setAttribute('aria-checked', isDone ? 'true' : 'false');
@@ -367,18 +377,19 @@
   els.listHost.addEventListener('click', (ev) => {
     const card = ev.target.closest('.tale-card');
     if (!card) return;
-    const id = Number(card.dataset.id);
-    if (!Number.isNaN(id)) toggle(id);
+    const key = card.dataset.key;
+    if (key) toggle(key);
   });
   els.listHost.addEventListener('keydown', (ev) => {
     if (ev.key !== ' ' && ev.key !== 'Enter') return;
     const card = ev.target.closest('.tale-card');
     if (!card) return;
     ev.preventDefault();
-    const id = Number(card.dataset.id);
-    if (!Number.isNaN(id)) toggle(id);
+    const key = card.dataset.key;
+    if (key) toggle(key);
   });
 
+  /* ============ 搜索 ============ */
   let searchTimer = null;
   els.searchInput.addEventListener('input', () => {
     const val = els.searchInput.value;
@@ -397,22 +408,19 @@
     els.searchInput.focus();
   });
 
+  /* ============ 导出 ============ */
   els.btnExport.addEventListener('click', () => {
     const d = new Date();
     const ymd = d.getFullYear().toString()
       + String(d.getMonth() + 1).padStart(2, '0')
       + String(d.getDate()).padStart(2, '0');
 
-    const completedNames = ENTRIES
-      .filter(e => state.done.has(e.id))
-      .map(e => entryKey(e));
-
     const payload = {
       schema: 'genshin-travelers-tales',
       version: META.version || '',
       exportedAt: ymd,
       total: TOTAL,
-      completed: completedNames
+      completed: [...state.done].sort()
     };
 
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
@@ -426,6 +434,7 @@
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   });
 
+  /* ============ 导入 ============ */
   els.btnImport.addEventListener('click', () => els.importFile.click());
 
   els.importFile.addEventListener('change', (ev) => {
@@ -439,15 +448,18 @@
 
         const next = new Set();
 
-        const nameToId = new Map();
-        ENTRIES.forEach(e => nameToId.set(entryKey(e), e.id));
+        // 新旧格式兼容：
+        //   - 字符串 → 直接当「角色名·旅闻名」
+        //   - 数字 → 当旧格式 id，需要反查当前数据的 key
+        const idToKey = new Map();
+        ENTRIES.forEach(e => idToKey.set(e.id, entryKey(e)));
 
         for (const item of list) {
-          if (typeof item === 'number') {
-            if (VALID_IDS.has(item)) next.add(item);
-          } else if (typeof item === 'string') {
-            const id = nameToId.get(item);
-            if (id != null) next.add(id);
+          if (typeof item === 'string') {
+            next.add(item);
+          } else if (typeof item === 'number') {
+            const key = idToKey.get(item);
+            if (key) next.add(key);
           }
         }
 
@@ -462,6 +474,7 @@
     reader.readAsText(file);
   });
 
+  /* ============ 主题 ============ */
   function applyTheme(theme) {
     document.documentElement.classList.add('theme-switching');
     if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
@@ -487,11 +500,40 @@
     if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
   })();
 
+  /* ============ Toast ============ */
+  function toast(msg) {
+    const el = document.createElement('div');
+    el.style.cssText =
+      'position:fixed;left:50%;bottom:30px;transform:translateX(-50%);' +
+      'background:rgba(31,29,26,.9);color:#fff;padding:8px 16px;' +
+      'border-radius:8px;font-size:13px;z-index:9999;pointer-events:none;' +
+      'max-width:80vw;text-align:center;';
+    el.textContent = msg;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2600);
+  }
+
+  /* ============ 启动 ============ */
+  // 检测旧的 v1 格式（数字 id 数组），存在则清掉并提示
+  let hadLegacy = false;
+  try {
+    if (localStorage.getItem(LEGACY_KEY)) {
+      localStorage.removeItem(LEGACY_KEY);
+      hadLegacy = true;
+    }
+  } catch (e) {}
+
+  // 清理 v2 里已不存在的 key（角色名·旅闻名）
   let dirty = false;
-  [...state.done].forEach(id => {
-    if (!VALID_IDS.has(id)) { state.done.delete(id); dirty = true; }
+  const validKeys = new Set(ENTRIES.map(entryKey));
+  [...state.done].forEach(k => {
+    if (!validKeys.has(k)) { state.done.delete(k); dirty = true; }
   });
   if (dirty) saveDone();
 
   render();
+
+  if (hadLegacy) {
+    setTimeout(() => toast('本地勾选记录已重置，如有存档可重新导入'), 500);
+  }
 })();
