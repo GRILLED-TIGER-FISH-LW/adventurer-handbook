@@ -194,7 +194,6 @@
     lines.push(' * 说明：');
     lines.push(' *   · 只记录「主角色」（角色列为空的条目，向上继承最近的非空角色）');
     lines.push(' *   · hidden = 「隐藏（地图不显示）触发条件」列非空');
-    lines.push(' *   · extra 字段保存「额外出场角色」，前端不展示，保留供以后使用');
     lines.push(' *   · 头像 URL 由 window.ICON_DICT 运行时匹配，本文件不含图片地址');
     lines.push(' *   · trigger / prerequisite 字段不含「备注：」「前置：」前缀，也不含 <br>');
     lines.push(' *   · id 已按「先版本、后同角色」重排，仅作字典内部排序用，页面不展示');
@@ -236,8 +235,7 @@
           ', hidden: ' + (e.hidden ? 'true' : 'false') + ',');
         lines.push('      location: "' + escJs(e.location) + '"' +
           ', trigger: "' + escJs(e.trigger) + '"' +
-          ', prerequisite: "' + escJs(e.prerequisite) + '"' +
-          ', extra: "' + escJs(e.extra) + '",');
+          ', prerequisite: "' + escJs(e.prerequisite) + '",');
         lines.push('      description: "' + escJs(e.description) + '" },');
         lines.push('');
       }
@@ -404,11 +402,6 @@
         '<div class="ed-group">' +
           '<label class="ed-label">前置旅闻 <span class="ed-label-hint">只填旅闻名，如「达达利亚·购票」</span></label>' +
           '<input type="text" class="ed-input" data-field="prerequisite" value="' + esc(e.prerequisite || '') + '">' +
-        '</div>' +
-
-        '<div class="ed-group">' +
-          '<label class="ed-label">额外出场角色 <span class="ed-label-hint">主界面不显示，仅存档用</span></label>' +
-          '<input type="text" class="ed-input" data-field="extra" value="' + esc(e.extra || '') + '">' +
         '</div>' +
 
         '<div class="ed-group">' +
@@ -657,7 +650,6 @@
       location: '',
       trigger: '',
       prerequisite: '',
-      extra: '',
       description: ''
     };
     state.data.entries.push(e);
@@ -767,7 +759,6 @@
   els.btnReload.addEventListener('click', async () => {
     if (state.dirty && !confirmBox('当前有未保存的修改，重载会丢弃这些改动。继续吗？')) return;
 
-    // file:// 打开时 fetch 会失败，直接提示
     if (location.protocol === 'file:') {
       alert('本地 file:// 打开时无法重载线上数据。请使用「导入本地」。');
       return;
@@ -870,7 +861,6 @@
 
   /* ============ 启动 ============ */
   (function init() {
-    // 1. 优先草稿
     const draft = loadDraft();
     if (draft && Array.isArray(draft.entries)) {
       state.data = draft;
@@ -882,7 +872,6 @@
       return;
     }
 
-    // 2. 用线上加载的 data.js
     if (window.TRAVELERS_TALES && Array.isArray(window.TRAVELERS_TALES.entries)) {
       state.data = JSON.parse(JSON.stringify(window.TRAVELERS_TALES));
       if (!state.data.versions) state.data.versions = [];
@@ -892,7 +881,6 @@
       return;
     }
 
-    // 3. 都没有 → 空
     renderList();
     renderForm();
   })();
