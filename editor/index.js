@@ -4,11 +4,9 @@
 (function () {
   'use strict';
 
-  /* ============ 常量 ============ */
   const DRAFT_KEY = 'genshin_travelers_tales_editor_draft_v1';
   const THEME_KEY = 'genshin_travelers_tales_theme_v1';
 
-  /* ============ 状态 ============ */
   const state = {
     data: null,
     selectedId: null,
@@ -21,7 +19,6 @@
     charList: buildCharList()
   };
 
-  /* ============ 头像反查 ============ */
   function buildAvatarCache() {
     const cache = new Map();
     if (!window.ICON_DICT || !window.ICON_DICT.characters) return cache;
@@ -55,7 +52,6 @@
     return state.avatarCache.get(name) || '';
   }
 
-  /* ============ DOM ============ */
   const $ = (id) => document.getElementById(id);
   const els = {
     dirtyDot: $('dirtyDot'),
@@ -75,7 +71,6 @@
     btnAdd: $('btnAdd')
   };
 
-  /* ============ 工具 ============ */
   function esc(str) {
     if (str == null) return '';
     return String(str)
@@ -115,7 +110,6 @@
     return window.confirm(msg);
   }
 
-  /* ============ 主题 ============ */
   function applyTheme(theme) {
     document.documentElement.classList.add('theme-switching');
     if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
@@ -139,7 +133,6 @@
     if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
   })();
 
-  /* ============ 草稿 ============ */
   function saveDraft() {
     try {
       localStorage.setItem(DRAFT_KEY, JSON.stringify(state.data));
@@ -165,7 +158,6 @@
     els.dirtyDot.hidden = true;
   }
 
-  /* ============ 数据解析/序列化 ============ */
   function parseDataJs(text) {
     const cleaned = text
       .replace(/\/\*[\s\S]*?\*\//g, '')
@@ -196,7 +188,7 @@
     lines.push(' *   · hidden = 「隐藏（地图不显示）触发条件」列非空');
     lines.push(' *   · 头像 URL 由 window.ICON_DICT 运行时匹配，本文件不含图片地址');
     lines.push(' *   · trigger / prerequisite 字段不含「备注：」「前置：」前缀，也不含 <br>');
-    lines.push(' *   · id 已按「先版本、后同角色」重排，仅作字典内部排序用，页面不展示');
+    lines.push(' *   · 排序规则：先按版本（versions 顺序），再按角色（icon-dict order 升序），最后按 id 升序');
     lines.push(' *   · 标点统一用中文全角');
     lines.push(' * ============================================================ */');
     lines.push('');
@@ -212,14 +204,33 @@
     lines.push('');
     lines.push('  entries: [');
 
+    // === 从 icon-dict 建 角色名 → order 表（运行时读取，改 icon-dict 自动生效） ===
+    const orderMap = new Map();
+    if (window.ICON_DICT && window.ICON_DICT.characters) {
+      for (const key in window.ICON_DICT.characters) {
+        const item = window.ICON_DICT.characters[key];
+        if (item && item.name) {
+          orderMap.set(item.name, typeof item.order === 'number' ? item.order : 9999);
+        }
+      }
+    }
+
+    // === 按版本分组 ===
     const grouped = new Map();
     data.versions.forEach(v => grouped.set(v, []));
     for (const e of data.entries) {
       if (!grouped.has(e.version)) grouped.set(e.version, []);
       grouped.get(e.version).push(e);
     }
+
+    // === 组内排序：角色 order 升序 → 同角色按 id 升序；找不到 order → 9999 排最后 ===
     for (const [, list] of grouped) {
-      list.sort((a, b) => (a.id || 0) - (b.id || 0));
+      list.sort((a, b) => {
+        const oa = orderMap.has(a.character) ? orderMap.get(a.character) : 9999;
+        const ob = orderMap.has(b.character) ? orderMap.get(b.character) : 9999;
+        if (oa !== ob) return oa - ob;
+        return (a.id || 0) - (b.id || 0);
+      });
     }
 
     let first = true;
@@ -248,7 +259,6 @@
     return lines.join('\n');
   }
 
-  /* ============ 过滤 ============ */
   function getFilteredEntries() {
     if (!state.data) return [];
     const kw = state.search.trim().toLowerCase();
@@ -264,7 +274,6 @@
     });
   }
 
-  /* ============ 渲染列表 ============ */
   function renderList() {
     if (!state.data) {
       els.edList.innerHTML = '<div class="ed-list-empty">数据未加载<br>点右上角「重载」或「导入本地」</div>';
@@ -293,7 +302,6 @@
     }).join('');
   }
 
-  /* ============ 渲染表单 ============ */
   function renderForm() {
     if (!state.data) {
       els.formPane.innerHTML =
@@ -418,7 +426,6 @@
     bindFormEvents(e);
   }
 
-  /* ============ 表单事件绑定 ============ */
   function bindFormEvents(entry) {
     els.formPane.querySelectorAll('[data-field]').forEach(input => {
       const field = input.dataset.field;
@@ -514,7 +521,6 @@
     }
   }
 
-  /* ============ Combobox ============ */
   function setupCombobox(box, opts) {
     if (!box) return;
     const input = box.querySelector('input[data-field]');
@@ -616,7 +622,6 @@
     }
   }
 
-  /* ============ 列表点击 ============ */
   els.edList.addEventListener('click', (e) => {
     const item = e.target.closest('.ed-list-item');
     if (!item) return;
@@ -633,7 +638,6 @@
     }
   });
 
-  /* ============ 新增条目 ============ */
   els.btnAdd.addEventListener('click', () => {
     if (!state.data) {
       alert('数据未加载，请先点「重载」或「导入本地」');
@@ -670,7 +674,6 @@
     }, 50);
   });
 
-  /* ============ 搜索 ============ */
   let searchTimer = null;
   els.searchInput.addEventListener('input', () => {
     clearTimeout(searchTimer);
@@ -680,7 +683,6 @@
     }, 150);
   });
 
-  /* ============ 筛选下拉 ============ */
   function openFilterMenu(trigger, items, currentValue, onSelect) {
     const exist = document.querySelector('.ed-filter-menu');
     if (exist) exist.remove();
@@ -755,7 +757,6 @@
     });
   });
 
-  /* ============ 重载线上 ============ */
   els.btnReload.addEventListener('click', async () => {
     if (state.dirty && !confirmBox('当前有未保存的修改，重载会丢弃这些改动。继续吗？')) return;
 
@@ -782,7 +783,6 @@
     }
   });
 
-  /* ============ 导入本地 ============ */
   els.btnImport.addEventListener('click', () => els.fileInput.click());
 
   els.fileInput.addEventListener('change', (ev) => {
@@ -808,7 +808,6 @@
     reader.readAsText(file);
   });
 
-  /* ============ 导出 ============ */
   els.btnExport.addEventListener('click', () => {
     if (!state.data) {
       alert('数据未加载');
@@ -851,7 +850,6 @@
     toast('已导出 data.js');
   });
 
-  /* ============ 离开提示 ============ */
   window.addEventListener('beforeunload', (e) => {
     if (state.dirty) {
       e.preventDefault();
@@ -859,7 +857,6 @@
     }
   });
 
-  /* ============ 启动 ============ */
   (function init() {
     const draft = loadDraft();
     if (draft && Array.isArray(draft.entries)) {
