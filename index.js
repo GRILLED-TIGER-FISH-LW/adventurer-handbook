@@ -306,12 +306,14 @@
 
     return (
       `<div class="tale-card${isDone ? ' done' : ''}" data-id="${e.id}" tabindex="0">` +
-        `<div class="tale-check" role="checkbox" aria-checked="${isDone}">` +
-          `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">` +
-            `<polyline points="5 13 10 18 19 7"></polyline>` +
-          `</svg>` +
+        `<div class="tale-left">` +
+          `<div class="tale-check" role="checkbox" aria-checked="${isDone}">` +
+            `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">` +
+              `<polyline points="5 13 10 18 19 7"></polyline>` +
+            `</svg>` +
+          `</div>` +
+          `<div class="tale-avatar">${avatarHtml}</div>` +
         `</div>` +
-        `<div class="tale-avatar">${avatarHtml}</div>` +
         `<div class="tale-body">` +
           `<div class="tale-head">` +
             `<span class="tale-char">${escapeHtml(e.character)}</span>` +
