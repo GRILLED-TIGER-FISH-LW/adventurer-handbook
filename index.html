@@ -22,7 +22,7 @@
         <span class="counter-sep">/</span>
         <span class="counter-total" id="counterTotal">156</span>
       </div>
-      <button type="button" class="theme-btn" id="btnTheme" aria-label="切换主题" title="切换主题">
+      <button type="button" class="theme-btn" id="btnTheme" aria-label="切换主题">
         <svg class="theme-icon theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="4.5"></circle>
           <line x1="12" y1="2"  x2="12" y2="4"></line>
@@ -41,38 +41,49 @@
     </div>
   </div>
 
-  <!-- 第二行：搜索 + 两个下拉触发器 -->
+  <!-- 第二行：搜索 + 三个下拉 -->
   <div class="header-row row-controls">
     <div class="search-wrap">
       <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="11" cy="11" r="7"></circle>
         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
       </svg>
-      <input type="text" id="searchInput" class="search-input" placeholder="搜索角色名 / 游逸旅闻名" autocomplete="off" spellcheck="false">
+      <input type="text" id="searchInput" class="search-input" placeholder="搜索角色名 / 旅闻名" autocomplete="off" spellcheck="false">
       <button type="button" class="search-clear" id="searchClear" aria-label="清除">×</button>
     </div>
 
-    <button type="button" class="dropdown-trigger" id="versionTrigger" data-target="version">
-      <span class="dropdown-label" id="versionLabel">全部版本</span>
-      <svg class="dropdown-arrow" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M1 1.5L6 6.5L11 1.5"/>
-      </svg>
-    </button>
+    <div class="dropdown-wrap" data-key="version">
+      <button type="button" class="dropdown-trigger" id="versionTrigger">
+        <span class="dropdown-label" id="versionLabel">全部版本</span>
+        <svg class="dropdown-arrow" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 1.5L6 6.5L11 1.5"/>
+        </svg>
+      </button>
+      <div class="dropdown-panel" id="versionPanel"></div>
+    </div>
 
-    <button type="button" class="dropdown-trigger" id="statusTrigger" data-target="status">
-      <span class="dropdown-label" id="statusLabel">全部</span>
-      <svg class="dropdown-arrow" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M1 1.5L6 6.5L11 1.5"/>
-      </svg>
-    </button>
+    <div class="dropdown-wrap" data-key="status">
+      <button type="button" class="dropdown-trigger" id="statusTrigger">
+        <span class="dropdown-label" id="statusLabel">全部</span>
+        <svg class="dropdown-arrow" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 1.5L6 6.5L11 1.5"/>
+        </svg>
+      </button>
+      <div class="dropdown-panel" id="statusPanel"></div>
+    </div>
+
+    <div class="dropdown-wrap" data-key="visibility">
+      <button type="button" class="dropdown-trigger" id="visibilityTrigger">
+        <span class="dropdown-label" id="visibilityLabel">全部</span>
+        <svg class="dropdown-arrow" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 1.5L6 6.5L11 1.5"/>
+        </svg>
+      </button>
+      <div class="dropdown-panel" id="visibilityPanel"></div>
+    </div>
   </div>
 
-  <!-- 抽屉：展开时占文档流 -->
-  <div class="dropdown-drawer" id="dropdownDrawer">
-    <div class="dropdown-list" id="dropdownList"></div>
-  </div>
-
-  <!-- 第三行：导出 / 导入，靠右 -->
+  <!-- 第三行：导出 / 导入 -->
   <div class="header-row row-actions">
     <button type="button" class="action-btn" id="btnExport">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
