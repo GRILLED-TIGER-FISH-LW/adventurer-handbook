@@ -71,8 +71,8 @@ body {
   margin-right: 0.4em;
 }
 .counter-done  { font-weight: 700; font-size: 12px; }
-.counter-sep   { color: var(--text-tertiary); margin: 0; }
-.counter-total { color: var(--text-secondary); font-weight: 500; font-size: 12px; }
+.counter-sep   { color: var(--text-tertiary); margin: 0; font-weight: 700; }
+.counter-total { color: var(--text-secondary); font-weight: 700; font-size: 12px; }
 
 .theme-btn {
   width: var(--ctl-h);
