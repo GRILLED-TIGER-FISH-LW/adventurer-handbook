@@ -1,4 +1,3 @@
-
 /* ============================================================
  * 原神 · 游逸旅闻 数据字典
  * 生成时间：2026-10-11
@@ -8,6 +7,7 @@
  *   · hidden = 「隐藏（地图不显示）触发条件」列非空
  *   · extra 字段保存「额外出场角色」，前端不展示，保留供以后使用
  *   · 头像 URL 由 window.ICON_DICT 运行时匹配，本文件不含图片地址
+ *   · trigger / prerequisite 字段不含「备注：」「前置：」前缀，也不含 <br>
  * ============================================================ */
 
 window.TRAVELERS_TALES = {
@@ -40,7 +40,7 @@ window.TRAVELERS_TALES = {
       description: "在西风骑士团旁，你遇见了正指导诺艾尔练习剑术的琴。有了她的指导，或许诺艾尔的剑技能够再进一步。" },
 
     { id: 5, character: "罗莎莉亚", version: "5.4", title: "工作", hidden: true,
-      location: "蒙德-蒙德城", trigger: "备注：需游戏内夜间出现", prerequisite: "", extra: "",
+      location: "蒙德-蒙德城", trigger: "需游戏内夜间出现", prerequisite: "", extra: "",
       description: "在西风大教堂旁，你遇见了正在完成教会「慈善帮助工作」的罗莎莉亚。就结果来看…她其实还完成得不错？" },
 
     { id: 6, character: "罗莎莉亚", version: "5.4", title: "本职工作", hidden: false,
@@ -202,7 +202,7 @@ window.TRAVELERS_TALES = {
       description: "璃月港北方的海边，你遇见了眺望大海的万叶。你们说起旅途的快乐与疲惫…生活难有真正的圆满，唯有心静可解万般愁绪。" },
 
     { id: 45, character: "枫原万叶", version: "5.4", title: "剑与酒", hidden: true,
-      location: "璃月-天衡山", trigger: "备注：需游戏内夜间出现", prerequisite: "", extra: "",
+      location: "璃月-天衡山", trigger: "需游戏内夜间出现", prerequisite: "", extra: "",
       description: "天衡山以北，你遇见了夜晚练剑的万叶。天亮时，你们就要各自踏上旅程，但无论路途多么遥远，仍在同一片星空之下。" },
 
     /* ---------- 5.7 稻妻 ---------- */
@@ -223,7 +223,7 @@ window.TRAVELERS_TALES = {
       description: "在诊疗过程里，莱依拉又进入了「梦游状态」。在和「莱依拉」聊过后，梦见月瑞希更加了解了莱依拉如今的状态。或许，她能想出一个更加完备的治疗方案…？" },
 
     { id: 50, character: "早柚", version: "5.7", title: "长高的…方法？", hidden: false,
-      location: "稻妻 稻妻城", trigger: "", prerequisite: "前置：游逸旅闻（鹿野院平藏·静待…）", extra: "多莉",
+      location: "稻妻 稻妻城", trigger: "", prerequisite: "游逸旅闻（鹿野院平藏·静待…）", extra: "多莉",
       description: "在你的「监督」下，多莉终于答应免费将药水提供给早柚先行体验。不过，这位商人永远不会做亏本的生意，或许…这一次的「优惠」也早就在她的预料之内了…？" },
 
     { id: 51, character: "托马", version: "5.7", title: "培训考试", hidden: false,
@@ -259,11 +259,11 @@ window.TRAVELERS_TALES = {
       description: "又一桩案件找上了鹿野院平藏。这次的犯罪团伙似乎颇有经验和手段，鹿野院平藏一时半会居然找不到案件的突破口。" },
 
     { id: 59, character: "鹿野院平藏", version: "5.7", title: "静待…", hidden: true,
-      location: "稻妻-白狐之野", trigger: "备注：随机持续1~5日，但不重复获得逸闻印签，<br>后随机触发（鹿野院平藏·破案日）", prerequisite: "", extra: "",
+      location: "稻妻-白狐之野", trigger: "随机持续1~5日，但不重复获得逸闻印签，后随机触发（鹿野院平藏·破案日）", prerequisite: "", extra: "",
       description: "鹿野院平藏似乎暂时没有找到案件的突破口。但是，线索一定存在于某个地方…" },
 
     { id: 60, character: "鹿野院平藏", version: "5.7", title: "破案日", hidden: false,
-      location: "稻妻-白狐之野", trigger: "", prerequisite: "前置：游逸旅闻（早柚·长高的…方法？）", extra: "",
+      location: "稻妻-白狐之野", trigger: "", prerequisite: "游逸旅闻（早柚·长高的…方法？）", extra: "",
       description: "在多莉的「慷慨帮助」下，鹿野院平藏终于找到了贩卖违禁药物的元凶，并且将其绳之以法。但是，那位商人…似乎也已经拿到了自己的「报酬」。" },
 
     { id: 61, character: "鹿野院平藏", version: "月之一", title: "他人之罪", hidden: false,
@@ -300,7 +300,7 @@ window.TRAVELERS_TALES = {
       description: "在枫丹科学院外，遇见了正打算去科学院做魔术交流的林尼。听起来，他对于那种「近景魔术」也很感兴趣。等等，他刚才是不是已经变过一次「近景魔术」了？" },
 
     { id: 69, character: "林尼", version: "7.1", title: "表演场所", hidden: true,
-      location: "至冬-科洛列夫茨基剧院（内）", trigger: "剧院内路过概率概率出现", prerequisite: "", extra: "琳妮特",
+      location: "至冬-科洛列夫茨基剧院（内）", trigger: "剧院内路过概率出现", prerequisite: "", extra: "琳妮特",
       description: "在剧院里，你遇见了正在讨论表演问题的林尼和琳妮特，他们好像正在讨论和魔术表演有关的问题…？" },
 
     { id: 70, character: "那维莱特", version: "5.7", title: "雨中", hidden: false,
@@ -430,7 +430,7 @@ window.TRAVELERS_TALES = {
       description: "在叮铃哐啷蛋卷工坊里，你遇见了前来拜访，心里也在努力思考如何向伊涅芙道歉的雅珂达。虽然此事过程有所波折，但所幸，雅珂达和伊涅芙的友谊似乎未曾受到影响…" },
 
     { id: 101, character: "雅珂达", version: "7.1", title: "盗贼末路", hidden: false,
-      location: "至冬-至冬堡", trigger: "", prerequisite: "前置：拥有角色【雅珂达】，并完成世界任务【曾抛弃过去的人】", extra: "",
+      location: "至冬-至冬堡", trigger: "", prerequisite: "拥有角色【雅珂达】，并完成世界任务【曾抛弃过去的人】", extra: "",
       description: "在至冬堡，你遇见了雅珂达。她似乎追寻着有关「海钩帮」的新线索，一路到达了至冬堡…" },
 
     { id: 102, character: "爱诺", version: "月之一", title: "救治", hidden: false,
@@ -474,7 +474,7 @@ window.TRAVELERS_TALES = {
       description: "在希汐岛，你遇见了烟绯。她似乎已经将自己的仙人血脉之事告诉了菈乌玛，而菈乌玛也…似乎很平静地接受了这个事实，并且允许了烟绯去「霜月之子」的书库查阅资料…好吧，看来一切都很顺利。" },
 
     { id: 112, character: "夜兰", version: "月之二", title: "所为所求", hidden: false,
-      location: "挪德卡莱-伦波岛-那夏镇", trigger: "", prerequisite: "前置：魔神任务【空月之歌第四幕】「回望湮灭的月光」", extra: "",
+      location: "挪德卡莱-伦波岛-那夏镇", trigger: "", prerequisite: "魔神任务【空月之歌第四幕】「回望湮灭的月光」", extra: "",
       description: "在那夏镇，你遇见了夜兰。她似乎是为了向「秘闻馆」求购情报才远道而来。但听她的口气，似乎对「秘闻馆」的老板奈芙尔很是提防…" },
 
     /* ---------- 月之五 ---------- */
@@ -559,19 +559,19 @@ window.TRAVELERS_TALES = {
       description: "在「旗舰」，你遇见了正在喝酒的菲林斯与法尔伽，很快，你也被拉入了这场豪饮之中。而为了庆祝如此偶然而又圆满的相逢，法尔伽又喝了不少酒…" },
 
     { id: 133, character: "法尔伽", version: "月之五", title: "骑士的恋情", hidden: false,
-      location: "蒙德-蒙德城", trigger: "", prerequisite: "前置：传说任务（法尔伽）【天狼之章第一幕】「致予远征之人」", extra: "",
+      location: "蒙德-蒙德城", trigger: "", prerequisite: "传说任务（法尔伽）【天狼之章第一幕】「致予远征之人」", extra: "",
       description: "在蒙德城，你遇见了正在和古德温讨论着什么的法尔伽，听他们的说法，古德温似乎终于要面对那个…他始终在逃避的问题…" },
 
     { id: 134, character: "法尔伽", version: "月之五", title: "骑士的选择", hidden: false,
-      location: "蒙德-蒙德城", trigger: "", prerequisite: "前置：游逸旅闻（法尔伽·骑士的恋情）", extra: "",
+      location: "蒙德-蒙德城", trigger: "", prerequisite: "游逸旅闻（法尔伽·骑士的恋情）", extra: "",
       description: "在法尔伽的敦促下，古德温最终还是做出了自己的选择…" },
 
     { id: 135, character: "法尔伽", version: "月之六", title: "劳碌之故", hidden: true,
-      location: "蒙德-蒙德城", trigger: "与凯瑟琳对话后概率出现", prerequisite: "前置：游逸旅闻（塔利雅·告解日）", extra: "",
+      location: "蒙德-蒙德城", trigger: "与凯瑟琳对话后概率出现", prerequisite: "游逸旅闻（塔利雅·告解日）", extra: "",
       description: "你在蒙德城冒险家协会前遇见了法尔伽与西蒙·佩奇，他们似乎正在谈论着什么…" },
 
     { id: 136, character: "塔利雅", version: "月之六", title: "告解日", hidden: false,
-      location: "蒙德-蒙德城", trigger: "", prerequisite: "前置：魔神任务【空月之歌第八幕】「真实之月」", extra: "芭芭拉",
+      location: "蒙德-蒙德城", trigger: "", prerequisite: "魔神任务【空月之歌第八幕】「真实之月」", extra: "芭芭拉",
       description: "塔利雅的「告解」结束了，但那位聆听他告解的「枢机卿」，却依然若有所思…" },
 
     /* ---------- 7.1 至冬 ---------- */
@@ -584,7 +584,7 @@ window.TRAVELERS_TALES = {
       description: "在至冬堡，你遇见了正在购物的沃雅妮莎，她正在以收获日落果的气势购买着各种东西…" },
 
     { id: 139, character: "沃雅妮莎", version: "7.1", title: "聆听我声", hidden: false,
-      location: "至冬-科洛列夫茨基剧院（外）", trigger: "", prerequisite: "前置：游逸旅闻（沃雅妮莎·票务问题）", extra: "",
+      location: "至冬-科洛列夫茨基剧院（外）", trigger: "", prerequisite: "游逸旅闻（沃雅妮莎·票务问题）", extra: "",
       description: "跟随着沃雅妮莎，你前往了她收藏信件的小屋。在这里，沃雅妮莎收藏着无数过去的时光..." },
 
     { id: 140, character: "沃雅妮莎", version: "7.1", title: "列车装饰", hidden: true,
@@ -596,7 +596,7 @@ window.TRAVELERS_TALES = {
       description: "桑多涅似乎正在寻找一台失控的机关，以她的实力，应该不会太困难吧…" },
 
     { id: 142, character: "桑多涅", version: "7.1", title: "委托", hidden: true,
-      location: "至冬-冒险家协会", trigger: "与凯瑟琳对话后概率出现", prerequisite: "备注：不要使用桑多涅与凯瑟琳对话", extra: "【潘塔罗涅】",
+      location: "至冬-冒险家协会", trigger: "与凯瑟琳对话后概率出现", prerequisite: "不要使用桑多涅与凯瑟琳对话", extra: "【潘塔罗涅】",
       description: "在至冬堡的冒险家协会面前，你遇见了正在讨论着什么的桑多涅和潘塔罗涅…" },
 
     { id: 143, character: "奥黛塔", version: "7.1", title: "练习日", hidden: true,
@@ -624,27 +624,27 @@ window.TRAVELERS_TALES = {
       description: "在剧院门口，你遇见了很不幸没有为自己的弟弟妹妹买到票的达达利亚…" },
 
     { id: 149, character: "达达利亚", version: "7.1", title: "有所收获", hidden: true,
-      location: "至冬-科洛列夫茨基剧院（门口）", trigger: "路过概率出现", prerequisite: "前置：游逸旅闻（达达利亚·购票）", extra: "阿蕾奇诺",
+      location: "至冬-科洛列夫茨基剧院（门口）", trigger: "路过概率出现", prerequisite: "游逸旅闻（达达利亚·购票）", extra: "阿蕾奇诺",
       description: "在剧院门口，你遇见了正在聊天的阿蕾奇诺和达达利亚，看来，达达利亚还是为自己的弟弟妹妹拿到了票。" },
 
     { id: 150, character: "达达利亚", version: "7.1", title: "归家", hidden: true,
-      location: "至冬-海屑镇", trigger: "海屑镇车站概率出现", prerequisite: "前置：游逸旅闻（达达利亚·有所收获）", extra: "",
+      location: "至冬-海屑镇", trigger: "海屑镇车站概率出现", prerequisite: "游逸旅闻（达达利亚·有所收获）", extra: "",
       description: "在海屑镇，达达利亚正在清点给家里人带的礼物。" },
 
     { id: 151, character: "达达利亚", version: "7.1", title: "约定", hidden: true,
-      location: "至冬-海屑镇", trigger: "海屑镇达达利亚家门口概率出现", prerequisite: "前置：游逸旅闻（达达利亚·归家）", extra: "【冬妮娅】",
+      location: "至冬-海屑镇", trigger: "海屑镇达达利亚家门口概率出现", prerequisite: "游逸旅闻（达达利亚·归家）", extra: "【冬妮娅】",
       description: "在海屑镇，达达利亚正在和冬妮娅讨论着下次什么时候能回家陪陪家人..." },
 
     { id: 152, character: "达达利亚", version: "7.1", title: "冬钓", hidden: true,
-      location: "至冬-海屑镇", trigger: "海屑镇上方传送锚点-往后转视角-上楼梯直走到头概率出现", prerequisite: "前置：游逸旅闻（达达利亚·归家）", extra: "",
+      location: "至冬-海屑镇", trigger: "海屑镇上方传送锚点-往后转视角-上楼梯直走到头概率出现", prerequisite: "游逸旅闻（达达利亚·归家）", extra: "",
       description: "在海屑镇，达达利亚正准备出去冰钓..." },
 
     { id: 153, character: "薇斯纳", version: "7.1", title: "票务的另一个问题", hidden: false,
-      location: "至冬-至冬堡", trigger: "", prerequisite: "前置：游逸旅闻（沃雅妮莎·票务问题）", extra: "沃雅妮莎",
+      location: "至冬-至冬堡", trigger: "", prerequisite: "游逸旅闻（沃雅妮莎·票务问题）", extra: "沃雅妮莎",
       description: "在至冬堡，你遇见了正在琢磨票贩子广告的薇斯纳。但是，她为什么会琢磨这些问题...？" },
 
     { id: 154, character: "薇斯纳", version: "7.1", title: "皆大欢喜", hidden: false,
-      location: "至冬-至冬堡", trigger: "", prerequisite: "前置：游逸旅闻（薇斯纳·票务的另一个问题）", extra: "沃雅妮莎",
+      location: "至冬-至冬堡", trigger: "", prerequisite: "游逸旅闻（薇斯纳·票务的另一个问题）", extra: "沃雅妮莎",
       description: "在至冬堡，你遇见了正在聊天的沃雅妮莎和薇斯纳，她们似乎...正在讨论和门票有关的问题...？" },
 
     { id: 155, character: "薇斯纳", version: "7.1", title: "追缉", hidden: true,
