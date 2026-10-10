@@ -10,14 +10,13 @@
 
   /* ============ 状态 ============ */
   const state = {
-    data: null,              // { meta, versions, entries }
-    selectedId: null,        // 当前选中条目 id
-    isNew: false,            // 当前编辑的是否为新增条目
+    data: null,
+    selectedId: null,
+    isNew: false,
     search: '',
     versionFilter: 'all',
     visibilityFilter: 'all',
     dirty: false,
-    openFilter: null,        // null | 'version' | 'visibility'
     avatarCache: buildAvatarCache(),
     charList: buildCharList()
   };
@@ -40,7 +39,6 @@
     return cache;
   }
 
-  // 角色名列表（按 order 排序）
   function buildCharList() {
     if (!window.ICON_DICT || !window.ICON_DICT.characters) return [];
     const arr = [];
@@ -61,6 +59,7 @@
   const $ = (id) => document.getElementById(id);
   const els = {
     dirtyDot: $('dirtyDot'),
+    btnReload: $('btnReload'),
     btnImport: $('btnImport'),
     btnExport: $('btnExport'),
     btnTheme: $('btnTheme'),
@@ -87,7 +86,6 @@
       .replace(/'/g, '&#39;');
   }
 
-  // 序列化时把真实换行 → \n
   function escJs(str) {
     if (str == null) return '';
     return String(str)
@@ -154,6 +152,9 @@
       return JSON.parse(raw);
     } catch (e) { return null; }
   }
+  function clearDraft() {
+    try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
+  }
   function markDirty() {
     state.dirty = true;
     els.dirtyDot.hidden = false;
@@ -212,16 +213,10 @@
     lines.push('');
     lines.push('  entries: [');
 
-    // 按 versions 顺序分组，组内按 id 升序
     const grouped = new Map();
     data.versions.forEach(v => grouped.set(v, []));
-    // 处理不在 versions 里的版本
-    const unknownVersions = new Set();
     for (const e of data.entries) {
-      if (!grouped.has(e.version)) {
-        grouped.set(e.version, []);
-        unknownVersions.add(e.version);
-      }
+      if (!grouped.has(e.version)) grouped.set(e.version, []);
       grouped.get(e.version).push(e);
     }
     for (const [, list] of grouped) {
@@ -274,7 +269,7 @@
   /* ============ 渲染列表 ============ */
   function renderList() {
     if (!state.data) {
-      els.edList.innerHTML = '<div class="ed-list-empty">尚未导入数据<br>点击右上角「导入 data.js」<br>或点下方「新增条目」</div>';
+      els.edList.innerHTML = '<div class="ed-list-empty">数据未加载<br>点右上角「重载」或「导入本地」</div>';
       return;
     }
     const list = getFilteredEntries();
@@ -309,7 +304,7 @@
             '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>' +
             '<polyline points="14 2 14 8 20 8"></polyline>' +
           '</svg>' +
-          '<div>请先导入 data.js</div>' +
+          '<div>数据未加载</div>' +
         '</div>';
       return;
     }
@@ -427,13 +422,11 @@
 
       '</div>';
 
-    // 绑定表单
     bindFormEvents(e);
   }
 
   /* ============ 表单事件绑定 ============ */
   function bindFormEvents(entry) {
-    // 普通字段
     els.formPane.querySelectorAll('[data-field]').forEach(input => {
       const field = input.dataset.field;
       const handler = () => {
@@ -442,7 +435,6 @@
         else if (field === 'id') value = parseInt(input.value, 10) || 0;
         else value = input.value;
 
-        // id 特殊处理：改为数字
         if (field === 'id') {
           entry.id = value;
           state.selectedId = value;
@@ -451,16 +443,13 @@
         }
 
         markDirty();
-        // 更新列表
         if (field === 'title' || field === 'character' || field === 'version' || field === 'hidden' || field === 'id') {
           renderList();
         }
-        // 更新 heading
         if (field === 'character' || field === 'title') {
           const nameEl = els.formPane.querySelector('.ed-form-heading-name');
           if (nameEl) nameEl.textContent = (entry.character || '(未命名角色)') + ' · ' + (entry.title || '(无标题)');
         }
-        // 头像预览
         if (field === 'character') {
           const url = avatarUrl(entry.character);
           const initial = entry.character ? entry.character.charAt(0) : '?';
@@ -470,7 +459,6 @@
           els.formPane.querySelectorAll('.ed-combobox-avatar, .ed-form-heading-avatar').forEach(el => {
             el.innerHTML = avatarHtml;
           });
-          // has-avatar 类
           els.formPane.querySelectorAll('.ed-combobox').forEach(box => {
             box.classList.toggle('has-avatar', !!url);
           });
@@ -480,7 +468,6 @@
       input.addEventListener('change', handler);
     });
 
-    // 版本 combobox
     setupCombobox(
       els.formPane.querySelector('.ed-combobox[data-combobox="version"]'),
       {
@@ -494,12 +481,10 @@
           }
           markDirty();
           renderList();
-          // 不重绘表单，避免丢失输入焦点
         }
       }
     );
 
-    // 角色 combobox
     setupCombobox(
       els.formPane.querySelector('.ed-combobox[data-combobox="character"]'),
       {
@@ -513,7 +498,6 @@
       }
     );
 
-    // 删除按钮
     const btnDelete = $('btnDelete');
     if (btnDelete) {
       btnDelete.addEventListener('click', () => {
@@ -528,7 +512,6 @@
       });
     }
 
-    // 移动端返回
     const btnBack = $('btnMobileBack');
     if (btnBack) {
       btnBack.addEventListener('click', () => {
@@ -538,7 +521,7 @@
     }
   }
 
-  /* ============ Combobox 通用组件 ============ */
+  /* ============ Combobox ============ */
   function setupCombobox(box, opts) {
     if (!box) return;
     const input = box.querySelector('input[data-field]');
@@ -651,7 +634,6 @@
     renderList();
     renderForm();
 
-    // 移动端：显示表单，隐藏列表
     if (window.innerWidth <= 900) {
       els.listPane.classList.add('mobile-hidden');
       els.formPane.classList.add('mobile-visible');
@@ -661,15 +643,9 @@
   /* ============ 新增条目 ============ */
   els.btnAdd.addEventListener('click', () => {
     if (!state.data) {
-      // 没有数据时创建空结构
-      state.data = {
-        meta: { version: '', total: 0, updatedAt: todayStr(), source: '原神 · 游逸旅闻汇总' },
-        versions: [],
-        entries: []
-      };
-      clearDirty();
+      alert('数据未加载，请先点「重载」或「导入本地」');
+      return;
     }
-    // 生成新 id
     const maxId = state.data.entries.reduce((m, x) => Math.max(m, x.id || 0), 0);
     const newId = maxId + 1;
     const e = {
@@ -696,7 +672,6 @@
       els.listPane.classList.add('mobile-hidden');
       els.formPane.classList.add('mobile-visible');
     }
-    // 焦点角色输入框
     setTimeout(() => {
       const ch = els.formPane.querySelector('input[data-field="character"]');
       if (ch) ch.focus();
@@ -713,19 +688,8 @@
     }, 150);
   });
 
-  /* ============ 筛选（简化：点击循环切换） ============ */
-  // 版本筛选：使用原生 prompt 太土，简化处理：
-  // 点击后弹出一个小选择器（用浏览器原生 select 代替，稍等改）
-  // 更简单：直接用 prompt？不行。
-  // 就用自定义弹窗吧，但为了节省篇幅，改用浏览器原生 select 挂在下拉按钮旁边
-
-  // 简化实现：点击版本触发器，循环切换 全部版本 → 各版本 → 全部版本
-  // 但这不友好。
-
-  // 更好的方案：写一个简易抽屉下拉
-
+  /* ============ 筛选下拉 ============ */
   function openFilterMenu(trigger, items, currentValue, onSelect) {
-    // 移除已存在
     const exist = document.querySelector('.ed-filter-menu');
     if (exist) exist.remove();
 
@@ -799,7 +763,35 @@
     });
   });
 
-  /* ============ 导入 ============ */
+  /* ============ 重载线上 ============ */
+  els.btnReload.addEventListener('click', async () => {
+    if (state.dirty && !confirmBox('当前有未保存的修改，重载会丢弃这些改动。继续吗？')) return;
+
+    // file:// 打开时 fetch 会失败，直接提示
+    if (location.protocol === 'file:') {
+      alert('本地 file:// 打开时无法重载线上数据。请使用「导入本地」。');
+      return;
+    }
+
+    try {
+      const res = await fetch('../data.js?t=' + Date.now(), { cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const text = await res.text();
+      const data = parseDataJs(text);
+      state.data = data;
+      state.selectedId = null;
+      state.isNew = false;
+      clearDirty();
+      clearDraft();
+      renderList();
+      renderForm();
+      toast('已重载线上数据（' + data.entries.length + ' 条）');
+    } catch (err) {
+      alert('重载失败：' + err.message);
+    }
+  });
+
+  /* ============ 导入本地 ============ */
   els.btnImport.addEventListener('click', () => els.fileInput.click());
 
   els.fileInput.addEventListener('change', (ev) => {
@@ -816,7 +808,7 @@
         saveDraft();
         renderList();
         renderForm();
-        toast('已导入 ' + (data.entries.length) + ' 条');
+        toast('已导入 ' + data.entries.length + ' 条');
       } catch (err) {
         alert('导入失败：' + err.message);
       }
@@ -828,10 +820,9 @@
   /* ============ 导出 ============ */
   els.btnExport.addEventListener('click', () => {
     if (!state.data) {
-      alert('请先导入 data.js 或新增条目');
+      alert('数据未加载');
       return;
     }
-    // 校验
     const warnings = [];
     const idSet = new Set();
     for (const e of state.data.entries) {
@@ -852,7 +843,6 @@
       if (!confirmBox(msg)) return;
     }
 
-    // 同步 total
     state.data.meta.total = state.data.entries.length;
 
     const text = serializeData(state.data);
@@ -870,7 +860,7 @@
     toast('已导出 data.js');
   });
 
-  /* ============ 页面离开提示 ============ */
+  /* ============ 离开提示 ============ */
   window.addEventListener('beforeunload', (e) => {
     if (state.dirty) {
       e.preventDefault();
@@ -880,6 +870,7 @@
 
   /* ============ 启动 ============ */
   (function init() {
+    // 1. 优先草稿
     const draft = loadDraft();
     if (draft && Array.isArray(draft.entries)) {
       state.data = draft;
@@ -888,10 +879,22 @@
       renderList();
       renderForm();
       toast('已恢复上次编辑的草稿');
-    } else {
+      return;
+    }
+
+    // 2. 用线上加载的 data.js
+    if (window.TRAVELERS_TALES && Array.isArray(window.TRAVELERS_TALES.entries)) {
+      state.data = JSON.parse(JSON.stringify(window.TRAVELERS_TALES));
+      if (!state.data.versions) state.data.versions = [];
+      if (!state.data.meta) state.data.meta = {};
       renderList();
       renderForm();
+      return;
     }
+
+    // 3. 都没有 → 空
+    renderList();
+    renderForm();
   })();
 
 })();
