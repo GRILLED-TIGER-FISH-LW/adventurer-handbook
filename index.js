@@ -49,6 +49,11 @@
     return cache;
   }
 
+  /* ============ 旅闻唯一键 ============ */
+  function entryKey(e) {
+    return (e.character || '') + '·' + (e.title || '');
+  }
+
   /* ============ localStorage ============ */
   function loadDone() {
     try {
@@ -97,7 +102,6 @@
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;');
   }
-  // 去掉 <br>，多个空白合一
   function cleanText(str) {
     if (str == null) return '';
     return String(str)
@@ -105,16 +109,14 @@
       .replace(/\s+/g, ' ')
       .trim();
   }
-  // 兜底：去掉触发条件的 "备注：" 前缀
   function cleanTrigger(str) {
     return cleanText(str).replace(/^备注[:：]\s*/, '').trim();
   }
-  // 兜底：去掉前置的 "前置："/"备注：" 前缀
   function cleanPrereq(str) {
     return cleanText(str).replace(/^(前置|备注)[:：]\s*/, '').trim();
   }
 
-  /* ============ 数据 ============ */
+  /* ============ 版本 / 状态 / 可见性 ============ */
   function getVersions() {
     if (Array.isArray(DATA.versions) && DATA.versions.length) return DATA.versions.slice();
     const set = new Set();
@@ -378,12 +380,16 @@
       + String(d.getMonth() + 1).padStart(2, '0')
       + String(d.getDate()).padStart(2, '0');
 
+    const completedNames = ENTRIES
+      .filter(e => state.done.has(e.id))
+      .map(e => entryKey(e));
+
     const payload = {
       schema: 'genshin-travelers-tales',
       version: META.version || '',
       exportedAt: ymd,
       total: TOTAL,
-      completed: [...state.done].sort((a, b) => a - b)
+      completed: completedNames
     };
 
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
@@ -399,6 +405,7 @@
 
   /* ============ 导入 ============ */
   els.btnImport.addEventListener('click', () => els.importFile.click());
+
   els.importFile.addEventListener('change', (ev) => {
     const file = ev.target.files && ev.target.files[0];
     if (!file) return;
@@ -407,10 +414,22 @@
       try {
         const json = JSON.parse(reader.result);
         const list = Array.isArray(json) ? json : (json.completed || []);
-        const next = list
-          .map(n => Number(n))
-          .filter(n => !Number.isNaN(n) && VALID_IDS.has(n));
-        state.done = new Set(next);
+
+        const next = new Set();
+
+        const nameToId = new Map();
+        ENTRIES.forEach(e => nameToId.set(entryKey(e), e.id));
+
+        for (const item of list) {
+          if (typeof item === 'number') {
+            if (VALID_IDS.has(item)) next.add(item);
+          } else if (typeof item === 'string') {
+            const id = nameToId.get(item);
+            if (id != null) next.add(id);
+          }
+        }
+
+        state.done = next;
         saveDone();
         render();
       } catch (err) {
