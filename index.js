@@ -52,7 +52,6 @@
 
   const DISPLAY_ENTRIES = sortEntries(ENTRIES);
 
-  /* ============ 状态 ============ */
   const state = {
     search: '',
     version: 'all',
@@ -63,7 +62,6 @@
     openDropdown: null
   };
 
-  /* ============ 头像反查 ============ */
   function buildAvatarCache() {
     const cache = new Map();
     if (!window.ICON_DICT || !window.ICON_DICT.characters) return cache;
@@ -82,12 +80,10 @@
     return cache;
   }
 
-  /* ============ 旅闻唯一键 ============ */
   function entryKey(e) {
     return (e.character || '') + '·' + (e.title || '');
   }
 
-  /* ============ localStorage ============ */
   function loadDone() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -100,7 +96,6 @@
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify([...state.done])); } catch (e) {}
   }
 
-  /* ============ DOM ============ */
   const $ = (id) => document.getElementById(id);
   const els = {
     listHost: $('listHost'),
@@ -125,7 +120,6 @@
   };
   const dropWraps = [...document.querySelectorAll('.dropdown-wrap')];
 
-  /* ============ 工具 ============ */
   function escapeHtml(str) {
     if (str == null) return '';
     return String(str)
@@ -149,7 +143,6 @@
     return cleanText(str).replace(/^(前置|备注)[:：]\s*/, '').trim();
   }
 
-  /* ============ 版本 / 状态 / 可见性 ============ */
   function getVersions() {
     if (Array.isArray(DATA.versions) && DATA.versions.length) return DATA.versions.slice();
     const set = new Set();
@@ -164,17 +157,16 @@
     return items;
   })();
   const STATUS_ITEMS = [
-    { value: 'all',    label: '全部' },
+    { value: 'all',    label: '全部状态' },
     { value: 'done',   label: '已完成' },
     { value: 'undone', label: '未完成' }
   ];
   const VISIBILITY_ITEMS = [
-    { value: 'all',    label: '全部' },
+    { value: 'all',    label: '全部类型' },
     { value: 'normal', label: '正常' },
     { value: 'hidden', label: '隐藏' }
   ];
 
-  /* ============ 下拉 ============ */
   const CHECK_SVG = '<svg class="dropdown-item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 13 10 18 19 7"></polyline></svg>';
 
   function renderItems(panelEl, items, current) {
@@ -230,11 +222,11 @@
       } else if (key === 'status') {
         state.status = value;
         const opt = STATUS_ITEMS.find(o => o.value === value);
-        els.statusLabel.textContent = opt ? opt.label : '全部';
+        els.statusLabel.textContent = opt ? opt.label : '全部状态';
       } else if (key === 'visibility') {
         state.visibility = value;
         const opt = VISIBILITY_ITEMS.find(o => o.value === value);
-        els.visibilityLabel.textContent = opt ? opt.label : '全部';
+        els.visibilityLabel.textContent = opt ? opt.label : '全部类型';
       }
 
       closeDropdown();
@@ -251,7 +243,6 @@
     if (e.key === 'Escape' && state.openDropdown) closeDropdown();
   });
 
-  /* ============ 过滤（基于已排序的 DISPLAY_ENTRIES） ============ */
   function getFiltered() {
     const kw = state.search.trim().toLowerCase();
     return DISPLAY_ENTRIES.filter(e => {
@@ -268,7 +259,6 @@
     });
   }
 
-  /* ============ 渲染卡片 ============ */
   function renderCard(e) {
     const isDone = state.done.has(e.id);
     const avatarUrl = state.avatarCache.get(e.character);
@@ -335,7 +325,6 @@
     );
   }
 
-  /* ============ 主渲染 ============ */
   function render() {
     const list = getFiltered();
     if (list.length === 0) {
@@ -353,7 +342,6 @@
     els.counterTotal.textContent = TOTAL;
   }
 
-  /* ============ 勾选 ============ */
   function toggle(id) {
     if (state.done.has(id)) state.done.delete(id);
     else state.done.add(id);
@@ -387,7 +375,6 @@
     if (!Number.isNaN(id)) toggle(id);
   });
 
-  /* ============ 搜索 ============ */
   let searchTimer = null;
   els.searchInput.addEventListener('input', () => {
     const val = els.searchInput.value;
@@ -406,7 +393,6 @@
     els.searchInput.focus();
   });
 
-  /* ============ 导出 ============ */
   els.btnExport.addEventListener('click', () => {
     const d = new Date();
     const ymd = d.getFullYear().toString()
@@ -436,7 +422,6 @@
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   });
 
-  /* ============ 导入 ============ */
   els.btnImport.addEventListener('click', () => els.importFile.click());
 
   els.importFile.addEventListener('change', (ev) => {
@@ -473,7 +458,6 @@
     reader.readAsText(file);
   });
 
-  /* ============ 主题 ============ */
   function applyTheme(theme) {
     document.documentElement.classList.add('theme-switching');
     if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
@@ -499,7 +483,6 @@
     if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
   })();
 
-  /* ============ 启动 ============ */
   let dirty = false;
   [...state.done].forEach(id => {
     if (!VALID_IDS.has(id)) { state.done.delete(id); dirty = true; }
