@@ -1,5 +1,5 @@
 /* ============================================================
- * 原神 · 游逸旅闻 - 主页面逻辑
+ * 游逸旅闻汇总 - 主页面逻辑
  * ============================================================ */
 (function () {
   'use strict';
@@ -17,7 +17,7 @@
   const VALID_IDS = new Set(ENTRIES.map(e => e.id));
 
   const STORAGE_KEY = 'genshin_travelers_tales_completed_v1';
-  const THEME_KEY = 'genshin_travelers_tales_theme_v1';
+  const THEME_KEY   = 'genshin_travelers_tales_theme_v1';
 
   /* ============ 状态 ============ */
   const state = {
@@ -25,14 +25,15 @@
     version: 'all',
     status: 'all',
     done: new Set(loadDone()),
-    avatarCache: buildAvatarCache()
+    avatarCache: buildAvatarCache(),
+    openDropdown: null   // null | 'version' | 'status'
   };
 
   /* ============ 头像反查表 ============ */
   function buildAvatarCache() {
     const cache = new Map();
     if (!window.ICON_DICT || !window.ICON_DICT.characters) return cache;
-    const cfg = window.ICON_DICT.config && window.ICON_DICT.config.characters;
+    const cfg  = window.ICON_DICT.config && window.ICON_DICT.config.characters;
     if (!cfg) return cache;
     const chars = window.ICON_DICT.characters;
 
@@ -40,13 +41,9 @@
       const item = chars[key];
       if (!item || !item.name) continue;
       let url;
-      if (item.url) {
-        url = item.url;
-      } else if (key.endsWith('.webp')) {
-        url = cfg.prefix + key;
-      } else {
-        url = cfg.prefix + key + cfg.ext;
-      }
+      if (item.url)                    url = item.url;
+      else if (key.endsWith('.webp'))  url = cfg.prefix + key;
+      else                             url = cfg.prefix + key + cfg.ext;
       cache.set(item.name, url);
     }
     return cache;
@@ -59,14 +56,10 @@
       if (!raw) return [];
       const arr = JSON.parse(raw);
       return Array.isArray(arr) ? arr.filter(n => typeof n === 'number') : [];
-    } catch (e) {
-      return [];
-    }
+    } catch (e) { return []; }
   }
   function saveDone() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify([...state.done]));
-    } catch (e) { /* 忽略 */ }
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify([...state.done])); } catch (e) {}
   }
 
   /* ============ DOM ============ */
@@ -76,14 +69,18 @@
     emptyState: $('emptyState'),
     searchInput: $('searchInput'),
     searchClear: $('searchClear'),
-    versionFilter: $('versionFilter'),
-    statusFilter: $('statusFilter'),
     counterDone: $('counterDone'),
     counterTotal: $('counterTotal'),
     btnExport: $('btnExport'),
     btnImport: $('btnImport'),
     btnTheme: $('btnTheme'),
-    importFile: $('importFile')
+    importFile: $('importFile'),
+    versionTrigger: $('versionTrigger'),
+    versionLabel: $('versionLabel'),
+    statusTrigger: $('statusTrigger'),
+    statusLabel: $('statusLabel'),
+    dropdownDrawer: $('dropdownDrawer'),
+    dropdownList: $('dropdownList')
   };
 
   /* ============ 工具 ============ */
@@ -96,36 +93,120 @@
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;');
   }
-  // 允许 <br> 标签（触发条件里用得到）
   function escapeAllowBr(str) {
     if (str == null) return '';
     return escapeHtml(str).replace(/&lt;br\s*\/?&gt;/gi, '<br>');
   }
 
-  /* ============ 初始化版本下拉 ============ */
-  function initVersionFilter() {
-    let versions = [];
+  /* ============ 版本 / 状态数据 ============ */
+  function getVersions() {
     if (Array.isArray(DATA.versions) && DATA.versions.length) {
-      versions = DATA.versions.slice();
-    } else {
-      const set = new Set();
-      ENTRIES.forEach(e => set.add(e.version));
-      versions = [...set];
+      return DATA.versions.slice();
     }
-    const opts = ['<option value="all">全部版本</option>'];
-    versions.forEach(v => {
-      opts.push(`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`);
-    });
-    els.versionFilter.innerHTML = opts.join('');
+    const set = new Set();
+    ENTRIES.forEach(e => set.add(e.version));
+    return [...set];
   }
+  const VERSIONS = getVersions();
+  const STATUS_OPTIONS = [
+    { value: 'all',    label: '全部' },
+    { value: 'done',   label: '已完成' },
+    { value: 'undone', label: '未完成' }
+  ];
+
+  /* ============ 下拉 ============ */
+  const CHECK_SVG = '<svg class="dropdown-item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 13 10 18 19 7"></polyline></svg>';
+
+  const VERSION_ITEMS = (function () {
+    const items = [{ value: 'all', label: '全部版本' }];
+    VERSIONS.forEach(v => items.push({ value: v, label: v }));
+    return items;
+  })();
+
+  function renderDropdown(type) {
+    let items, current;
+    if (type === 'version') {
+      items = VERSION_ITEMS;
+      current = state.version;
+    } else {
+      items = STATUS_OPTIONS;
+      current = state.status;
+    }
+    els.dropdownList.innerHTML = items.map(it => {
+      const active = it.value === current ? ' active' : '';
+      return `<button type="button" class="dropdown-item${active}" data-value="${escapeHtml(it.value)}">` +
+             `<span>${escapeHtml(it.label)}</span>${CHECK_SVG}` +
+             `</button>`;
+    }).join('');
+  }
+
+  function openDropdown(type) {
+    state.openDropdown = type;
+    renderDropdown(type);
+    els.versionTrigger.classList.toggle('open', type === 'version');
+    els.statusTrigger.classList.toggle('open', type === 'status');
+    els.dropdownDrawer.classList.add('open');
+  }
+
+  function closeDropdown() {
+    state.openDropdown = null;
+    els.versionTrigger.classList.remove('open');
+    els.statusTrigger.classList.remove('open');
+    els.dropdownDrawer.classList.remove('open');
+  }
+
+  function toggleDropdown(type) {
+    if (state.openDropdown === type) closeDropdown();
+    else openDropdown(type);
+  }
+
+  els.versionTrigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleDropdown('version');
+  });
+  els.statusTrigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleDropdown('status');
+  });
+
+  els.dropdownList.addEventListener('click', (e) => {
+    const item = e.target.closest('.dropdown-item');
+    if (!item) return;
+    e.stopPropagation();
+    const value = item.dataset.value;
+    const type = state.openDropdown;
+
+    if (type === 'version') {
+      state.version = value;
+      els.versionLabel.textContent = value === 'all' ? '全部版本' : value;
+    } else if (type === 'status') {
+      state.status = value;
+      const opt = STATUS_OPTIONS.find(o => o.value === value);
+      els.statusLabel.textContent = opt ? opt.label : '全部';
+    }
+    closeDropdown();
+    render();
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!state.openDropdown) return;
+    if (els.dropdownDrawer.contains(e.target)) return;
+    if (els.versionTrigger.contains(e.target)) return;
+    if (els.statusTrigger.contains(e.target)) return;
+    closeDropdown();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && state.openDropdown) closeDropdown();
+  });
 
   /* ============ 过滤 ============ */
   function getFiltered() {
     const kw = state.search.trim().toLowerCase();
     return ENTRIES.filter(e => {
       if (state.version !== 'all' && e.version !== state.version) return false;
-      if (state.status === 'done' && !state.done.has(e.id)) return false;
-      if (state.status === 'undone' && state.done.has(e.id)) return false;
+      if (state.status === 'done'   && !state.done.has(e.id)) return false;
+      if (state.status === 'undone' &&  state.done.has(e.id)) return false;
       if (kw) {
         const hay = (e.character + ' ' + e.title).toLowerCase();
         if (!hay.includes(kw)) return false;
@@ -144,7 +225,6 @@
       ? `<img src="${escapeHtml(avatarUrl)}" alt="" loading="lazy" onerror="this.remove()">${escapeHtml(initial)}`
       : escapeHtml(initial);
 
-    // 触发条件 / 前置
     const metaRows = [];
     if (e.trigger && e.trigger.trim()) {
       metaRows.push(
@@ -162,14 +242,10 @@
         `</div>`
       );
     }
-    const metaHtml = metaRows.length
-      ? `<div class="tale-meta">${metaRows.join('')}</div>`
-      : '';
+    const metaHtml = metaRows.length ? `<div class="tale-meta">${metaRows.join('')}</div>` : '';
 
-    // 描述
     const descHtml = (e.description && e.description.trim())
-      ? `<div class="tale-desc">${escapeHtml(e.description)}</div>`
-      : '';
+      ? `<div class="tale-desc">${escapeHtml(e.description)}</div>` : '';
 
     return (
       `<div class="tale-card${isDone ? ' done' : ''}" data-id="${e.id}" tabindex="0">` +
@@ -210,21 +286,19 @@
     els.counterTotal.textContent = TOTAL;
   }
 
-  /* ============ 勾选切换 ============ */
+  /* ============ 勾选 ============ */
   function toggle(id) {
     if (state.done.has(id)) state.done.delete(id);
     else state.done.add(id);
     saveDone();
     updateCounter();
 
-    // 若当前有状态筛选，整表重绘；否则只更新单卡
     if (state.status !== 'all') {
       render();
     } else {
       updateCardState(id);
     }
   }
-
   function updateCardState(id) {
     const card = els.listHost.querySelector(`.tale-card[data-id="${id}"]`);
     if (!card) return;
@@ -234,16 +308,12 @@
     if (check) check.setAttribute('aria-checked', isDone ? 'true' : 'false');
   }
 
-  /* ============ 事件绑定 ============ */
-  // 列表点击（事件委托）
   els.listHost.addEventListener('click', (ev) => {
     const card = ev.target.closest('.tale-card');
     if (!card) return;
     const id = Number(card.dataset.id);
-    if (Number.isNaN(id)) return;
-    toggle(id);
+    if (!Number.isNaN(id)) toggle(id);
   });
-  // 键盘（空格/回车）
   els.listHost.addEventListener('keydown', (ev) => {
     if (ev.key !== ' ' && ev.key !== 'Enter') return;
     const card = ev.target.closest('.tale-card');
@@ -253,7 +323,7 @@
     if (!Number.isNaN(id)) toggle(id);
   });
 
-  // 搜索
+  /* ============ 搜索 ============ */
   let searchTimer = null;
   els.searchInput.addEventListener('input', () => {
     const val = els.searchInput.value;
@@ -272,17 +342,7 @@
     els.searchInput.focus();
   });
 
-  // 版本 / 状态
-  els.versionFilter.addEventListener('change', () => {
-    state.version = els.versionFilter.value;
-    render();
-  });
-  els.statusFilter.addEventListener('change', () => {
-    state.status = els.statusFilter.value;
-    render();
-  });
-
-  /* ============ 导出存档 ============ */
+  /* ============ 导出 ============ */
   els.btnExport.addEventListener('click', () => {
     const d = new Date();
     const ymd = d.getFullYear().toString()
@@ -308,13 +368,11 @@
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   });
 
-  /* ============ 导入存档 ============ */
+  /* ============ 导入 ============ */
   els.btnImport.addEventListener('click', () => els.importFile.click());
-
   els.importFile.addEventListener('change', (ev) => {
     const file = ev.target.files && ev.target.files[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = () => {
       try {
@@ -342,9 +400,7 @@
     } else {
       document.documentElement.removeAttribute('data-theme');
     }
-    setTimeout(() => {
-      document.documentElement.classList.remove('theme-switching');
-    }, 100);
+    setTimeout(() => document.documentElement.classList.remove('theme-switching'), 100);
   }
   function currentTheme() {
     return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
@@ -362,19 +418,15 @@
       saved = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
         ? 'dark' : 'light';
     }
-    if (saved === 'dark') {
-      document.documentElement.setAttribute('data-theme', 'dark');
-    }
+    if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
   })();
 
   /* ============ 启动 ============ */
-  // 清理无效 id
   let dirty = false;
   [...state.done].forEach(id => {
     if (!VALID_IDS.has(id)) { state.done.delete(id); dirty = true; }
   });
   if (dirty) saveDone();
 
-  initVersionFilter();
   render();
 })();
