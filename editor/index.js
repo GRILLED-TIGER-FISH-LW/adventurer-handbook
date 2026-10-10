@@ -71,6 +71,7 @@
     dirtyDot: $('dirtyDot'),
     btnReload: $('btnReload'),
     btnImport: $('btnImport'),
+    btnRenumber: $('btnRenumber'),
     btnExport: $('btnExport'),
     btnTheme: $('btnTheme'),
     fileInput: $('fileInput'),
@@ -193,7 +194,6 @@
 
   /* ============================================================
    * 导出：data.js 保持「先版本、后角色」的物理顺序
-   * （角色顺序按 icon-dict order 升序）
    * ============================================================ */
   function serializeData(data) {
     const lines = [];
@@ -223,7 +223,6 @@
     lines.push('');
     lines.push('  entries: [');
 
-    // 按版本分组
     const grouped = new Map();
     data.versions.forEach(v => grouped.set(v, []));
     for (const e of data.entries) {
@@ -231,7 +230,6 @@
       grouped.get(e.version).push(e);
     }
 
-    // 组内排序：角色 order → id
     for (const [, list] of grouped) {
       list.sort((a, b) => {
         const oa = ORDER_MAP.has(a.character) ? ORDER_MAP.get(a.character) : 9999;
@@ -282,7 +280,6 @@
       return true;
     });
 
-    // 显示排序：先角色 order，后版本，再 id
     const vIdx = new Map();
     (state.data.versions || []).forEach((v, i) => vIdx.set(v, i));
     filtered.sort((a, b) => {
@@ -296,6 +293,24 @@
     });
 
     return filtered;
+  }
+
+  /* ============ 按显示顺序取全部条目（用于 id 调整） ============ */
+  function allSortedEntries() {
+    if (!state.data) return [];
+    const list = state.data.entries.slice();
+    const vIdx = new Map();
+    (state.data.versions || []).forEach((v, i) => vIdx.set(v, i));
+    list.sort((a, b) => {
+      const oa = ORDER_MAP.has(a.character) ? ORDER_MAP.get(a.character) : 9999;
+      const ob = ORDER_MAP.has(b.character) ? ORDER_MAP.get(b.character) : 9999;
+      if (oa !== ob) return oa - ob;
+      const va = vIdx.has(a.version) ? vIdx.get(a.version) : 9999;
+      const vb = vIdx.has(b.version) ? vIdx.get(b.version) : 9999;
+      if (va !== vb) return va - vb;
+      return (a.id || 0) - (b.id || 0);
+    });
+    return list;
   }
 
   function renderList() {
@@ -382,7 +397,15 @@
         '<div class="ed-row-2">' +
           '<div class="ed-group">' +
             '<label class="ed-label">id <span class="ed-label-hint">可手动改，需唯一</span></label>' +
-            '<input type="text" class="ed-input" data-field="id" value="' + esc(e.id) + '">' +
+            '<div class="ed-id-wrap">' +
+              '<input type="text" class="ed-input" data-field="id" value="' + esc(e.id) + '">' +
+              '<button type="button" class="ed-id-move" id="btnIdUp" title="上移">' +
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 15 12 9 18 15"></polyline></svg>' +
+              '</button>' +
+              '<button type="button" class="ed-id-move" id="btnIdDown" title="下移">' +
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>' +
+              '</button>' +
+            '</div>' +
           '</div>' +
           '<div class="ed-group">' +
             '<label class="ed-label">版本 <span class="ed-label-hint">打字可新建</span></label>' +
@@ -522,11 +545,41 @@
       }
     );
 
+    // ============ 上移 / 下移：与相邻条目交换 id ============
+    const btnIdUp = $('btnIdUp');
+    const btnIdDown = $('btnIdDown');
+
+    function moveEntry(direction) {
+      const sorted = allSortedEntries();
+      const idx = sorted.findIndex(x => x === entry);
+      if (idx < 0) return;
+      const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
+      if (targetIdx < 0 || targetIdx >= sorted.length) return;
+
+      const a = sorted[idx];
+      const b = sorted[targetIdx];
+      const tmp = a.id;
+      a.id = b.id;
+      b.id = tmp;
+
+      // 当前条目被重选
+      state.selectedId = a.id;
+      state.isNew = false;
+
+      markDirty();
+      renderList();
+      renderForm();
+    }
+
+    if (btnIdUp) btnIdUp.addEventListener('click', () => moveEntry('up'));
+    if (btnIdDown) btnIdDown.addEventListener('click', () => moveEntry('down'));
+
+    // ============ 删除 ============
     const btnDelete = $('btnDelete');
     if (btnDelete) {
       btnDelete.addEventListener('click', () => {
         if (!confirmBox('确定删除「' + (entry.character || '?') + ' · ' + (entry.title || '?') + '」吗？此操作不可撤销。')) return;
-        const idx = state.data.entries.findIndex(x => x.id === entry.id);
+        const idx = state.data.entries.findIndex(x => x === entry);
         if (idx >= 0) state.data.entries.splice(idx, 1);
         state.selectedId = null;
         state.isNew = false;
@@ -536,6 +589,7 @@
       });
     }
 
+    // ============ 移动端返回 ============
     const btnBack = $('btnMobileBack');
     if (btnBack) {
       btnBack.addEventListener('click', () => {
@@ -781,6 +835,39 @@
     });
   });
 
+  /* ============ 重排 ID ============ */
+  els.btnRenumber.addEventListener('click', () => {
+    if (!state.data) {
+      alert('数据未加载');
+      return;
+    }
+    const sorted = allSortedEntries();
+    const n = sorted.length;
+    if (!confirmBox('将按当前显示顺序重新编号 1 ~ ' + n + '，原有 id 会被覆盖。继续吗？')) return;
+
+    // 记住当前选中的对象引用
+    let selObj = null;
+    if (state.selectedId != null) {
+      selObj = state.data.entries.find(x => x.id === state.selectedId) || null;
+    }
+
+    // 按显示顺序重新编号
+    sorted.forEach((e, i) => {
+      e.id = i + 1;
+    });
+
+    // 恢复选中
+    if (selObj) {
+      state.selectedId = selObj.id;
+    }
+
+    markDirty();
+    renderList();
+    renderForm();
+    toast('已重排 ' + n + ' 条 id');
+  });
+
+  /* ============ 重载线上 ============ */
   els.btnReload.addEventListener('click', async () => {
     if (state.dirty && !confirmBox('当前有未保存的修改，重载会丢弃这些改动。继续吗？')) return;
 
@@ -807,6 +894,7 @@
     }
   });
 
+  /* ============ 导入本地 ============ */
   els.btnImport.addEventListener('click', () => els.fileInput.click());
 
   els.fileInput.addEventListener('change', (ev) => {
@@ -832,6 +920,7 @@
     reader.readAsText(file);
   });
 
+  /* ============ 导出 ============ */
   els.btnExport.addEventListener('click', () => {
     if (!state.data) {
       alert('数据未加载');
@@ -874,6 +963,7 @@
     toast('已导出 data.js');
   });
 
+  /* ============ 离开提示 ============ */
   window.addEventListener('beforeunload', (e) => {
     if (state.dirty) {
       e.preventDefault();
@@ -881,6 +971,7 @@
     }
   });
 
+  /* ============ 启动 ============ */
   (function init() {
     const draft = loadDraft();
     if (draft && Array.isArray(draft.entries)) {
