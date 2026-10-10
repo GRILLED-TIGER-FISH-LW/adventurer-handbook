@@ -8,6 +8,7 @@
  *   · extra 字段保存「额外出场角色」，前端不展示，保留供以后使用
  *   · 头像 URL 由 window.ICON_DICT 运行时匹配，本文件不含图片地址
  *   · trigger / prerequisite 字段不含「备注：」「前置：」前缀，也不含 <br>
+ *   · id 已按「先版本、后同角色」重排，仅作字典内部排序用，页面不展示
  * ============================================================ */
 
 window.TRAVELERS_TALES = {
@@ -22,7 +23,7 @@ window.TRAVELERS_TALES = {
   versions: ["5.4", "5.7", "月之一", "月之二", "月之五", "月之六", "7.1"],
 
   entries: [
-    /* ---------- 5.4 蒙德 ---------- */
+    /* ==================== 5.4 ==================== */
     { id: 1, character: "迪卢克", version: "5.4", title: "定价", hidden: false,
       location: "蒙德-晨曦酒庄", trigger: "", prerequisite: "", extra: "",
       description: "在晨曦酒庄，你遇见了刚看完酒庄销售汇报的迪卢克。气候易变，人情与人心却不易改。" },
@@ -99,7 +100,6 @@ window.TRAVELERS_TALES = {
       location: "蒙德-蒙德城", trigger: "", prerequisite: "", extra: "",
       description: "在西风大教堂的顶端，你与安柏度过了一段休息时间。但是，这位蒙德城最好的「侦察骑士」的休息时间也如同风一般来去匆匆…" },
 
-    /* ---------- 5.4 璃月 ---------- */
     { id: 20, character: "刻晴", version: "5.4", title: "奔走", hidden: false,
       location: "璃月-璃月港", trigger: "", prerequisite: "", extra: "",
       description: "在「不卜庐」外，你遇见了前来拿药的刻晴。她前几天在探查山林时不小心扭到了脚腕，好在如今已经痊愈。但看她神情，似乎还有许多工作要做…" },
@@ -184,7 +184,6 @@ window.TRAVELERS_TALES = {
       location: "璃月-璃月港", trigger: "", prerequisite: "", extra: "",
       description: "在万文集舍，你遇见了似乎正若有所思的行秋，顺着他的指引，你看见了书架上许多一样内容的书籍，但是，凭着扉页签字笔画不同，这些书却被硬生生分出了三六九等，有人说「一字如金」，或许也不外如是吧…" },
 
-    /* ---------- 5.4 稻妻 ---------- */
     { id: 41, character: "珊瑚宫心海", version: "5.4", title: "孤梦", hidden: false,
       location: "稻妻-海祇岛", trigger: "", prerequisite: "", extra: "",
       description: "在鲜有人知的「海祇岛秘密基地」里，你遇见了熟睡的心海。桌上散落着各种文件，以及少女写满心事的日记。" },
@@ -205,7 +204,7 @@ window.TRAVELERS_TALES = {
       location: "璃月-天衡山", trigger: "需游戏内夜间出现", prerequisite: "", extra: "",
       description: "天衡山以北，你遇见了夜晚练剑的万叶。天亮时，你们就要各自踏上旅程，但无论路途多么遥远，仍在同一片星空之下。" },
 
-    /* ---------- 5.7 稻妻 ---------- */
+    /* ==================== 5.7 ==================== */
     { id: 46, character: "八重神子", version: "5.7", title: "好运气", hidden: false,
       location: "稻妻-鸣神大社", trigger: "", prerequisite: "", extra: "【玄冬林擒】",
       description: "在八重神子的「帮助」下，你抽到了一根特殊的签。总之…还是好好收起来吧。说不定，真有神奇的力量…？" },
@@ -266,315 +265,315 @@ window.TRAVELERS_TALES = {
       location: "稻妻-白狐之野", trigger: "", prerequisite: "游逸旅闻（早柚·长高的…方法？）", extra: "",
       description: "在多莉的「慷慨帮助」下，鹿野院平藏终于找到了贩卖违禁药物的元凶，并且将其绳之以法。但是，那位商人…似乎也已经拿到了自己的「报酬」。" },
 
-    { id: 61, character: "鹿野院平藏", version: "月之一", title: "他人之罪", hidden: false,
-      location: "挪德卡莱-伦波岛-那夏镇-旗舰酒馆", trigger: "", prerequisite: "", extra: "雅珂达",
-      description: "在那夏镇，你遇见了因查案而抵达挪德卡莱的鹿野院平藏，他所找到的向导正好是「秘闻馆」的雅珂达。不过，怎么感觉雅珂达和平藏聊天时，显得有些紧张…？" },
-
-    /* ---------- 5.7 枫丹 / 须弥 ---------- */
-    { id: 62, character: "迪希雅", version: "5.7", title: "机关舞步", hidden: false,
+    { id: 61, character: "迪希雅", version: "5.7", title: "机关舞步", hidden: false,
       location: "枫丹-枫丹廷", trigger: "", prerequisite: "", extra: "",
       description: "迪希雅正拍摄着科培琉司的舞步，预备着带回去给妮露和迪娜泽黛看看。据迪希雅说，如果需要的话，她也可以…跳男步？" },
 
-    { id: 63, character: "迪希雅", version: "5.7", title: "裙子", hidden: false,
+    { id: 62, character: "迪希雅", version: "5.7", title: "裙子", hidden: false,
       location: "枫丹-枫丹廷", trigger: "", prerequisite: "", extra: "千织",
       description: "在千织的建议下，迪希雅决定为自己买一条新裙子。听起来，会是一条很漂亮的裙子。" },
 
-    { id: 64, character: "赛诺", version: "5.7", title: "估量", hidden: false,
+    { id: 63, character: "赛诺", version: "5.7", title: "估量", hidden: false,
       location: "须弥-二净甸", trigger: "", prerequisite: "", extra: "提纳里",
       description: "这一份有关于蘑菇的笑话，不知道会让赛诺在晚餐时喝多少蘑菇汤。" },
 
-    { id: 65, character: "赛诺", version: "5.7", title: "食物", hidden: false,
+    { id: 64, character: "赛诺", version: "5.7", title: "食物", hidden: false,
       location: "须弥-二净甸", trigger: "", prerequisite: "", extra: "",
       description: "蘑菇虽然是「树食主义者」。但请不要为了验证这个说法，而去挑衅翠翎恐蕈。它可不是吃素的。" },
 
-    { id: 66, character: "赛诺", version: "5.7", title: "职责", hidden: false,
+    { id: 65, character: "赛诺", version: "5.7", title: "职责", hidden: false,
       location: "须弥-寂静园", trigger: "", prerequisite: "", extra: "【乃亚卜】",
       description: "大风纪官，即将履行他的职责。昨日，今日，明日，每日皆如此。" },
 
-    { id: 67, character: "柯莱", version: "5.7", title: "学习会", hidden: false,
+    { id: 66, character: "柯莱", version: "5.7", title: "学习会", hidden: false,
       location: "须弥-教令院-智慧宫", trigger: "", prerequisite: "", extra: "【耶佳娜】",
       description: "在提纳里的帮助下，柯莱站上讲台，主持了一场盛大的学习会。看来，她正在学习之路上稳步前行。" },
 
-    { id: 68, character: "林尼", version: "5.7", title: "魔术", hidden: false,
+    { id: 67, character: "林尼", version: "5.7", title: "魔术", hidden: false,
       location: "枫丹-枫丹动能工程科学研究院区", trigger: "", prerequisite: "", extra: "",
       description: "在枫丹科学院外，遇见了正打算去科学院做魔术交流的林尼。听起来，他对于那种「近景魔术」也很感兴趣。等等，他刚才是不是已经变过一次「近景魔术」了？" },
 
-    { id: 69, character: "林尼", version: "7.1", title: "表演场所", hidden: true,
-      location: "至冬-科洛列夫茨基剧院（内）", trigger: "剧院内路过概率出现", prerequisite: "", extra: "琳妮特",
-      description: "在剧院里，你遇见了正在讨论表演问题的林尼和琳妮特，他们好像正在讨论和魔术表演有关的问题…？" },
-
-    { id: 70, character: "那维莱特", version: "5.7", title: "雨中", hidden: false,
+    { id: 68, character: "那维莱特", version: "5.7", title: "雨中", hidden: false,
       location: "枫丹-伊黎耶林区", trigger: "", prerequisite: "", extra: "",
       description: "看来，淋雨只是那维莱特的「私人爱好」。" },
 
-    { id: 71, character: "那维莱特", version: "5.7", title: "礼物", hidden: false,
+    { id: 69, character: "那维莱特", version: "5.7", title: "礼物", hidden: false,
       location: "枫丹-枫丹廷", trigger: "", prerequisite: "", extra: "",
       description: "在塞德娜的建议下，那维莱特继续采购着预备送给美露莘们的礼物——每一位美露莘都有份。" },
 
-    { id: 72, character: "那维莱特", version: "5.7", title: "拜访", hidden: false,
-      location: "枫丹 厄里那斯", trigger: "", prerequisite: "", extra: "",
+    { id: 70, character: "那维莱特", version: "5.7", title: "拜访", hidden: false,
+      location: "枫丹-厄里那斯", trigger: "", prerequisite: "", extra: "",
       description: "每一位美露莘都有的礼物，来自那维莱特。…而「鱼鱼咏唱派」，则来自美露莘。" },
 
-    { id: 73, character: "琳妮特", version: "5.7", title: "修理…？", hidden: false,
+    { id: 71, character: "琳妮特", version: "5.7", title: "修理…？", hidden: false,
       location: "枫丹-枫丹廷-灰河", trigger: "", prerequisite: "", extra: "",
       description: "琳妮特在灰河里帮助大家不断「修坏」着机器，被她碰过的机器，都安安静静地不再动弹了。或许，这也是一种…出色的能力？" },
 
-    { id: 74, character: "菲米尼", version: "5.7", title: "故事", hidden: false,
+    { id: 72, character: "菲米尼", version: "5.7", title: "故事", hidden: false,
       location: "枫丹-塞洛海原（水下）", trigger: "", prerequisite: "", extra: "",
       description: "在水下，菲米尼对膨膨兽讲完了自己手上绘本的故事。希望，这个故事里的人和膨膨兽能有一个好结局。" },
 
-    { id: 75, character: "夏沃蕾", version: "5.7", title: "再加把劲！", hidden: false,
+    { id: 73, character: "夏沃蕾", version: "5.7", title: "再加把劲！", hidden: false,
       location: "枫丹-枫丹廷", trigger: "", prerequisite: "", extra: "",
       description: "继续训练！别掉队了！在夏沃蕾的督促下，特巡队队员们继续展开着艰苦的训练…" },
 
-    { id: 76, character: "夏洛蒂", version: "5.7", title: "耐心", hidden: false,
+    { id: 74, character: "夏洛蒂", version: "5.7", title: "耐心", hidden: false,
       location: "枫丹-枫丹廷", trigger: "", prerequisite: "", extra: "",
       description: "夏洛蒂小姐最终还是没有等来她的「采访对象」。但在她的采访簿上，并不存在「气馁」这个词。很快，她就要奔向下一个地点了…" },
 
-    { id: 77, character: "夏洛蒂", version: "5.7", title: "糟糕糟糕", hidden: false,
+    { id: 75, character: "夏洛蒂", version: "5.7", title: "糟糕糟糕", hidden: false,
       location: "枫丹-枫丹廷", trigger: "", prerequisite: "", extra: "",
       description: "再完美的计划，也总是会因为一点小疏忽而被破坏。夏洛蒂想要前往纳塔的企图被主编看穿，并被阻拦了下来。但是，她很快找到了下一个目的地——挪德卡莱。" },
 
-    { id: 78, character: "夏洛蒂", version: "5.7", title: "新目的地", hidden: false,
+    { id: 76, character: "夏洛蒂", version: "5.7", title: "新目的地", hidden: false,
       location: "枫丹-枫丹廷", trigger: "", prerequisite: "", extra: "千织",
       description: "说服了父母后，夏洛蒂终于获得了前往挪德卡莱的机会。或许在那片土地上，她会发现更多「有趣的故事」。" },
 
-    { id: 79, character: "夏洛蒂", version: "7.1", title: "新闻团队", hidden: false,
-      location: "至冬-至冬堡", trigger: "", prerequisite: "", extra: "【爱拉尼】",
-      description: "在至冬堡，你遇见了夏洛蒂和爱拉尼。她们虽然因为各自不同的目的来此，但是，好像也有合作的可能…？" },
-
-    /* ---------- 5.7 纳塔 ---------- */
-    { id: 80, character: "基尼奇", version: "5.7", title: "委托", hidden: true,
+    { id: 77, character: "基尼奇", version: "5.7", title: "委托", hidden: true,
       location: "纳塔-冒险家协会", trigger: "与纳塔凯瑟琳对话后概率出现", prerequisite: "", extra: "",
       description: "在冒险家协会旁遇见了基尼奇，他似乎已经完成了手上的委托。如果有机会的话…下次挑选委托时，或许能请基尼奇过来给点意见？" },
 
-    { id: 81, character: "希诺宁", version: "5.7", title: "面谈实务", hidden: true,
+    { id: 78, character: "希诺宁", version: "5.7", title: "面谈实务", hidden: true,
       location: "纳塔-冒险家协会", trigger: "与纳塔凯瑟琳对话后概率出现", prerequisite: "", extra: "",
       description: "希诺宁接到了一封委托信，当她正准备以「必须面谈」的理由将信退回原处时。这次委托的「客户」玛薇卡，却已经在希诺宁的工坊里，等着和她「面谈」了。" },
 
-    { id: 82, character: "伊法", version: "5.7", title: "药物", hidden: true,
+    { id: 79, character: "伊法", version: "5.7", title: "药物", hidden: true,
       location: "纳塔-合成台", trigger: "使用纳塔合成台后概率出现", prerequisite: "", extra: "",
       description: "为了治疗小龙们的厌食症，伊法来到这里想要制作一些药物带回去。这次，可不能让咔库库偷吃了。「继续吃！哥们！" },
 
-    { id: 83, character: "伊安珊", version: "5.7", title: "训练问题", hidden: true,
+    { id: 80, character: "伊安珊", version: "5.7", title: "训练问题", hidden: true,
       location: "纳塔-合成台", trigger: "使用纳塔合成台后概率出现", prerequisite: "", extra: "",
       description: "为了治疗因为训练而受伤的部族成员，伊安珊来到这里，想要制作一些药物带回去…自由器械有风险，强上重量需谨慎。" },
 
-    /* ---------- 月之一 挪德卡莱 ---------- */
-    { id: 84, character: "菈乌玛", version: "月之一", title: "聚会", hidden: false,
+    /* ==================== 月之一 ==================== */
+    { id: 81, character: "鹿野院平藏", version: "月之一", title: "他人之罪", hidden: false,
+      location: "挪德卡莱-伦波岛-那夏镇-旗舰酒馆", trigger: "", prerequisite: "", extra: "雅珂达",
+      description: "在那夏镇，你遇见了因查案而抵达挪德卡莱的鹿野院平藏，他所找到的向导正好是「秘闻馆」的雅珂达。不过，怎么感觉雅珂达和平藏聊天时，显得有些紧张…？" },
+
+    { id: 82, character: "菈乌玛", version: "月之一", title: "聚会", hidden: false,
       location: "挪德卡莱-希汐岛-霜月之坊", trigger: "", prerequisite: "", extra: "",
       description: "在希汐岛，你遇见了正在休息的菈乌玛，虽然已经很小心了，但还是被她注意到了…不，应该是一开始就被那只小猫注意到了吧。" },
 
-    { id: 85, character: "菈乌玛", version: "月之一", title: "可承之重", hidden: false,
+    { id: 83, character: "菈乌玛", version: "月之一", title: "可承之重", hidden: false,
       location: "挪德卡莱-希汐岛-霜月之坊", trigger: "", prerequisite: "", extra: "",
       description: "在希汐岛，你遇见了正在休息的菈乌玛，但她好像正因为自己「角冠」的重量问题而略有苦恼…" },
 
-    { id: 86, character: "伊涅芙", version: "月之一", title: "语言问题", hidden: false,
+    { id: 84, character: "伊涅芙", version: "月之一", title: "语言问题", hidden: false,
       location: "挪德卡莱-伦波岛-叮铃哐啷蛋卷工坊", trigger: "", prerequisite: "", extra: "爱诺",
       description: "在叮铃哐啷蛋卷工坊里，你遇见了正在给伊涅芙做整修的爱诺。据说是伊涅芙请求爱诺，帮自己提升「幽默度」。但这个提升幅度，是否有些…" },
 
-    { id: 87, character: "伊涅芙", version: "月之一", title: "冥想时间", hidden: false,
+    { id: 85, character: "伊涅芙", version: "月之一", title: "冥想时间", hidden: false,
       location: "挪德卡莱-伦波岛-叮铃哐啷蛋卷工坊", trigger: "", prerequisite: "", extra: "雅珂达",
       description: "在叮铃哐啷蛋卷工坊里，你遇见了正在「冥想」的伊涅芙。原来她在试图帮助失眠的雅珂达正常入眠，但是，伊涅芙所谓的「冥想」，真的不是「关机」吗?" },
 
-    { id: 88, character: "伊涅芙", version: "月之一", title: "事关蛋卷", hidden: false,
+    { id: 86, character: "伊涅芙", version: "月之一", title: "事关蛋卷", hidden: false,
       location: "挪德卡莱-伦波岛-叮铃哐啷蛋卷工坊", trigger: "", prerequisite: "", extra: "",
       description: "在那夏镇，你遇见了正在采集蛋卷原料的伊涅芙。看起来，她的幽默度已经被爱诺调低了不少…" },
 
-    { id: 89, character: "奈芙尔", version: "月之一", title: "靠谱与否", hidden: true,
+    { id: 87, character: "奈芙尔", version: "月之一", title: "靠谱与否", hidden: true,
       location: "挪德卡莱-伦波岛-那夏镇-秘谜书屋", trigger: "与书店老板对话后概率出现", prerequisite: "", extra: "",
       description: "你遇见了正在买书的奈芙尔。虽然奈芙尔所购买的书籍很不靠谱，但她似乎想要用这本书试探一下雅珂达…？" },
 
-    { id: 90, character: "奈芙尔", version: "月之一", title: "贵客登门", hidden: false,
+    { id: 88, character: "奈芙尔", version: "月之一", title: "贵客登门", hidden: false,
       location: "挪德卡莱-伦波岛-那夏镇-旗舰酒馆", trigger: "", prerequisite: "", extra: "夜兰",
       description: "在「旗舰」内，奈芙尔和夜兰正聊着「生意」。虽然两人的言语都十分礼貌，但聊天的氛围已经算是剑拔弩张了…不、不然还是先离这两位远一点吧…" },
 
-    { id: 91, character: "奈芙尔", version: "月之一", title: "旧客登门", hidden: false,
+    { id: 89, character: "奈芙尔", version: "月之一", title: "旧客登门", hidden: false,
       location: "挪德卡莱-伦波岛-那夏镇-秘闻馆", trigger: "", prerequisite: "", extra: "多莉",
       description: "在「秘闻馆」内，你遇见了似乎正在聊生意的奈芙尔与多莉，听她们的说法，多莉似乎曾经在挪德卡莱做了某些…准备？" },
 
-    { id: 92, character: "菲林斯", version: "月之一", title: "力有未逮", hidden: false,
+    { id: 90, character: "菲林斯", version: "月之一", title: "力有未逮", hidden: false,
       location: "挪德卡莱-伦波岛-空寂走廊", trigger: "", prerequisite: "", extra: "伊涅芙",
       description: "你遇见了正看着伊涅芙修理路灯的菲林斯。看来，执灯士也有很多需要重新学习的东西啊…" },
 
-    { id: 93, character: "菲林斯", version: "月之一", title: "巡视", hidden: true,
+    { id: 91, character: "菲林斯", version: "月之一", title: "巡视", hidden: true,
       location: "挪德卡莱-帕哈岛-圣遗物副本（霜凝的机枢）", trigger: "进入圣遗物副本（消耗体力）退出副本后概率出现", prerequisite: "", extra: "",
       description: "在郊外，你遇见了正巡逻至此的菲林斯。有这么一位可靠的人在巡逻，周围应该安全的不得了吧…应该。" },
 
-    { id: 94, character: "菲林斯", version: "月之一", title: "藏品", hidden: true,
+    { id: 92, character: "菲林斯", version: "月之一", title: "藏品", hidden: true,
       location: "挪德卡莱-伦波岛-那夏镇-伏尼契商会（地图钻石图标）", trigger: "伏尼契商会对话后概率出现", prerequisite: "", extra: "",
       description: "你遇见了正在购买藏品的菲林斯，虽然这块怀表不算便宜，但菲林斯似乎非常喜欢它…" },
 
-    { id: 95, character: "菲林斯", version: "月之一", title: "古币", hidden: false,
+    { id: 93, character: "菲林斯", version: "月之一", title: "古币", hidden: false,
       location: "挪德卡莱-伦波岛-那夏镇", trigger: "", prerequisite: "", extra: "",
       description: "在那夏镇，你遇见了正等着收购古币的菲林斯，他对于古币这一收藏品似乎颇有研究。不过，古币的收藏价值应该大于实际价值吧…" },
 
-    { id: 96, character: "菲林斯", version: "月之一", title: "日常所需", hidden: false,
+    { id: 94, character: "菲林斯", version: "月之一", title: "日常所需", hidden: false,
       location: "挪德卡莱-帕哈岛-终夜长茔", trigger: "", prerequisite: "", extra: "",
       description: "你遇见了正在整理屋子的菲林斯，也听他讲起了自己的「高效」的进食方式。但是，听起来菲林斯对肉脯和干饼的味道依然印象深刻…" },
 
-    { id: 97, character: "菲林斯", version: "月之一", title: "意外助手", hidden: false,
+    { id: 95, character: "菲林斯", version: "月之一", title: "意外助手", hidden: false,
       location: "挪德卡莱-帕哈岛-终夜长茔", trigger: "", prerequisite: "", extra: "",
       description: "你遇见了正在制作骨拼图的菲林斯，而且，他似乎有一只不知名的狗做助手…" },
 
-    { id: 98, character: "雅珂达", version: "月之一", title: "对应酬劳", hidden: true,
+    { id: 96, character: "雅珂达", version: "月之一", title: "对应酬劳", hidden: true,
       location: "挪德卡莱-伦波岛-那夏镇-冒险家协会", trigger: "与凯瑟琳对话后概率出现", prerequisite: "", extra: "",
       description: "在冒险家协会旁，你遇见了气冲冲的雅珂达。听起来，她执行委托的过程似乎并不顺利…" },
 
-    { id: 99, character: "雅珂达", version: "月之一", title: "猫！喂！猫——", hidden: true,
+    { id: 97, character: "雅珂达", version: "月之一", title: "猫！喂！猫——", hidden: true,
       location: "挪德卡莱-帕哈岛-圣遗物副本（霜凝的机枢）", trigger: "进入圣遗物副本（消耗体力）退出副本后概率出现", prerequisite: "", extra: "",
       description: "在郊外，你遇见了正在寻找猫的雅珂达。她似乎被那一只乱跑的猫耍得团团转。无论如何，祝你好运，雅珂达。" },
 
-    { id: 100, character: "雅珂达", version: "月之一", title: "对不起嘛！伊涅芙——", hidden: false,
+    { id: 98, character: "雅珂达", version: "月之一", title: "对不起嘛！伊涅芙——", hidden: false,
       location: "挪德卡莱-伦波岛-叮铃哐啷蛋卷工坊", trigger: "", prerequisite: "", extra: "伊涅芙、爱诺",
       description: "在叮铃哐啷蛋卷工坊里，你遇见了前来拜访，心里也在努力思考如何向伊涅芙道歉的雅珂达。虽然此事过程有所波折，但所幸，雅珂达和伊涅芙的友谊似乎未曾受到影响…" },
 
-    { id: 101, character: "雅珂达", version: "7.1", title: "盗贼末路", hidden: false,
-      location: "至冬-至冬堡", trigger: "", prerequisite: "拥有角色【雅珂达】，并完成世界任务【曾抛弃过去的人】", extra: "",
-      description: "在至冬堡，你遇见了雅珂达。她似乎追寻着有关「海钩帮」的新线索，一路到达了至冬堡…" },
-
-    { id: 102, character: "爱诺", version: "月之一", title: "救治", hidden: false,
+    { id: 99, character: "爱诺", version: "月之一", title: "救治", hidden: false,
       location: "挪德卡莱-伦波岛-叮铃哐啷蛋卷工坊", trigger: "", prerequisite: "", extra: "伊涅芙",
       description: "在叮铃哐啷蛋卷工坊里，你遇见了正在照顾一只小鹿的爱诺与伊涅芙，爱诺很喜欢小鹿，但…将它送归自然，或许是更好的选择。" },
 
-    { id: 103, character: "爱诺", version: "月之一", title: "选择…", hidden: false,
+    { id: 100, character: "爱诺", version: "月之一", title: "选择…", hidden: false,
       location: "挪德卡莱-伦波岛-叮铃哐啷蛋卷工坊", trigger: "", prerequisite: "", extra: "伊涅芙",
       description: "将小鹿送归自然，或许是一个更好的选择，但是…" },
 
-    { id: 104, character: "爱诺", version: "月之一", title: "时间足够你道别", hidden: false,
+    { id: 101, character: "爱诺", version: "月之一", title: "时间足够你道别", hidden: false,
       location: "挪德卡莱-伦波岛-叮铃哐啷蛋卷工坊", trigger: "", prerequisite: "", extra: "伊涅芙、菈乌玛",
       description: "即使万分不舍，但爱诺依然决定将小鹿送归自然，菈乌玛会帮助小鹿寻找到它的家人。在小鹿真正离开之前，时间或许足够道别…" },
 
-    { id: 105, character: "爱诺", version: "月之一", title: "猫，可爱！", hidden: false,
+    { id: 102, character: "爱诺", version: "月之一", title: "猫，可爱！", hidden: false,
       location: "挪德卡莱-伦波岛-叮铃哐啷蛋卷工坊", trigger: "", prerequisite: "", extra: "伊涅芙",
       description: "在叮铃哐啷蛋卷工坊里，你遇见了打算给伊涅芙做一身猫猫套服的爱诺，在短暂——而且非常严谨——的思考后，她决定给派蒙也做一套。" },
 
-    { id: 106, character: "爱诺", version: "月之一", title: "运转吧，伊涅芙", hidden: true,
+    { id: 103, character: "爱诺", version: "月之一", title: "运转吧，伊涅芙", hidden: true,
       location: "挪德卡莱-伦波岛-那夏镇-合成台", trigger: "使用合成台后概率出现", prerequisite: "", extra: "伊涅芙",
       description: "你遇见了正在为伊涅芙制作新型润滑剂的爱诺，不知道，这种润滑剂到底能不能发挥作用…" },
 
-    { id: 107, character: "丝柯克", version: "月之一", title: "日常所需", hidden: false,
+    { id: 104, character: "丝柯克", version: "月之一", title: "日常所需", hidden: false,
       location: "挪德卡莱-伦波岛-那夏镇", trigger: "", prerequisite: "", extra: "多莉",
       description: "在那夏镇，你遇见了…丝柯克？！好吧，看来她只是来找多莉卖一些杂物，以获取日常所需的摩拉。不知道，下次会在哪里遇见她…" },
 
-    { id: 108, character: "米卡", version: "月之一", title: "为信而来", hidden: false,
+    { id: 105, character: "米卡", version: "月之一", title: "为信而来", hidden: false,
       location: "挪德卡莱-伦波岛-那夏镇", trigger: "", prerequisite: "", extra: "",
       description: "在挪德卡莱，你遇见了米卡。他正准备把骑士团的信件送给法尔伽。不过，他到底是怎么带上这么多礼物的，难道这就是西风骑士的实力么？" },
 
-    { id: 109, character: "辛焱", version: "月之一", title: "新演出", hidden: false,
+    { id: 106, character: "辛焱", version: "月之一", title: "新演出", hidden: false,
       location: "挪德卡莱-伦波岛-那夏镇-旗舰酒馆", trigger: "", prerequisite: "", extra: "",
       description: "在那夏镇，你遇见了辛焱。她似乎在这里找到了新的灵感，或许，她之后会在那夏镇举办一场盛大的演出…？" },
 
-    { id: 110, character: "烟绯", version: "月之一", title: "学术所致", hidden: false,
+    { id: 107, character: "烟绯", version: "月之一", title: "学术所致", hidden: false,
       location: "挪德卡莱-伦波岛-那夏镇", trigger: "", prerequisite: "", extra: "",
       description: "在挪德卡莱，你遇见了烟排。这位律法咨询师似乎正在为了研究学术而取材。不过，她到底想在这片[无法之地」里取得何种材料？这种材料又能怎样帮助她研究律法问题呢？" },
 
-    { id: 111, character: "烟绯", version: "月之一", title: "噢，角…", hidden: false,
+    { id: 108, character: "烟绯", version: "月之一", title: "噢，角…", hidden: false,
       location: "挪德卡莱-希汐岛-霜月之坊", trigger: "", prerequisite: "", extra: "菈乌玛",
       description: "在希汐岛，你遇见了烟绯。她似乎已经将自己的仙人血脉之事告诉了菈乌玛，而菈乌玛也…似乎很平静地接受了这个事实，并且允许了烟绯去「霜月之子」的书库查阅资料…好吧，看来一切都很顺利。" },
 
-    { id: 112, character: "夜兰", version: "月之二", title: "所为所求", hidden: false,
+    /* ==================== 月之二 ==================== */
+    { id: 109, character: "夜兰", version: "月之二", title: "所为所求", hidden: false,
       location: "挪德卡莱-伦波岛-那夏镇", trigger: "", prerequisite: "魔神任务【空月之歌第四幕】「回望湮灭的月光」", extra: "",
       description: "在那夏镇，你遇见了夜兰。她似乎是为了向「秘闻馆」求购情报才远道而来。但听她的口气，似乎对「秘闻馆」的老板奈芙尔很是提防…" },
 
-    /* ---------- 月之五 ---------- */
-    { id: 113, character: "尼可", version: "月之五", title: "灵感来！", hidden: false,
+    /* ==================== 月之五 ==================== */
+    { id: 110, character: "尼可", version: "月之五", title: "灵感来！", hidden: false,
       location: "挪德卡莱-聚所共建·西风戍垒", trigger: "", prerequisite: "", extra: "",
       description: "在挪德卡莱的西风骑士团驻地，你遇见了正准备刺杀法尔伽的尼可，大惊过后，才知道尼可只是在寻找下一本小说的灵感，最后，尼可还是放弃了对法尔伽进行实体（或者非实体）的攻击，转而研究起了另一份灵感…" },
 
-    { id: 114, character: "克洛琳德", version: "月之五", title: "桌上剧团", hidden: false,
+    { id: 111, character: "克洛琳德", version: "月之五", title: "桌上剧团", hidden: false,
       location: "挪德卡莱-伦波岛-那夏镇-旗舰酒馆", trigger: "", prerequisite: "", extra: "娜维娅、雅珂达、叶洛亚",
       description: "在「旗舰」，你遇见了正在游玩「桌上剧团」的克洛琳德与娜维娅…还有雅珂达与叶洛亚，看来，大家确实玩得很开心…" },
 
-    { id: 115, character: "克洛琳德", version: "7.1", title: "桌上剧团", hidden: false,
-      location: "至冬-老庭院餐厅(内)", trigger: "", prerequisite: "", extra: "提纳里、娜维娅、沃雅妮莎",
-      description: "在至冬堡，你遇见了正在主持桌上剧团的克洛琳德，当然了，还有娜维娅…和几位新朋友。" },
-
-    { id: 116, character: "嘉明", version: "月之五", title: "好好味", hidden: false,
+    { id: 112, character: "嘉明", version: "月之五", title: "好好味", hidden: false,
       location: "璃月-碧水原", trigger: "", prerequisite: "", extra: "",
       description: "在璃月的郊外，你遇见了正在…呃，烹饪的嘉明，在他的招呼下，你确实是享用了一顿大餐…" },
 
-    { id: 117, character: "卡齐娜", version: "月之五", title: "第一步", hidden: false,
+    { id: 113, character: "卡齐娜", version: "月之五", title: "第一步", hidden: false,
       location: "纳塔-流泉之众", trigger: "", prerequisite: "", extra: "玛拉妮、基尼奇、（库胡勒阿乔）",
       description: "在纳塔，你遇见了正在帮玛拉妮看店的卡齐娜，而基尼奇则被玛拉妮拜托，在远处默默看着周围的动静，以防发生意外情况…最终，卡齐娜圆满地照顾好了店铺，向着自己的梦想迈出了第一步。" },
 
-    { id: 118, character: "艾梅莉埃", version: "月之五", title: "另有他用", hidden: false,
+    { id: 114, character: "艾梅莉埃", version: "月之五", title: "另有他用", hidden: false,
       location: "璃月-璃月港", trigger: "", prerequisite: "", extra: "胡桃、香菱",
       description: "在璃月港，你遇见了艾梅莉埃，她似乎为香菱和胡桃制作了一款新香水，而胡桃则眼珠一转，想出了一些新点子…" },
 
-    { id: 119, character: "久岐忍", version: "月之五", title: "请依法办", hidden: false,
+    { id: 115, character: "久岐忍", version: "月之五", title: "请依法办", hidden: false,
       location: "枫丹-枫丹廷", trigger: "", prerequisite: "", extra: "荒泷一斗",
       description: "在枫丹，你遇见了正在处理事务的久岐忍，也听她说了一斗一行人所做之事，和目前所在之处。唔…果然还是依法办事比较好呢…" },
 
-    { id: 120, character: "莱欧斯利", version: "月之五", title: "珀有所得", hidden: false,
+    { id: 116, character: "莱欧斯利", version: "月之五", title: "珀有所得", hidden: false,
       location: "枫丹-梅洛彼得堡", trigger: "", prerequisite: "", extra: "那维莱特",
       description: "在梅洛彼得堡，你遇见了被莫名带入堡内的珀西芙，听莱欧斯利所说，似乎是因为珀西芙误入了探照灯范围，从而被尽职的守卫们带了进来…但从结果上来说，守卫们尽了职责，珀西芙吃了汐藻，莱欧斯利认识了新客人，那维莱特获得了新知识，可谓是可喜可贺。" },
 
-    { id: 121, character: "兹白", version: "月之五", title: "又见仙法", hidden: false,
+    { id: 117, character: "兹白", version: "月之五", title: "又见仙法", hidden: false,
       location: "璃月-沉玉谷·上谷", trigger: "", prerequisite: "", extra: "七七",
       description: "在璃月郊外，你遇见了正在与七七交谈的兹白。听她所说，七七也曾被施了三尸法，而且如今那道镇压她魂魄的仙箓也即将丧失功效，必须要想想办法…" },
 
-    { id: 122, character: "杜林", version: "月之五", title: "学习时间", hidden: true,
+    { id: 118, character: "杜林", version: "月之五", title: "学习时间", hidden: true,
       location: "挪德卡莱-伦波岛-那夏镇-合成台", trigger: "使用合成台后概率出现", prerequisite: "", extra: "阿贝多",
       description: "在挪德卡莱，你遇见了正在向阿贝多学习炼金术的杜林，希望他的学习一切顺利…" },
 
-    { id: 123, character: "杜林", version: "月之五", title: "买书记", hidden: true,
+    { id: 119, character: "杜林", version: "月之五", title: "买书记", hidden: true,
       location: "挪德卡莱-伦波岛-那夏镇-秘谜书屋", trigger: "与书店老板对话后概率出现", prerequisite: "", extra: "雅珂达",
       description: "在那夏镇，你遇见了正拜托雅珂达帮忙买书的杜林。在雅珂达的大力帮助下，杜林想买的书得到了一个大折扣…" },
 
-    { id: 124, character: "宵宫", version: "月之五", title: "长途旅行", hidden: false,
+    { id: 120, character: "宵宫", version: "月之五", title: "长途旅行", hidden: false,
       location: "挪德卡莱-伦波岛-那夏镇", trigger: "", prerequisite: "", extra: "",
       description: "在那夏镇，你意外遇见了前来旅行的宵宫，她似乎正准备去拜访爱诺，并定制一份礼物…" },
 
-    { id: 125, character: "宵宫", version: "月之五", title: "在童年", hidden: false,
+    { id: 121, character: "宵宫", version: "月之五", title: "在童年", hidden: false,
       location: "挪德卡莱-伦波岛-叮铃哐啷蛋卷工坊", trigger: "", prerequisite: "", extra: "伊涅芙、爱诺",
       description: "在叮铃哐啷蛋卷工坊，你看见了已经和爱诺玩成一团的宵宫，还有宵宫委托爱诺制作的新玩具…但在那之前，还是容爱诺和宵宫姐姐先玩个痛快吧。" },
 
-    { id: 126, character: "叶洛亚", version: "月之五", title: "一课又一课", hidden: false,
+    { id: 122, character: "叶洛亚", version: "月之五", title: "一课又一课", hidden: false,
       location: "挪德卡莱-伦波岛-叮铃哐啷蛋卷工坊", trigger: "", prerequisite: "", extra: "菲林斯、伊涅芙、爱诺",
       description: "在叮铃哐啷蛋卷工坊里，你遇见了正在上课的叶洛亚。不过，他从菲林斯那边所学来的逃课技巧，似乎已经全部被伊涅芙识破，还好菲林斯在紧要关头赶到，将叶洛亚带离了学习的苦海…但话说回来，为什么菲林斯没有上课？" },
 
-    { id: 127, character: "叶洛亚", version: "月之五", title: "机关又算尽", hidden: false,
+    { id: 123, character: "叶洛亚", version: "月之五", title: "机关又算尽", hidden: false,
       location: "挪德卡莱-聚所共建·望崖营壁", trigger: "", prerequisite: "", extra: "菲林斯",
       description: "在望崖营壁，你又见到了叶洛亚与菲林斯，听他们所说，爱诺似乎马上就要前去执灯士总部开办大型课程。对二位执灯士来说，如今最紧要的事务，乃是如何合理合规地离开学堂…" },
 
-    { id: 128, character: "法尔伽", version: "月之五", title: "饮无尽头", hidden: true,
+    { id: 124, character: "法尔伽", version: "月之五", title: "饮无尽头", hidden: true,
       location: "挪德卡莱-伦波岛-那夏镇-冒险家协会", trigger: "与凯瑟琳对话后概率出现", prerequisite: "", extra: "",
       description: "在挪德卡莱的冒险家协会前，你遇见了正在和凯瑟琳讨论新一轮酒类运输委托的法尔伽。看来，他似乎又把酒喝光了…" },
 
-    { id: 129, character: "法尔伽", version: "月之五", title: "忙碌", hidden: true,
+    { id: 125, character: "法尔伽", version: "月之五", title: "忙碌", hidden: true,
       location: "挪德卡莱-烟硌山峰-圣遗物副本（月童的库藏）", trigger: "进入圣遗物副本（消耗体力）退出副本后概率出现", prerequisite: "", extra: "",
       description: "在挪德卡莱的郊外，你遇见了似乎正来此处理事务的法尔伽。作为西风骑士团的大团长，果然每天都很忙碌啊…" },
 
-    { id: 130, character: "法尔伽", version: "月之五", title: "新武器", hidden: true,
+    { id: 126, character: "法尔伽", version: "月之五", title: "新武器", hidden: true,
       location: "挪德卡莱-聚所共建·西风戍垒", trigger: "与聚所对话后概率出现（台阶下）", prerequisite: "", extra: "",
       description: "在西风成垒，你遇见了正在训练的法尔伽，他似乎还是没能为自己和诺艾尔找到合适的武器一一或合适的矿石。看来，这件事只能回蒙德城再议了…" },
 
-    { id: 131, character: "法尔伽", version: "月之五", title: "通讯", hidden: true,
+    { id: 127, character: "法尔伽", version: "月之五", title: "通讯", hidden: true,
       location: "挪德卡莱-聚所共建·西风戍垒", trigger: "与聚所对话后概率出现", prerequisite: "", extra: "米卡",
       description: "在西风戍垒，你遇见了正在给米卡发令的法尔伽。在如此之多的命令里，或许最重要的是…最后那一条？" },
 
-    { id: 132, character: "法尔伽", version: "月之五", title: "品酒", hidden: false,
+    { id: 128, character: "法尔伽", version: "月之五", title: "品酒", hidden: false,
       location: "挪德卡莱-伦波岛-那夏镇-旗舰酒馆", trigger: "", prerequisite: "", extra: "菲林斯",
       description: "在「旗舰」，你遇见了正在喝酒的菲林斯与法尔伽，很快，你也被拉入了这场豪饮之中。而为了庆祝如此偶然而又圆满的相逢，法尔伽又喝了不少酒…" },
 
-    { id: 133, character: "法尔伽", version: "月之五", title: "骑士的恋情", hidden: false,
+    { id: 129, character: "法尔伽", version: "月之五", title: "骑士的恋情", hidden: false,
       location: "蒙德-蒙德城", trigger: "", prerequisite: "传说任务（法尔伽）【天狼之章第一幕】「致予远征之人」", extra: "",
       description: "在蒙德城，你遇见了正在和古德温讨论着什么的法尔伽，听他们的说法，古德温似乎终于要面对那个…他始终在逃避的问题…" },
 
-    { id: 134, character: "法尔伽", version: "月之五", title: "骑士的选择", hidden: false,
+    { id: 130, character: "法尔伽", version: "月之五", title: "骑士的选择", hidden: false,
       location: "蒙德-蒙德城", trigger: "", prerequisite: "游逸旅闻（法尔伽·骑士的恋情）", extra: "",
       description: "在法尔伽的敦促下，古德温最终还是做出了自己的选择…" },
 
-    { id: 135, character: "法尔伽", version: "月之六", title: "劳碌之故", hidden: true,
+    /* ==================== 月之六 ==================== */
+    { id: 131, character: "法尔伽", version: "月之六", title: "劳碌之故", hidden: true,
       location: "蒙德-蒙德城", trigger: "与凯瑟琳对话后概率出现", prerequisite: "游逸旅闻（塔利雅·告解日）", extra: "",
       description: "你在蒙德城冒险家协会前遇见了法尔伽与西蒙·佩奇，他们似乎正在谈论着什么…" },
 
-    { id: 136, character: "塔利雅", version: "月之六", title: "告解日", hidden: false,
+    { id: 132, character: "塔利雅", version: "月之六", title: "告解日", hidden: false,
       location: "蒙德-蒙德城", trigger: "", prerequisite: "魔神任务【空月之歌第八幕】「真实之月」", extra: "芭芭拉",
       description: "塔利雅的「告解」结束了，但那位聆听他告解的「枢机卿」，却依然若有所思…" },
 
-    /* ---------- 7.1 至冬 ---------- */
+    /* ==================== 7.1 ==================== */
+    { id: 133, character: "林尼", version: "7.1", title: "表演场所", hidden: true,
+      location: "至冬-科洛列夫茨基剧院（内）", trigger: "剧院内路过概率出现", prerequisite: "", extra: "琳妮特",
+      description: "在剧院里，你遇见了正在讨论表演问题的林尼和琳妮特，他们好像正在讨论和魔术表演有关的问题…？" },
+
+    { id: 134, character: "夏洛蒂", version: "7.1", title: "新闻团队", hidden: false,
+      location: "至冬-至冬堡", trigger: "", prerequisite: "", extra: "【爱拉尼】",
+      description: "在至冬堡，你遇见了夏洛蒂和爱拉尼。她们虽然因为各自不同的目的来此，但是，好像也有合作的可能…？" },
+
+    { id: 135, character: "雅珂达", version: "7.1", title: "盗贼末路", hidden: false,
+      location: "至冬-至冬堡", trigger: "", prerequisite: "拥有角色【雅珂达】，并完成世界任务【曾抛弃过去的人】", extra: "",
+      description: "在至冬堡，你遇见了雅珂达。她似乎追寻着有关「海钩帮」的新线索，一路到达了至冬堡…" },
+
+    { id: 136, character: "克洛琳德", version: "7.1", title: "桌上剧团", hidden: false,
+      location: "至冬-老庭院餐厅(内)", trigger: "", prerequisite: "", extra: "提纳里、娜维娅、沃雅妮莎",
+      description: "在至冬堡，你遇见了正在主持桌上剧团的克洛琳德，当然了，还有娜维娅…和几位新朋友。" },
+
     { id: 137, character: "沃雅妮莎", version: "7.1", title: "票务问题", hidden: false,
       location: "至冬-科洛列夫茨基剧院（外）", trigger: "", prerequisite: "", extra: "",
       description: "在至冬堡，你遇见了正在琢磨票贩子广告的沃雅妮莎，她似乎…有一些新想法。" },
