@@ -26,16 +26,11 @@ body {
 .header-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
-.row-title   { margin-bottom: 8px; }
-.row-search  { margin-bottom: 8px; }
-.row-controls {
-  justify-content: space-between;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 0;
-}
+.row-title          { margin-bottom: 8px; }
+.row-search-actions { margin-bottom: 8px; }
+.row-filters        { margin-bottom: 0; flex-wrap: wrap; }
 
 /* ---------- 行 1：标题 + 计数 + 主题 ---------- */
 .app-title {
@@ -76,8 +71,8 @@ body {
 .counter-total { color: var(--text-secondary); font-weight: 500; }
 
 .theme-btn {
-  width: 32px;
-  height: 32px;
+  width: var(--ctl-h);
+  height: var(--ctl-h);
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-default);
   background: var(--bg-surface);
@@ -95,18 +90,27 @@ body {
 .theme-btn:hover { background: var(--bg-hover); border-color: var(--border-strong); }
 .theme-btn:active { transform: scale(.94); }
 .theme-icon {
-  width: 15px !important;
-  height: 15px !important;
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  max-width: 16px !important;
+  min-height: 16px !important;
+  max-height: 16px !important;
   display: none !important;
 }
 .theme-sun { display: block !important; }
 [data-theme="dark"] .theme-sun  { display: none  !important; }
 [data-theme="dark"] .theme-moon { display: block !important; }
 
-/* ---------- 行 2：搜索框 ---------- */
+/* ---------- 行 2：搜索框 + 导出/导入 ---------- */
+.row-search-actions {
+  gap: 6px;
+}
+
 .search-wrap {
   position: relative;
-  width: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
   align-items: center;
 }
@@ -115,7 +119,9 @@ body {
   left: 10px;
   width: 14px !important;
   height: 14px !important;
+  min-width: 14px !important;
   max-width: 14px !important;
+  min-height: 14px !important;
   max-height: 14px !important;
   color: var(--text-tertiary);
   pointer-events: none;
@@ -168,24 +174,47 @@ body {
 .search-clear.visible { display: inline-flex; }
 .search-clear:hover { background: var(--bg-hover); color: var(--text-primary); }
 
-/* ---------- 行 3：下拉 + 按钮 ---------- */
-.dropdowns {
-  display: flex;
+/* 导出 / 导入按钮 */
+.action-btn {
+  height: var(--ctl-h);
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-  min-width: 0;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 5px;
   flex-shrink: 0;
-  margin-left: auto;
+  transition: background .15s, border-color .15s, transform .1s;
+  -webkit-appearance: none;
+  appearance: none;
+  font-family: inherit;
+  letter-spacing: -0.2px;
+}
+.action-btn:hover { background: var(--bg-hover); border-color: var(--border-strong); }
+.action-btn:active { transform: scale(.97); }
+.action-btn svg {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  max-width: 14px !important;
+  min-height: 14px !important;
+  max-height: 14px !important;
+  flex-shrink: 0;
+  display: block !important;
 }
 
-/* 下拉 */
+/* ---------- 行 3：三个下拉 ---------- */
+.row-filters {
+  gap: 6px;
+  row-gap: 6px;
+}
+
 .dropdown-wrap {
   position: relative;
   flex-shrink: 0;
@@ -219,6 +248,10 @@ body {
 .dropdown-arrow {
   width: 9px !important;
   height: 9px !important;
+  min-width: 9px !important;
+  max-width: 9px !important;
+  min-height: 9px !important;
+  max-height: 9px !important;
   flex-shrink: 0;
   color: var(--text-secondary);
   transition: transform .25s cubic-bezier(0.16, 1, 0.3, 1);
@@ -288,41 +321,15 @@ body {
 .dropdown-item-check {
   width: 11px !important;
   height: 11px !important;
+  min-width: 11px !important;
+  max-width: 11px !important;
+  min-height: 11px !important;
+  max-height: 11px !important;
   flex-shrink: 0;
   color: var(--accent);
   display: none !important;
 }
 .dropdown-item.active .dropdown-item-check { display: block !important; }
-
-/* 导出/导入按钮 */
-.action-btn {
-  height: var(--ctl-h);
-  padding: 0 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-default);
-  background: var(--bg-surface);
-  color: var(--text-primary);
-  font-size: 12.5px;
-  font-weight: 500;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  transition: background .15s, border-color .15s, transform .1s;
-  -webkit-appearance: none;
-  appearance: none;
-  font-family: inherit;
-  letter-spacing: -0.2px;
-}
-.action-btn:hover { background: var(--bg-hover); border-color: var(--border-strong); }
-.action-btn:active { transform: scale(.97); }
-.action-btn svg {
-  width: 13px !important;
-  height: 13px !important;
-  flex-shrink: 0;
-  display: block !important;
-}
 
 /* ============================================================
  * 列表区
@@ -339,11 +346,12 @@ body {
   gap: 10px;
 }
 
+/* ---------- 卡片 ---------- */
 .tale-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 12px;
+  padding: 12px 12px 12px 10px;
   display: flex;
   gap: 10px;
   cursor: pointer;
@@ -363,8 +371,17 @@ body {
 .tale-card.done .tale-meta,
 .tale-card.done .tale-desc { opacity: .55; }
 
-.tale-check {
+/* 左侧列：勾选框在上，头像在下 */
+.tale-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
   flex-shrink: 0;
+  width: 40px;
+}
+
+.tale-check {
   width: 20px;
   height: 20px;
   border-radius: 6px;
@@ -373,23 +390,27 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 2px;
   transition: background .15s, border-color .15s;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 .tale-check svg {
   width: 12px !important;
   height: 12px !important;
+  min-width: 12px !important;
+  max-width: 12px !important;
+  min-height: 12px !important;
+  max-height: 12px !important;
   color: #fff;
   opacity: 0;
   transition: opacity .12s;
+  display: block !important;
 }
 .tale-card.done .tale-check { background: var(--accent); border-color: var(--accent); }
 .tale-card.done .tale-check svg { opacity: 1; }
 .tale-card:hover .tale-check { border-color: var(--accent); }
 
 .tale-avatar {
-  flex-shrink: 0;
   width: 40px;
   height: 40px;
   border-radius: 10px;
@@ -402,6 +423,7 @@ body {
   font-weight: 600;
   color: var(--text-secondary);
   position: relative;
+  flex-shrink: 0;
 }
 .tale-avatar img {
   position: absolute;
@@ -484,6 +506,7 @@ body {
   white-space: pre-wrap;
 }
 
+/* ---------- 空状态 ---------- */
 .empty-state {
   padding: 60px 20px;
   text-align: center;
@@ -505,47 +528,70 @@ body {
  * ============================================================ */
 @media (max-width: 480px) {
   .app-header { padding: 9px 12px 10px; }
-  .row-title   { margin-bottom: 7px; }
-  .row-search  { margin-bottom: 7px; }
+  .row-title          { margin-bottom: 7px; }
+  .row-search-actions { margin-bottom: 7px; gap: 5px; }
 
   .app-title { font-size: 15px; }
   .counter { font-size: 11px; padding: 2.5px 8px; gap: 1px; }
   .counter-label { font-size: 10.5px; }
   .counter-done  { font-size: 12px; }
-  .theme-btn { width: 30px; height: 30px; }
-  .theme-icon { width: 14px !important; height: 14px !important; }
-
-  /* 手机端：下拉与按钮拆两行 */
-  .row-controls {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 7px;
-  }
-  .dropdowns {
-    width: 100%;
-    gap: 5px;
-  }
-  .header-actions {
-    width: 100%;
-    justify-content: flex-end;
-    margin-left: 0;
-    gap: 5px;
+  .theme-icon {
+    width: 15px !important;
+    height: 15px !important;
+    min-width: 15px !important;
+    max-width: 15px !important;
+    min-height: 15px !important;
+    max-height: 15px !important;
   }
 
+  /* 按钮只显示图标 */
+  .action-btn {
+    width: var(--ctl-h);
+    padding: 0;
+    gap: 0;
+  }
+  .action-btn-text { display: none; }
+  .action-btn svg {
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    max-width: 16px !important;
+    min-height: 16px !important;
+    max-height: 16px !important;
+  }
+
+  /* 下拉：更紧凑 */
+  .row-filters { gap: 5px; row-gap: 5px; }
   .dropdown-trigger { padding: 0 8px; font-size: 12px; gap: 4px; }
   .dropdown-label   { font-size: 12px; }
-  .dropdown-arrow   { width: 8px !important; height: 8px !important; }
-
-  .action-btn { padding: 0 10px; font-size: 12px; gap: 4px; }
-  .action-btn svg { width: 12px !important; height: 12px !important; }
+  .dropdown-arrow   {
+    width: 8px !important;
+    height: 8px !important;
+    min-width: 8px !important;
+    max-width: 8px !important;
+    min-height: 8px !important;
+    max-height: 8px !important;
+  }
 
   .app-main  { padding: 10px 12px 20px; }
   .list-host { gap: 8px; }
 
-  .tale-card   { padding: 10px; gap: 9px; }
+  /* 卡片：左侧列收窄到头像宽度 36px */
+  .tale-card { padding: 10px 10px 10px 8px; gap: 9px; }
+  .tale-left { width: 36px; gap: 5px; }
+  .tale-check {
+    width: 18px;
+    height: 18px;
+  }
+  .tale-check svg {
+    width: 11px !important;
+    height: 11px !important;
+    min-width: 11px !important;
+    max-width: 11px !important;
+    min-height: 11px !important;
+    max-height: 11px !important;
+  }
   .tale-avatar { width: 36px; height: 36px; font-size: 13px; border-radius: 9px; }
-  .tale-check  { width: 18px; height: 18px; margin-top: 1px; }
-  .tale-check svg { width: 11px !important; height: 11px !important; }
   .tale-char  { font-size: 13.5px; }
   .tale-title { font-size: 13px; }
   .tale-desc  { font-size: 12px; }
