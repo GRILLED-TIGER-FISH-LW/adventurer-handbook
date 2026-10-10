@@ -103,9 +103,7 @@ body {
 [data-theme="dark"] .theme-moon { display: block !important; }
 
 /* ---------- 行 2：搜索框 + 导出/导入 ---------- */
-.row-search-actions {
-  gap: 6px;
-}
+.row-search-actions { gap: 6px; }
 
 .search-wrap {
   position: relative;
@@ -174,7 +172,6 @@ body {
 .search-clear.visible { display: inline-flex; }
 .search-clear:hover { background: var(--bg-hover); color: var(--text-primary); }
 
-/* 导出 / 导入按钮 */
 .action-btn {
   height: var(--ctl-h);
   padding: 0 12px;
@@ -347,13 +344,26 @@ body {
 }
 
 /* ---------- 卡片 ---------- */
+/* 布局：
+ *   [头像]  [角色名 版本 旅闻名]           [勾选框]
+ *   [头像]  [meta: 地点/触发/前置]
+ *   [描述 —— 虚线分割 —— 全宽]
+ */
 .tale-card {
+  display: grid;
+  grid-template-columns: 40px 1fr 20px;
+  grid-template-areas:
+    "avatar head  check"
+    "avatar meta  meta"
+    "desc   desc  desc";
+  column-gap: 10px;
+  row-gap: 6px;
+  align-items: start;
+
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 12px 12px 12px 10px;
-  display: flex;
-  gap: 10px;
+  padding: 12px;
   cursor: pointer;
   transition: border-color .15s, background .15s;
   user-select: none;
@@ -371,17 +381,72 @@ body {
 .tale-card.done .tale-meta,
 .tale-card.done .tale-desc { opacity: .55; }
 
-/* 左侧列：勾选框在上，头像在下 */
-.tale-left {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
+/* 头像：左上 */
+.tale-avatar {
+  grid-area: avatar;
+  align-self: start;
   width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--bg-sunken);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  position: relative;
+  flex-shrink: 0;
+}
+.tale-avatar img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
+/* 第一行：角色名 · 版本 · 旅闻名 */
+.tale-head {
+  grid-area: head;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  line-height: 1.4;
+  min-width: 0;
+}
+.tale-char {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.tale-version {
+  font-size: 11px;
+  padding: 1.5px 7px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-sunken);
+  color: var(--text-secondary);
+  font-weight: 500;
+  line-height: 1.4;
+}
+.tale-title {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+.tale-title.hidden {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+/* 勾选框：右上 */
 .tale-check {
+  grid-area: check;
+  align-self: start;
+  justify-self: end;
   width: 20px;
   height: 20px;
   border-radius: 6px;
@@ -410,76 +475,16 @@ body {
 .tale-card.done .tale-check svg { opacity: 1; }
 .tale-card:hover .tale-check { border-color: var(--accent); }
 
-.tale-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: var(--bg-sunken);
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  position: relative;
-  flex-shrink: 0;
-}
-.tale-avatar img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.tale-body {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.tale-head {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px 8px;
-  line-height: 1.4;
-}
-.tale-char {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-.tale-version {
-  font-size: 11px;
-  padding: 1.5px 7px;
-  border-radius: var(--radius-pill);
-  background: var(--bg-sunken);
-  color: var(--text-secondary);
-  font-weight: 500;
-  line-height: 1.4;
-}
-.tale-title {
-  font-size: 13.5px;
-  font-weight: 500;
-  color: var(--text-primary);
-}
-.tale-title.hidden {
-  color: var(--danger);
-  font-weight: 700;
-}
-
+/* 元信息：地点 / 触发条件 / 前置旅闻 */
 .tale-meta {
+  grid-area: meta;
   display: flex;
   flex-direction: column;
   gap: 3px;
   font-size: 12px;
   color: var(--text-secondary);
   line-height: 1.5;
+  min-width: 0;
 }
 .tale-meta-row {
   display: flex;
@@ -496,7 +501,9 @@ body {
 .tale-meta-val { min-width: 0; word-break: break-word; }
 .tale-meta-val.trigger { color: var(--danger); }
 
+/* 描述：全宽，虚线分割 */
 .tale-desc {
+  grid-area: desc;
   font-size: 12.5px;
   line-height: 1.65;
   color: var(--text-secondary);
@@ -504,6 +511,7 @@ body {
   border-top: 1px dashed var(--border-subtle);
   word-break: break-word;
   white-space: pre-wrap;
+  margin-top: 2px;
 }
 
 /* ---------- 空状态 ---------- */
@@ -560,7 +568,7 @@ body {
     max-height: 16px !important;
   }
 
-  /* 下拉：更紧凑 */
+  /* 下拉更紧凑 */
   .row-filters { gap: 5px; row-gap: 5px; }
   .dropdown-trigger { padding: 0 8px; font-size: 12px; gap: 4px; }
   .dropdown-label   { font-size: 12px; }
@@ -576,9 +584,19 @@ body {
   .app-main  { padding: 10px 12px 20px; }
   .list-host { gap: 8px; }
 
-  /* 卡片：左侧列收窄到头像宽度 36px */
-  .tale-card { padding: 10px 10px 10px 8px; gap: 9px; }
-  .tale-left { width: 36px; gap: 5px; }
+  /* 卡片：头像缩到 36px */
+  .tale-card {
+    grid-template-columns: 36px 1fr 18px;
+    column-gap: 9px;
+    row-gap: 5px;
+    padding: 10px;
+  }
+  .tale-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 13px;
+    border-radius: 9px;
+  }
   .tale-check {
     width: 18px;
     height: 18px;
@@ -591,7 +609,6 @@ body {
     min-height: 11px !important;
     max-height: 11px !important;
   }
-  .tale-avatar { width: 36px; height: 36px; font-size: 13px; border-radius: 9px; }
   .tale-char  { font-size: 13.5px; }
   .tale-title { font-size: 13px; }
   .tale-desc  { font-size: 12px; }
