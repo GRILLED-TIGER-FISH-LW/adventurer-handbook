@@ -23,11 +23,11 @@
   const state = {
     search: '',
     version: 'all',
-    status: 'all',         // all | done | undone
-    visibility: 'all',     // all | normal | hidden
+    status: 'all',
+    visibility: 'all',
     done: new Set(loadDone()),
     avatarCache: buildAvatarCache(),
-    openDropdown: null     // null | 'version' | 'status' | 'visibility'
+    openDropdown: null
   };
 
   /* ============ 头像反查 ============ */
@@ -75,7 +75,6 @@
     btnImport: $('btnImport'),
     btnTheme: $('btnTheme'),
     importFile: $('importFile'),
-    // 三个下拉
     versionTrigger: $('versionTrigger'),
     versionLabel: $('versionLabel'),
     versionPanel: $('versionPanel'),
@@ -106,13 +105,13 @@
       .replace(/\s+/g, ' ')
       .trim();
   }
-  // 去掉触发条件的 "备注：" 前缀
+  // 兜底：去掉触发条件的 "备注：" 前缀
   function cleanTrigger(str) {
     return cleanText(str).replace(/^备注[:：]\s*/, '').trim();
   }
-  // 去掉前置的 "前置：" 前缀
+  // 兜底：去掉前置的 "前置："/"备注：" 前缀
   function cleanPrereq(str) {
-    return cleanText(str).replace(/^前置[:：]\s*/, '').trim();
+    return cleanText(str).replace(/^(前置|备注)[:：]\s*/, '').trim();
   }
 
   /* ============ 数据 ============ */
@@ -182,7 +181,6 @@
     e.stopPropagation(); toggleDropdown('visibility');
   });
 
-  // 统一监听三个面板的点击
   [els.versionPanel, els.statusPanel, els.visibilityPanel].forEach(panel => {
     panel.addEventListener('click', (e) => {
       const item = e.target.closest('.dropdown-item');
@@ -245,7 +243,6 @@
       ? `<img src="${escapeHtml(avatarUrl)}" alt="" loading="lazy" onerror="this.remove()">${escapeHtml(initial)}`
       : escapeHtml(initial);
 
-    // meta 行：地点 → 触发条件 → 前置旅闻
     const metaRows = [];
 
     if (e.location && e.location.trim()) {
