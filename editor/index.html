@@ -16,21 +16,29 @@
     <span class="dirty-dot" id="dirtyDot" hidden title="有未保存的修改"></span>
   </div>
   <div class="ed-header-actions">
-    <button type="button" class="ed-btn" id="btnImport">
+    <button type="button" class="ed-btn" id="btnReload" title="重载线上数据">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <polyline points="1 20 1 14 7 14"></polyline>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+      </svg>
+      <span>重载</span>
+    </button>
+    <button type="button" class="ed-btn" id="btnImport" title="导入本地 data.js">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
         <polyline points="17 8 12 3 7 8"></polyline>
         <line x1="12" y1="3" x2="12" y2="15"></line>
       </svg>
-      <span>导入 data.js</span>
+      <span>导入本地</span>
     </button>
-    <button type="button" class="ed-btn ed-btn-primary" id="btnExport">
+    <button type="button" class="ed-btn ed-btn-primary" id="btnExport" title="导出 data.js">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
         <polyline points="7 10 12 15 17 10"></polyline>
         <line x1="12" y1="15" x2="12" y2="3"></line>
       </svg>
-      <span>导出 data.js</span>
+      <span>导出</span>
     </button>
     <button type="button" class="ed-icon-btn" id="btnTheme" aria-label="切换主题">
       <svg class="theme-icon theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -84,6 +92,7 @@
 <input type="file" id="fileInput" accept=".js,.txt,text/javascript,application/javascript" hidden>
 
 <script src="https://cdn.jsdelivr.net/gh/GRILLED-TIGER-FISH-LW/genshin-guide@main/shared/gi-icons/icon-dict.js"></script>
+<script src="../data.js"></script>
 <script src="index.js"></script>
 </body>
 </html>
