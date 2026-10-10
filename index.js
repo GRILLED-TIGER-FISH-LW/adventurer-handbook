@@ -23,27 +23,27 @@
   const state = {
     search: '',
     version: 'all',
-    status: 'all',
+    status: 'all',         // all | done | undone
+    visibility: 'all',     // all | normal | hidden
     done: new Set(loadDone()),
     avatarCache: buildAvatarCache(),
-    openDropdown: null   // null | 'version' | 'status'
+    openDropdown: null     // null | 'version' | 'status' | 'visibility'
   };
 
-  /* ============ 头像反查表 ============ */
+  /* ============ 头像反查 ============ */
   function buildAvatarCache() {
     const cache = new Map();
     if (!window.ICON_DICT || !window.ICON_DICT.characters) return cache;
-    const cfg  = window.ICON_DICT.config && window.ICON_DICT.config.characters;
+    const cfg = window.ICON_DICT.config && window.ICON_DICT.config.characters;
     if (!cfg) return cache;
     const chars = window.ICON_DICT.characters;
-
     for (const key in chars) {
       const item = chars[key];
       if (!item || !item.name) continue;
       let url;
-      if (item.url)                    url = item.url;
-      else if (key.endsWith('.webp'))  url = cfg.prefix + key;
-      else                             url = cfg.prefix + key + cfg.ext;
+      if (item.url)                   url = item.url;
+      else if (key.endsWith('.webp')) url = cfg.prefix + key;
+      else                            url = cfg.prefix + key + cfg.ext;
       cache.set(item.name, url);
     }
     return cache;
@@ -75,13 +75,18 @@
     btnImport: $('btnImport'),
     btnTheme: $('btnTheme'),
     importFile: $('importFile'),
+    // 三个下拉
     versionTrigger: $('versionTrigger'),
     versionLabel: $('versionLabel'),
+    versionPanel: $('versionPanel'),
     statusTrigger: $('statusTrigger'),
     statusLabel: $('statusLabel'),
-    dropdownDrawer: $('dropdownDrawer'),
-    dropdownList: $('dropdownList')
+    statusPanel: $('statusPanel'),
+    visibilityTrigger: $('visibilityTrigger'),
+    visibilityLabel: $('visibilityLabel'),
+    visibilityPanel: $('visibilityPanel')
   };
+  const dropWraps = [...document.querySelectorAll('.dropdown-wrap')];
 
   /* ============ 工具 ============ */
   function escapeHtml(str) {
@@ -93,109 +98,122 @@
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;');
   }
-  function escapeAllowBr(str) {
+  // 去掉 <br>，多个空白合一
+  function cleanText(str) {
     if (str == null) return '';
-    return escapeHtml(str).replace(/&lt;br\s*\/?&gt;/gi, '<br>');
+    return String(str)
+      .replace(/<br\s*\/?>/gi, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+  // 去掉触发条件的 "备注：" 前缀
+  function cleanTrigger(str) {
+    return cleanText(str).replace(/^备注[:：]\s*/, '').trim();
+  }
+  // 去掉前置的 "前置：" 前缀
+  function cleanPrereq(str) {
+    return cleanText(str).replace(/^前置[:：]\s*/, '').trim();
   }
 
-  /* ============ 版本 / 状态数据 ============ */
+  /* ============ 数据 ============ */
   function getVersions() {
-    if (Array.isArray(DATA.versions) && DATA.versions.length) {
-      return DATA.versions.slice();
-    }
+    if (Array.isArray(DATA.versions) && DATA.versions.length) return DATA.versions.slice();
     const set = new Set();
     ENTRIES.forEach(e => set.add(e.version));
     return [...set];
   }
   const VERSIONS = getVersions();
-  const STATUS_OPTIONS = [
-    { value: 'all',    label: '全部' },
-    { value: 'done',   label: '已完成' },
-    { value: 'undone', label: '未完成' }
-  ];
-
-  /* ============ 下拉 ============ */
-  const CHECK_SVG = '<svg class="dropdown-item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 13 10 18 19 7"></polyline></svg>';
 
   const VERSION_ITEMS = (function () {
     const items = [{ value: 'all', label: '全部版本' }];
     VERSIONS.forEach(v => items.push({ value: v, label: v }));
     return items;
   })();
+  const STATUS_ITEMS = [
+    { value: 'all',    label: '全部' },
+    { value: 'done',   label: '已完成' },
+    { value: 'undone', label: '未完成' }
+  ];
+  const VISIBILITY_ITEMS = [
+    { value: 'all',    label: '全部' },
+    { value: 'normal', label: '正常' },
+    { value: 'hidden', label: '隐藏' }
+  ];
 
-  function renderDropdown(type) {
-    let items, current;
-    if (type === 'version') {
-      items = VERSION_ITEMS;
-      current = state.version;
-    } else {
-      items = STATUS_OPTIONS;
-      current = state.status;
-    }
-    els.dropdownList.innerHTML = items.map(it => {
+  /* ============ 下拉 ============ */
+  const CHECK_SVG = '<svg class="dropdown-item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 13 10 18 19 7"></polyline></svg>';
+
+  function renderItems(panelEl, items, current) {
+    panelEl.innerHTML = items.map(it => {
       const active = it.value === current ? ' active' : '';
       return `<button type="button" class="dropdown-item${active}" data-value="${escapeHtml(it.value)}">` +
-             `<span>${escapeHtml(it.label)}</span>${CHECK_SVG}` +
-             `</button>`;
+             `<span>${escapeHtml(it.label)}</span>${CHECK_SVG}</button>`;
     }).join('');
   }
 
-  function openDropdown(type) {
-    state.openDropdown = type;
-    renderDropdown(type);
-    els.versionTrigger.classList.toggle('open', type === 'version');
-    els.statusTrigger.classList.toggle('open', type === 'status');
-    els.dropdownDrawer.classList.add('open');
+  function openDropdown(key) {
+    closeDropdown();
+    state.openDropdown = key;
+    const wrap = dropWraps.find(w => w.dataset.key === key);
+    if (wrap) wrap.classList.add('open');
+
+    if (key === 'version')    renderItems(els.versionPanel, VERSION_ITEMS, state.version);
+    if (key === 'status')     renderItems(els.statusPanel, STATUS_ITEMS, state.status);
+    if (key === 'visibility') renderItems(els.visibilityPanel, VISIBILITY_ITEMS, state.visibility);
   }
 
   function closeDropdown() {
     state.openDropdown = null;
-    els.versionTrigger.classList.remove('open');
-    els.statusTrigger.classList.remove('open');
-    els.dropdownDrawer.classList.remove('open');
+    dropWraps.forEach(w => w.classList.remove('open'));
   }
 
-  function toggleDropdown(type) {
-    if (state.openDropdown === type) closeDropdown();
-    else openDropdown(type);
+  function toggleDropdown(key) {
+    if (state.openDropdown === key) closeDropdown();
+    else openDropdown(key);
   }
 
   els.versionTrigger.addEventListener('click', (e) => {
-    e.stopPropagation();
-    toggleDropdown('version');
+    e.stopPropagation(); toggleDropdown('version');
   });
   els.statusTrigger.addEventListener('click', (e) => {
-    e.stopPropagation();
-    toggleDropdown('status');
+    e.stopPropagation(); toggleDropdown('status');
+  });
+  els.visibilityTrigger.addEventListener('click', (e) => {
+    e.stopPropagation(); toggleDropdown('visibility');
   });
 
-  els.dropdownList.addEventListener('click', (e) => {
-    const item = e.target.closest('.dropdown-item');
-    if (!item) return;
-    e.stopPropagation();
-    const value = item.dataset.value;
-    const type = state.openDropdown;
+  // 统一监听三个面板的点击
+  [els.versionPanel, els.statusPanel, els.visibilityPanel].forEach(panel => {
+    panel.addEventListener('click', (e) => {
+      const item = e.target.closest('.dropdown-item');
+      if (!item) return;
+      e.stopPropagation();
+      const value = item.dataset.value;
+      const key = state.openDropdown;
 
-    if (type === 'version') {
-      state.version = value;
-      els.versionLabel.textContent = value === 'all' ? '全部版本' : value;
-    } else if (type === 'status') {
-      state.status = value;
-      const opt = STATUS_OPTIONS.find(o => o.value === value);
-      els.statusLabel.textContent = opt ? opt.label : '全部';
-    }
-    closeDropdown();
-    render();
+      if (key === 'version') {
+        state.version = value;
+        els.versionLabel.textContent = value === 'all' ? '全部版本' : value;
+      } else if (key === 'status') {
+        state.status = value;
+        const opt = STATUS_ITEMS.find(o => o.value === value);
+        els.statusLabel.textContent = opt ? opt.label : '全部';
+      } else if (key === 'visibility') {
+        state.visibility = value;
+        const opt = VISIBILITY_ITEMS.find(o => o.value === value);
+        els.visibilityLabel.textContent = opt ? opt.label : '全部';
+      }
+
+      closeDropdown();
+      render();
+    });
   });
 
   document.addEventListener('click', (e) => {
     if (!state.openDropdown) return;
-    if (els.dropdownDrawer.contains(e.target)) return;
-    if (els.versionTrigger.contains(e.target)) return;
-    if (els.statusTrigger.contains(e.target)) return;
+    if (e.target.closest('.dropdown-wrap')) return;
     closeDropdown();
   });
-
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && state.openDropdown) closeDropdown();
   });
@@ -207,6 +225,8 @@
       if (state.version !== 'all' && e.version !== state.version) return false;
       if (state.status === 'done'   && !state.done.has(e.id)) return false;
       if (state.status === 'undone' &&  state.done.has(e.id)) return false;
+      if (state.visibility === 'normal' && e.hidden) return false;
+      if (state.visibility === 'hidden' && !e.hidden) return false;
       if (kw) {
         const hay = (e.character + ' ' + e.title).toLowerCase();
         if (!hay.includes(kw)) return false;
@@ -225,27 +245,42 @@
       ? `<img src="${escapeHtml(avatarUrl)}" alt="" loading="lazy" onerror="this.remove()">${escapeHtml(initial)}`
       : escapeHtml(initial);
 
+    // meta 行：地点 → 触发条件 → 前置旅闻
     const metaRows = [];
-    if (e.trigger && e.trigger.trim()) {
+
+    if (e.location && e.location.trim()) {
       metaRows.push(
         `<div class="tale-meta-row">` +
-          `<span class="tale-meta-key">触发</span>` +
-          `<span class="tale-meta-val trigger">${escapeAllowBr(e.trigger)}</span>` +
+          `<span class="tale-meta-key">地点</span>` +
+          `<span class="tale-meta-val">${escapeHtml(cleanText(e.location))}</span>` +
         `</div>`
       );
     }
-    if (e.prerequisite && e.prerequisite.trim()) {
+
+    const trigger = cleanTrigger(e.trigger);
+    if (trigger) {
       metaRows.push(
         `<div class="tale-meta-row">` +
-          `<span class="tale-meta-key">前置</span>` +
-          `<span class="tale-meta-val">${escapeAllowBr(e.prerequisite)}</span>` +
+          `<span class="tale-meta-key">触发条件</span>` +
+          `<span class="tale-meta-val trigger">${escapeHtml(trigger)}</span>` +
         `</div>`
       );
     }
+
+    const prereq = cleanPrereq(e.prerequisite);
+    if (prereq) {
+      metaRows.push(
+        `<div class="tale-meta-row">` +
+          `<span class="tale-meta-key">前置旅闻</span>` +
+          `<span class="tale-meta-val">${escapeHtml(prereq)}</span>` +
+        `</div>`
+      );
+    }
+
     const metaHtml = metaRows.length ? `<div class="tale-meta">${metaRows.join('')}</div>` : '';
 
     const descHtml = (e.description && e.description.trim())
-      ? `<div class="tale-desc">${escapeHtml(e.description)}</div>` : '';
+      ? `<div class="tale-desc">${escapeHtml(cleanText(e.description))}</div>` : '';
 
     return (
       `<div class="tale-card${isDone ? ' done' : ''}" data-id="${e.id}" tabindex="0">` +
@@ -293,11 +328,8 @@
     saveDone();
     updateCounter();
 
-    if (state.status !== 'all') {
-      render();
-    } else {
-      updateCardState(id);
-    }
+    if (state.status !== 'all') render();
+    else updateCardState(id);
   }
   function updateCardState(id) {
     const card = els.listHost.querySelector(`.tale-card[data-id="${id}"]`);
@@ -395,11 +427,8 @@
   /* ============ 主题 ============ */
   function applyTheme(theme) {
     document.documentElement.classList.add('theme-switching');
-    if (theme === 'dark') {
-      document.documentElement.setAttribute('data-theme', 'dark');
-    } else {
-      document.documentElement.removeAttribute('data-theme');
-    }
+    if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    else document.documentElement.removeAttribute('data-theme');
     setTimeout(() => document.documentElement.classList.remove('theme-switching'), 100);
   }
   function currentTheme() {
