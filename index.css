@@ -28,11 +28,16 @@ body {
   align-items: center;
   gap: 8px;
 }
-.row-title    { margin-bottom: 8px; }
-.row-controls { margin-bottom: 8px; }
-.row-actions  { justify-content: flex-end; gap: 6px; margin-bottom: 0; }
+.row-title   { margin-bottom: 8px; }
+.row-search  { margin-bottom: 8px; }
+.row-controls {
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 0;
+}
 
-/* ---------- 第一行 ---------- */
+/* ---------- 行 1：标题 + 计数 + 主题 ---------- */
 .app-title {
   font-size: 16px;
   font-weight: 600;
@@ -70,7 +75,6 @@ body {
 .counter-sep   { color: var(--text-tertiary); margin: 0 1px; }
 .counter-total { color: var(--text-secondary); font-weight: 500; }
 
-/* 主题按钮 */
 .theme-btn {
   width: 32px;
   height: 32px;
@@ -90,8 +94,6 @@ body {
 }
 .theme-btn:hover { background: var(--bg-hover); border-color: var(--border-strong); }
 .theme-btn:active { transform: scale(.94); }
-
-/* 关键修复：加 !important 顶掉 theme.css 的 button svg 全局规则 */
 .theme-icon {
   width: 15px !important;
   height: 15px !important;
@@ -101,11 +103,10 @@ body {
 [data-theme="dark"] .theme-sun  { display: none  !important; }
 [data-theme="dark"] .theme-moon { display: block !important; }
 
-/* ---------- 第二行 ---------- */
+/* ---------- 行 2：搜索框 ---------- */
 .search-wrap {
   position: relative;
-  flex: 1 1 auto;
-  min-width: 0;
+  width: 100%;
   display: flex;
   align-items: center;
 }
@@ -167,7 +168,24 @@ body {
 .search-clear.visible { display: inline-flex; }
 .search-clear:hover { background: var(--bg-hover); color: var(--text-primary); }
 
-/* ---------- 下拉 ---------- */
+/* ---------- 行 3：下拉 + 按钮 ---------- */
+.dropdowns {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* 下拉 */
 .dropdown-wrap {
   position: relative;
   flex-shrink: 0;
@@ -175,10 +193,10 @@ body {
 
 .dropdown-trigger {
   height: var(--ctl-h);
-  padding: 0 9px;
+  padding: 0 10px;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-default);
   background: var(--bg-sunken);
@@ -208,7 +226,6 @@ body {
 }
 .dropdown-wrap.open .dropdown-arrow { transform: rotate(180deg); }
 
-/* 浮层面板：在触发器下方弹出，同宽，浮在上层 */
 .dropdown-panel {
   position: absolute;
   top: calc(100% + 6px);
@@ -277,9 +294,9 @@ body {
 }
 .dropdown-item.active .dropdown-item-check { display: block !important; }
 
-/* ---------- 第三行 ---------- */
+/* 导出/导入按钮 */
 .action-btn {
-  height: 34px;
+  height: var(--ctl-h);
   padding: 0 12px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-default);
@@ -322,7 +339,6 @@ body {
   gap: 10px;
 }
 
-/* ---------- 卡片 ---------- */
 .tale-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
@@ -372,7 +388,6 @@ body {
 .tale-card.done .tale-check svg { opacity: 1; }
 .tale-card:hover .tale-check { border-color: var(--accent); }
 
-/* 头像：圆角方形 */
 .tale-avatar {
   flex-shrink: 0;
   width: 40px;
@@ -431,7 +446,6 @@ body {
   font-weight: 500;
   color: var(--text-primary);
 }
-/* 隐藏旅闻：加粗 + 红色，无红点 */
 .tale-title.hidden {
   color: var(--danger);
   font-weight: 700;
@@ -467,9 +481,9 @@ body {
   padding-top: 7px;
   border-top: 1px dashed var(--border-subtle);
   word-break: break-word;
+  white-space: pre-wrap;
 }
 
-/* ---------- 空状态 ---------- */
 .empty-state {
   padding: 60px 20px;
   text-align: center;
@@ -491,8 +505,8 @@ body {
  * ============================================================ */
 @media (max-width: 480px) {
   .app-header { padding: 9px 12px 10px; }
-  .row-title    { margin-bottom: 7px; }
-  .row-controls { margin-bottom: 7px; gap: 6px; }
+  .row-title   { margin-bottom: 7px; }
+  .row-search  { margin-bottom: 7px; }
 
   .app-title { font-size: 15px; }
   .counter { font-size: 11px; padding: 2.5px 8px; gap: 1px; }
@@ -501,11 +515,28 @@ body {
   .theme-btn { width: 30px; height: 30px; }
   .theme-icon { width: 14px !important; height: 14px !important; }
 
-  .dropdown-trigger { padding: 0 7px; font-size: 12px; gap: 3px; }
+  /* 手机端：下拉与按钮拆两行 */
+  .row-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 7px;
+  }
+  .dropdowns {
+    width: 100%;
+    gap: 5px;
+  }
+  .header-actions {
+    width: 100%;
+    justify-content: flex-end;
+    margin-left: 0;
+    gap: 5px;
+  }
+
+  .dropdown-trigger { padding: 0 8px; font-size: 12px; gap: 4px; }
   .dropdown-label   { font-size: 12px; }
   .dropdown-arrow   { width: 8px !important; height: 8px !important; }
 
-  .action-btn { height: 32px; padding: 0 10px; font-size: 12px; gap: 4px; }
+  .action-btn { padding: 0 10px; font-size: 12px; gap: 4px; }
   .action-btn svg { width: 12px !important; height: 12px !important; }
 
   .app-main  { padding: 10px 12px 20px; }
