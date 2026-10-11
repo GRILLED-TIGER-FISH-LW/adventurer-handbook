@@ -313,11 +313,12 @@
       ? `<div class="tale-desc">${escapeHtml(e.description)}</div>` : '';
 
     // 动态 grid-template-areas：只声明有内容的行
-    const areas = ['"avatar head   check"'];
-    if (locHtml)    areas.push('"avatar loc    loc"');
-    if (trigHtml)   areas.push('"trig   trig   trig"');
-    if (prereqHtml) areas.push('"prereq prereq prereq"');
-    if (descHtml)   areas.push('"desc   desc   desc"');
+    // ⚠️ 内层用单引号，避免与外层 HTML 属性的双引号冲突
+    const areas = ["'avatar head   check'"];
+    if (locHtml)    areas.push("'avatar loc    loc'");
+    if (trigHtml)   areas.push("'trig   trig   trig'");
+    if (prereqHtml) areas.push("'prereq prereq prereq'");
+    if (descHtml)   areas.push("'desc   desc   desc'");
 
     return (
       `<div class="tale-card${isDone ? ' done' : ''}" data-key="${escapeHtml(key)}" tabindex="0" style="grid-template-areas: ${areas.join(' ')}">` +
