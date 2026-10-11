@@ -430,7 +430,7 @@ window.TRAVELERS_TALES = {
 
     { id: 102, character: "伊法", version: "5.7", title: "药物", hidden: true,
       location: "纳塔-合成台", trigger: "与纳塔合成台交互", prerequisite: "",
-      description: "为了治疗小龙们的厌食症，伊法来到这里想要制作一些药物带回去。这次，可不能让咔库库偷吃了。「继续吃！哥们！」" },
+      description: "为了治疗小龙们的厌食症，伊法来到这里想要制作一些药物带回去。\n这次，可不能让咔库库偷吃了。\n「继续吃！哥们！」" },
 
     { id: 103, character: "塔利雅", version: "月之六", title: "告解日", hidden: false,
       location: "蒙德-蒙德城", trigger: "", prerequisite: "魔神任务【空月之歌第八幕】「真实之月」",
