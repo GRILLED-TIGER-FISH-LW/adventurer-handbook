@@ -50,8 +50,39 @@
   ]);
 })();
 </script>
+
+<!-- 启动期样式：body 隐藏 + 加载提示，加载完由 JS 加 .ready 揭开 -->
+<style>
+  html { background: #F2EFEA; }
+  html[data-theme="dark"] { background: #121212; }
+
+  body { visibility: hidden; }
+  body.ready { visibility: visible; }
+
+  .boot-loading {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #F2EFEA;
+    color: #9C958A;
+    font-size: 13px;
+    font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    letter-spacing: -0.2px;
+    visibility: visible;
+  }
+  html[data-theme="dark"] .boot-loading {
+    background: #121212;
+    color: #8A8279;
+  }
+  body.ready .boot-loading { display: none; }
+</style>
 </head>
 <body>
+
+<div class="boot-loading">正在加载最新数据…</div>
 
 <header class="app-header">
 
