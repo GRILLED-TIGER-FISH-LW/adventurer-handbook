@@ -570,7 +570,7 @@ window.TRAVELERS_TALES = {
 
     { id: 137, character: "法尔伽", version: "月之五", title: "新武器", hidden: true,
       location: "挪德卡莱-聚所共建·西风戍垒", trigger: "与「西风戍垒」内的指挥沙盘桌对话", prerequisite: "",
-      description: "在西风成垒，你遇见了正在训练的法尔伽，他似乎还是没能为自己和诺艾尔找到合适的武器一一或合适的矿石。看来，这件事只能回蒙德城再议了…" },
+      description: "在西风戍垒，你遇见了正在训练的法尔伽，他似乎还是没能为自己和诺艾尔找到合适的武器一一或合适的矿石。看来，这件事只能回蒙德城再议了…" },
 
     { id: 138, character: "法尔伽", version: "月之五", title: "忙碌", hidden: true,
       location: "挪德卡莱-烟硌山峰-圣遗物副本「月童的库藏」", trigger: "挪德卡莱圣遗物副本「月童的库藏」中消耗至少20体力后退出", prerequisite: "",
