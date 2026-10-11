@@ -106,7 +106,7 @@ body {
 [data-theme="dark"] .theme-sun  { display: none  !important; }
 [data-theme="dark"] .theme-moon { display: block !important; }
 
-/* ---------- 行 2：搜索框 + 导出/导入 ---------- */
+/* ---------- 行 2：搜索框 + 导出/导入/清空 ---------- */
 .row-search-actions { gap: 6px; }
 
 .search-wrap {
@@ -208,6 +208,17 @@ body {
   max-height: 14px !important;
   flex-shrink: 0;
   display: block !important;
+}
+
+/* 清空按钮：danger 风格（淡红边框 + 红色图标/文字） */
+.action-btn.danger {
+  border-color: var(--danger-border);
+  color: var(--danger);
+  background: var(--bg-surface);
+}
+.action-btn.danger:hover {
+  background: var(--danger-bg);
+  border-color: var(--danger);
 }
 
 /* ---------- 行 3：三个下拉 ---------- */
@@ -377,13 +388,47 @@ body {
   gap: 10px;
 }
 
+/* 加载状态 */
+.loading-state {
+  padding: 80px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: var(--text-tertiary);
+  font-size: 13px;
+}
+.loading-spinner {
+  width: 28px;
+  height: 28px;
+  border: 2.5px solid var(--border-default);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.loading-state p { margin: 0; }
+
+/* 加载失败 */
+.error-state {
+  padding: 80px 20px;
+  text-align: center;
+  color: var(--danger);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.error-state p { margin: 0 0 12px; }
+
 /* ---------- 卡片 ---------- */
-/* 布局（grid-template-areas 由 JS 动态设置）：
- *   "avatar head   check"       ← 头像 · 角色/版本/旅闻名 · 勾选框
- *   "avatar loc    loc"         ← 地点（跟头像右侧对齐）
- *   "trig   trig   trig"        ← 触发条件（全宽）
- *   "prereq prereq prereq"      ← 前置旅闻（全宽）
- *   "desc   desc   desc"        ← 描述（全宽）
+/* grid-template-areas 由 JS 动态设置：
+ *   "avatar head   check"
+ *   "avatar loc    loc"
+ *   "trig   trig   trig"
+ *   "prereq prereq prereq"
+ *   "desc   desc   desc"
  */
 .tale-card {
   display: grid;
@@ -415,7 +460,6 @@ body {
 .tale-card.done .tale-prereq,
 .tale-card.done .tale-desc { opacity: .55; }
 
-/* 头像：左上，跨前两行 */
 .tale-avatar {
   grid-area: avatar;
   align-self: start;
@@ -442,7 +486,6 @@ body {
   display: block;
 }
 
-/* 第一行：角色名 · 版本 · 旅闻名 */
 .tale-head {
   grid-area: head;
   display: flex;
@@ -476,7 +519,6 @@ body {
   font-weight: 700;
 }
 
-/* 勾选框：右上 */
 .tale-check {
   grid-area: check;
   align-self: start;
@@ -509,7 +551,6 @@ body {
 .tale-card.done .tale-check svg { opacity: 1; }
 .tale-card:hover .tale-check { border-color: var(--accent); }
 
-/* 地点：跟头像右侧对齐（放在 head 下方那一行） */
 .tale-loc {
   grid-area: loc;
   display: flex;
@@ -520,8 +561,6 @@ body {
   line-height: 1.5;
   min-width: 0;
 }
-
-/* 触发条件：全宽，从卡片左内边距开始 */
 .tale-trig {
   grid-area: trig;
   display: flex;
@@ -532,8 +571,6 @@ body {
   line-height: 1.5;
   min-width: 0;
 }
-
-/* 前置旅闻：全宽 */
 .tale-prereq {
   grid-area: prereq;
   display: flex;
@@ -544,7 +581,6 @@ body {
   line-height: 1.5;
   min-width: 0;
 }
-
 .tale-meta-key {
   flex-shrink: 0;
   color: var(--text-tertiary);
@@ -554,7 +590,6 @@ body {
 }
 .tale-meta-val { min-width: 0; word-break: break-word; }
 
-/* 描述：全宽，虚线分割 */
 .tale-desc {
   grid-area: desc;
   font-size: 12.5px;
