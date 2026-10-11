@@ -1,61 +1,86 @@
 /* ============================================================
  * 游逸旅闻汇总 - 主页面逻辑
+ * ============================================================
+ * 加载流程：
+ *   1. 显示 loading
+ *   2. 动态加载 icon-dict.js + data.js（带时间戳，绕过浏览器缓存）
+ *   3. 加载完成后初始化
  * ============================================================ */
 (function () {
   'use strict';
 
-  const DATA = window.TRAVELERS_TALES;
-  if (!DATA || !Array.isArray(DATA.entries) || DATA.entries.length === 0) {
-    document.body.innerHTML = '<p style="padding:40px;text-align:center;color:#999;">数据加载失败：请检查 data.js 是否存在。</p>';
-    return;
-  }
+  /* ============ 资源地址 ============ */
+  const ICON_DICT_URL = 'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-dict.js';
+  const DATA_URL      = 'data.js';
 
-  const ENTRIES = DATA.entries;
-  const META = DATA.meta || {};
-  const TOTAL = META.total || ENTRIES.length;
-
+  /* ============ 常量 ============ */
   const STORAGE_KEY = 'genshin_travelers_tales_completed_v2';
   const LEGACY_KEY  = 'genshin_travelers_tales_completed_v1';
   const THEME_KEY   = 'genshin_travelers_tales_theme_v1';
 
-  /* ============ 旅闻唯一键 ============ */
+  /* ============ 动态加载脚本 ============ */
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      const sep = src.includes('?') ? '&' : '?';
+      s.src = src + sep + 't=' + Date.now();
+      s.onload = () => resolve();
+      s.onerror = () => reject(new Error('加载失败：' + src));
+      document.head.appendChild(s);
+    });
+  }
+
+  /* ============ 全局状态容器 ============ */
+  let DATA = null;
+  let ENTRIES = [];
+  let META = {};
+  let TOTAL = 0;
+  let DISPLAY_ENTRIES = [];
+  let ORDER_MAP = new Map();
+  let VERSION_INDEX = new Map();
+
+  const state = {
+    search: '',
+    version: 'all',
+    status: 'all',
+    visibility: 'all',
+    done: new Set(),
+    avatarCache: new Map(),
+    openDropdown: null
+  };
+
+  /* ============ 工具：旅闻唯一键 ============ */
   function entryKey(e) {
     return (e.character || '') + '·' + (e.title || '');
   }
 
-  /* ============ 显示排序：先角色（order），后版本，再 id ============ */
-  const ORDER_MAP = (function () {
-    const m = new Map();
-    if (window.ICON_DICT && window.ICON_DICT.characters) {
-      for (const key in window.ICON_DICT.characters) {
-        const item = window.ICON_DICT.characters[key];
-        if (item && item.name) {
-          m.set(item.name, typeof item.order === 'number' ? item.order : 9999);
-        }
-      }
-    }
-    return m;
-  })();
+  /* ============ DOM 引用 ============ */
+  const $ = (id) => document.getElementById(id);
+  const els = {};
 
-  const VERSION_INDEX = (function () {
-    const m = new Map();
-    (DATA.versions || []).forEach((v, i) => m.set(v, i));
-    return m;
-  })();
-
-  function sortEntries(list) {
-    return list.slice().sort((a, b) => {
-      const oa = ORDER_MAP.has(a.character) ? ORDER_MAP.get(a.character) : 9999;
-      const ob = ORDER_MAP.has(b.character) ? ORDER_MAP.get(b.character) : 9999;
-      if (oa !== ob) return oa - ob;
-      const va = VERSION_INDEX.has(a.version) ? VERSION_INDEX.get(a.version) : 9999;
-      const vb = VERSION_INDEX.has(b.version) ? VERSION_INDEX.get(b.version) : 9999;
-      if (va !== vb) return va - vb;
-      return (a.id || 0) - (b.id || 0);
-    });
+  /* ============ 初始化 DOM 引用 ============ */
+  function initEls() {
+    els.listHost           = $('listHost');
+    els.emptyState         = $('emptyState');
+    els.searchInput        = $('searchInput');
+    els.searchClear        = $('searchClear');
+    els.counterDone        = $('counterDone');
+    els.counterTotal       = $('counterTotal');
+    els.btnExport          = $('btnExport');
+    els.btnImport          = $('btnImport');
+    els.btnClear           = $('btnClear');
+    els.btnTheme           = $('btnTheme');
+    els.importFile         = $('importFile');
+    els.versionTrigger     = $('versionTrigger');
+    els.versionLabel       = $('versionLabel');
+    els.versionPanel       = $('versionPanel');
+    els.statusTrigger      = $('statusTrigger');
+    els.statusLabel        = $('statusLabel');
+    els.statusPanel        = $('statusPanel');
+    els.visibilityTrigger  = $('visibilityTrigger');
+    els.visibilityLabel    = $('visibilityLabel');
+    els.visibilityPanel    = $('visibilityPanel');
   }
-
-  const DISPLAY_ENTRIES = sortEntries(ENTRIES);
 
   /* ============ localStorage ============ */
   function loadDone() {
@@ -72,17 +97,7 @@
     } catch (e) {}
   }
 
-  /* ============ 状态 ============ */
-  const state = {
-    search: '',
-    version: 'all',
-    status: 'all',
-    visibility: 'all',
-    done: new Set(loadDone()),
-    avatarCache: buildAvatarCache(),
-    openDropdown: null
-  };
-
+  /* ============ 头像反查 ============ */
   function buildAvatarCache() {
     const cache = new Map();
     if (!window.ICON_DICT || !window.ICON_DICT.characters) return cache;
@@ -101,30 +116,37 @@
     return cache;
   }
 
-  /* ============ DOM ============ */
-  const $ = (id) => document.getElementById(id);
-  const els = {
-    listHost: $('listHost'),
-    emptyState: $('emptyState'),
-    searchInput: $('searchInput'),
-    searchClear: $('searchClear'),
-    counterDone: $('counterDone'),
-    counterTotal: $('counterTotal'),
-    btnExport: $('btnExport'),
-    btnImport: $('btnImport'),
-    btnTheme: $('btnTheme'),
-    importFile: $('importFile'),
-    versionTrigger: $('versionTrigger'),
-    versionLabel: $('versionLabel'),
-    versionPanel: $('versionPanel'),
-    statusTrigger: $('statusTrigger'),
-    statusLabel: $('statusLabel'),
-    statusPanel: $('statusPanel'),
-    visibilityTrigger: $('visibilityTrigger'),
-    visibilityLabel: $('visibilityLabel'),
-    visibilityPanel: $('visibilityPanel')
-  };
-  const dropWraps = [...document.querySelectorAll('.dropdown-wrap')];
+  /* ============ 排序 ============ */
+  function buildOrderMap() {
+    const m = new Map();
+    if (window.ICON_DICT && window.ICON_DICT.characters) {
+      for (const key in window.ICON_DICT.characters) {
+        const item = window.ICON_DICT.characters[key];
+        if (item && item.name) {
+          m.set(item.name, typeof item.order === 'number' ? item.order : 9999);
+        }
+      }
+    }
+    return m;
+  }
+
+  function buildVersionIndex() {
+    const m = new Map();
+    (DATA.versions || []).forEach((v, i) => m.set(v, i));
+    return m;
+  }
+
+  function sortEntries(list) {
+    return list.slice().sort((a, b) => {
+      const oa = ORDER_MAP.has(a.character) ? ORDER_MAP.get(a.character) : 9999;
+      const ob = ORDER_MAP.has(b.character) ? ORDER_MAP.get(b.character) : 9999;
+      if (oa !== ob) return oa - ob;
+      const va = VERSION_INDEX.has(a.version) ? VERSION_INDEX.get(a.version) : 9999;
+      const vb = VERSION_INDEX.has(b.version) ? VERSION_INDEX.get(b.version) : 9999;
+      if (va !== vb) return va - vb;
+      return (a.id || 0) - (b.id || 0);
+    });
+  }
 
   /* ============ 工具 ============ */
   function escapeHtml(str) {
@@ -150,20 +172,20 @@
     return cleanText(str).replace(/^(前置|备注)[:：]\s*/, '').trim();
   }
 
-  /* ============ 版本 / 状态 / 可见性 ============ */
-  function getVersions() {
-    if (Array.isArray(DATA.versions) && DATA.versions.length) return DATA.versions.slice();
-    const set = new Set();
-    ENTRIES.forEach(e => set.add(e.version));
-    return [...set];
+  function toast(msg) {
+    const el = document.createElement('div');
+    el.style.cssText =
+      'position:fixed;left:50%;bottom:30px;transform:translateX(-50%);' +
+      'background:rgba(31,29,26,.9);color:#fff;padding:8px 16px;' +
+      'border-radius:8px;font-size:13px;z-index:9999;pointer-events:none;' +
+      'max-width:80vw;text-align:center;';
+    el.textContent = msg;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2600);
   }
-  const VERSIONS = getVersions();
 
-  const VERSION_ITEMS = (function () {
-    const items = [{ value: 'all', label: '全部版本' }];
-    VERSIONS.forEach(v => items.push({ value: v, label: v }));
-    return items;
-  })();
+  /* ============ 版本 / 状态 / 可见性数据 ============ */
+  let VERSION_ITEMS = [];
   const STATUS_ITEMS = [
     { value: 'all',    label: '全部状态' },
     { value: 'done',   label: '已完成' },
@@ -174,6 +196,12 @@
     { value: 'normal', label: '正常' },
     { value: 'hidden', label: '隐藏' }
   ];
+
+  function buildVersionItems() {
+    const items = [{ value: 'all', label: '全部版本' }];
+    (DATA.versions || []).forEach(v => items.push({ value: v, label: v }));
+    VERSION_ITEMS = items;
+  }
 
   /* ============ 下拉 ============ */
   const CHECK_SVG = '<svg class="dropdown-item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 13 10 18 19 7"></polyline></svg>';
@@ -189,7 +217,7 @@
   function openDropdown(key) {
     closeDropdown();
     state.openDropdown = key;
-    const wrap = dropWraps.find(w => w.dataset.key === key);
+    const wrap = document.querySelector(`.dropdown-wrap[data-key="${key}"]`);
     if (wrap) wrap.classList.add('open');
 
     if (key === 'version')    renderItems(els.versionPanel, VERSION_ITEMS, state.version);
@@ -199,58 +227,13 @@
 
   function closeDropdown() {
     state.openDropdown = null;
-    dropWraps.forEach(w => w.classList.remove('open'));
+    document.querySelectorAll('.dropdown-wrap').forEach(w => w.classList.remove('open'));
   }
 
   function toggleDropdown(key) {
     if (state.openDropdown === key) closeDropdown();
     else openDropdown(key);
   }
-
-  els.versionTrigger.addEventListener('click', (e) => {
-    e.stopPropagation(); toggleDropdown('version');
-  });
-  els.statusTrigger.addEventListener('click', (e) => {
-    e.stopPropagation(); toggleDropdown('status');
-  });
-  els.visibilityTrigger.addEventListener('click', (e) => {
-    e.stopPropagation(); toggleDropdown('visibility');
-  });
-
-  [els.versionPanel, els.statusPanel, els.visibilityPanel].forEach(panel => {
-    panel.addEventListener('click', (e) => {
-      const item = e.target.closest('.dropdown-item');
-      if (!item) return;
-      e.stopPropagation();
-      const value = item.dataset.value;
-      const key = state.openDropdown;
-
-      if (key === 'version') {
-        state.version = value;
-        els.versionLabel.textContent = value === 'all' ? '全部版本' : value;
-      } else if (key === 'status') {
-        state.status = value;
-        const opt = STATUS_ITEMS.find(o => o.value === value);
-        els.statusLabel.textContent = opt ? opt.label : '全部状态';
-      } else if (key === 'visibility') {
-        state.visibility = value;
-        const opt = VISIBILITY_ITEMS.find(o => o.value === value);
-        els.visibilityLabel.textContent = opt ? opt.label : '全部类型';
-      }
-
-      closeDropdown();
-      render();
-    });
-  });
-
-  document.addEventListener('click', (e) => {
-    if (!state.openDropdown) return;
-    if (e.target.closest('.dropdown-wrap')) return;
-    closeDropdown();
-  });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && state.openDropdown) closeDropdown();
-  });
 
   /* ============ 过滤 ============ */
   function getFiltered() {
@@ -282,7 +265,6 @@
       ? `<img src="${escapeHtml(avatarUrl)}" alt="" loading="lazy" onerror="this.remove()">${escapeHtml(initial)}`
       : escapeHtml(initial);
 
-    // 地点：独立块，跟头像右侧对齐
     const locHtml = (e.location && e.location.trim())
       ? `<div class="tale-loc">` +
           `<span class="tale-meta-key">地点</span>` +
@@ -290,7 +272,6 @@
         `</div>`
       : '';
 
-    // 触发条件：全宽块
     const trigger = cleanTrigger(e.trigger);
     const trigHtml = trigger
       ? `<div class="tale-trig">` +
@@ -299,7 +280,6 @@
         `</div>`
       : '';
 
-    // 前置旅闻：全宽块
     const prereq = cleanPrereq(e.prerequisite);
     const prereqHtml = prereq
       ? `<div class="tale-prereq">` +
@@ -308,12 +288,10 @@
         `</div>`
       : '';
 
-    // 描述
     const descHtml = (e.description && e.description.trim())
       ? `<div class="tale-desc">${escapeHtml(e.description)}</div>` : '';
 
-    // 动态 grid-template-areas：只声明有内容的行
-    // ⚠️ 内层用单引号，避免与外层 HTML 属性的双引号冲突
+    // 动态 grid-template-areas：内层用单引号，避免与外层 HTML 属性的双引号冲突
     const areas = ["'avatar head   check'"];
     if (locHtml)    areas.push("'avatar loc    loc'");
     if (trigHtml)   areas.push("'trig   trig   trig'");
@@ -378,102 +356,180 @@
     if (check) check.setAttribute('aria-checked', isDone ? 'true' : 'false');
   }
 
-  els.listHost.addEventListener('click', (ev) => {
-    const card = ev.target.closest('.tale-card');
-    if (!card) return;
-    const key = card.dataset.key;
-    if (key) toggle(key);
-  });
-  els.listHost.addEventListener('keydown', (ev) => {
-    if (ev.key !== ' ' && ev.key !== 'Enter') return;
-    const card = ev.target.closest('.tale-card');
-    if (!card) return;
-    ev.preventDefault();
-    const key = card.dataset.key;
-    if (key) toggle(key);
-  });
+  /* ============ 事件绑定 ============ */
+  function bindEvents() {
 
-  /* ============ 搜索 ============ */
-  let searchTimer = null;
-  els.searchInput.addEventListener('input', () => {
-    const val = els.searchInput.value;
-    els.searchClear.classList.toggle('visible', val.length > 0);
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => {
-      state.search = val;
+    // 列表点击
+    els.listHost.addEventListener('click', (ev) => {
+      const card = ev.target.closest('.tale-card');
+      if (!card) return;
+      const key = card.dataset.key;
+      if (key) toggle(key);
+    });
+    els.listHost.addEventListener('keydown', (ev) => {
+      if (ev.key !== ' ' && ev.key !== 'Enter') return;
+      const card = ev.target.closest('.tale-card');
+      if (!card) return;
+      ev.preventDefault();
+      const key = card.dataset.key;
+      if (key) toggle(key);
+    });
+
+    // 搜索
+    let searchTimer = null;
+    els.searchInput.addEventListener('input', () => {
+      const val = els.searchInput.value;
+      els.searchClear.classList.toggle('visible', val.length > 0);
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        state.search = val;
+        render();
+      }, 150);
+    });
+    els.searchClear.addEventListener('click', () => {
+      els.searchInput.value = '';
+      els.searchClear.classList.remove('visible');
+      state.search = '';
       render();
-    }, 150);
-  });
-  els.searchClear.addEventListener('click', () => {
-    els.searchInput.value = '';
-    els.searchClear.classList.remove('visible');
-    state.search = '';
-    render();
-    els.searchInput.focus();
-  });
+      els.searchInput.focus();
+    });
 
-  /* ============ 导出 ============ */
-  els.btnExport.addEventListener('click', () => {
-    const d = new Date();
-    const ymd = d.getFullYear().toString()
-      + String(d.getMonth() + 1).padStart(2, '0')
-      + String(d.getDate()).padStart(2, '0');
+    // 下拉触发器
+    els.versionTrigger.addEventListener('click', (e) => {
+      e.stopPropagation(); toggleDropdown('version');
+    });
+    els.statusTrigger.addEventListener('click', (e) => {
+      e.stopPropagation(); toggleDropdown('status');
+    });
+    els.visibilityTrigger.addEventListener('click', (e) => {
+      e.stopPropagation(); toggleDropdown('visibility');
+    });
 
-    const payload = {
-      schema: 'genshin-travelers-tales',
-      version: META.version || '',
-      exportedAt: ymd,
-      total: TOTAL,
-      completed: [...state.done].sort()
-    };
+    [els.versionPanel, els.statusPanel, els.visibilityPanel].forEach(panel => {
+      panel.addEventListener('click', (e) => {
+        const item = e.target.closest('.dropdown-item');
+        if (!item) return;
+        e.stopPropagation();
+        const value = item.dataset.value;
+        const key = state.openDropdown;
 
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `游逸旅闻存档记录-${ymd}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  });
-
-  /* ============ 导入 ============ */
-  els.btnImport.addEventListener('click', () => els.importFile.click());
-
-  els.importFile.addEventListener('change', (ev) => {
-    const file = ev.target.files && ev.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const json = JSON.parse(reader.result);
-        const list = Array.isArray(json) ? json : (json.completed || []);
-
-        const next = new Set();
-
-        const idToKey = new Map();
-        ENTRIES.forEach(e => idToKey.set(e.id, entryKey(e)));
-
-        for (const item of list) {
-          if (typeof item === 'string') {
-            next.add(item);
-          } else if (typeof item === 'number') {
-            const key = idToKey.get(item);
-            if (key) next.add(key);
-          }
+        if (key === 'version') {
+          state.version = value;
+          els.versionLabel.textContent = value === 'all' ? '全部版本' : value;
+        } else if (key === 'status') {
+          state.status = value;
+          const opt = STATUS_ITEMS.find(o => o.value === value);
+          els.statusLabel.textContent = opt ? opt.label : '全部状态';
+        } else if (key === 'visibility') {
+          state.visibility = value;
+          const opt = VISIBILITY_ITEMS.find(o => o.value === value);
+          els.visibilityLabel.textContent = opt ? opt.label : '全部类型';
         }
 
-        state.done = next;
-        saveDone();
+        closeDropdown();
         render();
-      } catch (err) {
-        alert('导入失败：文件格式不正确');
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!state.openDropdown) return;
+      if (e.target.closest('.dropdown-wrap')) return;
+      closeDropdown();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && state.openDropdown) closeDropdown();
+    });
+
+    // 导出
+    els.btnExport.addEventListener('click', () => {
+      const d = new Date();
+      const ymd = d.getFullYear().toString()
+        + String(d.getMonth() + 1).padStart(2, '0')
+        + String(d.getDate()).padStart(2, '0');
+
+      const payload = {
+        schema: 'genshin-travelers-tales',
+        version: META.version || '',
+        exportedAt: ymd,
+        total: TOTAL,
+        completed: [...state.done].sort()
+      };
+
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `游逸旅闻存档记录-${ymd}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+
+    // 导入
+    els.btnImport.addEventListener('click', () => els.importFile.click());
+    els.importFile.addEventListener('change', (ev) => {
+      const file = ev.target.files && ev.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const json = JSON.parse(reader.result);
+          const list = Array.isArray(json) ? json : (json.completed || []);
+
+          const next = new Set();
+
+          const idToKey = new Map();
+          ENTRIES.forEach(e => idToKey.set(e.id, entryKey(e)));
+
+          for (const item of list) {
+            if (typeof item === 'string') {
+              next.add(item);
+            } else if (typeof item === 'number') {
+              const key = idToKey.get(item);
+              if (key) next.add(key);
+            }
+          }
+
+          state.done = next;
+          saveDone();
+          render();
+        } catch (err) {
+          alert('导入失败：文件格式不正确');
+        }
+        els.importFile.value = '';
+      };
+      reader.readAsText(file);
+    });
+
+    // 清空完成记录
+    els.btnClear.addEventListener('click', () => {
+      if (state.done.size === 0) {
+        toast('暂无已完成的旅闻');
+        return;
       }
-      els.importFile.value = '';
-    };
-    reader.readAsText(file);
-  });
+      const ok = window.confirm(
+        '确定清空所有完成标记吗？\n\n' +
+        '建议先「导出存档」备份进度，清空后无法恢复。'
+      );
+      if (!ok) return;
+
+      state.done.clear();
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(LEGACY_KEY);
+      } catch (e) {}
+      render();
+      toast('已清空完成记录');
+    });
+
+    // 主题
+    els.btnTheme.addEventListener('click', () => {
+      const next = currentTheme() === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+      try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+    });
+  }
 
   /* ============ 主题 ============ */
   function applyTheme(theme) {
@@ -485,13 +541,7 @@
   function currentTheme() {
     return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
   }
-  els.btnTheme.addEventListener('click', () => {
-    const next = currentTheme() === 'dark' ? 'light' : 'dark';
-    applyTheme(next);
-    try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
-  });
-
-  (function initTheme() {
+  function initTheme() {
     let saved = null;
     try { saved = localStorage.getItem(THEME_KEY); } catch (e) {}
     if (!saved) {
@@ -499,40 +549,69 @@
         ? 'dark' : 'light';
     }
     if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-  })();
-
-  /* ============ Toast ============ */
-  function toast(msg) {
-    const el = document.createElement('div');
-    el.style.cssText =
-      'position:fixed;left:50%;bottom:30px;transform:translateX(-50%);' +
-      'background:rgba(31,29,26,.9);color:#fff;padding:8px 16px;' +
-      'border-radius:8px;font-size:13px;z-index:9999;pointer-events:none;' +
-      'max-width:80vw;text-align:center;';
-    el.textContent = msg;
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 2600);
   }
 
-  /* ============ 启动 ============ */
-  let hadLegacy = false;
-  try {
-    if (localStorage.getItem(LEGACY_KEY)) {
-      localStorage.removeItem(LEGACY_KEY);
-      hadLegacy = true;
+  /* ============ 主初始化 ============ */
+  function init() {
+    ENTRIES = DATA.entries;
+    META = DATA.meta || {};
+    TOTAL = META.total || ENTRIES.length;
+
+    ORDER_MAP = buildOrderMap();
+    VERSION_INDEX = buildVersionIndex();
+    DISPLAY_ENTRIES = sortEntries(ENTRIES);
+
+    state.done = new Set(loadDone());
+    state.avatarCache = buildAvatarCache();
+
+    buildVersionItems();
+    initTheme();
+    initEls();
+    bindEvents();
+
+    // 清理已不存在的 key
+    let dirty = false;
+    const validKeys = new Set(ENTRIES.map(entryKey));
+    [...state.done].forEach(k => {
+      if (!validKeys.has(k)) { state.done.delete(k); dirty = true; }
+    });
+    if (dirty) saveDone();
+
+    render();
+  }
+
+  /* ============ 加载失败处理 ============ */
+  function showError(err) {
+    const host = document.getElementById('listHost');
+    if (host) {
+      host.innerHTML =
+        '<div class="error-state">' +
+          '<p>数据加载失败</p>' +
+          '<p style="font-size:12px;color:var(--text-tertiary)">' + escapeHtml(err && err.message ? err.message : '未知错误') + '</p>' +
+          '<button type="button" class="action-btn" onclick="location.reload()">重新加载</button>' +
+        '</div>';
     }
-  } catch (e) {}
-
-  let dirty = false;
-  const validKeys = new Set(ENTRIES.map(entryKey));
-  [...state.done].forEach(k => {
-    if (!validKeys.has(k)) { state.done.delete(k); dirty = true; }
-  });
-  if (dirty) saveDone();
-
-  render();
-
-  if (hadLegacy) {
-    setTimeout(() => toast('本地勾选记录已重置，如有存档可重新导入'), 500);
   }
+
+  /* ============ Bootstrap ============ */
+  async function bootstrap() {
+    try {
+      await Promise.all([
+        loadScript(ICON_DICT_URL),
+        loadScript(DATA_URL)
+      ]);
+
+      if (!window.TRAVELERS_TALES || !Array.isArray(window.TRAVELERS_TALES.entries)) {
+        throw new Error('data.js 内容无效');
+      }
+
+      DATA = window.TRAVELERS_TALES;
+      init();
+    } catch (err) {
+      console.error(err);
+      showError(err);
+    }
+  }
+
+  bootstrap();
 })();
