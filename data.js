@@ -501,7 +501,7 @@ window.TRAVELERS_TALES = {
       description: "你遇见了正在购买藏品的菲林斯，虽然这块怀表不算便宜，但菲林斯似乎非常喜欢它…" },
 
     { id: 120, character: "菲林斯", version: "月之一", title: "巡视", hidden: true,
-      location: "挪德卡莱-帕哈岛-圣遗物副本「霜凝的机枢」", trigger: "挪德卡莱圣遗物副本「霜凝的机枢」中消耗至少20体力后退出", prerequisite: "",
+      location: "挪德卡莱-帕哈岛-圣遗物副本「霜凝的机枢」", trigger: "挪德卡莱圣遗物副本「霜凝的机枢」中消耗至少20树脂后退出", prerequisite: "",
       description: "在郊外，你遇见了正巡逻至此的菲林斯。有这么一位可靠的人在巡逻，周围应该安全的不得了吧…应该。" },
 
     { id: 121, character: "奈芙尔", version: "月之一", title: "贵客登门", hidden: false,
@@ -525,7 +525,7 @@ window.TRAVELERS_TALES = {
       description: "在冒险家协会旁，你遇见了气冲冲的雅珂达。听起来，她执行委托的过程似乎并不顺利…" },
 
     { id: 126, character: "雅珂达", version: "月之一", title: "猫！喂！猫——", hidden: true,
-      location: "挪德卡莱-帕哈岛-圣遗物副本「霜凝的机枢」", trigger: "挪德卡莱圣遗物副本「霜凝的机枢」中消耗至少20体力后退出", prerequisite: "",
+      location: "挪德卡莱-帕哈岛-圣遗物副本「霜凝的机枢」", trigger: "挪德卡莱圣遗物副本「霜凝的机枢」中消耗至少20树脂后退出", prerequisite: "",
       description: "在郊外，你遇见了正在寻找猫的雅珂达。她似乎被那一只乱跑的猫耍得团团转。无论如何，祝你好运，雅珂达。" },
 
     { id: 127, character: "雅珂达", version: "7.1", title: "盗贼末路", hidden: false,
@@ -573,7 +573,7 @@ window.TRAVELERS_TALES = {
       description: "在西风戍垒，你遇见了正在训练的法尔伽，他似乎还是没能为自己和诺艾尔找到合适的武器一一或合适的矿石。看来，这件事只能回蒙德城再议了…" },
 
     { id: 138, character: "法尔伽", version: "月之五", title: "忙碌", hidden: true,
-      location: "挪德卡莱-烟硌山峰-圣遗物副本「月童的库藏」", trigger: "挪德卡莱圣遗物副本「月童的库藏」中消耗至少20体力后退出", prerequisite: "",
+      location: "挪德卡莱-烟硌山峰-圣遗物副本「月童的库藏」", trigger: "挪德卡莱圣遗物副本「月童的库藏」中消耗至少20树脂后退出", prerequisite: "",
       description: "在挪德卡莱的郊外，你遇见了似乎正来此处理事务的法尔伽。作为西风骑士团的大团长，果然每天都很忙碌啊…" },
 
     { id: 139, character: "法尔伽", version: "月之五", title: "通讯", hidden: true,
@@ -593,7 +593,7 @@ window.TRAVELERS_TALES = {
       description: "在至冬堡的冒险家协会面前，你遇见了正在讨论着什么的桑多涅和潘塔罗涅…" },
 
     { id: 143, character: "桑多涅", version: "7.1", title: "寻迹", hidden: true,
-      location: "至冬-圣遗物副本「逆悬的冰河」", trigger: "至冬圣遗物副本「逆悬的冰河」中消耗至少20体力后退出", prerequisite: "",
+      location: "至冬-圣遗物副本「逆悬的冰河」", trigger: "至冬圣遗物副本「逆悬的冰河」中消耗至少20树脂后退出", prerequisite: "",
       description: "桑多涅似乎正在寻找一台失控的机关，以她的实力，应该不会太困难吧…" },
 
     { id: 144, character: "阿罗夏", version: "7.1", title: "追猎", hidden: true,
@@ -613,7 +613,7 @@ window.TRAVELERS_TALES = {
       description: "奥黛塔似乎因为某事而误了自己应当搭乘的列车，或许，你能带她一程。" },
 
     { id: 148, character: "奥黛塔", version: "7.1", title: "练习日", hidden: true,
-      location: "至冬-天赋书副本「荒坠的圣迹」", trigger: "至冬天赋书副本「荒坠的圣迹」中消耗至少20体力后退出", prerequisite: "",
+      location: "至冬-天赋书副本「荒坠的圣迹」", trigger: "至冬天赋书副本「荒坠的圣迹」中消耗至少20树脂后退出", prerequisite: "",
       description: "奥黛塔依然在练习着芭蕾舞…" },
 
     { id: 149, character: "薇斯纳", version: "7.1", title: "票务的另一个问题", hidden: false,
@@ -629,7 +629,7 @@ window.TRAVELERS_TALES = {
       description: "追逐着通缉犯，薇斯纳一直追到了雪原深处…" },
 
     { id: 152, character: "薇斯纳", version: "7.1", title: "休息日…？", hidden: true,
-      location: "至冬-圣遗物副本「逆悬的冰河」", trigger: "至冬圣遗物副本「逆悬的冰河」中消耗至少20体力后退出", prerequisite: "",
+      location: "至冬-圣遗物副本「逆悬的冰河」", trigger: "至冬圣遗物副本「逆悬的冰河」中消耗至少20树脂后退出", prerequisite: "",
       description: "正打算休息的薇斯纳，似乎又要因为某事而奔忙起来了…" },
 
     { id: 153, character: "沃雅妮莎", version: "7.1", title: "票务问题", hidden: false,
