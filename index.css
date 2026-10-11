@@ -231,7 +231,6 @@ body {
   min-width: 100px;
 }
 
-/* 触发器（打开时与面板融为一体） */
 .dropdown-trigger {
   position: relative;
   z-index: 10;
@@ -288,7 +287,7 @@ body {
 }
 .dropdown-wrap.open .dropdown-arrow { transform: rotate(180deg); }
 
-/* 面板：从 wrap 顶部铺开，把触发器"包"进去 —— 视觉上按钮与菜单为一个整体 */
+/* 面板：从 wrap 顶部铺开，把触发器"包"进去 —— 按钮与菜单为同一整体 */
 .dropdown-panel {
   position: absolute;
   top: 0;
@@ -379,13 +378,16 @@ body {
 }
 
 /* ---------- 卡片 ---------- */
+/* 布局（grid-template-areas 由 JS 动态设置）：
+ *   "avatar head   check"       ← 头像 · 角色/版本/旅闻名 · 勾选框
+ *   "avatar loc    loc"         ← 地点（跟头像右侧对齐）
+ *   "trig   trig   trig"        ← 触发条件（全宽）
+ *   "prereq prereq prereq"      ← 前置旅闻（全宽）
+ *   "desc   desc   desc"        ← 描述（全宽）
+ */
 .tale-card {
   display: grid;
   grid-template-columns: 40px 1fr 20px;
-  grid-template-areas:
-    "avatar head  check"
-    "avatar meta  meta"
-    "desc   desc  desc";
   column-gap: 10px;
   row-gap: 6px;
   align-items: start;
@@ -408,9 +410,12 @@ body {
 .tale-card.done .tale-avatar,
 .tale-card.done .tale-char,
 .tale-card.done .tale-title,
-.tale-card.done .tale-meta,
+.tale-card.done .tale-loc,
+.tale-card.done .tale-trig,
+.tale-card.done .tale-prereq,
 .tale-card.done .tale-desc { opacity: .55; }
 
+/* 头像：左上，跨前两行 */
 .tale-avatar {
   grid-area: avatar;
   align-self: start;
@@ -437,6 +442,7 @@ body {
   display: block;
 }
 
+/* 第一行：角色名 · 版本 · 旅闻名 */
 .tale-head {
   grid-area: head;
   display: flex;
@@ -470,6 +476,7 @@ body {
   font-weight: 700;
 }
 
+/* 勾选框：右上 */
 .tale-check {
   grid-area: check;
   align-self: start;
@@ -502,21 +509,42 @@ body {
 .tale-card.done .tale-check svg { opacity: 1; }
 .tale-card:hover .tale-check { border-color: var(--accent); }
 
-.tale-meta {
-  grid-area: meta;
+/* 地点：跟头像右侧对齐（放在 head 下方那一行） */
+.tale-loc {
+  grid-area: loc;
   display: flex;
-  flex-direction: column;
-  gap: 3px;
+  gap: 6px;
+  align-items: flex-start;
   font-size: 12px;
   color: var(--text-secondary);
   line-height: 1.5;
   min-width: 0;
 }
-.tale-meta-row {
+
+/* 触发条件：全宽，从卡片左内边距开始 */
+.tale-trig {
+  grid-area: trig;
   display: flex;
   gap: 6px;
   align-items: flex-start;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  min-width: 0;
 }
+
+/* 前置旅闻：全宽 */
+.tale-prereq {
+  grid-area: prereq;
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  min-width: 0;
+}
+
 .tale-meta-key {
   flex-shrink: 0;
   color: var(--text-tertiary);
@@ -525,8 +553,8 @@ body {
   letter-spacing: 0.5px;
 }
 .tale-meta-val { min-width: 0; word-break: break-word; }
-.tale-meta-val.trigger { color: var(--text-secondary); }
 
+/* 描述：全宽，虚线分割 */
 .tale-desc {
   grid-area: desc;
   font-size: 12.5px;
@@ -539,6 +567,7 @@ body {
   margin-top: 2px;
 }
 
+/* ---------- 空状态 ---------- */
 .empty-state {
   padding: 60px 20px;
   text-align: center;
