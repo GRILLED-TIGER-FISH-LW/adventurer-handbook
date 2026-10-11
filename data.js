@@ -513,7 +513,7 @@ window.TRAVELERS_TALES = {
       description: "在「秘闻馆」内，你遇见了似乎正在聊生意的奈芙尔与多莉，听她们的说法，多莉似乎曾经在挪德卡莱做了某些…准备？" },
 
     { id: 123, character: "奈芙尔", version: "月之一", title: "靠谱与否", hidden: true,
-      location: "挪德卡莱-伦波岛-那夏镇-秘谜书店", trigger: "与挪德卡莱「秘谜书店」的店主萨维特对话", prerequisite: "",
+      location: "挪德卡莱-伦波岛-那夏镇-秘谜书屋", trigger: "与挪德卡莱「秘谜书屋」的店主萨维特对话", prerequisite: "",
       description: "你遇见了正在买书的奈芙尔。虽然奈芙尔所购买的书籍很不靠谱，但她似乎想要用这本书试探一下雅珂达…？" },
 
     { id: 124, character: "雅珂达", version: "月之一", title: "对不起嘛！伊涅芙——", hidden: false,
@@ -537,7 +537,7 @@ window.TRAVELERS_TALES = {
       description: "在挪德卡莱，你遇见了正在向阿贝多学习炼金术的杜林，希望他的学习一切顺利…" },
 
     { id: 129, character: "杜林", version: "月之五", title: "买书记", hidden: true,
-      location: "挪德卡莱-伦波岛-那夏镇-秘谜书店", trigger: "与挪德卡莱「秘谜书店」的店主萨维特对话", prerequisite: "",
+      location: "挪德卡莱-伦波岛-那夏镇-秘谜书屋", trigger: "与挪德卡莱「秘谜书屋」的店主萨维特对话", prerequisite: "",
       description: "在那夏镇，你遇见了正拜托雅珂达帮忙买书的杜林。在雅珂达的大力帮助下，杜林想买的书得到了一个大折扣…" },
 
     { id: 130, character: "叶洛亚", version: "月之五", title: "一课又一课", hidden: false,
