@@ -14,11 +14,11 @@
   const META = DATA.meta || {};
   const TOTAL = META.total || ENTRIES.length;
 
-  const STORAGE_KEY = 'genshin_travelers_tales_completed_v2';   // 新格式：字符串数组
-  const LEGACY_KEY  = 'genshin_travelers_tales_completed_v1';   // 旧格式：数字数组，检测到即清空
+  const STORAGE_KEY = 'genshin_travelers_tales_completed_v2';
+  const LEGACY_KEY  = 'genshin_travelers_tales_completed_v1';
   const THEME_KEY   = 'genshin_travelers_tales_theme_v1';
 
-  /* ============ 旅闻唯一键（角色名·旅闻名） ============ */
+  /* ============ 旅闻唯一键 ============ */
   function entryKey(e) {
     return (e.character || '') + '·' + (e.title || '');
   }
@@ -57,7 +57,7 @@
 
   const DISPLAY_ENTRIES = sortEntries(ENTRIES);
 
-  /* ============ localStorage：新格式存字符串数组 ============ */
+  /* ============ localStorage ============ */
   function loadDone() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -78,7 +78,7 @@
     version: 'all',
     status: 'all',
     visibility: 'all',
-    done: new Set(loadDone()),   // Set<string>（角色名·旅闻名）
+    done: new Set(loadDone()),
     avatarCache: buildAvatarCache(),
     openDropdown: null
   };
@@ -282,44 +282,45 @@
       ? `<img src="${escapeHtml(avatarUrl)}" alt="" loading="lazy" onerror="this.remove()">${escapeHtml(initial)}`
       : escapeHtml(initial);
 
-    const metaRows = [];
-
-    if (e.location && e.location.trim()) {
-      metaRows.push(
-        `<div class="tale-meta-row">` +
+    // 地点：独立块，跟头像右侧对齐
+    const locHtml = (e.location && e.location.trim())
+      ? `<div class="tale-loc">` +
           `<span class="tale-meta-key">地点</span>` +
           `<span class="tale-meta-val">${escapeHtml(cleanText(e.location))}</span>` +
         `</div>`
-      );
-    }
+      : '';
 
+    // 触发条件：全宽块
     const trigger = cleanTrigger(e.trigger);
-    if (trigger) {
-      metaRows.push(
-        `<div class="tale-meta-row">` +
+    const trigHtml = trigger
+      ? `<div class="tale-trig">` +
           `<span class="tale-meta-key">触发条件</span>` +
-          `<span class="tale-meta-val trigger">${escapeHtml(trigger)}</span>` +
+          `<span class="tale-meta-val">${escapeHtml(trigger)}</span>` +
         `</div>`
-      );
-    }
+      : '';
 
+    // 前置旅闻：全宽块
     const prereq = cleanPrereq(e.prerequisite);
-    if (prereq) {
-      metaRows.push(
-        `<div class="tale-meta-row">` +
+    const prereqHtml = prereq
+      ? `<div class="tale-prereq">` +
           `<span class="tale-meta-key">前置旅闻</span>` +
           `<span class="tale-meta-val">${escapeHtml(prereq)}</span>` +
         `</div>`
-      );
-    }
+      : '';
 
-    const metaHtml = metaRows.length ? `<div class="tale-meta">${metaRows.join('')}</div>` : '';
-
+    // 描述
     const descHtml = (e.description && e.description.trim())
       ? `<div class="tale-desc">${escapeHtml(e.description)}</div>` : '';
 
+    // 动态 grid-template-areas：只声明有内容的行
+    const areas = ['"avatar head   check"'];
+    if (locHtml)    areas.push('"avatar loc    loc"');
+    if (trigHtml)   areas.push('"trig   trig   trig"');
+    if (prereqHtml) areas.push('"prereq prereq prereq"');
+    if (descHtml)   areas.push('"desc   desc   desc"');
+
     return (
-      `<div class="tale-card${isDone ? ' done' : ''}" data-key="${escapeHtml(key)}" tabindex="0">` +
+      `<div class="tale-card${isDone ? ' done' : ''}" data-key="${escapeHtml(key)}" tabindex="0" style="grid-template-areas: ${areas.join(' ')}">` +
         `<div class="tale-avatar">${avatarHtml}</div>` +
         `<div class="tale-head">` +
           `<span class="tale-char">${escapeHtml(e.character)}</span>` +
@@ -331,7 +332,9 @@
             `<polyline points="5 13 10 18 19 7"></polyline>` +
           `</svg>` +
         `</div>` +
-        metaHtml +
+        locHtml +
+        trigHtml +
+        prereqHtml +
         descHtml +
       `</div>`
     );
@@ -448,9 +451,6 @@
 
         const next = new Set();
 
-        // 新旧格式兼容：
-        //   - 字符串 → 直接当「角色名·旅闻名」
-        //   - 数字 → 当旧格式 id，需要反查当前数据的 key
         const idToKey = new Map();
         ENTRIES.forEach(e => idToKey.set(e.id, entryKey(e)));
 
@@ -514,7 +514,6 @@
   }
 
   /* ============ 启动 ============ */
-  // 检测旧的 v1 格式（数字 id 数组），存在则清掉并提示
   let hadLegacy = false;
   try {
     if (localStorage.getItem(LEGACY_KEY)) {
@@ -523,7 +522,6 @@
     }
   } catch (e) {}
 
-  // 清理 v2 里已不存在的 key（角色名·旅闻名）
   let dirty = false;
   const validKeys = new Set(ENTRIES.map(entryKey));
   [...state.done].forEach(k => {
