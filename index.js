@@ -5,6 +5,7 @@
  *   · theme.css / index.css / icon-dict.js / data.js / index.js 同时下载
  *   · 全部就绪后，window.__bootPromise resolve
  *   · 本文件等待 __bootPromise 再初始化
+ *   · 加载期间 body 被内联样式隐藏，加载完加 .ready 显示
  * ============================================================ */
 (function () {
   'use strict';
@@ -551,6 +552,9 @@
     if (dirty) saveDone();
 
     render();
+
+    // 揭开 body（显示完整页面）
+    document.body.classList.add('ready');
   }
 
   /* ============ 加载失败处理 ============ */
@@ -564,6 +568,8 @@
           '<button type="button" class="action-btn" onclick="location.reload()">重新加载</button>' +
         '</div>';
     }
+    // 加载失败也要显示，让用户看到错误
+    document.body.classList.add('ready');
   }
 
   /* ============ Bootstrap ============ */
