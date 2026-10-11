@@ -12,7 +12,6 @@
 
 <header class="app-header">
 
-  <!-- 行 1：标题 + 计数 + 主题 -->
   <div class="header-row row-title">
     <h1 class="app-title">游逸旅闻汇总</h1>
     <div class="title-right">
@@ -41,7 +40,6 @@
     </div>
   </div>
 
-  <!-- 行 2：搜索框 + 导出/导入 -->
   <div class="header-row row-search-actions">
     <div class="search-wrap">
       <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -69,9 +67,19 @@
       </svg>
       <span class="action-btn-text">导入存档</span>
     </button>
+
+    <button type="button" class="action-btn danger" id="btnClear" aria-label="清空完成记录" title="清空完成记录">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"></polyline>
+        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+        <path d="M10 11v6"></path>
+        <path d="M14 11v6"></path>
+        <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
+      </svg>
+      <span class="action-btn-text">清空记录</span>
+    </button>
   </div>
 
-  <!-- 行 3：三个下拉 -->
   <div class="header-row row-filters">
     <div class="dropdown-wrap" data-key="version">
       <button type="button" class="dropdown-trigger" id="versionTrigger">
@@ -107,7 +115,12 @@
 </header>
 
 <main class="app-main">
-  <div class="list-host" id="listHost"></div>
+  <div class="list-host" id="listHost">
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>正在加载最新数据…</p>
+    </div>
+  </div>
   <div class="empty-state" id="emptyState" hidden>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="11" cy="11" r="7"></circle>
@@ -119,8 +132,6 @@
 
 <input type="file" id="importFile" accept=".json,application/json" hidden>
 
-<script src="https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-dict.js"></script>
-<script src="data.js"></script>
 <script src="index.js"></script>
 </body>
 </html>
