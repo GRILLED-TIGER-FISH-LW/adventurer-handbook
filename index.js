@@ -1,36 +1,20 @@
 /* ============================================================
  * 游逸旅闻汇总 - 主页面逻辑
  * ============================================================
- * 加载流程：
- *   1. 显示 loading
- *   2. 动态加载 icon-dict.js + data.js（带时间戳，绕过浏览器缓存）
- *   3. 加载完成后初始化
+ * 资源加载由 index.html 里的内联启动器统一负责：
+ *   · theme.css / index.css / icon-dict.js / data.js / index.js 同时下载
+ *   · 全部就绪后，window.__bootPromise resolve
+ *   · 本文件等待 __bootPromise 再初始化
  * ============================================================ */
 (function () {
   'use strict';
-
-  /* ============ 资源地址 ============ */
-  const ICON_DICT_URL = 'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-dict.js';
-  const DATA_URL      = 'data.js';
 
   /* ============ 常量 ============ */
   const STORAGE_KEY = 'genshin_travelers_tales_completed_v2';
   const LEGACY_KEY  = 'genshin_travelers_tales_completed_v1';
   const THEME_KEY   = 'genshin_travelers_tales_theme_v1';
 
-  /* ============ 动态加载脚本 ============ */
-  function loadScript(src) {
-    return new Promise((resolve, reject) => {
-      const s = document.createElement('script');
-      const sep = src.includes('?') ? '&' : '?';
-      s.src = src + sep + 't=' + Date.now();
-      s.onload = () => resolve();
-      s.onerror = () => reject(new Error('加载失败：' + src));
-      document.head.appendChild(s);
-    });
-  }
-
-  /* ============ 全局状态容器 ============ */
+  /* ============ 全局状态 ============ */
   let DATA = null;
   let ENTRIES = [];
   let META = {};
@@ -49,7 +33,7 @@
     openDropdown: null
   };
 
-  /* ============ 工具：旅闻唯一键 ============ */
+  /* ============ 旅闻唯一键 ============ */
   function entryKey(e) {
     return (e.character || '') + '·' + (e.title || '');
   }
@@ -58,7 +42,6 @@
   const $ = (id) => document.getElementById(id);
   const els = {};
 
-  /* ============ 初始化 DOM 引用 ============ */
   function initEls() {
     els.listHost           = $('listHost');
     els.emptyState         = $('emptyState');
@@ -184,7 +167,7 @@
     setTimeout(() => el.remove(), 2600);
   }
 
-  /* ============ 版本 / 状态 / 可见性数据 ============ */
+  /* ============ 版本 / 状态 / 可见性 ============ */
   let VERSION_ITEMS = [];
   const STATUS_ITEMS = [
     { value: 'all',    label: '全部状态' },
@@ -541,17 +524,8 @@
   function currentTheme() {
     return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
   }
-  function initTheme() {
-    let saved = null;
-    try { saved = localStorage.getItem(THEME_KEY); } catch (e) {}
-    if (!saved) {
-      saved = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
-        ? 'dark' : 'light';
-    }
-    if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-  }
 
-  /* ============ 主初始化 ============ */
+  /* ============ 初始化 ============ */
   function init() {
     ENTRIES = DATA.entries;
     META = DATA.meta || {};
@@ -565,7 +539,6 @@
     state.avatarCache = buildAvatarCache();
 
     buildVersionItems();
-    initTheme();
     initEls();
     bindEvents();
 
@@ -594,24 +567,16 @@
   }
 
   /* ============ Bootstrap ============ */
-  async function bootstrap() {
-    try {
-      await Promise.all([
-        loadScript(ICON_DICT_URL),
-        loadScript(DATA_URL)
-      ]);
-
+  window.__bootPromise
+    .then(() => {
       if (!window.TRAVELERS_TALES || !Array.isArray(window.TRAVELERS_TALES.entries)) {
         throw new Error('data.js 内容无效');
       }
-
       DATA = window.TRAVELERS_TALES;
       init();
-    } catch (err) {
+    })
+    .catch((err) => {
       console.error(err);
       showError(err);
-    }
-  }
-
-  bootstrap();
+    });
 })();
