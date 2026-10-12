@@ -2,12 +2,9 @@
 
 《原神》游逸旅闻查询与进度记录工具。
 
-支持搜索、版本筛选、完成状态筛选、勾选记录、导出 / 导入存档。
-
 - 🔗 **主站**：https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/
-- 🛠️ **编辑器**：https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/editor/
-
-> 若在线访问打不开，请到仓库 Settings → Pages 开启 Pages，Source 选 `main` 分支根目录。
+- 🛠️ **编辑器**：https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/editor/（规划中）
+- 📦 **仓库**：https://github.com/GRILLED-TIGER-FISH-LW/genshin-travelers-tales
 
 ---
 
@@ -18,9 +15,10 @@ genshin-travelers-tales/
 ├── index.html          主站
 ├── index.css
 ├── index.js
-├── data.js             数据字典
+├── data.js             数据字典（156 条）
 ├── README.md
-└── editor/             编辑器
+├── CHANGELOG.md
+└── editor/             编辑器（规划中）
     ├── index.html
     ├── index.css
     └── index.js
@@ -33,16 +31,11 @@ genshin-travelers-tales/
 **在线使用**
 
 - 主站：https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/
-- 编辑器：https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/editor/
+- 编辑器：https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/editor/（规划中）
 
-**本地使用**：克隆或下载仓库后，双击 `index.html` 即可。
+**本地使用**：克隆或下载仓库后，双击 `index.html` 打开。
 
-依赖 `shared/theme.css` 和 `shared/gi-icons/icon-dict.js`，来自另一个仓库，默认走 jsDelivr：
-
-```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/GRILLED-TIGER-FISH-LW/genshin-guide@main/shared/theme.css">
-<script src="https://cdn.jsdelivr.net/gh/GRILLED-TIGER-FISH-LW/genshin-guide@main/shared/gi-icons/icon-dict.js"></script>
-```
+跨仓库依赖 `shared/theme.css`、`shared/ui-icons.js`、`shared/gi-icons/icon-dict.js`（来自 `GRILLED-TIGER-FISH-LW/genshin-guide`），通过 GitHub Pages 外链加载，需联网。
 
 ---
 
@@ -50,35 +43,23 @@ genshin-travelers-tales/
 
 ### 主站
 
-- 搜索：角色名 / 旅闻名模糊匹配
-- 筛选：版本、完成状态、正常 / 隐藏
-- 计数：右上角「已完成 X / 156」
-- 勾选：点击卡片切换完成状态，自动存 localStorage
-- 导出：`游逸旅闻存档记录-YYYYMMDD.json`（仅 id 数组）
-- 导入：读取 JSON 恢复勾选
-- 深色模式：跟随系统 / 手动切换
-- 响应式：桌面 + 移动端
+- **搜索**：按「角色名」或「旅闻名」模糊匹配
+- **筛选**：版本 / 完成状态 / 显示类型（正常 / 隐藏）
+- **完成计数**：右上角显示「已完成 X / 156」
+- **勾选记录**：点击卡片切换完成状态，自动存 localStorage
+- **UID 输入**：可选，用于存档文件名
+- **导出存档**：`游逸旅闻存档记录-[UID-]YYYYMMDD.json`
+- **导入存档**：恢复勾选，兼容旧格式
+- **清空记录**：一键清空所有完成标记（二次确认，提示先备份）
+- **主题**：跟随系统 / 手动切换，浅色 / 深色
+- **响应式**：桌面 + 移动端
 
-隐藏条目：旅闻名红色加粗（判定依据为「触发条件」字段非空）。
+隐藏旅闻：旅闻名红色加粗（判定依据为「触发条件」字段非空）。
 
-### 编辑器
+### 编辑器（规划中）
 
-独立页面 `editor/`，用于维护 `data.js`。
-
-- 导入：选择本地 `data.js` 文件，在线解析
-- 条目列表：搜索 / 按版本筛选 / 按隐藏筛选
-- 表单编辑：所有字段可改（角色、版本、旅闻名、隐藏、地点、触发条件、前置旅闻、额外出场角色、描述）
-- 新增 / 删除条目
-- 角色、版本使用 combobox：打字联想，可自定义新值
-- 描述支持换行，换行符会被保存
-- 草稿自动存 localStorage，刷新不丢
-- 导出：生成新的 `data.js` 下载到本地，手动上传覆盖仓库
-
-**工作流**
-
-```
-打开编辑器 → 导入 data.js → 编辑 → 导出 data.js → 上传覆盖仓库
-```
+- 独立页面 `editor/`，用于维护 `data.js`
+- 计划支持：导入 / 导出 `data.js`、条目增删改、角色名 / 版本联想、一键重排 ID
 
 ---
 
@@ -89,31 +70,36 @@ genshin-travelers-tales/
 ```js
 {
   meta: { version, total, updatedAt, source },
-  versions: ["5.4", "5.7", "月之一", ...],   // 筛选下拉顺序
+  versions: ["5.4", "5.7", "月之一", ...],
   entries: [
     {
       id: 1,
-      character: "迪卢克",   // 主角色，用于匹配头像
+      character: "迪卢克",
       version: "5.4",
-      title: "定价",         // 旅闻名
+      title: "定价",
       hidden: false,
       location: "蒙德-晨曦酒庄",
-      trigger: "",           // 触发条件，非空即隐藏
+      trigger: "",           // 触发条件
       prerequisite: "",      // 前置旅闻
-      extra: "",             // 额外出场角色（前端不展示）
       description: "..."
     }
   ]
 }
 ```
 
-空字段不渲染。新增版本时记得同步 `versions` 数组和 `meta.total`。
+**排序**：字典物理顺序为「先版本、后角色（按 `icon-dict` order 升序）」；主站显示顺序为「先角色、后版本」（运行时排序）。
+
+**空字段不渲染。** 新增版本时需同步 `versions` 数组和 `meta.total`。
+
+### 头像
+
+主站运行时从 `window.ICON_DICT` 反查角色头像 URL，只匹配**主角色**。
 
 ---
 
-## 存档
+## 存档说明
 
-**导出**：`游逸旅闻存档记录-YYYYMMDD.json`
+**导出文件**：`游逸旅闻存档记录-[UID-]YYYYMMDD.json`
 
 ```json
 {
@@ -121,29 +107,31 @@ genshin-travelers-tales/
   "version": "7.1",
   "exportedAt": "20261011",
   "total": 156,
-  "completed": [1, 3, 4, 5]
+  "completed": ["迪卢克·5.4·定价", "克洛琳德·月之五·桌上剧团"]
 }
 ```
 
-**导入**：兼容纯数组 `[1,3,4]` 和对象 `{completed:[...]}`。越界 id 忽略，导入覆盖本地记录。
+- 记录格式：`角色名·版本·旅闻名`（三段式 key）
+- 不含头像、不含文本
+- 无 UID 时文件名为 `游逸旅闻存档记录-YYYYMMDD.json`
 
-> 清除浏览器数据会丢失本地记录，请及时导出。
+**导入兼容**：
+- 三段式字符串 → 直接匹配
+- 两段式字符串（旧版）→ 匹配所有同名条目
+- 数字（更旧版）→ 按 id 反查
 
----
+**本地持久化**：key 为 `genshin_travelers_tales_completed_v2`，值为字符串数组。每次勾选自动保存。
 
-## 维护笔记
-
-更新数据时：
-
-1. 打开编辑器，导入最新 `data.js`
-2. 新增或修改条目
-3. 导出 `data.js`，上传覆盖仓库
-4. 页面会自动同步（jsDelivr 有约 12 小时缓存，必要时改用具体 commit 或强制刷新）
-
-新角色若字典缺头像，会显示角色名首字占位，需到 `icon-dict.js` 补充。
+> 清除浏览器数据会丢失本地记录，建议定期导出存档备份。
 
 ---
 
-## 许可
+## 外部依赖
 
-数据来源：原神游逸旅闻社区整理。仅供学习与个人进度记录使用。
+| 文件 | 来源 | 用途 |
+|---|---|---|
+| `theme.css` | `genshin-guide/shared/` | 主题变量 + 通用控件 |
+| `ui-icons.js` | `genshin-guide/shared/` | 通用图标库（`window.ICONS`） |
+| `icon-dict.js` | `genshin-guide/shared/gi-icons/` | 角色头像字典（`window.ICON_DICT`） |
+
+加载方式：`index.html` 内联启动器，**6 个资源并行下载，全部带时间戳**。
