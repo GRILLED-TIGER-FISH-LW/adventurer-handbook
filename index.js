@@ -1,11 +1,9 @@
 /* ============================================================
  * 游逸旅闻汇总 - 主页面逻辑
  * ============================================================
- * 资源加载由 index.html 里的内联启动器统一负责：
- *   · theme.css / index.css / icon-dict.js / data.js / index.js 同时下载
- *   · 全部就绪后，window.__bootPromise resolve
- *   · 本文件等待 __bootPromise 再初始化
- *   · 加载期间 body 被内联样式隐藏，加载完加 .ready 显示
+ * 资源由 index.html 内联启动器并行加载（theme.css / index.css /
+ * ui-icons.js / icon-dict.js / data.js / index.js）。
+ * 本文件等待 window.__bootPromise 后再初始化。
  * ============================================================ */
 (function () {
   'use strict';
@@ -14,6 +12,7 @@
   const STORAGE_KEY = 'genshin_travelers_tales_completed_v2';
   const LEGACY_KEY  = 'genshin_travelers_tales_completed_v1';
   const THEME_KEY   = 'genshin_travelers_tales_theme_v1';
+  const UID_KEY     = 'genshin_travelers_tales_uid_v1';
 
   /* ============ 全局状态 ============ */
   let DATA = null;
@@ -29,14 +28,38 @@
     version: 'all',
     status: 'all',
     visibility: 'all',
-    done: new Set(),
+    done: new Set(),         // 三段式 key：角色名·版本·旅闻名
     avatarCache: new Map(),
     openDropdown: null
   };
 
-  /* ============ 旅闻唯一键 ============ */
+  /* ============ 三段式 key ============ */
   function entryKey(e) {
-    return (e.character || '') + '·' + (e.title || '');
+    return (e.character || '') + '·' + (e.version || '') + '·' + (e.title || '');
+  }
+
+  /* ============ 图标 helper ============ */
+  function getIcon(key) {
+    if (!window.ICONS) return '';
+    const parts = key.split('.');
+    let node = window.ICONS;
+    for (let i = 0; i < parts.length; i++) {
+      if (!node) return '';
+      node = node[parts[i]];
+    }
+    return typeof node === 'string' ? node : '';
+  }
+
+  // 把 HTML 里所有 [data-icon] 元素填充 SVG
+  function injectIcons() {
+    document.querySelectorAll('[data-icon]').forEach(el => {
+      if (el.dataset.iconInjected === '1') return;
+      const svg = getIcon(el.dataset.icon);
+      if (svg) {
+        el.innerHTML = svg;
+        el.dataset.iconInjected = '1';
+      }
+    });
   }
 
   /* ============ DOM 引用 ============ */
@@ -44,26 +67,27 @@
   const els = {};
 
   function initEls() {
-    els.listHost           = $('listHost');
-    els.emptyState         = $('emptyState');
-    els.searchInput        = $('searchInput');
-    els.searchClear        = $('searchClear');
-    els.counterDone        = $('counterDone');
-    els.counterTotal       = $('counterTotal');
-    els.btnExport          = $('btnExport');
-    els.btnImport          = $('btnImport');
-    els.btnClear           = $('btnClear');
-    els.btnTheme           = $('btnTheme');
-    els.importFile         = $('importFile');
-    els.versionTrigger     = $('versionTrigger');
-    els.versionLabel       = $('versionLabel');
-    els.versionPanel       = $('versionPanel');
-    els.statusTrigger      = $('statusTrigger');
-    els.statusLabel        = $('statusLabel');
-    els.statusPanel        = $('statusPanel');
-    els.visibilityTrigger  = $('visibilityTrigger');
-    els.visibilityLabel    = $('visibilityLabel');
-    els.visibilityPanel    = $('visibilityPanel');
+    els.listHost          = $('listHost');
+    els.emptyState        = $('emptyState');
+    els.searchInput       = $('searchInput');
+    els.searchClear       = $('searchClear');
+    els.counterDone       = $('counterDone');
+    els.counterTotal      = $('counterTotal');
+    els.uidInput          = $('uidInput');
+    els.btnExport         = $('btnExport');
+    els.btnImport         = $('btnImport');
+    els.btnClear          = $('btnClear');
+    els.btnTheme          = $('btnTheme');
+    els.importFile        = $('importFile');
+    els.versionTrigger    = $('versionTrigger');
+    els.versionLabel      = $('versionLabel');
+    els.versionPanel      = $('versionPanel');
+    els.statusTrigger     = $('statusTrigger');
+    els.statusLabel       = $('statusLabel');
+    els.statusPanel       = $('statusPanel');
+    els.visibilityTrigger = $('visibilityTrigger');
+    els.visibilityLabel   = $('visibilityLabel');
+    els.visibilityPanel   = $('visibilityPanel');
   }
 
   /* ============ localStorage ============ */
@@ -72,13 +96,75 @@
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return [];
       const arr = JSON.parse(raw);
-      return Array.isArray(arr) ? arr.filter(s => typeof s === 'string') : [];
+      if (!Array.isArray(arr)) return [];
+      // 只保留三段式（角色名·版本·旅闻名）的 key
+      return arr.filter(s => typeof s === 'string' && s.split('·').length === 3);
     } catch (e) { return []; }
   }
   function saveDone() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify([...state.done]));
     } catch (e) {}
+  }
+
+  function loadUid() {
+    try { return localStorage.getItem(UID_KEY) || ''; } catch (e) { return ''; }
+  }
+  function saveUid(v) {
+    try {
+      if (v) localStorage.setItem(UID_KEY, v);
+      else localStorage.removeItem(UID_KEY);
+    } catch (e) {}
+  }
+
+  /* ============ Toast（用 theme 的 .toast） ============ */
+  function toast(msg, type) {
+    let box = document.querySelector('.toast-container');
+    if (!box) {
+      box = document.createElement('div');
+      box.className = 'toast-container';
+      document.body.appendChild(box);
+    }
+    const el = document.createElement('div');
+    el.className = 'toast' + (type === 'error' ? ' toast-error'
+                            : type === 'success' ? ' toast-success' : '');
+    el.textContent = msg;
+    box.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('show'));
+    setTimeout(() => {
+      el.classList.remove('show');
+      setTimeout(() => el.remove(), 300);
+    }, 2400);
+  }
+
+  /* ============ 确认弹窗（用 theme 的 .modal-box） ============ */
+  function showConfirm(title, message) {
+    return new Promise(resolve => {
+      const backdrop = document.createElement('div');
+      backdrop.className = 'modal-backdrop';
+      backdrop.innerHTML =
+        '<div class="modal-box">' +
+          '<div class="modal-title">' + escapeHtml(title) + '</div>' +
+          '<div class="modal-message">' + escapeHtml(message).replace(/\n/g, '<br>') + '</div>' +
+          '<div class="modal-actions">' +
+            '<button type="button" data-act="cancel">取消</button>' +
+            '<button type="button" data-act="confirm">确定</button>' +
+          '</div>' +
+        '</div>';
+      document.body.appendChild(backdrop);
+      requestAnimationFrame(() => backdrop.classList.add('show'));
+
+      const cleanup = (result) => {
+        backdrop.classList.remove('show');
+        setTimeout(() => backdrop.remove(), 220);
+        resolve(result);
+      };
+      backdrop.addEventListener('click', (e) => {
+        const act = e.target.closest('[data-act]');
+        if (act) cleanup(act.dataset.act === 'confirm');
+        else if (e.target === backdrop) cleanup(false);
+      });
+    });
   }
 
   /* ============ 头像反查 ============ */
@@ -132,7 +218,7 @@
     });
   }
 
-  /* ============ 工具 ============ */
+  /* ============ 文本工具 ============ */
   function escapeHtml(str) {
     if (str == null) return '';
     return String(str)
@@ -144,28 +230,7 @@
   }
   function cleanText(str) {
     if (str == null) return '';
-    return String(str)
-      .replace(/<br\s*\/?>/gi, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-  }
-  function cleanTrigger(str) {
-    return cleanText(str).replace(/^备注[:：]\s*/, '').trim();
-  }
-  function cleanPrereq(str) {
-    return cleanText(str).replace(/^(前置|备注)[:：]\s*/, '').trim();
-  }
-
-  function toast(msg) {
-    const el = document.createElement('div');
-    el.style.cssText =
-      'position:fixed;left:50%;bottom:30px;transform:translateX(-50%);' +
-      'background:rgba(31,29,26,.9);color:#fff;padding:8px 16px;' +
-      'border-radius:8px;font-size:13px;z-index:9999;pointer-events:none;' +
-      'max-width:80vw;text-align:center;';
-    el.textContent = msg;
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 2600);
+    return String(str).replace(/<br\s*\/?>/gi, ' ').replace(/\s+/g, ' ').trim();
   }
 
   /* ============ 版本 / 状态 / 可见性 ============ */
@@ -188,20 +253,21 @@
   }
 
   /* ============ 下拉 ============ */
-  const CHECK_SVG = '<svg class="dropdown-item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 13 10 18 19 7"></polyline></svg>';
+  const CHECK_HTML = '<span class="ic dropdown-item-check">' + getIcon('ui.check') + '</span>';
 
   function renderItems(panelEl, items, current) {
     panelEl.innerHTML = items.map(it => {
       const active = it.value === current ? ' active' : '';
-      return `<button type="button" class="dropdown-item${active}" data-value="${escapeHtml(it.value)}">` +
-             `<span>${escapeHtml(it.label)}</span>${CHECK_SVG}</button>`;
+      return '<button type="button" class="dropdown-item' + active + '" data-value="' + escapeHtml(it.value) + '">' +
+             '<span>' + escapeHtml(it.label) + '</span>' + CHECK_HTML +
+             '</button>';
     }).join('');
   }
 
   function openDropdown(key) {
     closeDropdown();
     state.openDropdown = key;
-    const wrap = document.querySelector(`.dropdown-wrap[data-key="${key}"]`);
+    const wrap = document.querySelector('.dropdown-wrap[data-key="' + key + '"]');
     if (wrap) wrap.classList.add('open');
 
     if (key === 'version')    renderItems(els.versionPanel, VERSION_ITEMS, state.version);
@@ -246,36 +312,34 @@
     const initial = e.character ? e.character.charAt(0) : '?';
 
     const avatarHtml = avatarUrl
-      ? `<img src="${escapeHtml(avatarUrl)}" alt="" loading="lazy" onerror="this.remove()">${escapeHtml(initial)}`
+      ? '<img src="' + escapeHtml(avatarUrl) + '" alt="" loading="lazy" onerror="this.remove()">' + escapeHtml(initial)
       : escapeHtml(initial);
 
     const locHtml = (e.location && e.location.trim())
-      ? `<div class="tale-loc">` +
-          `<span class="tale-meta-key">地点</span>` +
-          `<span class="tale-meta-val">${escapeHtml(cleanText(e.location))}</span>` +
-        `</div>`
+      ? '<div class="tale-loc">' +
+          '<span class="tale-meta-key">地点</span>' +
+          '<span class="tale-meta-val">' + escapeHtml(cleanText(e.location)) + '</span>' +
+        '</div>'
       : '';
 
-    const trigger = cleanTrigger(e.trigger);
-    const trigHtml = trigger
-      ? `<div class="tale-trig">` +
-          `<span class="tale-meta-key">触发条件</span>` +
-          `<span class="tale-meta-val">${escapeHtml(trigger)}</span>` +
-        `</div>`
+    const trigHtml = (e.trigger && e.trigger.trim())
+      ? '<div class="tale-trig">' +
+          '<span class="tale-meta-key">触发条件</span>' +
+          '<span class="tale-meta-val">' + escapeHtml(cleanText(e.trigger)) + '</span>' +
+        '</div>'
       : '';
 
-    const prereq = cleanPrereq(e.prerequisite);
-    const prereqHtml = prereq
-      ? `<div class="tale-prereq">` +
-          `<span class="tale-meta-key">前置旅闻</span>` +
-          `<span class="tale-meta-val">${escapeHtml(prereq)}</span>` +
-        `</div>`
+    const prereqHtml = (e.prerequisite && e.prerequisite.trim())
+      ? '<div class="tale-prereq">' +
+          '<span class="tale-meta-key">前置旅闻</span>' +
+          '<span class="tale-meta-val">' + escapeHtml(cleanText(e.prerequisite)) + '</span>' +
+        '</div>'
       : '';
 
     const descHtml = (e.description && e.description.trim())
-      ? `<div class="tale-desc">${escapeHtml(e.description)}</div>` : '';
+      ? '<div class="tale-desc">' + escapeHtml(e.description) + '</div>' : '';
 
-    // 动态 grid-template-areas：内层用单引号，避免与外层 HTML 属性的双引号冲突
+    // 动态 grid-template-areas：内层用单引号，避免与外层 HTML 双引号冲突
     const areas = ["'avatar head   check'"];
     if (locHtml)    areas.push("'avatar loc    loc'");
     if (trigHtml)   areas.push("'trig   trig   trig'");
@@ -283,23 +347,21 @@
     if (descHtml)   areas.push("'desc   desc   desc'");
 
     return (
-      `<div class="tale-card${isDone ? ' done' : ''}" data-key="${escapeHtml(key)}" tabindex="0" style="grid-template-areas: ${areas.join(' ')}">` +
-        `<div class="tale-avatar">${avatarHtml}</div>` +
-        `<div class="tale-head">` +
-          `<span class="tale-char">${escapeHtml(e.character)}</span>` +
-          `<span class="tale-version">${escapeHtml(e.version)}</span>` +
-          `<span class="tale-title${e.hidden ? ' hidden' : ''}">${escapeHtml(e.title)}</span>` +
-        `</div>` +
-        `<div class="tale-check" role="checkbox" aria-checked="${isDone}">` +
-          `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">` +
-            `<polyline points="5 13 10 18 19 7"></polyline>` +
-          `</svg>` +
-        `</div>` +
+      '<div class="tale-card' + (isDone ? ' done' : '') + '" data-key="' + escapeHtml(key) + '" tabindex="0" style="grid-template-areas: ' + areas.join(' ') + '">' +
+        '<div class="tale-avatar">' + avatarHtml + '</div>' +
+        '<div class="tale-head">' +
+          '<span class="tale-char">' + escapeHtml(e.character) + '</span>' +
+          '<span class="tale-version">' + escapeHtml(e.version) + '</span>' +
+          '<span class="tale-title' + (e.hidden ? ' hidden' : '') + '">' + escapeHtml(e.title) + '</span>' +
+        '</div>' +
+        '<div class="tale-check" role="checkbox" aria-checked="' + isDone + '">' +
+          '<span class="ic">' + getIcon('ui.check') + '</span>' +
+        '</div>' +
         locHtml +
         trigHtml +
         prereqHtml +
         descHtml +
-      `</div>`
+      '</div>'
     );
   }
 
@@ -332,7 +394,7 @@
     else updateCardState(key);
   }
   function updateCardState(key) {
-    const card = els.listHost.querySelector(`.tale-card[data-key="${CSS.escape(key)}"]`);
+    const card = els.listHost.querySelector('.tale-card[data-key="' + CSS.escape(key) + '"]');
     if (!card) return;
     const isDone = state.done.has(key);
     card.classList.toggle('done', isDone);
@@ -376,6 +438,14 @@
       state.search = '';
       render();
       els.searchInput.focus();
+    });
+
+    // UID 输入框：只留数字
+    els.uidInput.value = loadUid();
+    els.uidInput.addEventListener('input', () => {
+      const cleaned = els.uidInput.value.replace(/\D/g, '');
+      if (cleaned !== els.uidInput.value) els.uidInput.value = cleaned;
+      saveUid(cleaned);
     });
 
     // 下拉触发器
@@ -430,6 +500,10 @@
       const ymd = d.getFullYear().toString()
         + String(d.getMonth() + 1).padStart(2, '0')
         + String(d.getDate()).padStart(2, '0');
+      const uid = loadUid();
+      const filename = uid
+        ? ('游逸旅闻存档记录-' + uid + '-' + ymd + '.json')
+        : ('游逸旅闻存档记录-' + ymd + '.json');
 
       const payload = {
         schema: 'genshin-travelers-tales',
@@ -443,7 +517,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `游逸旅闻存档记录-${ymd}.json`;
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -460,26 +534,43 @@
         try {
           const json = JSON.parse(reader.result);
           const list = Array.isArray(json) ? json : (json.completed || []);
-
           const next = new Set();
 
+          // 反查表
           const idToKey = new Map();
-          ENTRIES.forEach(e => idToKey.set(e.id, entryKey(e)));
+          const twoPartMap = new Map();   // "角色名·旅闻名" → [三段 key ...]
+          ENTRIES.forEach(e => {
+            const k3 = entryKey(e);
+            idToKey.set(e.id, k3);
+            const k2 = (e.character || '') + '·' + (e.title || '');
+            if (!twoPartMap.has(k2)) twoPartMap.set(k2, []);
+            twoPartMap.get(k2).push(k3);
+          });
 
-          for (const item of list) {
+          list.forEach(item => {
             if (typeof item === 'string') {
-              next.add(item);
+              const parts = item.split('·');
+              if (parts.length === 3) {
+                // 三段式，直接匹配
+                next.add(item);
+              } else if (parts.length === 2) {
+                // 旧两段式，匹配所有同名条
+                const keys = twoPartMap.get(item);
+                if (keys) keys.forEach(k => next.add(k));
+              }
             } else if (typeof item === 'number') {
-              const key = idToKey.get(item);
-              if (key) next.add(key);
+              // 旧 v1 数字，用 id 反查
+              const k = idToKey.get(item);
+              if (k) next.add(k);
             }
-          }
+          });
 
           state.done = next;
           saveDone();
           render();
+          toast('存档导入成功', 'success');
         } catch (err) {
-          alert('导入失败：文件格式不正确');
+          toast('导入失败：文件格式不正确', 'error');
         }
         els.importFile.value = '';
       };
@@ -487,13 +578,14 @@
     });
 
     // 清空完成记录
-    els.btnClear.addEventListener('click', () => {
+    els.btnClear.addEventListener('click', async () => {
       if (state.done.size === 0) {
         toast('暂无已完成的旅闻');
         return;
       }
-      const ok = window.confirm(
-        '确定清空所有完成标记吗？\n\n' +
+      const ok = await showConfirm(
+        '清空完成记录',
+        '确定清空所有完成标记吗？共 ' + state.done.size + ' 条。\n\n' +
         '建议先「导出存档」备份进度，清空后无法恢复。'
       );
       if (!ok) return;
@@ -504,7 +596,7 @@
         localStorage.removeItem(LEGACY_KEY);
       } catch (e) {}
       render();
-      toast('已清空完成记录');
+      toast('已清空完成记录', 'success');
     });
 
     // 主题
@@ -542,6 +634,7 @@
     buildVersionItems();
     initEls();
     bindEvents();
+    injectIcons();
 
     // 清理已不存在的 key
     let dirty = false;
@@ -553,7 +646,7 @@
 
     render();
 
-    // 揭开 body（显示完整页面）
+    // 揭开 body
     document.body.classList.add('ready');
   }
 
@@ -562,13 +655,14 @@
     const host = document.getElementById('listHost');
     if (host) {
       host.innerHTML =
-        '<div class="error-state">' +
-          '<p>数据加载失败</p>' +
-          '<p style="font-size:12px;color:var(--text-tertiary)">' + escapeHtml(err && err.message ? err.message : '未知错误') + '</p>' +
-          '<button type="button" class="action-btn" onclick="location.reload()">重新加载</button>' +
+        '<div style="padding:60px 20px;text-align:center;color:var(--danger);font-size:13px;line-height:1.7;">' +
+          '<p style="margin:0 0 12px;">数据加载失败</p>' +
+          '<p style="margin:0;font-size:12px;color:var(--text-tertiary);">' +
+            escapeHtml(err && err.message ? err.message : '未知错误') +
+          '</p>' +
+          '<button type="button" class="action-btn" style="margin-top:16px;" onclick="location.reload()">重新加载</button>' +
         '</div>';
     }
-    // 加载失败也要显示，让用户看到错误
     document.body.classList.add('ready');
   }
 
