@@ -98,7 +98,7 @@ body {
 .counter-sep   { color: var(--text-tertiary); margin: 0; font-weight: 700; }
 .counter-total { color: var(--text-secondary); font-weight: 700; font-size: 12px; }
 
-/* 主题按钮 */
+/* 主题按钮（纯图标）：图标 = 按钮高度 × 60% */
 .theme-btn {
   width: var(--ctl-h);
   height: var(--ctl-h);
@@ -121,8 +121,8 @@ body {
 
 /* 主题图标：默认隐藏，根据 data-theme 显示对应图标 */
 .theme-icon {
-  width: 16px !important;
-  height: 16px !important;
+  width: 23px !important;
+  height: 23px !important;
 }
 .theme-sun  { display: inline-flex !important; }
 .theme-moon { display: none !important; }
@@ -168,6 +168,7 @@ body {
 }
 .search-input::placeholder { color: var(--text-tertiary); }
 
+/* 搜索清除按钮（纯图标，24×24）：图标 = 24 × 60% ≈ 14px */
 .search-clear {
   position: absolute;
   right: 4px;
@@ -185,8 +186,8 @@ body {
   transition: background .15s, color .15s;
 }
 .search-clear .ic {
-  width: 12px;
-  height: 12px;
+  width: 14px !important;
+  height: 14px !important;
 }
 .search-clear.visible { display: inline-flex; }
 .search-clear:hover { background: var(--bg-hover); color: var(--text-primary); }
@@ -216,9 +217,10 @@ body {
 .action-btn:hover { background: var(--bg-hover); border-color: var(--border-strong); }
 .action-btn:active { transform: scale(.97); }
 
+/* 有文字的按钮：图标 = 字号 + 5px 左右 */
 .action-btn-icon {
-  width: 14px !important;
-  height: 14px !important;
+  width: 15px !important;
+  height: 15px !important;
 }
 
 /* 清空按钮：danger 风格 */
@@ -287,16 +289,15 @@ body {
   text-align: left;
 }
 
-/* 下拉箭头：ICONS 的 chevronDown 自带 180° 旋转（视觉向上），
- * 这里外层再转 180° 让它默认朝下 ▼；打开时不转 → 朝上 ▲ */
+/* 下拉箭头：ICONS 的 chevronDown 本体就是 ▼，默认不转；
+ * 打开时转 180° → 变成 ▲ */
 .dropdown-arrow {
-  width: 9px !important;
-  height: 9px !important;
+  width: 14px !important;
+  height: 14px !important;
   color: var(--text-secondary);
   transition: transform .25s cubic-bezier(0.16, 1, 0.3, 1);
-  transform: rotate(180deg);
 }
-.dropdown-wrap.open .dropdown-arrow { transform: rotate(0deg); }
+.dropdown-wrap.open .dropdown-arrow { transform: rotate(180deg); }
 
 /* 下拉面板：从 wrap 顶部铺开，把触发器"包"进去 */
 .dropdown-panel {
@@ -361,8 +362,8 @@ body {
   font-weight: 600;
 }
 .dropdown-item-check {
-  width: 10px !important;
-  height: 10px !important;
+  width: 12px !important;
+  height: 12px !important;
   flex-shrink: 0;
   color: var(--accent);
   display: none !important;
@@ -587,15 +588,15 @@ body {
   .app-title { font-size: 15px; }
   .counter { padding: 2.5px 8px; }
   .theme-icon {
-    width: 15px !important;
-    height: 15px !important;
+    width: 21px !important;
+    height: 21px !important;
   }
   .uid-input {
     width: 90px !important;
     font-size: 12px !important;
   }
 
-  /* 按钮只显示图标 */
+  /* 手机上：导出/导入/清空 变成纯图标按钮 */
   .action-btn {
     width: var(--ctl-h);
     padding: 0;
@@ -603,8 +604,8 @@ body {
   }
   .action-btn-text { display: none; }
   .action-btn-icon {
-    width: 16px !important;
-    height: 16px !important;
+    width: 23px !important;
+    height: 23px !important;
   }
 
   /* 下拉均分整行 */
@@ -620,8 +621,8 @@ body {
   }
   .dropdown-label { font-size: 12px; }
   .dropdown-arrow {
-    width: 8px !important;
-    height: 8px !important;
+    width: 13px !important;
+    height: 13px !important;
   }
 
   .app-main  { padding: 10px 12px 20px; }
