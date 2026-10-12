@@ -42,9 +42,7 @@ body {
   margin: 0;
   letter-spacing: -0.3px;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex-shrink: 1;
+  flex-shrink: 0;
   min-width: 0;
 }
 
@@ -562,9 +560,28 @@ body {
 /* ============================================================
  * 响应式
  * ============================================================ */
+
+/* ≤ 560px：标题独占一行，UID + 计数 + 主题排第二行（UID 左，其余右） */
+@media (max-width: 560px) {
+  .row-title {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+  .app-title {
+    flex-basis: 100%;
+  }
+  .uid-input {
+    margin-left: 0;
+    order: 1;
+  }
+  .title-right {
+    order: 2;
+    margin-left: auto;
+  }
+}
+
 @media (max-width: 480px) {
   .app-header { padding: 9px 12px 10px; }
-  .row-title { gap: 6px; }
   .row-search-actions { gap: 5px; }
 
   .app-title { font-size: 15px; }
@@ -576,7 +593,6 @@ body {
   .uid-input {
     width: 90px !important;
     font-size: 12px !important;
-    margin-left: 6px;
   }
 
   /* 按钮只显示图标 */
