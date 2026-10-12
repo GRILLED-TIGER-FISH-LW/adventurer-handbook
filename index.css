@@ -1,5 +1,7 @@
 /* ============================================================
  * 游逸旅闻汇总 - 主页面样式
+ * 依赖 shared/theme.css 的 CSS 变量
+ * 图标全部走 shared/ui-icons.js 注入（data-icon 机制）
  * ============================================================ */
 
 html, body { margin: 0; padding: 0; }
@@ -32,7 +34,7 @@ body {
 .row-search-actions { margin-bottom: 8px; }
 .row-filters        { margin-bottom: 0; flex-wrap: wrap; }
 
-/* ---------- 行 1：标题 + 计数 + 主题 ---------- */
+/* ---------- 行 1：标题 + UID + 计数 + 主题 ---------- */
 .app-title {
   font-size: 16px;
   font-weight: 600;
@@ -53,6 +55,27 @@ body {
   flex-shrink: 0;
 }
 
+/* UID 输入框 */
+.uid-input {
+  width: 110px !important;
+  height: 28px !important;
+  padding: 0 10px !important;
+  background: var(--bg-sunken) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: var(--radius-sm) !important;
+  color: var(--text-primary) !important;
+  font-size: 12px !important;
+  text-align: center;
+  outline: none !important;
+  transition: border-color .15s, box-shadow .15s !important;
+}
+.uid-input:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 2px var(--accent-soft) !important;
+}
+.uid-input::placeholder { color: var(--text-tertiary); }
+
+/* 计数 */
 .counter {
   display: inline-flex;
   align-items: baseline;
@@ -74,6 +97,7 @@ body {
 .counter-sep   { color: var(--text-tertiary); margin: 0; font-weight: 700; }
 .counter-total { color: var(--text-secondary); font-weight: 700; font-size: 12px; }
 
+/* 主题按钮 */
 .theme-btn {
   width: var(--ctl-h);
   height: var(--ctl-h);
@@ -93,18 +117,16 @@ body {
 }
 .theme-btn:hover { background: var(--bg-hover); border-color: var(--border-strong); }
 .theme-btn:active { transform: scale(.94); }
+
+/* 主题图标：默认隐藏，根据 data-theme 显示对应图标 */
 .theme-icon {
   width: 16px !important;
   height: 16px !important;
-  min-width: 16px !important;
-  max-width: 16px !important;
-  min-height: 16px !important;
-  max-height: 16px !important;
-  display: none !important;
 }
-.theme-sun { display: block !important; }
-[data-theme="dark"] .theme-sun  { display: none  !important; }
-[data-theme="dark"] .theme-moon { display: block !important; }
+.theme-sun  { display: inline-flex !important; }
+.theme-moon { display: none !important; }
+[data-theme="dark"] .theme-sun  { display: none !important; }
+[data-theme="dark"] .theme-moon { display: inline-flex !important; }
 
 /* ---------- 行 2：搜索框 + 导出/导入/清空 ---------- */
 .row-search-actions { gap: 6px; }
@@ -116,31 +138,21 @@ body {
   display: flex;
   align-items: center;
 }
+
 .search-icon {
   position: absolute;
   left: 10px;
   width: 14px !important;
   height: 14px !important;
-  min-width: 14px !important;
-  max-width: 14px !important;
-  min-height: 14px !important;
-  max-height: 14px !important;
   color: var(--text-tertiary);
   pointer-events: none;
   z-index: 1;
-  display: block !important;
-}
-.search-icon * {
-  width: 100% !important;
-  height: 100% !important;
-  max-width: 14px !important;
-  max-height: 14px !important;
 }
 
 .search-input {
   width: 100% !important;
   height: var(--ctl-h) !important;
-  padding: 0 28px 0 30px !important;
+  padding: 0 30px 0 32px !important;
   background: var(--bg-sunken) !important;
   border: 1px solid var(--border-default) !important;
   border-radius: var(--radius-sm) !important;
@@ -157,25 +169,28 @@ body {
 
 .search-clear {
   position: absolute;
-  right: 5px;
-  width: 20px;
-  height: 20px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
   border: none;
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
   border-radius: 50%;
-  font-size: 16px;
-  line-height: 1;
   display: none;
   align-items: center;
   justify-content: center;
   padding: 0;
   transition: background .15s, color .15s;
 }
+.search-clear .ic {
+  width: 12px;
+  height: 12px;
+}
 .search-clear.visible { display: inline-flex; }
 .search-clear:hover { background: var(--bg-hover); color: var(--text-primary); }
 
+/* 操作按钮 */
 .action-btn {
   height: var(--ctl-h);
   padding: 0 12px;
@@ -199,18 +214,13 @@ body {
 }
 .action-btn:hover { background: var(--bg-hover); border-color: var(--border-strong); }
 .action-btn:active { transform: scale(.97); }
-.action-btn svg {
+
+.action-btn-icon {
   width: 14px !important;
   height: 14px !important;
-  min-width: 14px !important;
-  max-width: 14px !important;
-  min-height: 14px !important;
-  max-height: 14px !important;
-  flex-shrink: 0;
-  display: block !important;
 }
 
-/* 清空按钮：danger 风格（淡红边框 + 红色图标/文字） */
+/* 清空按钮：danger 风格 */
 .action-btn.danger {
   border-color: var(--danger-border);
   color: var(--danger);
@@ -226,14 +236,6 @@ body {
   gap: 6px;
   row-gap: 6px;
   align-items: stretch;
-}
-
-.dropdowns {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  flex: 1 1 auto;
-  min-width: 0;
 }
 
 .dropdown-wrap {
@@ -284,21 +286,18 @@ body {
   text-align: left;
 }
 
+/* 下拉箭头：ICONS 的 chevronDown 自带 180° 旋转（视觉向上），
+ * 这里外层再转 180° 让它默认朝下 ▼；打开时不转 → 朝上 ▲ */
 .dropdown-arrow {
   width: 9px !important;
   height: 9px !important;
-  min-width: 9px !important;
-  max-width: 9px !important;
-  min-height: 9px !important;
-  max-height: 9px !important;
-  flex-shrink: 0;
   color: var(--text-secondary);
   transition: transform .25s cubic-bezier(0.16, 1, 0.3, 1);
-  display: block !important;
+  transform: rotate(180deg);
 }
-.dropdown-wrap.open .dropdown-arrow { transform: rotate(180deg); }
+.dropdown-wrap.open .dropdown-arrow { transform: rotate(0deg); }
 
-/* 面板：从 wrap 顶部铺开，把触发器"包"进去 —— 按钮与菜单为同一整体 */
+/* 下拉面板：从 wrap 顶部铺开，把触发器"包"进去 */
 .dropdown-panel {
   position: absolute;
   top: 0;
@@ -349,7 +348,7 @@ body {
   appearance: none;
   white-space: nowrap;
 }
-.dropdown-item > span {
+.dropdown-item > span:first-child {
   white-space: nowrap;
   min-width: 0;
   flex: 1 1 auto;
@@ -363,15 +362,11 @@ body {
 .dropdown-item-check {
   width: 10px !important;
   height: 10px !important;
-  min-width: 10px !important;
-  max-width: 10px !important;
-  min-height: 10px !important;
-  max-height: 10px !important;
   flex-shrink: 0;
   color: var(--accent);
   display: none !important;
 }
-.dropdown-item.active .dropdown-item-check { display: block !important; }
+.dropdown-item.active .dropdown-item-check { display: inline-flex !important; }
 
 /* ============================================================
  * 列表区
@@ -387,40 +382,6 @@ body {
   flex-direction: column;
   gap: 10px;
 }
-
-/* 加载状态 */
-.loading-state {
-  padding: 80px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  color: var(--text-tertiary);
-  font-size: 13px;
-}
-.loading-spinner {
-  width: 28px;
-  height: 28px;
-  border: 2.5px solid var(--border-default);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin .8s linear infinite;
-}
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-.loading-state p { margin: 0; }
-
-/* 加载失败 */
-.error-state {
-  padding: 80px 20px;
-  text-align: center;
-  color: var(--danger);
-  font-size: 13px;
-  line-height: 1.7;
-}
-.error-state p { margin: 0 0 12px; }
 
 /* ---------- 卡片 ---------- */
 /* grid-template-areas 由 JS 动态设置：
@@ -460,6 +421,7 @@ body {
 .tale-card.done .tale-prereq,
 .tale-card.done .tale-desc { opacity: .55; }
 
+/* 头像 */
 .tale-avatar {
   grid-area: avatar;
   align-self: start;
@@ -486,6 +448,7 @@ body {
   display: block;
 }
 
+/* 第一行：角色名 · 版本 · 旅闻名 */
 .tale-head {
   grid-area: head;
   display: flex;
@@ -519,6 +482,7 @@ body {
   font-weight: 700;
 }
 
+/* 勾选框（右上角） */
 .tale-check {
   grid-area: check;
   align-self: start;
@@ -534,45 +498,22 @@ body {
   transition: background .15s, border-color .15s;
   box-sizing: border-box;
   flex-shrink: 0;
+  color: #fff;
 }
-.tale-check svg {
+.tale-check .ic {
   width: 12px !important;
   height: 12px !important;
-  min-width: 12px !important;
-  max-width: 12px !important;
-  min-height: 12px !important;
-  max-height: 12px !important;
-  color: #fff;
   opacity: 0;
   transition: opacity .12s;
-  display: block !important;
 }
 .tale-card.done .tale-check { background: var(--accent); border-color: var(--accent); }
-.tale-card.done .tale-check svg { opacity: 1; }
+.tale-card.done .tale-check .ic { opacity: 1; }
 .tale-card:hover .tale-check { border-color: var(--accent); }
 
-.tale-loc {
-  grid-area: loc;
-  display: flex;
-  gap: 6px;
-  align-items: flex-start;
-  font-size: 12px;
-  color: var(--text-secondary);
-  line-height: 1.5;
-  min-width: 0;
-}
-.tale-trig {
-  grid-area: trig;
-  display: flex;
-  gap: 6px;
-  align-items: flex-start;
-  font-size: 12px;
-  color: var(--text-secondary);
-  line-height: 1.5;
-  min-width: 0;
-}
+/* 元信息 */
+.tale-loc,
+.tale-trig,
 .tale-prereq {
-  grid-area: prereq;
   display: flex;
   gap: 6px;
   align-items: flex-start;
@@ -581,6 +522,10 @@ body {
   line-height: 1.5;
   min-width: 0;
 }
+.tale-loc    { grid-area: loc; }
+.tale-trig   { grid-area: trig; }
+.tale-prereq { grid-area: prereq; }
+
 .tale-meta-key {
   flex-shrink: 0;
   color: var(--text-tertiary);
@@ -590,6 +535,7 @@ body {
 }
 .tale-meta-val { min-width: 0; word-break: break-word; }
 
+/* 描述 */
 .tale-desc {
   grid-area: desc;
   font-size: 12.5px;
@@ -608,53 +554,66 @@ body {
   text-align: center;
   color: var(--text-tertiary);
 }
-.empty-state svg {
+.empty-state-icon {
   width: 40px !important;
   height: 40px !important;
-  max-width: 40px !important;
-  max-height: 40px !important;
   margin: 0 auto 12px;
   opacity: .5;
-  display: block !important;
+  display: flex !important;
 }
 .empty-state p { margin: 0; font-size: 13px; }
 
 /* ============================================================
  * 响应式
  * ============================================================ */
+@media (max-width: 640px) {
+  /* 行 1：窄屏下 UID 换行到独立行 */
+  .row-title { flex-wrap: wrap; row-gap: 8px; }
+  .app-title { flex-basis: 100%; }
+  .title-right {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+  .uid-input {
+    width: 100px !important;
+    order: -1;
+  }
+  .counter { order: 0; }
+  .theme-btn { order: 1; }
+}
+
 @media (max-width: 480px) {
   .app-header { padding: 9px 12px 10px; }
-  .row-title          { margin-bottom: 7px; }
-  .row-search-actions { margin-bottom: 7px; gap: 5px; }
+  .row-search-actions { gap: 5px; }
 
   .app-title { font-size: 15px; }
   .counter { padding: 2.5px 8px; }
   .theme-icon {
     width: 15px !important;
     height: 15px !important;
-    min-width: 15px !important;
-    max-width: 15px !important;
-    min-height: 15px !important;
-    max-height: 15px !important;
+  }
+  .uid-input {
+    height: 26px !important;
+    font-size: 11.5px !important;
+    width: 92px !important;
   }
 
+  /* 按钮只显示图标 */
   .action-btn {
     width: var(--ctl-h);
     padding: 0;
     gap: 0;
   }
   .action-btn-text { display: none; }
-  .action-btn svg {
+  .action-btn-icon {
     width: 16px !important;
     height: 16px !important;
-    min-width: 16px !important;
-    max-width: 16px !important;
-    min-height: 16px !important;
-    max-height: 16px !important;
   }
 
+  /* 下拉均分整行 */
   .row-filters { gap: 5px; row-gap: 5px; }
-  .dropdowns { gap: 5px; }
   .dropdown-wrap {
     flex: 1 1 0;
     min-width: 0;
@@ -668,15 +627,12 @@ body {
   .dropdown-arrow {
     width: 8px !important;
     height: 8px !important;
-    min-width: 8px !important;
-    max-width: 8px !important;
-    min-height: 8px !important;
-    max-height: 8px !important;
   }
 
   .app-main  { padding: 10px 12px 20px; }
   .list-host { gap: 8px; }
 
+  /* 卡片 */
   .tale-card {
     grid-template-columns: 36px 1fr 18px;
     column-gap: 9px;
@@ -693,13 +649,9 @@ body {
     width: 18px;
     height: 18px;
   }
-  .tale-check svg {
+  .tale-check .ic {
     width: 11px !important;
     height: 11px !important;
-    min-width: 11px !important;
-    max-width: 11px !important;
-    min-height: 11px !important;
-    max-height: 11px !important;
   }
   .tale-char  { font-size: 13.5px; }
   .tale-title { font-size: 13px; }
