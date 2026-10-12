@@ -40,10 +40,11 @@
     });
   }
 
-  // 3. 五个资源同时启动下载
+  // 3. 六个资源同时启动下载
   window.__bootPromise = Promise.all([
     loadStyle('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/theme.css'),
     loadStyle('index.css'),
+    loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/ui-icons.js'),
     loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-dict.js'),
     loadScript('data.js'),
     loadScript('index.js')
@@ -78,6 +79,21 @@
     color: #8A8279;
   }
   body.ready .boot-loading { display: none; }
+
+  /* 图标插槽：由 JS 注入 SVG，尺寸撑满 1em */
+  .ic {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1em;
+    height: 1em;
+    flex-shrink: 0;
+  }
+  .ic > svg {
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+  }
 </style>
 </head>
 <body>
@@ -86,9 +102,11 @@
 
 <header class="app-header">
 
+  <!-- 行 1：标题 + UID + 计数 + 主题 -->
   <div class="header-row row-title">
     <h1 class="app-title">游逸旅闻汇总</h1>
     <div class="title-right">
+      <input type="text" id="uidInput" class="uid-input" placeholder="UID（可选）" maxlength="15" inputmode="numeric" autocomplete="off" spellcheck="false">
       <div class="counter">
         <span class="counter-label">已完成</span>
         <span class="counter-done" id="counterDone">0</span>
@@ -96,71 +114,44 @@
         <span class="counter-total" id="counterTotal">156</span>
       </div>
       <button type="button" class="theme-btn" id="btnTheme" aria-label="切换主题">
-        <svg class="theme-icon theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="4.5"></circle>
-          <line x1="12" y1="2"  x2="12" y2="4"></line>
-          <line x1="12" y1="20" x2="12" y2="22"></line>
-          <line x1="4.2" y1="4.2" x2="5.6" y2="5.6"></line>
-          <line x1="18.4" y1="18.4" x2="19.8" y2="19.8"></line>
-          <line x1="2" y1="12" x2="4" y2="12"></line>
-          <line x1="20" y1="12" x2="22" y2="12"></line>
-          <line x1="4.2" y1="19.8" x2="5.6" y2="18.4"></line>
-          <line x1="18.4" y1="5.6" x2="19.8" y2="4.2"></line>
-        </svg>
-        <svg class="theme-icon theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-        </svg>
+        <span class="ic theme-icon theme-sun"  data-icon="app.sun"></span>
+        <span class="ic theme-icon theme-moon" data-icon="app.moon"></span>
       </button>
     </div>
   </div>
 
+  <!-- 行 2：搜索框 + 导出/导入/清空 -->
   <div class="header-row row-search-actions">
     <div class="search-wrap">
-      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="7"></circle>
-        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-      </svg>
+      <span class="ic search-icon" data-icon="ui.search"></span>
       <input type="text" id="searchInput" class="search-input" placeholder="搜索角色名 / 旅闻名" autocomplete="off" spellcheck="false">
-      <button type="button" class="search-clear" id="searchClear" aria-label="清除">×</button>
+      <button type="button" class="search-clear" id="searchClear" aria-label="清除">
+        <span class="ic" data-icon="app.close"></span>
+      </button>
     </div>
 
     <button type="button" class="action-btn" id="btnExport" aria-label="导出存档" title="导出存档">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-        <polyline points="7 10 12 15 17 10"></polyline>
-        <line x1="12" y1="15" x2="12" y2="3"></line>
-      </svg>
+      <span class="ic action-btn-icon" data-icon="ui.export"></span>
       <span class="action-btn-text">导出存档</span>
     </button>
 
     <button type="button" class="action-btn" id="btnImport" aria-label="导入存档" title="导入存档">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-        <polyline points="17 8 12 3 7 8"></polyline>
-        <line x1="12" y1="3" x2="12" y2="15"></line>
-      </svg>
+      <span class="ic action-btn-icon" data-icon="ui.import"></span>
       <span class="action-btn-text">导入存档</span>
     </button>
 
     <button type="button" class="action-btn danger" id="btnClear" aria-label="清空完成记录" title="清空完成记录">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="3 6 5 6 21 6"></polyline>
-        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
-        <path d="M10 11v6"></path>
-        <path d="M14 11v6"></path>
-        <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
-      </svg>
+      <span class="ic action-btn-icon" data-icon="ui.trash"></span>
       <span class="action-btn-text">清空记录</span>
     </button>
   </div>
 
+  <!-- 行 3：三个下拉 -->
   <div class="header-row row-filters">
     <div class="dropdown-wrap" data-key="version">
       <button type="button" class="dropdown-trigger" id="versionTrigger">
         <span class="dropdown-label" id="versionLabel">全部版本</span>
-        <svg class="dropdown-arrow" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M1 1.5L6 6.5L11 1.5"/>
-        </svg>
+        <span class="ic dropdown-arrow" data-icon="ui.chevronDown"></span>
       </button>
       <div class="dropdown-panel" id="versionPanel"></div>
     </div>
@@ -168,9 +159,7 @@
     <div class="dropdown-wrap" data-key="status">
       <button type="button" class="dropdown-trigger" id="statusTrigger">
         <span class="dropdown-label" id="statusLabel">全部状态</span>
-        <svg class="dropdown-arrow" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M1 1.5L6 6.5L11 1.5"/>
-        </svg>
+        <span class="ic dropdown-arrow" data-icon="ui.chevronDown"></span>
       </button>
       <div class="dropdown-panel" id="statusPanel"></div>
     </div>
@@ -178,9 +167,7 @@
     <div class="dropdown-wrap" data-key="visibility">
       <button type="button" class="dropdown-trigger" id="visibilityTrigger">
         <span class="dropdown-label" id="visibilityLabel">全部类型</span>
-        <svg class="dropdown-arrow" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M1 1.5L6 6.5L11 1.5"/>
-        </svg>
+        <span class="ic dropdown-arrow" data-icon="ui.chevronDown"></span>
       </button>
       <div class="dropdown-panel" id="visibilityPanel"></div>
     </div>
@@ -191,10 +178,7 @@
 <main class="app-main">
   <div class="list-host" id="listHost"></div>
   <div class="empty-state" id="emptyState" hidden>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="11" cy="11" r="7"></circle>
-      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-    </svg>
+    <span class="ic empty-state-icon" data-icon="ui.search"></span>
     <p>没有找到匹配的旅闻</p>
   </div>
 </main>
