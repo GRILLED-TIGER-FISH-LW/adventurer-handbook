@@ -1,189 +1,96 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="color-scheme" content="light dark">
-<title>游逸旅闻汇总</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#F4F1EA">
+<title>提瓦特冒险之证</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="favicon.ico">
 
-<!-- 内联启动器：主题前置 + 并行加载所有资源 -->
 <script>
-(function () {
-  // 1. 主题前置（防闪色）
-  try {
-    var t = localStorage.getItem('genshin_travelers_tales_theme_v1');
-    if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-  } catch (e) {}
+/* =========================================================================
+ * 资源加载器 (2026 现代 ES6+ 语法)
+ * ========================================================================= */
+(async function () {
+  const ts = Date.now();
+  const withTs = (url) => url + (url.indexOf('?') >= 0 ? '&' : '?') + 't=' + ts;
 
-  // 2. 时间戳，统一绕过浏览器缓存
-  var ts = Date.now();
+  const loadStyle = (href) => new Promise((resolve, reject) => {
+    const l = document.createElement('link');
+    l.rel = 'stylesheet'; l.href = withTs(href);
+    l.onload = resolve;
+    l.onerror = () => reject(new Error('加载失败：' + href));
+    const firstStyle = document.head.querySelector('style');
+    if (firstStyle) document.head.insertBefore(l, firstStyle);
+    else document.head.appendChild(l);
+  });
 
-  function loadScript(src) {
-    return new Promise(function (resolve, reject) {
-      var s = document.createElement('script');
-      s.src = src + (src.indexOf('?') >= 0 ? '&' : '?') + 't=' + ts;
-      s.onload = resolve;
-      s.onerror = function () { reject(new Error('加载失败：' + src)); };
-      document.head.appendChild(s);
-    });
-  }
+  const loadScript = (src) => new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = withTs(src);
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('加载失败：' + src));
+    document.head.appendChild(s);
+  });
 
-  function loadStyle(href) {
-    return new Promise(function (resolve, reject) {
-      var l = document.createElement('link');
-      l.rel = 'stylesheet';
-      l.href = href + (href.indexOf('?') >= 0 ? '&' : '?') + 't=' + ts;
-      l.onload = resolve;
-      l.onerror = function () { reject(new Error('加载失败：' + href)); };
-      document.head.appendChild(l);
-    });
-  }
-
-  // 3. 六个资源同时启动下载
   window.__bootPromise = Promise.all([
     loadStyle('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/theme.css'),
-    loadStyle('index.css'),
-    loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/ui-icons.js'),
-    loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-dict.js'),
-    loadScript('data.js'),
-    loadScript('index.js')
+    loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/ui-icons.js')
   ]);
 })();
 </script>
 
-<!-- 启动期样式：body 隐藏 + 加载提示，加载完由 JS 加 .ready 揭开 -->
 <style>
-  html { background: #F2EFEA; }
-  html[data-theme="dark"] { background: #121212; }
-
+  /* 统一使用全局变量，防止加载时颜色闪烁 */
   body { visibility: hidden; }
   body.ready { visibility: visible; }
-
   .boot-loading {
-    position: fixed;
-    inset: 0;
-    z-index: 99999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #F2EFEA;
-    color: #9C958A;
-    font-size: 13px;
-    font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
-    letter-spacing: -0.2px;
+    position: fixed; inset: 0; z-index: 99999;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg-base, #F4F1EA); color: var(--text-tertiary, #A69E95);
+    font-size: 13px; font-family: var(--std-font, sans-serif);
     visibility: visible;
   }
-  html[data-theme="dark"] .boot-loading {
-    background: #121212;
-    color: #8A8279;
-  }
   body.ready .boot-loading { display: none; }
-
-  /* 图标插槽：由 JS 注入 SVG，尺寸撑满 1em */
-  .ic {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1em;
-    height: 1em;
-    flex-shrink: 0;
-  }
-  .ic > svg {
-    width: 100% !important;
-    height: 100% !important;
-    display: block !important;
-  }
 </style>
 </head>
 <body>
 
-<div class="boot-loading">正在加载最新数据…</div>
+<div class="boot-loading">正在载入冒险之证…</div>
 
-<header class="app-header">
-
-  <!-- 行 1：标题 + UID + 计数 + 主题 -->
-  <div class="header-row row-title">
-    <h1 class="app-title">游逸旅闻汇总</h1>
-    <input type="text" id="uidInput" class="uid-input" placeholder="UID（可选）" maxlength="15" inputmode="numeric" autocomplete="off" spellcheck="false">
-    <div class="title-right">
-      <div class="counter">
-        <span class="counter-label">已完成</span>
-        <span class="counter-done" id="counterDone">0</span>
-        <span class="counter-sep">/</span>
-        <span class="counter-total" id="counterTotal">156</span>
-      </div>
-      <button type="button" class="theme-btn" id="btnTheme" aria-label="切换主题">
-        <span class="ic theme-icon theme-sun"  data-icon="app.sun"></span>
-        <span class="ic theme-icon theme-moon" data-icon="app.moon"></span>
-      </button>
-    </div>
+<header class="app-navbar">
+  <button type="button" class="nav-btn" id="btnMenu" aria-label="打开菜单"></button>
+  <div class="nav-title">
+    <span class="nav-title-icon" id="navIcon"></span>
+    <span class="nav-title-text" id="navText">提瓦特冒险之证</span>
   </div>
-
-  <!-- 行 2：搜索框 + 导出/导入/清空 -->
-  <div class="header-row row-search-actions">
-    <div class="search-wrap">
-      <span class="ic search-icon" data-icon="ui.search"></span>
-      <input type="text" id="searchInput" class="search-input" placeholder="搜索角色名 / 旅闻名" autocomplete="off" spellcheck="false">
-      <button type="button" class="search-clear" id="searchClear" aria-label="清除">
-        <span class="ic" data-icon="app.close"></span>
-      </button>
-    </div>
-
-    <button type="button" class="action-btn" id="btnExport" aria-label="导出存档" title="导出存档">
-      <span class="ic action-btn-icon" data-icon="ui.export"></span>
-      <span class="action-btn-text">导出存档</span>
-    </button>
-
-    <button type="button" class="action-btn" id="btnImport" aria-label="导入存档" title="导入存档">
-      <span class="ic action-btn-icon" data-icon="ui.import"></span>
-      <span class="action-btn-text">导入存档</span>
-    </button>
-
-    <button type="button" class="action-btn danger" id="btnClear" aria-label="清空完成记录" title="清空完成记录">
-      <span class="ic action-btn-icon" data-icon="ui.trash"></span>
-      <span class="action-btn-text">清空记录</span>
-    </button>
-  </div>
-
-  <!-- 行 3：三个下拉 -->
-  <div class="header-row row-filters">
-    <div class="dropdown-wrap" data-key="version">
-      <button type="button" class="dropdown-trigger" id="versionTrigger">
-        <span class="dropdown-label" id="versionLabel">全部版本</span>
-        <span class="ic dropdown-arrow" data-icon="ui.chevronDown"></span>
-      </button>
-      <div class="dropdown-panel" id="versionPanel"></div>
-    </div>
-
-    <div class="dropdown-wrap" data-key="status">
-      <button type="button" class="dropdown-trigger" id="statusTrigger">
-        <span class="dropdown-label" id="statusLabel">全部状态</span>
-        <span class="ic dropdown-arrow" data-icon="ui.chevronDown"></span>
-      </button>
-      <div class="dropdown-panel" id="statusPanel"></div>
-    </div>
-
-    <div class="dropdown-wrap" data-key="visibility">
-      <button type="button" class="dropdown-trigger" id="visibilityTrigger">
-        <span class="dropdown-label" id="visibilityLabel">全部类型</span>
-        <span class="ic dropdown-arrow" data-icon="ui.chevronDown"></span>
-      </button>
-      <div class="dropdown-panel" id="visibilityPanel"></div>
-    </div>
-  </div>
-
+  <button type="button" class="nav-btn" id="btnTheme" aria-label="切换主题"></button>
 </header>
 
-<main class="app-main">
-  <div class="list-host" id="listHost"></div>
-  <div class="empty-state" id="emptyState" hidden>
-    <span class="ic empty-state-icon" data-icon="ui.search"></span>
-    <p>没有找到匹配的旅闻</p>
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+<aside class="sidebar-drawer" id="sidebarDrawer">
+  <div class="sidebar-header">
+    <h3>功能导航</h3>
+    <button type="button" class="nav-btn" id="btnClose" aria-label="关闭菜单"></button>
+  </div>
+  <nav class="sidebar-menu" id="sidebarMenu"></nav>
+</aside>
+
+<main class="home-view" id="homeView"></main>
+
+<main class="frame-container" id="frameContainer">
+  <div class="loading-mask" id="loadingMask">
+    <div class="spinner"></div>
+    <span>正在载入模块…</span>
   </div>
 </main>
 
-<input type="file" id="importFile" accept=".json,application/json" hidden>
-
+<!-- 引入外壳逻辑 -->
+<script src="app.js?t="></script>
+<script>
+  // 利用时间戳更新 app.js
+  document.querySelector('script[src^="app.js"]').src = 'app.js?t=' + (window.__pageLoadTs || Date.now());
+</script>
 </body>
 </html>
