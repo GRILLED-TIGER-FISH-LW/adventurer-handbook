@@ -22,11 +22,9 @@
 | 入口 | 访问链接 | 状态 |
 |---|---|---|
 | 主站（冒险之证） | [打开首页](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/) | ✅ |
-| 游逸旅闻 | [#tales](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/#tales) · [tools/tales/](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/tools/tales/) | ✅ |
-| 游逸旅闻编辑器 | [tools/tales-editor/](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/tools/tales-editor/) | ✅ |
+| 游逸旅闻 | [#tales](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/#tales) | ✅ |
+| 游逸旅闻编辑器 | [#tales-editor](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/tools/tales-editor/) | ✅ |
 | 尘歌壶赠礼 | `#gift-set`（规划中，暂未上线） | 🚧 |
-
-> 表格中 `#tales` 为主站内 hash 路由入口（依赖外壳 `app.js` 的 hash 监听）；`tools/...` 为独立页面直达链接。
 
 **本地使用**：克隆或下载仓库后，必须启动本地静态服务器（如 `python -m http.server 8080`），双击直接打开会有 CORS 跨域限制。
 
@@ -42,7 +40,7 @@
 - **暗黑模式适配**：完全跟随主站主题，使用主仓库 `theme.css` 变量。
 
 ### 2. 游逸旅闻编辑器
-> 独立工具页：[tools/tales-editor/](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/tools/tales-editor/)
+> 独立工具页：[#tales-editor](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/tools/tales-editor/)
 
 - **双栏编辑**：左侧列表（头像 + 标题 + 角色·版本），右侧表单实时编辑。
 - **头像自动匹配**：读 `window.ICON_DICT`，按 `prefix + key + ext` 或 `item.url` 拼装，无需手动填图。
