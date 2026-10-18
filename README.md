@@ -19,12 +19,14 @@
 
 > 主页为 **Bento 网格 Dashboard**。所有子工具通过 `iframe` 动态加载，实现外壳与业务的彻底解耦。编辑器为独立工具页，不嵌入外壳。
 
-| 入口 | 独立访问 | 主站内入口 | 状态 |
-|---|---|---|---|
-| 主站（冒险之证） | [打开](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/) | — | ✅ |
-| 游逸旅闻 | [打开](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/tools/tales/) | [`#tales`](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/#tales) | ✅ |
-| 游逸旅闻编辑器 | [打开](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/tools/tales-editor/) | 独立工具页 | ✅ |
-| 尘歌壶赠礼 | [打开](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/tools/gift-set/) | [`#gift-set`](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/#gift-set) | 🚧 规划中 |
+| 入口 | 访问链接 | 状态 |
+|---|---|---|
+| 主站（冒险之证） | [打开首页](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/) | ✅ |
+| 游逸旅闻 | [#tales](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/#tales) · [tools/tales/](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/tools/tales/) | ✅ |
+| 游逸旅闻编辑器 | [tools/tales-editor/](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/tools/tales-editor/) | ✅ |
+| 尘歌壶赠礼 | `#gift-set`（规划中，暂未上线） | 🚧 |
+
+> 表格中 `#tales` 为主站内 hash 路由入口（依赖外壳 `app.js` 的 hash 监听）；`tools/...` 为独立页面直达链接。
 
 **本地使用**：克隆或下载仓库后，必须启动本地静态服务器（如 `python -m http.server 8080`），双击直接打开会有 CORS 跨域限制。
 
@@ -88,7 +90,7 @@
 | **业务图标**（按钮 / 系统 UI） | `genshin-guide/shared/ui-icons.js` → `window.ICONS` | 走 `wsrv.nl` 代理加载 Fandom Wiki 原图，前端 Canvas 像素级去白边 |
 | **角色头像字典** | `genshin-guide/shared/gi-icons/icon-dict.js` → `window.ICON_DICT` | `config.characters.prefix` = `https://api.lunaris.moe/data/assets/avataricon/`，前端按 `prefix + key + ext` 或 `item.url` 拼装 |
 
-**编辑器兜底图标**：`ui-icons.js` 中缺失的 `reload` / `reorder` / `back` / `file`，在 `app.js` 顶部 `FALLBACK_ICONS` 内嵌，通过 `pickIcon(key)` 按 `ICONS[key] ?? FALLBACK_ICONS[key]` 兜底。
+**编辑器兜底图标**：`ui-icons.js` 中缺失的 `reload` / `reorder` / `back` / `file`，在 `app.js` 顶部 `FALLBACK_ICONS` 内嵌，通过 `resolveIcon(key)` 按 `ICONS[key] ?? FALLBACK_ICONS[key]` 兜底。
 
 ---
 
