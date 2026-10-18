@@ -1,5 +1,5 @@
 /* ============================================================
- * 游逸旅闻编辑器 - 逻辑
+ * 游逸旅闻编辑器 · 逻辑
  * ============================================================ */
 (function () {
   'use strict';
@@ -7,15 +7,243 @@
   const DRAFT_KEY = 'genshin_travelers_tales_editor_draft_v1';
   const THEME_KEY = 'genshin_travelers_tales_theme_v1';
 
-  /* ============ 排序：先角色（order），后版本，再 id ============ */
-  const ORDER_MAP = (function () {
+  /* ============================================================
+   * 1. 兜底图标（ui-icons.js 中缺失的 4 个）
+   * ============================================================ */
+  const FALLBACK_ICONS = {
+    reload:
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="M224 48v48a8 8 0 0 1-8 8h-48a8 8 0 0 1 0-16h28.69l-14.63-14.63a79.56 79.56 0 0 0-56.13-23.43h-.45a79.52 79.52 0 0 0-55.89 22.77a8 8 0 0 1-11.18-11.44a96 96 0 0 1 135 .79L208 76.69V48a8 8 0 0 1 16 0m-37.59 135.29a80 80 0 0 1-112.47-.66L59.31 168H88a8 8 0 0 0 0-16H40a8 8 0 0 0-8 8v48a8 8 0 0 0 16 0v-28.69l14.63 14.63A95.43 95.43 0 0 0 130 222.06h.53a95.36 95.36 0 0 0 67.07-27.33a8 8 0 0 0-11.18-11.44Z"/></svg>',
+    reorder:
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="M237.66 178.34a8 8 0 0 1 0 11.32l-24 24a8 8 0 0 1-11.32-11.32L212.69 192h-11.75a72.12 72.12 0 0 1-58.59-30.15l-41.72-58.4A56.1 56.1 0 0 0 55.06 80H32a8 8 0 0 1 0-16h23.06a72.12 72.12 0 0 1 58.59 30.15l41.72 58.4A56.1 56.1 0 0 0 200.94 176h11.75l-10.35-10.34a8 8 0 0 1 11.32-11.32ZM143 107a8 8 0 0 0 11.16-1.86l1.2-1.67A56.1 56.1 0 0 1 200.94 80h11.75l-10.35 10.34a8 8 0 0 0 11.32 11.32l24-24a8 8 0 0 0 0-11.32l-24-24a8 8 0 0 0-11.32 11.32L212.69 64h-11.75a72.12 72.12 0 0 0-58.59 30.15l-1.2 1.67A8 8 0 0 0 143 107m-30 42a8 8 0 0 0-11.16 1.86l-1.2 1.67A56.1 56.1 0 0 1 55.06 176H32a8 8 0 0 0 0 16h23.06a72.12 72.12 0 0 0 58.59-30.15l1.2-1.67A8 8 0 0 0 113 149"/></svg>',
+    back:
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="M232 184a8 8 0 0 1-16 0a88 88 0 0 0-150.22-62.22L43.4 144H88a8 8 0 0 1 0 16H24a8 8 0 0 1-8-8V88a8 8 0 0 1 16 0v44.77l22.48-22.33A104 104 0 0 1 232 184"/></svg>',
+    file:
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="m213.66 82.34l-56-56A8 8 0 0 0 152 24H56a16 16 0 0 0-16 16v176a16 16 0 0 0 16 16h144a16 16 0 0 0 16-16V88a8 8 0 0 0-2.34-5.66M160 51.31L188.69 80H160ZM200 216H56V40h88v48a8 8 0 0 0 8 8h48z"/></svg>'
+  };
+
+  /* ============================================================
+   * 2. 工具函数
+   * ============================================================ */
+  function resolveIcon(key) {
+    if (window.ICONS) {
+      let cur = window.ICONS;
+      for (const p of key.split('.')) {
+        cur = cur?.[p];
+        if (!cur) break;
+      }
+      if (typeof cur === 'string') return cur;
+    }
+    return FALLBACK_ICONS[key] || '';
+  }
+
+  function injectIcons(root = document) {
+    root.querySelectorAll('[data-icon]').forEach((el) => {
+      if (el.dataset.iconReady === '1') return;
+      const svg = resolveIcon(el.dataset.icon);
+      if (svg) {
+        el.innerHTML = svg;
+        el.dataset.iconReady = '1';
+      }
+    });
+  }
+
+  const esc = (str) => {
+    if (str == null) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  };
+
+  const escJs = (str) => {
+    if (str == null) return '';
+    return String(str)
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '')
+      .replace(/\t/g, '\\t');
+  };
+
+  const todayStr = () => {
+    const d = new Date();
+    return (
+      d.getFullYear() + '-' +
+      String(d.getMonth() + 1).padStart(2, '0') + '-' +
+      String(d.getDate()).padStart(2, '0')
+    );
+  };
+
+  /* ============================================================
+   * 3. DOM 引用
+   * ============================================================ */
+  const $ = (id) => document.getElementById(id);
+  const els = {
+    dirtyDot: $('dirtyDot'),
+    btnReload: $('btnReload'),
+    btnImport: $('btnImport'),
+    btnRenumber: $('btnRenumber'),
+    btnExport: $('btnExport'),
+    btnTheme: $('btnTheme'),
+    searchInput: $('searchInput'),
+    searchClear: $('searchClear'),
+    versionTrigger: $('versionTrigger'),
+    versionLabel: $('versionLabel'),
+    visibilityTrigger: $('visibilityTrigger'),
+    visibilityLabel: $('visibilityLabel'),
+    edListPane: $('edListPane'),
+    edList: $('edList'),
+    btnAdd: $('btnAdd'),
+    edFormPane: $('edFormPane'),
+    fileInput: $('fileInput'),
+    toastContainer: $('toastContainer'),
+    modalBackdrop: $('modalBackdrop'),
+    modalTitle: $('modalTitle'),
+    modalMessage: $('modalMessage'),
+    modalActions: $('modalActions'),
+    sheetBackdrop: $('sheetBackdrop'),
+    sheet: $('sheet'),
+    sheetHeader: $('sheetHeader'),
+    sheetList: $('sheetList')
+  };
+
+  /* ============================================================
+   * 4. Toast / 确认框 / 下拉抽屉
+   * ============================================================ */
+  function toast(message, type = '') {
+    const el = document.createElement('div');
+    el.className = 'toast' + (type ? ' toast-' + type : '');
+    el.textContent = message;
+    els.toastContainer.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('show'));
+    setTimeout(() => {
+      el.classList.remove('show');
+      setTimeout(() => el.remove(), 350);
+    }, 2200);
+  }
+
+  function confirmDialog({ title, message, okText = '确定', cancelText = '取消', danger = false }) {
+    return new Promise((resolve) => {
+      els.modalTitle.textContent = title || '';
+      els.modalMessage.textContent = message || '';
+      els.modalActions.innerHTML = '';
+
+      const cancelBtn = document.createElement('button');
+      cancelBtn.type = 'button';
+      cancelBtn.className = 'btn-sm';
+      cancelBtn.textContent = cancelText;
+
+      const okBtn = document.createElement('button');
+      okBtn.type = 'button';
+      okBtn.className = 'btn-sm ' + (danger ? 'btn-danger' : 'ios-btn-fill');
+      okBtn.textContent = okText;
+
+      els.modalActions.append(cancelBtn, okBtn);
+      els.modalBackdrop.classList.add('show');
+
+      const close = (result) => {
+        els.modalBackdrop.classList.remove('show');
+        cancelBtn.removeEventListener('click', onCancel);
+        okBtn.removeEventListener('click', onOk);
+        els.modalBackdrop.removeEventListener('click', onBackdrop);
+        resolve(result);
+      };
+      const onCancel = () => close(false);
+      const onOk = () => close(true);
+      const onBackdrop = (e) => {
+        if (e.target === els.modalBackdrop) close(false);
+      };
+
+      cancelBtn.addEventListener('click', onCancel);
+      okBtn.addEventListener('click', onOk);
+      els.modalBackdrop.addEventListener('click', onBackdrop);
+    });
+  }
+
+  function openSheet({ header, items, current, onSelect }) {
+    els.sheetHeader.textContent = header || '';
+    els.sheetList.innerHTML = '';
+
+    items.forEach((item) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'tab-sheet-item' + (item.value === current ? ' active' : '');
+      btn.innerHTML =
+        '<span>' + esc(item.label) + '</span>' +
+        '<span class="tab-sheet-item-check"><span class="ic" data-icon="ui.check"></span></span>';
+      btn.addEventListener('click', () => {
+        closeSheet();
+        onSelect(item.value);
+      });
+      els.sheetList.appendChild(btn);
+    });
+    injectIcons(els.sheetList);
+
+    els.sheetBackdrop.classList.add('show');
+    els.sheet.classList.add('show');
+
+    const onBackdrop = (e) => {
+      if (e.target === els.sheetBackdrop) closeSheet();
+    };
+    els.sheetBackdrop.addEventListener('click', onBackdrop);
+
+    function closeSheet() {
+      els.sheetBackdrop.classList.remove('show');
+      els.sheet.classList.remove('show');
+      els.sheetBackdrop.removeEventListener('click', onBackdrop);
+    }
+  }
+
+  /* ============================================================
+   * 5. 主题
+   * ============================================================ */
+  const currentTheme = () =>
+    document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+
+  function applyTheme(theme) {
+    document.documentElement.classList.add('theme-switching');
+    if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    else document.documentElement.removeAttribute('data-theme');
+    setTimeout(() => document.documentElement.classList.remove('theme-switching'), 120);
+  }
+
+  /* ============================================================
+   * 6. 状态 + 头像缓存 + 角色排序
+   * ============================================================ */
+  function buildAvatarCache() {
+    const cache = new Map();
+    const dict = window.ICON_DICT;
+    if (!dict?.characters) return cache;
+    const cfg = dict.config?.characters;
+    for (const [key, item] of Object.entries(dict.characters)) {
+      if (!item?.name) continue;
+      let url;
+      if (item.url) url = item.url;
+      else if (!cfg) continue;
+      else if (/\.(webp|png|jpe?g)$/i.test(key)) url = cfg.prefix + key;
+      else url = cfg.prefix + key + cfg.ext;
+      cache.set(item.name, url);
+    }
+    return cache;
+  }
+
+  function buildCharList() {
+    const dict = window.ICON_DICT;
+    if (!dict?.characters) return [];
+    return Object.values(dict.characters)
+      .filter((x) => x?.name)
+      .sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999))
+      .map((x) => x.name);
+  }
+
+  const ORDER_MAP = (() => {
     const m = new Map();
-    if (window.ICON_DICT && window.ICON_DICT.characters) {
-      for (const key in window.ICON_DICT.characters) {
-        const item = window.ICON_DICT.characters[key];
-        if (item && item.name) {
-          m.set(item.name, typeof item.order === 'number' ? item.order : 9999);
-        }
+    const dict = window.ICON_DICT;
+    if (dict?.characters) {
+      for (const item of Object.values(dict.characters)) {
+        if (item?.name) m.set(item.name, item.order ?? 9999);
       }
     }
     return m;
@@ -33,131 +261,21 @@
     charList: buildCharList()
   };
 
-  function buildAvatarCache() {
-    const cache = new Map();
-    if (!window.ICON_DICT || !window.ICON_DICT.characters) return cache;
-    const cfg = window.ICON_DICT.config && window.ICON_DICT.config.characters;
-    if (!cfg) return cache;
-    for (const key in window.ICON_DICT.characters) {
-      const item = window.ICON_DICT.characters[key];
-      if (!item || !item.name) continue;
-      let url;
-      if (item.url)                   url = item.url;
-      else if (key.endsWith('.webp')) url = cfg.prefix + key;
-      else                            url = cfg.prefix + key + cfg.ext;
-      cache.set(item.name, url);
-    }
-    return cache;
-  }
+  const avatarUrl = (name) => state.avatarCache.get(name) || '';
 
-  function buildCharList() {
-    if (!window.ICON_DICT || !window.ICON_DICT.characters) return [];
-    const arr = [];
-    for (const key in window.ICON_DICT.characters) {
-      const item = window.ICON_DICT.characters[key];
-      if (!item || !item.name) continue;
-      arr.push({ name: item.name, order: item.order || 9999 });
-    }
-    arr.sort((a, b) => a.order - b.order);
-    return arr.map(x => x.name);
-  }
-
-  function avatarUrl(name) {
-    return state.avatarCache.get(name) || '';
-  }
-
-  const $ = (id) => document.getElementById(id);
-  const els = {
-    dirtyDot: $('dirtyDot'),
-    btnReload: $('btnReload'),
-    btnImport: $('btnImport'),
-    btnRenumber: $('btnRenumber'),
-    btnExport: $('btnExport'),
-    btnTheme: $('btnTheme'),
-    fileInput: $('fileInput'),
-    listPane: $('edListPane'),
-    formPane: $('edFormPane'),
-    searchInput: $('searchInput'),
-    versionTrigger: $('versionTrigger'),
-    versionLabel: $('versionLabel'),
-    visibilityTrigger: $('visibilityTrigger'),
-    visibilityLabel: $('visibilityLabel'),
-    edList: $('edList'),
-    btnAdd: $('btnAdd')
-  };
-
-  function esc(str) {
-    if (str == null) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
-
-  function escJs(str) {
-    if (str == null) return '';
-    return String(str)
-      .replace(/\\/g, '\\\\')
-      .replace(/"/g, '\\"')
-      .replace(/\n/g, '\\n')
-      .replace(/\r/g, '')
-      .replace(/\t/g, '\\t');
-  }
-
-  function todayStr() {
-    const d = new Date();
-    return d.getFullYear() + '-' +
-      String(d.getMonth() + 1).padStart(2, '0') + '-' +
-      String(d.getDate()).padStart(2, '0');
-  }
-
-  function toast(msg) {
-    const el = document.createElement('div');
-    el.style.cssText = 'position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:rgba(31,29,26,.9);color:#fff;padding:8px 16px;border-radius:8px;font-size:13px;z-index:9999;pointer-events:none;';
-    el.textContent = msg;
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 2000);
-  }
-
-  function confirmBox(msg) {
-    return window.confirm(msg);
-  }
-
-  function applyTheme(theme) {
-    document.documentElement.classList.add('theme-switching');
-    if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-    else document.documentElement.removeAttribute('data-theme');
-    setTimeout(() => document.documentElement.classList.remove('theme-switching'), 100);
-  }
-  function currentTheme() {
-    return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-  }
-  els.btnTheme.addEventListener('click', () => {
-    const next = currentTheme() === 'dark' ? 'light' : 'dark';
-    applyTheme(next);
-    try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
-  });
-  (function initTheme() {
-    let saved = null;
-    try { saved = localStorage.getItem(THEME_KEY); } catch (e) {}
-    if (!saved) {
-      saved = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    }
-    if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-  })();
+  /* ============================================================
+   * 7. 草稿持久化
+   * ============================================================ */
+  let draftTimer = null;
 
   function saveDraft() {
-    try {
-      localStorage.setItem(DRAFT_KEY, JSON.stringify(state.data));
-    } catch (e) {}
+    if (!state.data) return;
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify(state.data)); } catch (e) {}
   }
   function loadDraft() {
     try {
       const raw = localStorage.getItem(DRAFT_KEY);
-      if (!raw) return null;
-      return JSON.parse(raw);
+      return raw ? JSON.parse(raw) : null;
     } catch (e) { return null; }
   }
   function clearDraft() {
@@ -166,78 +284,81 @@
   function markDirty() {
     state.dirty = true;
     els.dirtyDot.hidden = false;
-    saveDraft();
+    clearTimeout(draftTimer);
+    draftTimer = setTimeout(saveDraft, 400);
   }
   function clearDirty() {
     state.dirty = false;
     els.dirtyDot.hidden = true;
-  }
-
-  function parseDataJs(text) {
-    const cleaned = text
-      .replace(/\/\*[\s\S]*?\*\//g, '')
-      .replace(/^\s*\/\/.*$/gm, '');
-    const match = cleaned.match(/window\.TRAVELERS_TALES\s*=\s*([\s\S]*?);?\s*$/);
-    if (!match) throw new Error('未找到 window.TRAVELERS_TALES');
-    let data;
-    try {
-      data = new Function('return ' + match[1])();
-    } catch (e) {
-      throw new Error('语法错误：' + e.message);
-    }
-    if (!data || typeof data !== 'object') throw new Error('解析结果不是对象');
-    if (!Array.isArray(data.entries)) throw new Error('缺少 entries 数组');
-    if (!Array.isArray(data.versions)) data.versions = [];
-    if (!data.meta) data.meta = {};
-    return data;
+    clearTimeout(draftTimer);
   }
 
   /* ============================================================
-   * 导出：data.js 保持「先版本、后角色」的物理顺序
+   * 8. 数据解析 / 序列化
    * ============================================================ */
-  function serializeData(data) {
-    const lines = [];
-    lines.push('/* ============================================================');
-    lines.push(' * 原神 · 游逸旅闻 数据字典');
-    lines.push(' * 生成时间：' + todayStr());
-    lines.push(' * ============================================================');
-    lines.push(' * 说明：');
-    lines.push(' *   · 只记录「主角色」（角色列为空的条目，向上继承最近的非空角色）');
-    lines.push(' *   · hidden = 「隐藏（地图不显示）触发条件」列非空');
-    lines.push(' *   · 头像 URL 由 window.ICON_DICT 运行时匹配，本文件不含图片地址');
-    lines.push(' *   · trigger / prerequisite 字段不含「备注：」「前置：」前缀，也不含 <br>');
-    lines.push(' *   · 字典物理顺序：先按版本（versions 顺序），再按角色（icon-dict order 升序），最后按 id 升序');
-    lines.push(' *   · 主站/编辑器的显示顺序：先角色，后版本（动态排序）');
-    lines.push(' *   · 标点统一用中文全角');
-    lines.push(' * ============================================================ */');
-    lines.push('');
-    lines.push('window.TRAVELERS_TALES = {');
-    lines.push('  meta: {');
-    lines.push('    version: "' + escJs(data.meta.version || '') + '",');
-    lines.push('    total: ' + (data.meta.total || data.entries.length) + ',');
-    lines.push('    updatedAt: "' + todayStr() + '",');
-    lines.push('    source: "' + escJs(data.meta.source || '') + '"');
-    lines.push('  },');
-    lines.push('');
-    lines.push('  versions: [' + data.versions.map(v => '"' + escJs(v) + '"').join(', ') + '],');
-    lines.push('');
-    lines.push('  entries: [');
+  function parseDataJs(text) {
+    const prev = window.TRAVELERS_TALES;
+    try {
+      new Function(text)();
+      const data = window.TRAVELERS_TALES;
+      if (!data || typeof data !== 'object') throw new Error('解析结果不是对象');
+      if (!Array.isArray(data.entries)) throw new Error('缺少 entries 数组');
+      if (!Array.isArray(data.versions)) data.versions = [];
+      if (!data.meta) data.meta = {};
+      return data;
+    } catch (e) {
+      throw new Error(e.message || '语法错误');
+    } finally {
+      window.TRAVELERS_TALES = prev;
+    }
+  }
 
+  function serializeData(data) {
+    /* 8.1 补全 versions（entries 中出现但 versions 缺失的版本） */
+    const versionSet = new Set(data.versions);
+    for (const e of data.entries) {
+      if (e.version && !versionSet.has(e.version)) {
+        versionSet.add(e.version);
+        data.versions.push(e.version);
+      }
+    }
+
+    /* 8.2 按版本分组 */
     const grouped = new Map();
-    data.versions.forEach(v => grouped.set(v, []));
+    data.versions.forEach((v) => grouped.set(v, []));
     for (const e of data.entries) {
       if (!grouped.has(e.version)) grouped.set(e.version, []);
       grouped.get(e.version).push(e);
     }
 
-    for (const [, list] of grouped) {
+    /* 8.3 组内排序：角色 order → id */
+    for (const list of grouped.values()) {
       list.sort((a, b) => {
-        const oa = ORDER_MAP.has(a.character) ? ORDER_MAP.get(a.character) : 9999;
-        const ob = ORDER_MAP.has(b.character) ? ORDER_MAP.get(b.character) : 9999;
+        const oa = ORDER_MAP.get(a.character) ?? 9999;
+        const ob = ORDER_MAP.get(b.character) ?? 9999;
         if (oa !== ob) return oa - ob;
-        return (a.id || 0) - (b.id || 0);
+        return (a.id ?? 0) - (b.id ?? 0);
       });
     }
+
+    /* 8.4 生成文本 */
+    const lines = [];
+    lines.push('/* ============================================================');
+    lines.push(' * 原神 · 游逸旅闻 数据字典');
+    lines.push(' * 生成时间：' + todayStr());
+    lines.push(' * ============================================================ */');
+    lines.push('');
+    lines.push('window.TRAVELERS_TALES = {');
+    lines.push('  meta: {');
+    lines.push('    version: "' + escJs(data.meta.version || '') + '",');
+    lines.push('    total: ' + data.entries.length + ',');
+    lines.push('    updatedAt: "' + todayStr() + '",');
+    lines.push('    source: "' + escJs(data.meta.source || '') + '"');
+    lines.push('  },');
+    lines.push('');
+    lines.push('  versions: [' + data.versions.map((v) => '"' + escJs(v) + '"').join(', ') + '],');
+    lines.push('');
+    lines.push('  entries: [');
 
     let first = true;
     for (const [v, list] of grouped) {
@@ -245,14 +366,18 @@
       if (!first) lines.push('');
       lines.push('    /* ==================== ' + v + ' ==================== */');
       for (const e of list) {
-        lines.push('    { id: ' + (e.id || 0) +
+        lines.push(
+          '    { id: ' + (e.id || 0) +
           ', character: "' + escJs(e.character) + '"' +
           ', version: "' + escJs(e.version) + '"' +
           ', title: "' + escJs(e.title) + '"' +
-          ', hidden: ' + (e.hidden ? 'true' : 'false') + ',');
-        lines.push('      location: "' + escJs(e.location) + '"' +
+          ', hidden: ' + (e.hidden ? 'true' : 'false') + ','
+        );
+        lines.push(
+          '      location: "' + escJs(e.location) + '"' +
           ', trigger: "' + escJs(e.trigger) + '"' +
-          ', prerequisite: "' + escJs(e.prerequisite) + '",');
+          ', prerequisite: "' + escJs(e.prerequisite) + '",'
+        );
         lines.push('      description: "' + escJs(e.description) + '" },');
         lines.push('');
       }
@@ -265,11 +390,36 @@
     return lines.join('\n');
   }
 
-  /* ============ 过滤 + 显示排序 ============ */
+  /* ============================================================
+   * 9. 排序
+   * ============================================================ */
+  function getVersionIndex() {
+    const m = new Map();
+    (state.data?.versions || []).forEach((v, i) => m.set(v, i));
+    return m;
+  }
+
+  function entryComparator(vIdx) {
+    return (a, b) => {
+      const oa = ORDER_MAP.get(a.character) ?? 9999;
+      const ob = ORDER_MAP.get(b.character) ?? 9999;
+      if (oa !== ob) return oa - ob;
+      const va = vIdx.get(a.version) ?? 9999;
+      const vb = vIdx.get(b.version) ?? 9999;
+      if (va !== vb) return va - vb;
+      return (a.id ?? 0) - (b.id ?? 0);
+    };
+  }
+
+  function allSortedEntries() {
+    if (!state.data) return [];
+    return state.data.entries.slice().sort(entryComparator(getVersionIndex()));
+  }
+
   function getFilteredEntries() {
     if (!state.data) return [];
     const kw = state.search.trim().toLowerCase();
-    const filtered = state.data.entries.filter(e => {
+    const list = state.data.entries.filter((e) => {
       if (state.versionFilter !== 'all' && e.version !== state.versionFilter) return false;
       if (state.visibilityFilter === 'normal' && e.hidden) return false;
       if (state.visibilityFilter === 'hidden' && !e.hidden) return false;
@@ -279,43 +429,15 @@
       }
       return true;
     });
-
-    const vIdx = new Map();
-    (state.data.versions || []).forEach((v, i) => vIdx.set(v, i));
-    filtered.sort((a, b) => {
-      const oa = ORDER_MAP.has(a.character) ? ORDER_MAP.get(a.character) : 9999;
-      const ob = ORDER_MAP.has(b.character) ? ORDER_MAP.get(b.character) : 9999;
-      if (oa !== ob) return oa - ob;
-      const va = vIdx.has(a.version) ? vIdx.get(a.version) : 9999;
-      const vb = vIdx.has(b.version) ? vIdx.get(b.version) : 9999;
-      if (va !== vb) return va - vb;
-      return (a.id || 0) - (b.id || 0);
-    });
-
-    return filtered;
+    return list.sort(entryComparator(getVersionIndex()));
   }
 
-  /* ============ 按显示顺序取全部条目（用于 id 调整） ============ */
-  function allSortedEntries() {
-    if (!state.data) return [];
-    const list = state.data.entries.slice();
-    const vIdx = new Map();
-    (state.data.versions || []).forEach((v, i) => vIdx.set(v, i));
-    list.sort((a, b) => {
-      const oa = ORDER_MAP.has(a.character) ? ORDER_MAP.get(a.character) : 9999;
-      const ob = ORDER_MAP.has(b.character) ? ORDER_MAP.get(b.character) : 9999;
-      if (oa !== ob) return oa - ob;
-      const va = vIdx.has(a.version) ? vIdx.get(a.version) : 9999;
-      const vb = vIdx.has(b.version) ? vIdx.get(b.version) : 9999;
-      if (va !== vb) return va - vb;
-      return (a.id || 0) - (b.id || 0);
-    });
-    return list;
-  }
-
+  /* ============================================================
+   * 10. 渲染：列表
+   * ============================================================ */
   function renderList() {
     if (!state.data) {
-      els.edList.innerHTML = '<div class="ed-list-empty">数据未加载<br>点右上角「重载」或「导入本地」</div>';
+      els.edList.innerHTML = '<div class="ed-list-empty">数据未加载<br>点「重载」或「导入」</div>';
       return;
     }
     const list = getFilteredEntries();
@@ -323,73 +445,83 @@
       els.edList.innerHTML = '<div class="ed-list-empty">没有匹配的条目</div>';
       return;
     }
-    els.edList.innerHTML = list.map(e => {
-      const url = avatarUrl(e.character);
-      const initial = e.character ? e.character.charAt(0) : '?';
-      const avatarHtml = url
-        ? `<img src="${esc(url)}" alt="" loading="lazy" onerror="this.remove()">${esc(initial)}`
-        : esc(initial);
-      const active = e.id === state.selectedId ? ' active' : '';
-      const hiddenCls = e.hidden ? ' hidden-title' : '';
-      return `<div class="ed-list-item${active}" data-id="${e.id}">` +
-        `<div class="ed-list-item-avatar">${avatarHtml}</div>` +
-        `<div class="ed-list-item-body">` +
-          `<div class="ed-list-item-title${hiddenCls}">${esc(e.title || '(无标题)')}</div>` +
-          `<div class="ed-list-item-sub">${esc(e.character || '?')} · ${esc(e.version || '?')}</div>` +
-        `</div>` +
-      `</div>`;
-    }).join('');
+
+    els.edList.innerHTML = list
+      .map((e) => {
+        const url = avatarUrl(e.character);
+        const initial = e.character ? e.character.charAt(0) : '?';
+        const avatarInner = url
+          ? '<img src="' + esc(url) + '" alt="" loading="lazy" onerror="this.remove()">' + esc(initial)
+          : esc(initial);
+        const active = e.id === state.selectedId ? ' active' : '';
+        const hiddenCls = e.hidden ? ' hidden-title' : '';
+        return (
+          '<div class="ed-list-item' + active + '" data-id="' + e.id + '">' +
+            '<div class="ed-list-item-avatar">' + avatarInner + '</div>' +
+            '<div class="ed-list-item-body">' +
+              '<div class="ed-list-item-title' + hiddenCls + '">' + esc(e.title || '(无标题)') + '</div>' +
+              '<div class="ed-list-item-sub">' + esc(e.character || '?') + ' · ' + esc(e.version || '?') + '</div>' +
+            '</div>' +
+          '</div>'
+        );
+      })
+      .join('');
   }
 
+  /* ============================================================
+   * 11. 渲染：表单
+   * ============================================================ */
   function renderForm() {
     if (!state.data) {
-      els.formPane.innerHTML =
+      els.edFormPane.innerHTML =
         '<div class="ed-form-empty">' +
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' +
-            '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>' +
-            '<polyline points="14 2 14 8 20 8"></polyline>' +
-          '</svg>' +
-          '<div>数据未加载</div>' +
+          '<span class="ic" data-icon="file"></span>' +
+          '<div>数据未加载<br>请点右上角「重载」或「导入」</div>' +
         '</div>';
+      injectIcons(els.edFormPane);
       return;
     }
 
     if (state.selectedId == null) {
-      els.formPane.innerHTML =
+      els.edFormPane.innerHTML =
         '<div class="ed-form-empty">' +
-          '<div>从左侧选择一个条目开始编辑<br>或点击「新增条目」</div>' +
+          '<div>从左侧选择条目开始编辑<br>或点击「新增条目」</div>' +
         '</div>';
       return;
     }
 
-    const e = state.data.entries.find(x => x.id === state.selectedId);
-    if (!e) {
-      els.formPane.innerHTML = '<div class="ed-form-empty"><div>条目不存在</div></div>';
+    const entry = state.data.entries.find((x) => x.id === state.selectedId);
+    if (!entry) {
+      els.edFormPane.innerHTML = '<div class="ed-form-empty"><div>条目不存在</div></div>';
       return;
     }
 
-    const url = avatarUrl(e.character);
-    const initial = e.character ? e.character.charAt(0) : '?';
-    const avatarHtml = url
-      ? `<img src="${esc(url)}" alt="" onerror="this.remove()">${esc(initial)}`
+    const url = avatarUrl(entry.character);
+    const initial = entry.character ? entry.character.charAt(0) : '?';
+    const avatarInner = url
+      ? '<img src="' + esc(url) + '" alt="" onerror="this.remove()">' + esc(initial)
       : esc(initial);
 
     const headingSub = state.isNew
-      ? '新建条目 · id ' + e.id
-      : (e.hidden ? '隐藏旅闻' : '正常旅闻') + ' · id ' + e.id;
+      ? '新建条目 · id ' + entry.id
+      : (entry.hidden ? '隐藏旅闻' : '正常旅闻') + ' · id ' + entry.id;
 
-    els.formPane.innerHTML =
+    const comboboxAvatar = url
+      ? '<div class="ed-combobox-avatar">' + avatarInner + '</div>'
+      : '';
+
+    els.edFormPane.innerHTML =
       '<div class="ed-form">' +
 
-        '<button type="button" class="ed-mobile-back" id="btnMobileBack">' +
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>' +
+        '<button type="button" class="btn-sm ed-mobile-back" id="btnMobileBack">' +
+          '<span class="ic" data-icon="back"></span>' +
           '<span>返回列表</span>' +
         '</button>' +
 
         '<div class="ed-form-heading">' +
-          '<div class="ed-form-heading-avatar">' + avatarHtml + '</div>' +
+          '<div class="ed-form-heading-avatar">' + avatarInner + '</div>' +
           '<div class="ed-form-heading-info">' +
-            '<h2 class="ed-form-heading-name">' + esc(e.character || '(未命名角色)') + ' · ' + esc(e.title || '(无标题)') + '</h2>' +
+            '<h2 class="ed-form-heading-name">' + esc(entry.character || '(未命名角色)') + ' · ' + esc(entry.title || '(无标题)') + '</h2>' +
             '<div class="ed-form-heading-sub">' + esc(headingSub) + '</div>' +
           '</div>' +
         '</div>' +
@@ -398,19 +530,21 @@
           '<div class="ed-group">' +
             '<label class="ed-label">id <span class="ed-label-hint">可手动改，需唯一</span></label>' +
             '<div class="ed-id-wrap">' +
-              '<input type="text" class="ed-input" data-field="id" value="' + esc(e.id) + '">' +
-              '<button type="button" class="ed-id-move" id="btnIdUp" title="上移">' +
-                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 15 12 9 18 15"></polyline></svg>' +
+              '<input type="text" data-field="id" value="' + esc(entry.id) + '" inputmode="numeric" autocomplete="off">' +
+              '<button type="button" class="btn-sm ed-id-move" id="btnIdUp" title="上移">' +
+                '<span class="ic" data-icon="ui.arrowUp"></span>' +
               '</button>' +
-              '<button type="button" class="ed-id-move" id="btnIdDown" title="下移">' +
-                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>' +
+              '<button type="button" class="btn-sm ed-id-move" id="btnIdDown" title="下移">' +
+                '<span class="ic icon-flip-y" data-icon="ui.arrowUp"></span>' +
               '</button>' +
             '</div>' +
           '</div>' +
           '<div class="ed-group">' +
-            '<label class="ed-label">版本 <span class="ed-label-hint">打字可新建</span></label>' +
+            '<label class="ed-label">版本 <span class="ed-label-hint">输入可新建</span></label>' +
             '<div class="ed-combobox" data-combobox="version">' +
-              '<input type="text" class="ed-input" data-field="version" value="' + esc(e.version || '') + '" autocomplete="off" spellcheck="false">' +
+              '<div class="ed-combobox-input-wrap">' +
+                '<input type="text" data-field="version" value="' + esc(entry.version || '') + '" autocomplete="off" spellcheck="false">' +
+              '</div>' +
               '<div class="ed-combobox-popup" hidden></div>' +
             '</div>' +
           '</div>' +
@@ -420,67 +554,79 @@
           '<label class="ed-label">角色名 <span class="ed-label-hint">从字典联想，可自定义</span></label>' +
           '<div class="ed-combobox' + (url ? ' has-avatar' : '') + '" data-combobox="character">' +
             '<div class="ed-combobox-input-wrap">' +
-              '<div class="ed-combobox-avatar">' + avatarHtml + '</div>' +
-              '<input type="text" class="ed-input" data-field="character" value="' + esc(e.character || '') + '" autocomplete="off" spellcheck="false">' +
+              comboboxAvatar +
+              '<input type="text" data-field="character" value="' + esc(entry.character || '') + '" autocomplete="off" spellcheck="false">' +
             '</div>' +
             '<div class="ed-combobox-popup" hidden></div>' +
           '</div>' +
-          (e.character && !url ? '<div class="ed-hint warn">字典中无此角色，主界面将显示首字占位</div>' : '') +
+          (entry.character && !url ? '<div class="ed-hint warn">字典中无此角色，将显示首字占位</div>' : '') +
         '</div>' +
 
         '<div class="ed-group">' +
           '<label class="ed-label">旅闻名</label>' +
-          '<input type="text" class="ed-input" data-field="title" value="' + esc(e.title || '') + '">' +
+          '<input type="text" data-field="title" value="' + esc(entry.title || '') + '">' +
         '</div>' +
 
         '<div class="ed-group">' +
           '<label class="ed-label">隐藏</label>' +
           '<label class="ed-checkbox-wrap">' +
-            '<input type="checkbox" data-field="hidden"' + (e.hidden ? ' checked' : '') + '>' +
-            '<div class="ed-checkbox-box">' +
-              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 13 10 18 19 7"></polyline></svg>' +
-            '</div>' +
-            '<span class="ed-checkbox-text">标记为隐藏旅闻（主界面红色加粗显示）</span>' +
+            '<input type="checkbox" data-field="hidden"' + (entry.hidden ? ' checked' : '') + '>' +
+            '<span>标记为隐藏旅闻（主界面红色加粗）</span>' +
           '</label>' +
         '</div>' +
 
         '<div class="ed-group">' +
           '<label class="ed-label">地点</label>' +
-          '<input type="text" class="ed-input" data-field="location" value="' + esc(e.location || '') + '">' +
+          '<input type="text" data-field="location" value="' + esc(entry.location || '') + '">' +
         '</div>' +
 
         '<div class="ed-group">' +
           '<label class="ed-label">触发条件</label>' +
-          '<input type="text" class="ed-input" data-field="trigger" value="' + esc(e.trigger || '') + '">' +
+          '<input type="text" data-field="trigger" value="' + esc(entry.trigger || '') + '">' +
         '</div>' +
 
         '<div class="ed-group">' +
-          '<label class="ed-label">前置旅闻 <span class="ed-label-hint">只填旅闻名，如「达达利亚·购票」</span></label>' +
-          '<input type="text" class="ed-input" data-field="prerequisite" value="' + esc(e.prerequisite || '') + '">' +
+          '<label class="ed-label">前置旅闻 <span class="ed-label-hint">只填旅闻名</span></label>' +
+          '<input type="text" data-field="prerequisite" value="' + esc(entry.prerequisite || '') + '">' +
         '</div>' +
 
         '<div class="ed-group">' +
-          '<label class="ed-label">描述 <span class="ed-label-hint">支持换行，换行会被保存</span></label>' +
-          '<textarea class="ed-textarea" data-field="description" rows="6">' + esc(e.description || '') + '</textarea>' +
+          '<label class="ed-label">描述 <span class="ed-label-hint">支持换行</span></label>' +
+          '<textarea data-field="description" rows="6">' + esc(entry.description || '') + '</textarea>' +
         '</div>' +
 
         '<div class="ed-actions">' +
-          '<button type="button" class="ed-btn ed-btn-danger" id="btnDelete">删除此条</button>' +
+          '<button type="button" class="btn-sm btn-danger" id="btnDelete">删除此条</button>' +
         '</div>' +
 
       '</div>';
 
-    bindFormEvents(e);
+    injectIcons(els.edFormPane);
+    bindFormEvents(entry);
   }
 
+  /* ============================================================
+   * 12. 表单事件
+   * ============================================================ */
   function bindFormEvents(entry) {
-    els.formPane.querySelectorAll('[data-field]').forEach(input => {
+    els.edFormPane.querySelectorAll('[data-field]').forEach((input) => {
       const field = input.dataset.field;
+      const eventName = input.type === 'checkbox' ? 'change' : 'input';
+
       const handler = () => {
         let value;
-        if (input.type === 'checkbox') value = input.checked;
-        else if (field === 'id') value = parseInt(input.value, 10) || 0;
-        else value = input.value;
+        if (input.type === 'checkbox') {
+          value = input.checked;
+        } else if (field === 'id') {
+          const num = parseInt(input.value, 10);
+          const isDup =
+            !Number.isNaN(num) &&
+            state.data.entries.some((x) => x !== entry && x.id === num);
+          input.classList.toggle('ed-invalid', isDup || Number.isNaN(num));
+          value = Number.isNaN(num) ? 0 : num;
+        } else {
+          value = input.value;
+        }
 
         if (field === 'id') {
           entry.id = value;
@@ -490,50 +636,75 @@
         }
 
         markDirty();
-        if (field === 'title' || field === 'character' || field === 'version' || field === 'hidden' || field === 'id') {
+
+        if (['title', 'character', 'version', 'hidden', 'id'].includes(field)) {
           renderList();
         }
-        if (field === 'character' || field === 'title') {
-          const nameEl = els.formPane.querySelector('.ed-form-heading-name');
-          if (nameEl) nameEl.textContent = (entry.character || '(未命名角色)') + ' · ' + (entry.title || '(无标题)');
+
+        /* 更新 heading（不重建表单，避免失焦） */
+        const nameEl = els.edFormPane.querySelector('.ed-form-heading-name');
+        if (nameEl && (field === 'character' || field === 'title')) {
+          nameEl.textContent =
+            (entry.character || '(未命名角色)') + ' · ' + (entry.title || '(无标题)');
         }
+        const subEl = els.edFormPane.querySelector('.ed-form-heading-sub');
+        if (subEl && (field === 'id' || field === 'hidden')) {
+          subEl.textContent = state.isNew
+            ? '新建条目 · id ' + entry.id
+            : (entry.hidden ? '隐藏旅闻' : '正常旅闻') + ' · id ' + entry.id;
+        }
+
+        /* 头像联动 */
         if (field === 'character') {
           const url = avatarUrl(entry.character);
-          const initial = entry.character ? entry.character.charAt(0) : '?';
-          const avatarHtml = url
-            ? `<img src="${esc(url)}" alt="" onerror="this.remove()">${esc(initial)}`
-            : esc(initial);
-          els.formPane.querySelectorAll('.ed-combobox-avatar, .ed-form-heading-avatar').forEach(el => {
-            el.innerHTML = avatarHtml;
-          });
-          els.formPane.querySelectorAll('.ed-combobox').forEach(box => {
-            box.classList.toggle('has-avatar', !!url);
-          });
+          const initial2 = entry.character ? entry.character.charAt(0) : '?';
+          const avatarInner = url
+            ? '<img src="' + esc(url) + '" alt="" onerror="this.remove()">' + esc(initial2)
+            : esc(initial2);
+
+          const combobox = els.edFormPane.querySelector('.ed-combobox[data-combobox="character"]');
+          if (combobox) {
+            combobox.classList.toggle('has-avatar', !!url);
+            const slot = combobox.querySelector('.ed-combobox-avatar');
+            if (slot) {
+              slot.innerHTML = avatarInner;
+            } else if (url) {
+              const wrap = combobox.querySelector('.ed-combobox-input-wrap');
+              if (wrap) {
+                const d = document.createElement('div');
+                d.className = 'ed-combobox-avatar';
+                d.innerHTML = avatarInner;
+                wrap.prepend(d);
+              }
+            }
+          }
+          const headAvatar = els.edFormPane.querySelector('.ed-form-heading-avatar');
+          if (headAvatar) headAvatar.innerHTML = avatarInner;
         }
       };
-      input.addEventListener('input', handler);
-      input.addEventListener('change', handler);
+
+      input.addEventListener(eventName, handler);
     });
 
+    /* 版本 Combobox */
     setupCombobox(
-      els.formPane.querySelector('.ed-combobox[data-combobox="version"]'),
+      els.edFormPane.querySelector('.ed-combobox[data-combobox="version"]'),
       {
         items: () => state.data.versions,
         allowCustom: true,
         customLabel: (v) => '＋ 新增版本：' + v,
         onSelect: (v) => {
           entry.version = v;
-          if (!state.data.versions.includes(v)) {
-            state.data.versions.push(v);
-          }
+          if (!state.data.versions.includes(v)) state.data.versions.push(v);
           markDirty();
           renderList();
         }
       }
     );
 
+    /* 角色 Combobox */
     setupCombobox(
-      els.formPane.querySelector('.ed-combobox[data-combobox="character"]'),
+      els.edFormPane.querySelector('.ed-combobox[data-combobox="character"]'),
       {
         items: () => state.charList,
         allowCustom: true,
@@ -545,60 +716,60 @@
       }
     );
 
-    // ============ 上移 / 下移：与相邻条目交换 id ============
+    /* 上移 / 下移 */
     const btnIdUp = $('btnIdUp');
     const btnIdDown = $('btnIdDown');
 
-    function moveEntry(direction) {
+    const moveEntry = (direction) => {
       const sorted = allSortedEntries();
-      const idx = sorted.findIndex(x => x === entry);
+      const idx = sorted.indexOf(entry);
       if (idx < 0) return;
       const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
       if (targetIdx < 0 || targetIdx >= sorted.length) return;
 
       const a = sorted[idx];
       const b = sorted[targetIdx];
-      const tmp = a.id;
-      a.id = b.id;
-      b.id = tmp;
+      [a.id, b.id] = [b.id, a.id];
 
-      // 当前条目被重选
       state.selectedId = a.id;
-      state.isNew = false;
-
       markDirty();
       renderList();
       renderForm();
-    }
+    };
 
-    if (btnIdUp) btnIdUp.addEventListener('click', () => moveEntry('up'));
-    if (btnIdDown) btnIdDown.addEventListener('click', () => moveEntry('down'));
+    btnIdUp?.addEventListener('click', () => moveEntry('up'));
+    btnIdDown?.addEventListener('click', () => moveEntry('down'));
 
-    // ============ 删除 ============
-    const btnDelete = $('btnDelete');
-    if (btnDelete) {
-      btnDelete.addEventListener('click', () => {
-        if (!confirmBox('确定删除「' + (entry.character || '?') + ' · ' + (entry.title || '?') + '」吗？此操作不可撤销。')) return;
-        const idx = state.data.entries.findIndex(x => x === entry);
-        if (idx >= 0) state.data.entries.splice(idx, 1);
-        state.selectedId = null;
-        state.isNew = false;
-        markDirty();
-        renderList();
-        renderForm();
+    /* 删除 */
+    $('btnDelete')?.addEventListener('click', async () => {
+      const ok = await confirmDialog({
+        title: '删除条目',
+        message:
+          '确定删除「' + (entry.character || '?') + ' · ' + (entry.title || '?') +
+          '」吗？此操作不可撤销。',
+        okText: '删除',
+        danger: true
       });
-    }
+      if (!ok) return;
+      const idx = state.data.entries.indexOf(entry);
+      if (idx >= 0) state.data.entries.splice(idx, 1);
+      state.selectedId = null;
+      state.isNew = false;
+      markDirty();
+      renderList();
+      renderForm();
+    });
 
-    // ============ 移动端返回 ============
-    const btnBack = $('btnMobileBack');
-    if (btnBack) {
-      btnBack.addEventListener('click', () => {
-        els.listPane.classList.remove('mobile-hidden');
-        els.formPane.classList.remove('mobile-visible');
-      });
-    }
+    /* 移动端返回 */
+    $('btnMobileBack')?.addEventListener('click', () => {
+      els.edListPane.classList.remove('mobile-hidden');
+      els.edFormPane.classList.remove('mobile-visible');
+    });
   }
 
+  /* ============================================================
+   * 13. Combobox
+   * ============================================================ */
   function setupCombobox(box, opts) {
     if (!box) return;
     const input = box.querySelector('input[data-field]');
@@ -606,22 +777,21 @@
     let highlight = 0;
     let currentItems = [];
 
-    function close() {
+    const close = () => {
       popup.hidden = true;
       currentItems = [];
-    }
+    };
 
-    function refresh(query) {
+    const refresh = (query) => {
       const all = opts.items() || [];
       const q = (query || '').trim().toLowerCase();
-      let matched = q ? all.filter(x => x.toLowerCase().includes(q)) : all;
+      let matched = q ? all.filter((x) => x.toLowerCase().includes(q)) : all;
       matched = matched.slice(0, 40);
-
-      currentItems = matched.map(x => ({ value: x, isNew: false }));
+      currentItems = matched.map((x) => ({ value: x, isNew: false }));
 
       if (opts.allowCustom) {
         const raw = (query || '').trim();
-        if (raw && !all.some(x => x === raw)) {
+        if (raw && !all.some((x) => x === raw)) {
           currentItems.push({ value: raw, isNew: true });
         }
       }
@@ -632,35 +802,41 @@
         return;
       }
 
-      popup.innerHTML = currentItems.map((it, i) => {
-        const cls = 'ed-combobox-option' + (it.isNew ? ' is-new' : '') + (i === highlight ? ' highlight' : '');
-        const label = it.isNew && opts.customLabel ? opts.customLabel(it.value) : it.value;
-        return '<div class="' + cls + '" data-idx="' + i + '">' + esc(label) + '</div>';
-      }).join('');
+      popup.innerHTML = currentItems
+        .map((it, i) => {
+          const cls =
+            'ed-combobox-option' +
+            (it.isNew ? ' is-new' : '') +
+            (i === highlight ? ' highlight' : '');
+          const label = it.isNew && opts.customLabel ? opts.customLabel(it.value) : it.value;
+          return '<div class="' + cls + '" data-idx="' + i + '">' + esc(label) + '</div>';
+        })
+        .join('');
       popup.hidden = false;
-    }
+    };
 
-    function select(idx) {
+    const select = (idx) => {
       const it = currentItems[idx];
       if (!it) return;
       input.value = it.value;
       opts.onSelect(it.value);
       close();
-    }
+    };
 
     input.addEventListener('focus', () => {
       highlight = 0;
       refresh(input.value);
     });
-
     input.addEventListener('input', () => {
       highlight = 0;
       refresh(input.value);
     });
-
     input.addEventListener('keydown', (e) => {
       if (popup.hidden) {
-        if (e.key === 'ArrowDown') { refresh(input.value); e.preventDefault(); }
+        if (e.key === 'ArrowDown') {
+          refresh(input.value);
+          e.preventDefault();
+        }
         return;
       }
       if (e.key === 'ArrowDown') {
@@ -679,7 +855,8 @@
       }
     });
 
-    popup.addEventListener('mousedown', (e) => {
+    /* 用 pointerdown 兼容触屏 */
+    popup.addEventListener('pointerdown', (e) => {
       const opt = e.target.closest('.ed-combobox-option');
       if (!opt) return;
       const idx = parseInt(opt.dataset.idx, 10);
@@ -687,314 +864,297 @@
       e.preventDefault();
     });
 
-    input.addEventListener('blur', () => {
-      setTimeout(close, 150);
-    });
+    input.addEventListener('blur', () => setTimeout(close, 150));
 
-    function refreshHighlight() {
+    const refreshHighlight = () => {
       popup.querySelectorAll('.ed-combobox-option').forEach((el, i) => {
         el.classList.toggle('highlight', i === highlight);
       });
-      const el = popup.querySelector('.ed-combobox-option.highlight');
-      if (el && el.scrollIntoView) el.scrollIntoView({ block: 'nearest' });
-    }
-  }
-
-  els.edList.addEventListener('click', (e) => {
-    const item = e.target.closest('.ed-list-item');
-    if (!item) return;
-    const id = parseInt(item.dataset.id, 10);
-    if (Number.isNaN(id)) return;
-    state.selectedId = id;
-    state.isNew = false;
-    renderList();
-    renderForm();
-
-    if (window.innerWidth <= 900) {
-      els.listPane.classList.add('mobile-hidden');
-      els.formPane.classList.add('mobile-visible');
-    }
-  });
-
-  els.btnAdd.addEventListener('click', () => {
-    if (!state.data) {
-      alert('数据未加载，请先点「重载」或「导入本地」');
-      return;
-    }
-    const maxId = state.data.entries.reduce((m, x) => Math.max(m, x.id || 0), 0);
-    const newId = maxId + 1;
-    const e = {
-      id: newId,
-      character: '',
-      version: '',
-      title: '',
-      hidden: false,
-      location: '',
-      trigger: '',
-      prerequisite: '',
-      description: ''
+      popup.querySelector('.ed-combobox-option.highlight')?.scrollIntoView({ block: 'nearest' });
     };
-    state.data.entries.push(e);
-    state.data.meta.total = state.data.entries.length;
-    state.selectedId = newId;
-    state.isNew = true;
-    markDirty();
-    renderList();
-    renderForm();
-
-    if (window.innerWidth <= 900) {
-      els.listPane.classList.add('mobile-hidden');
-      els.formPane.classList.add('mobile-visible');
-    }
-    setTimeout(() => {
-      const ch = els.formPane.querySelector('input[data-field="character"]');
-      if (ch) ch.focus();
-    }, 50);
-  });
-
-  let searchTimer = null;
-  els.searchInput.addEventListener('input', () => {
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => {
-      state.search = els.searchInput.value;
-      renderList();
-    }, 150);
-  });
-
-  function openFilterMenu(trigger, items, currentValue, onSelect) {
-    const exist = document.querySelector('.ed-filter-menu');
-    if (exist) exist.remove();
-
-    const rect = trigger.getBoundingClientRect();
-    const menu = document.createElement('div');
-    menu.className = 'ed-filter-menu';
-    menu.style.cssText = `position:fixed;top:${rect.bottom + 4}px;left:${rect.left}px;min-width:${rect.width}px;max-width:80vw;max-height:50vh;overflow-y:auto;background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--radius-sm);box-shadow:0 4px 20px rgba(31,29,26,.15);z-index:100;padding:4px;`;
-
-    items.forEach(item => {
-      const el = document.createElement('div');
-      el.style.cssText = `padding:8px 12px;font-size:12.5px;border-radius:var(--radius-sm);cursor:pointer;color:var(--text-primary);white-space:nowrap;`;
-      el.textContent = item.label;
-      if (item.value === currentValue) {
-        el.style.background = 'var(--accent-soft)';
-        el.style.color = 'var(--accent)';
-        el.style.fontWeight = '600';
-      }
-      el.addEventListener('mouseenter', () => { el.style.background = 'var(--bg-hover)'; });
-      el.addEventListener('mouseleave', () => {
-        if (item.value === currentValue) {
-          el.style.background = 'var(--accent-soft)';
-        } else {
-          el.style.background = 'transparent';
-        }
-      });
-      el.addEventListener('click', () => {
-        onSelect(item.value);
-        menu.remove();
-      });
-      menu.appendChild(el);
-    });
-
-    document.body.appendChild(menu);
-
-    setTimeout(() => {
-      const closeMenu = (ev) => {
-        if (!menu.contains(ev.target) && !trigger.contains(ev.target)) {
-          menu.remove();
-          document.removeEventListener('click', closeMenu);
-        }
-      };
-      document.addEventListener('click', closeMenu);
-    }, 0);
   }
 
-  els.versionTrigger.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (!state.data) return;
-    const items = [{ value: 'all', label: '全部版本' }];
-    state.data.versions.forEach(v => items.push({ value: v, label: v }));
-    openFilterMenu(els.versionTrigger, items, state.versionFilter, (v) => {
-      state.versionFilter = v;
-      els.versionLabel.textContent = v === 'all' ? '全部版本' : v;
-      els.versionTrigger.classList.toggle('active', v !== 'all');
+  /* ============================================================
+   * 14. 主流程事件
+   * ============================================================ */
+  function bindHeaderEvents() {
+    /* 主题 */
+    els.btnTheme.addEventListener('click', () => {
+      const next = currentTheme() === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+      try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+    });
+
+    /* 搜索 */
+    let searchTimer = null;
+    els.searchInput.addEventListener('input', () => {
+      els.searchClear.classList.toggle('show', els.searchInput.value.length > 0);
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        state.search = els.searchInput.value;
+        renderList();
+      }, 150);
+    });
+    els.searchClear.addEventListener('click', () => {
+      els.searchInput.value = '';
+      els.searchClear.classList.remove('show');
+      state.search = '';
       renderList();
     });
-  });
 
-  els.visibilityTrigger.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const items = [
-      { value: 'all', label: '全部' },
-      { value: 'normal', label: '正常' },
-      { value: 'hidden', label: '隐藏' }
-    ];
-    openFilterMenu(els.visibilityTrigger, items, state.visibilityFilter, (v) => {
-      state.visibilityFilter = v;
-      els.visibilityLabel.textContent = v === 'all' ? '全部' : v === 'normal' ? '正常' : '隐藏';
-      els.visibilityTrigger.classList.toggle('active', v !== 'all');
-      renderList();
-    });
-  });
-
-  /* ============ 重排 ID ============ */
-  els.btnRenumber.addEventListener('click', () => {
-    if (!state.data) {
-      alert('数据未加载');
-      return;
-    }
-    const sorted = allSortedEntries();
-    const n = sorted.length;
-    if (!confirmBox('将按当前显示顺序重新编号 1 ~ ' + n + '，原有 id 会被覆盖。继续吗？')) return;
-
-    // 记住当前选中的对象引用
-    let selObj = null;
-    if (state.selectedId != null) {
-      selObj = state.data.entries.find(x => x.id === state.selectedId) || null;
-    }
-
-    // 按显示顺序重新编号
-    sorted.forEach((e, i) => {
-      e.id = i + 1;
+    /* 版本过滤 */
+    els.versionTrigger.addEventListener('click', () => {
+      if (!state.data) return;
+      const items = [{ value: 'all', label: '全部版本' }];
+      state.data.versions.forEach((v) => items.push({ value: v, label: v }));
+      openSheet({
+        header: '版本',
+        items,
+        current: state.versionFilter,
+        onSelect: (v) => {
+          state.versionFilter = v;
+          els.versionLabel.textContent = v === 'all' ? '全部版本' : v;
+          els.versionTrigger.classList.toggle('active', v !== 'all');
+          renderList();
+        }
+      });
     });
 
-    // 恢复选中
-    if (selObj) {
-      state.selectedId = selObj.id;
-    }
+    /* 类型过滤 */
+    els.visibilityTrigger.addEventListener('click', () => {
+      openSheet({
+        header: '类型',
+        items: [
+          { value: 'all', label: '全部' },
+          { value: 'normal', label: '正常' },
+          { value: 'hidden', label: '隐藏' }
+        ],
+        current: state.visibilityFilter,
+        onSelect: (v) => {
+          state.visibilityFilter = v;
+          els.visibilityLabel.textContent =
+            v === 'all' ? '全部' : v === 'normal' ? '正常' : '隐藏';
+          els.visibilityTrigger.classList.toggle('active', v !== 'all');
+          renderList();
+        }
+      });
+    });
 
-    markDirty();
-    renderList();
-    renderForm();
-    toast('已重排 ' + n + ' 条 id');
-  });
+    /* 重排 ID */
+    els.btnRenumber.addEventListener('click', async () => {
+      if (!state.data) return toast('数据未加载', 'error');
+      const sorted = allSortedEntries();
+      const n = sorted.length;
+      const ok = await confirmDialog({
+        title: '重排 id',
+        message: '将按当前显示顺序重新编号 1 ~ ' + n + '，原有 id 会被覆盖。',
+        okText: '重排',
+        danger: true
+      });
+      if (!ok) return;
 
-  /* ============ 重载线上 ============ */
-  els.btnReload.addEventListener('click', async () => {
-    if (state.dirty && !confirmBox('当前有未保存的修改，重载会丢弃这些改动。继续吗？')) return;
+      const selObj = state.selectedId != null
+        ? state.data.entries.find((x) => x.id === state.selectedId)
+        : null;
 
-    if (location.protocol === 'file:') {
-      alert('本地 file:// 打开时无法重载线上数据。请使用「导入本地」。');
-      return;
-    }
+      sorted.forEach((e, i) => { e.id = i + 1; });
+      if (selObj) state.selectedId = selObj.id;
 
-    try {
-      const res = await fetch('../data.js?t=' + Date.now(), { cache: 'no-store' });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const text = await res.text();
-      const data = parseDataJs(text);
-      state.data = data;
-      state.selectedId = null;
-      state.isNew = false;
-      clearDirty();
-      clearDraft();
+      markDirty();
       renderList();
       renderForm();
-      toast('已重载线上数据（' + data.entries.length + ' 条）');
-    } catch (err) {
-      alert('重载失败：' + err.message);
-    }
-  });
+      toast('已重排 ' + n + ' 条 id', 'success');
+    });
 
-  /* ============ 导入本地 ============ */
-  els.btnImport.addEventListener('click', () => els.fileInput.click());
-
-  els.fileInput.addEventListener('change', (ev) => {
-    const file = ev.target.files && ev.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
+    /* 重载线上 */
+    els.btnReload.addEventListener('click', async () => {
+      if (state.dirty) {
+        const ok = await confirmDialog({
+          title: '放弃修改',
+          message: '当前有未导出的修改，重载会丢弃这些改动。',
+          okText: '重载',
+          danger: true
+        });
+        if (!ok) return;
+      }
+      if (location.protocol === 'file:') {
+        toast('file:// 下无法重载，请用「导入」', 'error');
+        return;
+      }
       try {
-        const data = parseDataJs(reader.result);
+        const res = await fetch('../tales/data.js?t=' + Date.now(), { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const text = await res.text();
+        const data = parseDataJs(text);
         state.data = data;
         state.selectedId = null;
         state.isNew = false;
         clearDirty();
-        saveDraft();
+        clearDraft();
         renderList();
         renderForm();
-        toast('已导入 ' + data.entries.length + ' 条');
+        toast('已重载 ' + data.entries.length + ' 条', 'success');
       } catch (err) {
-        alert('导入失败：' + err.message);
+        toast('重载失败：' + err.message, 'error');
       }
-      els.fileInput.value = '';
-    };
-    reader.readAsText(file);
-  });
+    });
 
-  /* ============ 导出 ============ */
-  els.btnExport.addEventListener('click', () => {
-    if (!state.data) {
-      alert('数据未加载');
-      return;
-    }
-    const warnings = [];
-    const idSet = new Set();
-    for (const e of state.data.entries) {
-      if (!e.character) warnings.push('id ' + e.id + ' 缺少角色名');
-      if (!e.version) warnings.push('id ' + e.id + ' 缺少版本');
-      if (!e.title) warnings.push('id ' + e.id + ' 缺少旅闻名');
-      if (idSet.has(e.id)) warnings.push('id ' + e.id + ' 重复');
-      idSet.add(e.id);
-      if (e.version && !state.data.versions.includes(e.version)) {
-        warnings.push('id ' + e.id + ' 的版本「' + e.version + '」不在 versions 列表');
+    /* 导入本地 */
+    els.btnImport.addEventListener('click', () => els.fileInput.click());
+    els.fileInput.addEventListener('change', (ev) => {
+      const file = ev.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = parseDataJs(reader.result);
+          state.data = data;
+          state.selectedId = null;
+          state.isNew = false;
+          clearDirty();
+          saveDraft();
+          renderList();
+          renderForm();
+          toast('已导入 ' + data.entries.length + ' 条', 'success');
+        } catch (err) {
+          toast('导入失败：' + err.message, 'error');
+        }
+        els.fileInput.value = '';
+      };
+      reader.readAsText(file);
+    });
+
+    /* 导出 */
+    els.btnExport.addEventListener('click', async () => {
+      if (!state.data) return toast('数据未加载', 'error');
+
+      const warnings = [];
+      const idSet = new Set();
+      for (const e of state.data.entries) {
+        if (!e.character) warnings.push('id ' + e.id + ' 缺少角色名');
+        if (!e.version) warnings.push('id ' + e.id + ' 缺少版本');
+        if (!e.title) warnings.push('id ' + e.id + ' 缺少旅闻名');
+        if (idSet.has(e.id)) warnings.push('id ' + e.id + ' 重复');
+        idSet.add(e.id);
+        if (e.version && !state.data.versions.includes(e.version)) {
+          warnings.push('id ' + e.id + ' 的版本「' + e.version + '」不在 versions 列表');
+        }
       }
-    }
-    if (warnings.length) {
-      const msg = '发现 ' + warnings.length + ' 项问题：\n\n' +
-        warnings.slice(0, 10).join('\n') +
-        (warnings.length > 10 ? '\n…还有 ' + (warnings.length - 10) + ' 项' : '') +
-        '\n\n是否继续导出？';
-      if (!confirmBox(msg)) return;
-    }
+      if (warnings.length) {
+        const msg =
+          '发现 ' + warnings.length + ' 项问题：\n\n' +
+          warnings.slice(0, 10).join('\n') +
+          (warnings.length > 10 ? '\n…还有 ' + (warnings.length - 10) + ' 项' : '') +
+          '\n\n是否继续导出？';
+        const ok = await confirmDialog({
+          title: '导出前检查',
+          message: msg,
+          okText: '继续导出'
+        });
+        if (!ok) return;
+      }
 
-    state.data.meta.total = state.data.entries.length;
+      const text = serializeData(state.data);
+      const blob = new Blob([text], { type: 'text/javascript;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'data.js';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
 
-    const text = serializeData(state.data);
-    const blob = new Blob([text], { type: 'text/javascript;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'data.js';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+      clearDirty();
+      clearDraft();
+      toast('已导出 data.js', 'success');
+    });
 
-    clearDirty();
-    toast('已导出 data.js');
-  });
+    /* 列表点击 */
+    els.edList.addEventListener('click', (e) => {
+      const item = e.target.closest('.ed-list-item');
+      if (!item) return;
+      const id = parseInt(item.dataset.id, 10);
+      if (Number.isNaN(id)) return;
+      state.selectedId = id;
+      state.isNew = false;
+      renderList();
+      renderForm();
+      if (window.innerWidth <= 900) {
+        els.edListPane.classList.add('mobile-hidden');
+        els.edFormPane.classList.add('mobile-visible');
+      }
+    });
 
-  /* ============ 离开提示 ============ */
-  window.addEventListener('beforeunload', (e) => {
-    if (state.dirty) {
-      e.preventDefault();
-      e.returnValue = '';
-    }
-  });
+    /* 新增 */
+    els.btnAdd.addEventListener('click', () => {
+      if (!state.data) return toast('数据未加载，请先「重载」或「导入」', 'error');
+      const newId = state.data.entries.reduce((m, x) => Math.max(m, x.id || 0), 0) + 1;
+      const entry = {
+        id: newId,
+        character: '',
+        version: '',
+        title: '',
+        hidden: false,
+        location: '',
+        trigger: '',
+        prerequisite: '',
+        description: ''
+      };
+      state.data.entries.push(entry);
+      state.data.meta.total = state.data.entries.length;
+      state.selectedId = newId;
+      state.isNew = true;
+      markDirty();
+      renderList();
+      renderForm();
 
-  /* ============ 启动 ============ */
+      if (window.innerWidth <= 900) {
+        els.edListPane.classList.add('mobile-hidden');
+        els.edFormPane.classList.add('mobile-visible');
+      }
+      setTimeout(() => {
+        els.edFormPane.querySelector('input[data-field="character"]')?.focus();
+      }, 60);
+    });
+
+    /* 离开提示 */
+    window.addEventListener('beforeunload', (e) => {
+      if (state.dirty) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
+  }
+
+  /* ============================================================
+   * 15. 启动
+   * ============================================================ */
   (function init() {
+    injectIcons(document);
+    bindHeaderEvents();
+
     const draft = loadDraft();
-    if (draft && Array.isArray(draft.entries)) {
+    if (draft?.entries) {
       state.data = draft;
-      if (!state.data.versions) state.data.versions = [];
-      if (!state.data.meta) state.data.meta = {};
+      state.data.versions ||= [];
+      state.data.meta ||= {};
       renderList();
       renderForm();
-      toast('已恢复上次编辑的草稿');
-      return;
-    }
-
-    if (window.TRAVELERS_TALES && Array.isArray(window.TRAVELERS_TALES.entries)) {
-      state.data = JSON.parse(JSON.stringify(window.TRAVELERS_TALES));
-      if (!state.data.versions) state.data.versions = [];
-      if (!state.data.meta) state.data.meta = {};
+      state.dirty = true;
+      els.dirtyDot.hidden = false;
+      toast('已恢复草稿（未导出）', 'success');
+    } else if (window.TRAVELERS_TALES?.entries) {
+      state.data = structuredClone(window.TRAVELERS_TALES);
+      state.data.versions ||= [];
+      state.data.meta ||= {};
       renderList();
       renderForm();
-      return;
+    } else {
+      renderList();
+      renderForm();
     }
 
-    renderList();
-    renderForm();
+    document.body.classList.add('ready');
   })();
-
 })();
