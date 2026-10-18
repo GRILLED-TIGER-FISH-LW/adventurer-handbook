@@ -1,5 +1,5 @@
 /* =========================================================================
- * 提瓦特冒险之证 · 外壳逻辑 (2026 现代专属字典版)
+ * 提瓦特冒险之证 · 外壳逻辑 (2026 现代免缓存版)
  * ========================================================================= */
 
 'use strict';
@@ -20,7 +20,6 @@ const TOOLS = [
     label: '尘歌壶赠礼',
     icon: 'teapot',
     iconBold: 'teapotBold',
-    // src 暂未开发
   }
 ];
 
@@ -57,12 +56,7 @@ const FALLBACKS = {
 };
 
 function getSvgIcon(key, fallbackSvg = '') {
-  // 1. 优先查本地专属字典 (window.LOCAL_ICONS)
-  if (window.LOCAL_ICONS && window.LOCAL_ICONS[key]) {
-    return window.LOCAL_ICONS[key];
-  }
-  
-  // 2. 再查主仓库的 window.ICONS
+  if (window.LOCAL_ICONS && window.LOCAL_ICONS[key]) return window.LOCAL_ICONS[key];
   try {
     if (!window.ICONS) return fallbackSvg;
     const parts = key.split('.');
@@ -227,13 +221,11 @@ function selectTool(toolKey) {
   closeSidebar();
 }
 
+/* =========================================================================
+ * 初始化
+ * ========================================================================= */
 (async function init() {
-  try {
-    await window.__bootPromise; 
-  } catch (e) { 
-    console.warn('资源加载异常，已启用降级方案', e); 
-  }
-
+  // 此时 app.js 被加载时，前面的 Promise 已经全部 resolve 了，直接干活即可
   DOM.btnMenu.innerHTML = getSvgIcon('app.hamburger', FALLBACKS.burger);
   DOM.btnClose.innerHTML = getSvgIcon('app.close', FALLBACKS.close);
 
