@@ -1,5 +1,5 @@
 /* ============================================================
- * 游逸旅闻 · 子页面逻辑
+ * 游历旅闻 · 子页面逻辑 (2026 防缓存/防死锁版)
  * ============================================================ */
 (function () {
   'use strict';
@@ -413,7 +413,7 @@
     });
   }
 
-  // 【核心改造】监听父级 iframe 传来的主题
+  // 监听父级 iframe 传来的主题
   window.addEventListener('message', function (e) {
     if (e.data && e.data.type === 'theme') {
       const html = document.documentElement;
@@ -457,11 +457,12 @@
     document.body.classList.add('ready');
   }
 
-  window.__bootPromise
-    .then(() => {
-      if (!window.TRAVELERS_TALES || !Array.isArray(window.TRAVELERS_TALES.entries)) throw new Error('data.js 内容无效');
-      DATA = window.TRAVELERS_TALES;
-      init();
-    })
-    .catch((err) => { console.error(err); showError(err); });
+  // 因为 index.html 使用了严格的 await 串行加载，运行到这里时 DATA 必然存在
+  if (window.TRAVELERS_TALES && Array.isArray(window.TRAVELERS_TALES.entries)) {
+    DATA = window.TRAVELERS_TALES;
+    init();
+  } else {
+    showError(new Error('data.js 加载失败或内容无效'));
+  }
+
 })();
