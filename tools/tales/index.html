@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>游历旅闻</title>
+
+<script>
+/* =========================================================================
+ * 资源加载器 (游历旅闻子页面专属)
+ * ========================================================================= */
+(async function () {
+  const ts = Date.now();
+  const withTs = (url) => url + (url.indexOf('?') >= 0 ? '&' : '?') + 't=' + ts;
+
+  const loadStyle = (href) => new Promise((resolve, reject) => {
+    const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = withTs(href);
+    l.onload = resolve; l.onerror = reject; document.head.appendChild(l);
+  });
+
+  const loadScript = (src) => new Promise((resolve, reject) => {
+    const s = document.createElement('script'); s.src = withTs(src);
+    s.onload = resolve; s.onerror = reject; document.head.appendChild(s);
+  });
+
+  // 1. 加载依赖 (theme.css 和 ui-icons 走绝对路径)
+  await Promise.all([
+    loadStyle('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/theme.css'),
+    loadStyle('style.css'),
+    loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/ui-icons.js'),
+    loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-dict.js')
+  ]);
+  
+  // 2. 加载数据和主逻辑
+  await Promise.all([
+    loadScript('data.js'),
+    loadScript('app.js')
+  ]);
+  
+  window.__bootPromise = Promise.resolve();
+})();
+</script>
+
+<style>
+  html { background: var(--bg-base, #F4F1EA); }
+  [data-theme="dark"] html { background: var(--bg-base, #1A1816); }
+  body { visibility: hidden; }
+  body.ready { visibility: visible; }
+  .boot-loading {
+    position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center;
+    background: var(--bg-base, #F4F1EA); color: var(--text-tertiary, #A69E95);
+    font-size: 13px; font-family: var(--std-font, sans-serif); visibility: visible;
+  }
+  body.ready .boot-loading { display: none; }
+  .ic { display: inline-flex; align-items: center; justify-content: center; width: 1em; height: 1em; flex-shrink: 0; }
+  .ic > svg { width: 100% !important; height: 100% !important; display: block !important; }
+</style>
+</head>
+<body>
+
+<div class="boot-loading">正在加载游历旅闻数据…</div>
+
+<header class="app-header">
+  <!-- 行 1：UID + 计数 + 操作按钮 -->
+  <div class="header-row row-actions">
+    <input type="text" id="uidInput" class="uid-input" placeholder="UID（可选）" maxlength="15" inputmode="numeric" autocomplete="off" spellcheck="false">
+    
+    <div class="counter">
+      <span class="counter-label">已完成</span>
+      <span class="counter-done" id="counterDone">0</span>
+      <span class="counter-sep">/</span>
+      <span class="counter-total" id="counterTotal">156</span>
+    </div>
+
+    <div class="title-right">
+      <button type="button" class="action-btn" id="btnExport" title="导出存档">
+        <span class="ic action-btn-icon" data-icon="ui.export"></span><span class="action-btn-text">导出</span>
+      </button>
+      <button type="button" class="action-btn" id="btnImport" title="导入存档">
+        <span class="ic action-btn-icon" data-icon="ui.import"></span><span class="action-btn-text">导入</span>
+      </button>
+      <button type="button" class="action-btn danger" id="btnClear" title="清空记录">
+        <span class="ic action-btn-icon" data-icon="ui.trash"></span><span class="action-btn-text">清空</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 行 2：搜索框 + 三个下拉 -->
+  <div class="header-row row-search-filters">
+    <div class="search-wrap">
+      <span class="ic search-icon" data-icon="ui.search"></span>
+      <input type="text" id="searchInput" class="search-input" placeholder="搜索角色名 / 旅闻名" autocomplete="off" spellcheck="false">
+      <button type="button" class="search-clear" id="searchClear" aria-label="清除"><span class="ic" data-icon="app.close"></span></button>
+    </div>
+
+    <div class="dropdown-wrap" data-key="version">
+      <button type="button" class="dropdown-trigger" id="versionTrigger">
+        <span class="dropdown-label" id="versionLabel">全部版本</span>
+        <span class="ic dropdown-arrow" data-icon="ui.chevronDown"></span>
+      </button>
+      <div class="dropdown-panel" id="versionPanel"></div>
+    </div>
+    <div class="dropdown-wrap" data-key="status">
+      <button type="button" class="dropdown-trigger" id="statusTrigger">
+        <span class="dropdown-label" id="statusLabel">全部状态</span>
+        <span class="ic dropdown-arrow" data-icon="ui.chevronDown"></span>
+      </button>
+      <div class="dropdown-panel" id="statusPanel"></div>
+    </div>
+    <div class="dropdown-wrap" data-key="visibility">
+      <button type="button" class="dropdown-trigger" id="visibilityTrigger">
+        <span class="dropdown-label" id="visibilityLabel">全部类型</span>
+        <span class="ic dropdown-arrow" data-icon="ui.chevronDown"></span>
+      </button>
+      <div class="dropdown-panel" id="visibilityPanel"></div>
+    </div>
+  </div>
+</header>
+
+<main class="app-main">
+  <div class="list-host" id="listHost"></div>
+  <div class="empty-state" id="emptyState" hidden>
+    <span class="ic empty-state-icon" data-icon="ui.search"></span>
+    <p>没有找到匹配的旅闻</p>
+  </div>
+</main>
+
+<input type="file" id="importFile" accept=".json,application/json" hidden>
+</body>
+</html>
