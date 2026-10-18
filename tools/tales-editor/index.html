@@ -49,7 +49,7 @@
     try {
       await Promise.all([
         loadStyle('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/theme.css'),
-        loadStyle('index.css'),
+        loadStyle('style.css'),
         loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/ui-icons.js'),
         loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-dict.js')
       ]);
@@ -68,7 +68,7 @@
 
     /* 3. 编辑器逻辑 */
     try {
-      await loadScript('index.js');
+      await loadScript('app.js');
     } catch (failUrl) {
       coreFails.push(failUrl);
       showBootError(coreFails);
