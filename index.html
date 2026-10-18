@@ -33,11 +33,12 @@
     document.head.appendChild(s);
   });
 
-  // 只加载外部依赖和本地样式，不把 app.js 放这里防死锁
+  // 把本地图标库和外部依赖一起加载
   window.__bootPromise = Promise.all([
     loadStyle('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/theme.css'),
     loadStyle('style.css'),
-    loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/ui-icons.js')
+    loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/ui-icons.js'),
+    loadScript('icons.js') 
   ]);
 })();
 </script>
@@ -86,7 +87,6 @@
   </div>
 </main>
 
-<!-- 正确引入 app.js 的方式 -->
 <script src="app.js"></script>
 </body>
 </html>
