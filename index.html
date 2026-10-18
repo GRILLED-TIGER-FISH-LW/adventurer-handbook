@@ -14,13 +14,13 @@
  * ========================================================================= */
 (async function () {
   const ts = Date.now();
+  window.__pageLoadTs = ts;
   const withTs = (url) => url + (url.indexOf('?') >= 0 ? '&' : '?') + 't=' + ts;
 
   const loadStyle = (href) => new Promise((resolve, reject) => {
     const l = document.createElement('link');
     l.rel = 'stylesheet'; l.href = withTs(href);
-    l.onload = resolve;
-    l.onerror = () => reject(new Error('加载失败：' + href));
+    l.onload = resolve; l.onerror = () => reject(new Error('CSS加载失败：' + href));
     const firstStyle = document.head.querySelector('style');
     if (firstStyle) document.head.insertBefore(l, firstStyle);
     else document.head.appendChild(l);
@@ -29,20 +29,20 @@
   const loadScript = (src) => new Promise((resolve, reject) => {
     const s = document.createElement('script');
     s.src = withTs(src);
-    s.onload = resolve;
-    s.onerror = () => reject(new Error('加载失败：' + src));
+    s.onload = resolve; s.onerror = () => reject(new Error('JS加载失败：' + src));
     document.head.appendChild(s);
   });
 
+  // 只加载外部依赖和本地样式，不把 app.js 放这里防死锁
   window.__bootPromise = Promise.all([
     loadStyle('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/theme.css'),
+    loadStyle('style.css'),
     loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/ui-icons.js')
   ]);
 })();
 </script>
 
 <style>
-  /* 统一使用全局变量，防止加载时颜色闪烁 */
   body { visibility: hidden; }
   body.ready { visibility: visible; }
   .boot-loading {
@@ -86,11 +86,7 @@
   </div>
 </main>
 
-<!-- 引入外壳逻辑 -->
-<script src="app.js?t="></script>
-<script>
-  // 利用时间戳更新 app.js
-  document.querySelector('script[src^="app.js"]').src = 'app.js?t=' + (window.__pageLoadTs || Date.now());
-</script>
+<!-- 正确引入 app.js 的方式 -->
+<script src="app.js"></script>
 </body>
 </html>
