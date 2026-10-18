@@ -10,7 +10,7 @@
 
 <script>
 /* =========================================================================
- * 资源加载器 (2026 现代 ES6+ 语法)
+ * 资源加载器 (全动态 + 强制时间戳防缓存 + 完美防死锁链)
  * ========================================================================= */
 (async function () {
   const ts = Date.now();
@@ -33,13 +33,16 @@
     document.head.appendChild(s);
   });
 
-  // 把本地图标库和外部依赖一起加载
+  // 核心改变：先并行加载依赖，等依赖就绪后，再去动态加载 app.js
   window.__bootPromise = Promise.all([
     loadStyle('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/theme.css'),
     loadStyle('style.css'),
     loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/ui-icons.js'),
     loadScript('icons.js') 
-  ]);
+  ]).then(() => {
+    // app.js 此时会被拉取，且一定带有时间戳，绝对不会走缓存
+    return loadScript('app.js');
+  });
 })();
 </script>
 
@@ -87,6 +90,5 @@
   </div>
 </main>
 
-<script src="app.js"></script>
 </body>
 </html>
