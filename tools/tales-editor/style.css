@@ -74,6 +74,11 @@ button .ic { width: 16px; height: 16px; }
   flex-shrink: 0;
 }
 
+/* 【关键】顶栏内所有按钮统一 36px 高（覆盖 theme.css 的 .btn-sm 32px） */
+.ed-header-actions .btn-sm {
+  height: var(--ctl-h) !important;
+}
+
 /* 主题按钮：仅切换 sun/moon，尺寸由 .float-btn 提供 */
 .ed-theme-sun  { display: inline-flex; }
 .ed-theme-moon { display: none; }
@@ -527,7 +532,7 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
 
   .ed-row-2 { grid-template-columns: 1fr; }
 
-  .ed-header { height: 50px; padding: 0 10px; }
+  .ed-header { height: 54px; padding: 0 10px; }
   .ed-title { font-size: 14px; }
 
   .ed-mobile-back {
@@ -541,11 +546,11 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
   }
 }
 
-/* 手机端：无文字按钮统一正方形 32×32 */
+/* 手机端：隐藏文字后按钮统一 36×36 正方形（与 .float-btn 主题按钮一致） */
 @media (max-width: 640px) {
   .ed-btn-text { display: none; }
   .ed-header-actions .btn-sm {
-    width: 32px !important;
+    width: var(--ctl-h) !important;
     padding: 0 !important;
   }
 }
