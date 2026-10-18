@@ -16,10 +16,11 @@ const TOOLS = [
     src: 'tools/tales/index.html'
   },
   {
-    key: 'teapot',
-    label: '尘歌壶赠礼',
-    icon: 'teapot',
-    iconBold: 'teapotBold',
+    key: 'gift-set',
+    label: '尘歌壶赠礼套装',
+    icon: 'gift-set',
+    iconBold: 'gift-setBold',
+    // src 暂未开发，未来路径应为 tools/gift-set/index.html
   }
 ];
 
@@ -225,7 +226,12 @@ function selectTool(toolKey) {
  * 初始化
  * ========================================================================= */
 (async function init() {
-  // 此时 app.js 被加载时，前面的 Promise 已经全部 resolve 了，直接干活即可
+  try {
+    await window.__bootPromise; 
+  } catch (e) { 
+    console.warn('资源加载异常，已启用降级方案', e); 
+  }
+
   DOM.btnMenu.innerHTML = getSvgIcon('app.hamburger', FALLBACKS.burger);
   DOM.btnClose.innerHTML = getSvgIcon('app.close', FALLBACKS.close);
 
