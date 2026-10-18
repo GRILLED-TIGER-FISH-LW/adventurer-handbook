@@ -85,7 +85,6 @@
     errBox.hidden = false;
   }
 
-  /* 重试 */
   document.getElementById('bootRetry')?.addEventListener('click', () => location.reload());
 })();
 </script>
@@ -94,8 +93,10 @@
 /* =========================================================================
  * 启动期防闪（内联，先于 theme.css 生效）
  * ========================================================================= */
+[hidden] { display: none !important; }
+
 html { background: var(--bg-base, #F4F1EA); }
-html[data-theme="dark"] { background: #1A1816; }
+html[data-theme="dark"] { background: var(--bg-base, #1A1816); }
 
 body { visibility: hidden; }
 body.ready { visibility: visible; }
@@ -123,7 +124,6 @@ body.ready .boot-loading { display: none; }
 }
 .boot-err-list > div { opacity: 0.85; }
 
-/* 图标占位（JS 注入 SVG 后自动撑满） */
 .ic {
   display: inline-flex; align-items: center; justify-content: center;
   width: 1em; height: 1em; flex-shrink: 0;
@@ -148,19 +148,19 @@ body.ready .boot-loading { display: none; }
   <div class="ed-header-actions">
     <button type="button" class="btn-sm" id="btnReload" title="重载线上数据">
       <span class="ic" data-icon="reload"></span>
-      <span class="action-btn-text">重载</span>
+      <span class="ed-btn-text">重载</span>
     </button>
     <button type="button" class="btn-sm" id="btnImport" title="导入本地 data.js">
       <span class="ic" data-icon="ui.import"></span>
-      <span class="action-btn-text">导入</span>
+      <span class="ed-btn-text">导入</span>
     </button>
     <button type="button" class="btn-sm" id="btnRenumber" title="按当前显示顺序重排所有 ID">
       <span class="ic" data-icon="reorder"></span>
-      <span class="action-btn-text">重排</span>
+      <span class="ed-btn-text">重排</span>
     </button>
     <button type="button" class="btn-sm ios-btn-fill" id="btnExport" title="导出 data.js">
       <span class="ic" data-icon="ui.export"></span>
-      <span class="action-btn-text">导出</span>
+      <span class="ed-btn-text">导出</span>
     </button>
     <button type="button" class="btn-sm ed-theme-btn" id="btnTheme" aria-label="切换主题" title="切换主题">
       <span class="ic ed-theme-sun" data-icon="app.sun"></span>
