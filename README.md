@@ -79,7 +79,7 @@
 <a id="save" name="save"></a>
 ## 💾 存档说明
 
-**导出文件**：`游逸旅闻存档记录-[UID-]YYYYMMDD.json`
+**导出文件**：`游逸旅闻存档记录-[UID]-YYYYMMDD.json`
 
 ```json
 {
