@@ -1,7 +1,11 @@
 /* ============================================================
  * 游逸旅闻编辑器 · 布局与组件样式
  * 依赖：shared/theme.css（变量 + 按钮 + 表单 + 模态 + Toast + TabSheet）
- * 仅保留编辑器独有的结构性样式
+ * 【本次改动】
+ *   1. 删除 .ed-id-move 整段（改用 .float-btn）
+ *   2. .ed-theme-btn 只保留 sun/moon 切换（尺寸由 .float-btn 提供）
+ *   3. .ed-header-actions .ic 从 14px 改为 16px（与 button svg 16px 对齐）
+ *   4. 删除移动端重复的 .ed-header-actions .ic 规则
  * ============================================================ */
 
 /* ============================================================
@@ -70,10 +74,10 @@ body {
   flex-shrink: 0;
 }
 
-.ed-header-actions .ic { width: 14px; height: 14px; }
+/* 与 theme.css 的 button svg { 16px } 对齐，避免溢出 */
+.ed-header-actions .ic { width: 16px; height: 16px; }
 
-/* 主题按钮：sun/moon 切换 */
-.ed-theme-btn { padding: 0 10px; }
+/* 主题按钮：仅切换 sun/moon，尺寸由 .float-btn 提供（36×36 正方形） */
 .ed-theme-sun  { display: inline-flex; }
 .ed-theme-moon { display: none; }
 html[data-theme="dark"] .ed-theme-sun  { display: none; }
@@ -316,7 +320,6 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
   gap: 14px;
 }
 
-/* 表单顶部（头像 + 标题） */
 .ed-form-heading {
   display: flex;
   align-items: center;
@@ -365,7 +368,6 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
   margin-top: 2px;
 }
 
-/* 表单分组 */
 .ed-group {
   display: flex;
   flex-direction: column;
@@ -386,29 +388,19 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
   font-weight: 400;
 }
 
-/* 双列 */
 .ed-row-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 
-/* id 输入 + 上下移动 */
+/* id 输入 + 上下移动（.float-btn 提供 36×36，输入框 var(--ctl-h)=36，三件套对齐） */
 .ed-id-wrap {
   display: flex;
   gap: 4px;
   align-items: stretch;
 }
 .ed-id-wrap input[type="text"] { flex: 1 1 auto; min-width: 0; }
-
-.ed-id-move {
-  width: 34px;
-  height: var(--ctl-h);
-  padding: 0;
-  flex-shrink: 0;
-}
-.ed-id-move .ic { width: 14px; height: 14px; }
-.ed-id-move:disabled { opacity: 0.35; cursor: not-allowed; }
 
 /* 隐藏复选框 */
 .ed-checkbox-wrap {
@@ -502,7 +494,6 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
   text-align: center;
 }
 
-/* 提示 */
 .ed-hint {
   font-size: 11px;
   color: var(--text-tertiary);
@@ -510,7 +501,6 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
 }
 .ed-hint.warn { color: var(--danger); }
 
-/* 底部操作 */
 .ed-actions {
   display: flex;
   gap: 8px;
@@ -520,7 +510,6 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
   flex-wrap: wrap;
 }
 
-/* 移动端返回 */
 .ed-mobile-back { display: none; }
 .ed-mobile-back .ic { width: 14px; height: 14px; }
 
@@ -564,6 +553,5 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
 
 @media (max-width: 640px) {
   .ed-btn-text { display: none; }
-  .ed-header-actions .ic { width: 16px; height: 16px; }
-  .ed-theme-btn { padding: 0 8px; }
+  .ed-theme-btn { padding: 0; }
 }
