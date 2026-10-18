@@ -1,11 +1,6 @@
 /* ============================================================
  * 游逸旅闻编辑器 · 布局与组件样式
- * 依赖：shared/theme.css（变量 + 按钮 + 表单 + 模态 + Toast + TabSheet）
- * 【本次改动】
- *   1. 删除 .ed-id-move 整段（改用 .float-btn）
- *   2. .ed-theme-btn 只保留 sun/moon 切换（尺寸由 .float-btn 提供）
- *   3. .ed-header-actions .ic 从 14px 改为 16px（与 button svg 16px 对齐）
- *   4. 删除移动端重复的 .ed-header-actions .ic 规则
+ * 依赖：shared/theme.css
  * ============================================================ */
 
 /* ============================================================
@@ -23,7 +18,12 @@ body {
 }
 
 /* ============================================================
- * 2. 顶栏
+ * 2. 图标尺寸统一（与 theme.css 的 button svg 16px 对齐）
+ * ============================================================ */
+button .ic { width: 16px; height: 16px; }
+
+/* ============================================================
+ * 3. 顶栏
  * ============================================================ */
 .ed-header {
   height: 54px;
@@ -74,17 +74,14 @@ body {
   flex-shrink: 0;
 }
 
-/* 与 theme.css 的 button svg { 16px } 对齐，避免溢出 */
-.ed-header-actions .ic { width: 16px; height: 16px; }
-
-/* 主题按钮：仅切换 sun/moon，尺寸由 .float-btn 提供（36×36 正方形） */
+/* 主题按钮：仅切换 sun/moon，尺寸由 .float-btn 提供 */
 .ed-theme-sun  { display: inline-flex; }
 .ed-theme-moon { display: none; }
 html[data-theme="dark"] .ed-theme-sun  { display: none; }
 html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
 
 /* ============================================================
- * 3. 主布局
+ * 4. 主布局
  * ============================================================ */
 .ed-main {
   flex: 1;
@@ -95,7 +92,7 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
 }
 
 /* ============================================================
- * 4. 左侧：列表
+ * 5. 左侧：列表
  * ============================================================ */
 .ed-list-pane {
   display: flex;
@@ -115,7 +112,6 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
   flex-shrink: 0;
 }
 
-/* 搜索框 */
 .ed-search-wrap {
   position: relative;
   display: flex;
@@ -154,7 +150,6 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
 .ed-search-clear .ic { width: 12px; height: 12px; }
 .ed-search-clear:hover { background: var(--bg-hover); color: var(--text-primary); }
 
-/* 两个下拉触发器并排 */
 .ed-filter-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -190,7 +185,6 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
 }
 .ed-dropdown-trigger.active .ed-dropdown-arrow { transform: rotate(180deg); }
 
-/* 列表 */
 .ed-list {
   flex: 1;
   min-height: 0;
@@ -288,7 +282,7 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
 }
 
 /* ============================================================
- * 5. 右侧：表单
+ * 6. 右侧：表单
  * ============================================================ */
 .ed-form-pane {
   overflow-y: auto;
@@ -394,7 +388,6 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
   gap: 12px;
 }
 
-/* id 输入 + 上下移动（.float-btn 提供 36×36，输入框 var(--ctl-h)=36，三件套对齐） */
 .ed-id-wrap {
   display: flex;
   gap: 4px;
@@ -402,7 +395,6 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
 }
 .ed-id-wrap input[type="text"] { flex: 1 1 auto; min-width: 0; }
 
-/* 隐藏复选框 */
 .ed-checkbox-wrap {
   display: flex;
   align-items: center;
@@ -419,13 +411,11 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
 .ed-checkbox-wrap:hover { border-color: var(--border-strong); }
 .ed-checkbox-wrap span { font-size: 12.5px; color: var(--text-primary); }
 
-/* id 校验无效 */
 .ed-invalid {
   border-color: var(--danger) !important;
   box-shadow: 0 0 0 2px var(--danger-bg) !important;
 }
 
-/* Combobox */
 .ed-combobox { position: relative; }
 .ed-combobox-input-wrap {
   position: relative;
@@ -514,7 +504,7 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
 .ed-mobile-back .ic { width: 14px; height: 14px; }
 
 /* ============================================================
- * 6. 响应式
+ * 7. 响应式
  * ============================================================ */
 @media (max-width: 900px) {
   .ed-main {
@@ -551,7 +541,11 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
   }
 }
 
+/* 手机端：无文字按钮统一正方形 32×32 */
 @media (max-width: 640px) {
   .ed-btn-text { display: none; }
-  .ed-theme-btn { padding: 0; }
+  .ed-header-actions .btn-sm {
+    width: 32px !important;
+    padding: 0 !important;
+  }
 }
