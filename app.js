@@ -1,22 +1,26 @@
 /* =========================================================================
- * 提瓦特冒险之证 · 外壳逻辑 (2026 现代容错版)
+ * 提瓦特冒险之证 · 外壳逻辑 (2026 现代专属字典版)
  * ========================================================================= */
 
 'use strict';
 
+/* =========================================================================
+ * 工具配置
+ * ========================================================================= */
 const TOOLS = [
   {
     key: 'tales',
     label: '游逸旅闻',
-    icon: 'character',
-    iconBold: 'characterBold',
+    icon: 'tales',
+    iconBold: 'talesBold',
     src: 'tools/tales/index.html'
   },
   {
     key: 'teapot',
     label: '尘歌壶赠礼',
-    icon: 'mapEditor',
-    iconBold: 'mapEditorBold',
+    icon: 'teapot',
+    iconBold: 'teapotBold',
+    // src 暂未开发
   }
 ];
 
@@ -41,7 +45,9 @@ let currentTheme = 'light';
 let isHome = true;
 let activeTool = '';
 
-// 极限容错：如果外部图标库加载失败，用备用 SVG 顶替
+/* =========================================================================
+ * 图标查找机制：本地优先，全局兜底
+ * ========================================================================= */
 const FALLBACKS = {
   burger: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>',
   close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg>',
@@ -50,10 +56,16 @@ const FALLBACKS = {
   home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>'
 };
 
-function safeIcon(path, fallbackSvg = '') {
+function getSvgIcon(key, fallbackSvg = '') {
+  // 1. 优先查本地专属字典 (window.LOCAL_ICONS)
+  if (window.LOCAL_ICONS && window.LOCAL_ICONS[key]) {
+    return window.LOCAL_ICONS[key];
+  }
+  
+  // 2. 再查主仓库的 window.ICONS
   try {
     if (!window.ICONS) return fallbackSvg;
-    const parts = path.split('.');
+    const parts = key.split('.');
     let node = window.ICONS;
     for (let p of parts) {
       if (!node) return fallbackSvg;
@@ -65,6 +77,9 @@ function safeIcon(path, fallbackSvg = '') {
   }
 }
 
+/* =========================================================================
+ * 业务逻辑
+ * ========================================================================= */
 function applyTheme(theme) {
   currentTheme = theme === 'dark' ? 'dark' : 'light';
   document.documentElement.classList.add('theme-switching');
@@ -83,8 +98,8 @@ function applyTheme(theme) {
   if (meta) meta.setAttribute('content', currentTheme === 'dark' ? '#1A1816' : '#F4F1EA');
 
   DOM.btnTheme.innerHTML = currentTheme === 'dark' 
-    ? safeIcon('app.moonBold', FALLBACKS.moon) 
-    : safeIcon('app.sunBold', FALLBACKS.sun);
+    ? getSvgIcon('app.moonBold', FALLBACKS.moon) 
+    : getSvgIcon('app.sunBold', FALLBACKS.sun);
     
   try { localStorage.setItem(THEME_KEY, currentTheme); } catch (e) {}
 
@@ -98,7 +113,7 @@ function renderMenu() {
   const homeBtn = document.createElement('button');
   homeBtn.type = 'button';
   homeBtn.className = 'menu-main' + (isHome ? ' active' : '');
-  homeBtn.innerHTML = `<span class="menu-main-icon">${safeIcon(isHome ? 'nav.homeBold' : 'nav.home', FALLBACKS.home)}</span><span class="menu-main-label">首页</span>`;
+  homeBtn.innerHTML = `<span class="menu-main-icon">${getSvgIcon(isHome ? 'nav.homeBold' : 'nav.home', FALLBACKS.home)}</span><span class="menu-main-label">首页</span>`;
   homeBtn.addEventListener('click', goHome);
   DOM.sidebarMenu.appendChild(homeBtn);
 
@@ -108,7 +123,7 @@ function renderMenu() {
     mainBtn.type = 'button';
     mainBtn.className = 'menu-main' + (isActive ? ' active' : '');
     
-    const iconSvg = safeIcon(`nav.${isActive ? tool.iconBold : tool.icon}`);
+    const iconSvg = getSvgIcon(isActive ? tool.iconBold : tool.icon);
     mainBtn.innerHTML = `
       <span class="menu-main-icon">${iconSvg}</span>
       <span class="menu-main-label">${tool.label}</span>
@@ -124,7 +139,7 @@ function renderHome() {
     const card = document.createElement('div');
     card.className = 'dash-card';
     card.innerHTML = `
-      <div class="dash-card-icon">${safeIcon(`nav.${tool.icon}`)}</div>
+      <div class="dash-card-icon">${getSvgIcon(tool.icon)}</div>
       <div>
         <div class="dash-card-title">${tool.label}</div>
         ${!tool.src ? '<div class="dash-card-sub">规划中</div>' : ''}
@@ -200,7 +215,7 @@ function selectTool(toolKey) {
   DOM.homeView.classList.add('hidden');
   DOM.frameContainer.classList.add('active');
 
-  DOM.navIcon.innerHTML = safeIcon(`nav.${tool.iconBold}`);
+  DOM.navIcon.innerHTML = getSvgIcon(tool.iconBold);
   DOM.navText.textContent = tool.label;
 
   renderMenu();
@@ -219,8 +234,8 @@ function selectTool(toolKey) {
     console.warn('资源加载异常，已启用降级方案', e); 
   }
 
-  DOM.btnMenu.innerHTML = safeIcon('app.hamburger', FALLBACKS.burger);
-  DOM.btnClose.innerHTML = safeIcon('app.close', FALLBACKS.close);
+  DOM.btnMenu.innerHTML = getSvgIcon('app.hamburger', FALLBACKS.burger);
+  DOM.btnClose.innerHTML = getSvgIcon('app.close', FALLBACKS.close);
 
   let savedTheme = 'light';
   try { savedTheme = localStorage.getItem(THEME_KEY) || 'light'; } catch (e) {}
