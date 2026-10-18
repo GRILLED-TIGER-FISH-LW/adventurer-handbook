@@ -45,7 +45,6 @@
   window.__bootPromise = (async function () {
     const coreFails = [];
 
-    /* 1. 并行加载核心依赖（任一失败则展示错误） */
     try {
       await Promise.all([
         loadStyle('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/theme.css'),
@@ -59,14 +58,12 @@
       return;
     }
 
-    /* 2. 数据字典：允许失败（编辑器可用「导入本地」兜底） */
     try {
       await loadScript('../tales/data.js');
     } catch (failUrl) {
       console.warn('[boot] 数据字典加载失败，编辑器仍可启动，请用「导入本地」：', failUrl);
     }
 
-    /* 3. 编辑器逻辑 */
     try {
       await loadScript('app.js');
     } catch (failUrl) {
@@ -162,7 +159,8 @@ body.ready .boot-loading { display: none; }
       <span class="ic" data-icon="ui.export"></span>
       <span class="ed-btn-text">导出</span>
     </button>
-    <button type="button" class="btn-sm ed-theme-btn" id="btnTheme" aria-label="切换主题" title="切换主题">
+    <!-- 【改动】主题按钮：btn-sm → float-btn（36×36 正方形） -->
+    <button type="button" class="float-btn ed-theme-btn" id="btnTheme" aria-label="切换主题" title="切换主题">
       <span class="ic ed-theme-sun" data-icon="app.sun"></span>
       <span class="ic ed-theme-moon" data-icon="app.moon"></span>
     </button>
