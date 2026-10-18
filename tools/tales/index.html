@@ -8,7 +8,7 @@
 
 <script>
 /* =========================================================================
- * 资源加载器 (游历旅闻子页面专属)
+ * 资源加载器 (只负责 CSS 和外部依赖)
  * ========================================================================= */
 (async function () {
   const ts = Date.now();
@@ -24,25 +24,17 @@
     s.onload = resolve; s.onerror = reject; document.head.appendChild(s);
   });
 
-  // 1. 加载依赖 (theme.css 和 ui-icons 走绝对路径)
-  await Promise.all([
+  window.__bootPromise = Promise.all([
     loadStyle('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/theme.css'),
     loadStyle('style.css'),
     loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/ui-icons.js'),
     loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-dict.js')
   ]);
-  
-  // 2. 加载数据和主逻辑
-  await Promise.all([
-    loadScript('data.js'),
-    loadScript('app.js')
-  ]);
-  
-  window.__bootPromise = Promise.resolve();
 })();
 </script>
 
 <style>
+  /* 统一使用全局变量，防止主题切换闪烁 */
   html { background: var(--bg-base, #F4F1EA); }
   [data-theme="dark"] html { background: var(--bg-base, #1A1816); }
   body { visibility: hidden; }
@@ -127,5 +119,9 @@
 </main>
 
 <input type="file" id="importFile" accept=".json,application/json" hidden>
+
+<!-- 【核心修复】直接静态引入数据和逻辑，确保 100% 按顺序执行 -->
+<script src="data.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
