@@ -8,7 +8,7 @@
 
 <script>
 /* =========================================================================
- * 资源加载器 (只负责 CSS 和外部依赖)
+ * 资源加载器 (强制时间戳防缓存，分步加载破死锁)
  * ========================================================================= */
 (async function () {
   const ts = Date.now();
@@ -24,17 +24,25 @@
     s.onload = resolve; s.onerror = reject; document.head.appendChild(s);
   });
 
-  window.__bootPromise = Promise.all([
-    loadStyle('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/theme.css'),
-    loadStyle('style.css'),
-    loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/ui-icons.js'),
-    loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-dict.js')
-  ]);
+  window.__bootPromise = (async function () {
+    // 1. 先并行加载外部共享依赖和本地样式
+    await Promise.all([
+      loadStyle('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/theme.css'),
+      loadStyle('style.css'),
+      loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/ui-icons.js'),
+      loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-dict.js')
+    ]);
+    
+    // 2. 再加载本地数据
+    await loadScript('data.js');
+    
+    // 3. 最后加载本地逻辑（此时数据和外部依赖已 100% 就绪）
+    await loadScript('app.js');
+  })();
 })();
 </script>
 
 <style>
-  /* 统一使用全局变量，防止主题切换闪烁 */
   html { background: var(--bg-base, #F4F1EA); }
   [data-theme="dark"] html { background: var(--bg-base, #1A1816); }
   body { visibility: hidden; }
@@ -54,17 +62,14 @@
 <div class="boot-loading">正在加载游逸旅闻数据…</div>
 
 <header class="app-header">
-  <!-- 行 1：UID + 计数 + 操作按钮 -->
   <div class="header-row row-actions">
     <input type="text" id="uidInput" class="uid-input" placeholder="UID（可选）" maxlength="15" inputmode="numeric" autocomplete="off" spellcheck="false">
-    
     <div class="counter">
       <span class="counter-label">已完成</span>
       <span class="counter-done" id="counterDone">0</span>
       <span class="counter-sep">/</span>
       <span class="counter-total" id="counterTotal">156</span>
     </div>
-
     <div class="title-right">
       <button type="button" class="action-btn" id="btnExport" title="导出存档">
         <span class="ic action-btn-icon" data-icon="ui.export"></span><span class="action-btn-text">导出</span>
@@ -78,14 +83,12 @@
     </div>
   </div>
 
-  <!-- 行 2：搜索框 + 三个下拉 -->
   <div class="header-row row-search-filters">
     <div class="search-wrap">
       <span class="ic search-icon" data-icon="ui.search"></span>
       <input type="text" id="searchInput" class="search-input" placeholder="搜索角色名 / 旅闻名" autocomplete="off" spellcheck="false">
       <button type="button" class="search-clear" id="searchClear" aria-label="清除"><span class="ic" data-icon="app.close"></span></button>
     </div>
-
     <div class="dropdown-wrap" data-key="version">
       <button type="button" class="dropdown-trigger" id="versionTrigger">
         <span class="dropdown-label" id="versionLabel">全部版本</span>
@@ -119,9 +122,5 @@
 </main>
 
 <input type="file" id="importFile" accept=".json,application/json" hidden>
-
-<!-- 【核心修复】直接静态引入数据和逻辑，确保 100% 按顺序执行 -->
-<script src="data.js"></script>
-<script src="app.js"></script>
 </body>
 </html>
