@@ -8,7 +8,7 @@
 
 <script>
 /* =========================================================================
- * 资源加载器 (强制时间戳防缓存，分步加载破死锁)
+ * 资源加载器 (全动态加载 + 强制时间戳防缓存 + 链式防死锁)
  * ========================================================================= */
 (async function () {
   const ts = Date.now();
@@ -25,7 +25,7 @@
   });
 
   window.__bootPromise = (async function () {
-    // 1. 先并行加载外部共享依赖和本地样式
+    // 1. 并行加载基础依赖
     await Promise.all([
       loadStyle('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/theme.css'),
       loadStyle('style.css'),
@@ -33,16 +33,17 @@
       loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-dict.js')
     ]);
     
-    // 2. 再加载本地数据
+    // 2. 加载数据
     await loadScript('data.js');
     
-    // 3. 最后加载本地逻辑（此时数据和外部依赖已 100% 就绪）
+    // 3. 最后执行逻辑
     await loadScript('app.js');
   })();
 })();
 </script>
 
 <style>
+  /* 初始化防闪烁 */
   html { background: var(--bg-base, #F4F1EA); }
   [data-theme="dark"] html { background: var(--bg-base, #1A1816); }
   body { visibility: hidden; }
@@ -62,33 +63,18 @@
 <div class="boot-loading">正在加载游逸旅闻数据…</div>
 
 <header class="app-header">
-  <div class="header-row row-actions">
-    <input type="text" id="uidInput" class="uid-input" placeholder="UID（可选）" maxlength="15" inputmode="numeric" autocomplete="off" spellcheck="false">
-    <div class="counter">
-      <span class="counter-label">已完成</span>
-      <span class="counter-done" id="counterDone">0</span>
-      <span class="counter-sep">/</span>
-      <span class="counter-total" id="counterTotal">156</span>
-    </div>
-    <div class="title-right">
-      <button type="button" class="action-btn" id="btnExport" title="导出存档">
-        <span class="ic action-btn-icon" data-icon="ui.export"></span><span class="action-btn-text">导出</span>
-      </button>
-      <button type="button" class="action-btn" id="btnImport" title="导入存档">
-        <span class="ic action-btn-icon" data-icon="ui.import"></span><span class="action-btn-text">导入</span>
-      </button>
-      <button type="button" class="action-btn danger" id="btnClear" title="清空记录">
-        <span class="ic action-btn-icon" data-icon="ui.trash"></span><span class="action-btn-text">清空</span>
-      </button>
-    </div>
-  </div>
-
-  <div class="header-row row-search-filters">
+  
+  <!-- 1. 搜索框独占一行 -->
+  <div class="header-row row-search">
     <div class="search-wrap">
       <span class="ic search-icon" data-icon="ui.search"></span>
       <input type="text" id="searchInput" class="search-input" placeholder="搜索角色名 / 旅闻名" autocomplete="off" spellcheck="false">
       <button type="button" class="search-clear" id="searchClear" aria-label="清除"><span class="ic" data-icon="app.close"></span></button>
     </div>
+  </div>
+
+  <!-- 2. 三个下拉并排等分 -->
+  <div class="header-row row-filters">
     <div class="dropdown-wrap" data-key="version">
       <button type="button" class="dropdown-trigger" id="versionTrigger">
         <span class="dropdown-label" id="versionLabel">全部版本</span>
@@ -109,6 +95,30 @@
         <span class="ic dropdown-arrow" data-icon="ui.chevronDown"></span>
       </button>
       <div class="dropdown-panel" id="visibilityPanel"></div>
+    </div>
+  </div>
+
+  <!-- 3. UID + 计数 (左) / 操作按钮 (右) -->
+  <div class="header-row row-meta-actions">
+    <div class="meta-left">
+      <input type="text" id="uidInput" class="uid-input" placeholder="UID" maxlength="15" inputmode="numeric" autocomplete="off" spellcheck="false">
+      <div class="counter">
+        <span class="counter-label">已完成</span>
+        <span class="counter-done" id="counterDone">0</span>
+        <span class="counter-sep">/</span>
+        <span class="counter-total" id="counterTotal">156</span>
+      </div>
+    </div>
+    <div class="meta-right">
+      <button type="button" class="action-btn" id="btnExport" title="导出存档">
+        <span class="ic action-btn-icon" data-icon="ui.export"></span><span class="action-btn-text">导出</span>
+      </button>
+      <button type="button" class="action-btn" id="btnImport" title="导入存档">
+        <span class="ic action-btn-icon" data-icon="ui.import"></span><span class="action-btn-text">导入</span>
+      </button>
+      <button type="button" class="action-btn danger" id="btnClear" title="清空记录">
+        <span class="ic action-btn-icon" data-icon="ui.trash"></span><span class="action-btn-text">清空</span>
+      </button>
     </div>
   </div>
 </header>
