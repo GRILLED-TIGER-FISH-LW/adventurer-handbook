@@ -1,11 +1,12 @@
 <div align="center">
 
-# 原神 · 游逸旅闻
+# 提瓦特冒险之证
 
-> 《原神》游逸旅闻查询与进度记录工具 · 纯前端 · 本地记录 · 不收集任何数据
+> 《原神》游逸旅闻与尘歌壶赠礼查询及进度记录工具 · 纯前端 · 本地记录 · 不收集数据
 
-[![在线访问](https://img.shields.io/badge/在线访问-打开网站-4C8BF5?style=flat-square&logo=googlechrome&logoColor=white)](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/)
-[![最后更新](https://img.shields.io/github/last-commit/GRILLED-TIGER-FISH-LW/genshin-travelers-tales?style=flat-square&label=最后更新&color=4C8BF5&logo=github&logoColor=white)](https://github.com/GRILLED-TIGER-FISH-LW/genshin-travelers-tales/commits)
+[![在线访问](https://img.shields.io/badge/在线访问-打开网站-9E6C47?style=flat-square\&logo=googlechrome\&logoColor=white)](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/)
+[![最后更新](https://img.shields.io/github/last-commit/GRILLED-TIGER-FISH-LW/genshin-travelers-tales?style=flat-square\&label=最后更新\&color=9E6C47\&logo=github\&logoColor=white)](https://github.com/GRILLED-TIGER-FISH-LW/genshin-travelers-tales/commits)
+[![Tech Stack](https://img.shields.io/badge/Tech-Vanilla%20JS%20%7C%20HTML5-F4F1EA?style=flat-square)]()
 
 [快速开始](#start) · [功能](#features) · [数据说明](#data) · [存档说明](#save) · [文件结构](#structure) · [外部依赖](#deps)
 
@@ -16,65 +17,42 @@
 <a id="start" name="start"></a>
 ## 🚀 快速开始
 
+> 主页现已升级为 **Bento 网格 Dashboard**。所有子工具通过 `iframe` 动态加载，实现外壳与业务的彻底解耦。
+
 | 入口 | 地址 | 状态 |
 |---|---|---|
-| 主站 | [genshin-travelers-tales](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/) | ✅ |
-| 编辑器 | [genshin-travelers-tales/editor/](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/editor/) | 🚧 |
-| 仓库 | [GRILLED-TIGER-FISH-LW/genshin-travelers-tales](https://github.com/GRILLED-TIGER-FISH-LW/genshin-travelers-tales) | ✅ |
+| 主站 (冒险之证) | [genshin-travelers-tales](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/) | ✅ |
+| 游逸旅闻 | 主站首页点击进入 `#tales` | ✅ |
+| 尘歌壶赠礼 | 主站首页点击进入 `#gift-set` | 🚧 规划中 |
 
-> ✅ 已上线 · 🚧 规划中
-
-**本地使用**：克隆或下载仓库后，双击 `index.html` 打开。
-
-> [!NOTE]
-> 跨仓库依赖 `shared/theme.css`、`shared/ui-icons.js`、`shared/gi-icons/icon-dict.js`（来自 [GRILLED-TIGER-FISH-LW/genshin-guide](https://github.com/GRILLED-TIGER-FISH-LW/genshin-guide)），通过 GitHub Pages 外链加载，需联网。
+**本地使用**：克隆或下载仓库后，必须启动本地静态服务器（如 `python -m http.server 8080`），双击直接打开会有 CORS 跨域限制。
 
 ---
 
 <a id="features" name="features"></a>
 ## ✨ 功能
 
-### 主站
+### 1. 游逸旅闻
+- **搜索与筛选**：按角色名 / 旅闻名模糊搜索，按版本、状态、是否隐藏进行下拉筛选。
+- **完成记录**：点击卡片切换状态，右上角实时显示「已完成 X / 156」，自动存 `localStorage`。
+- **存档导入导出**：可选 UID，支持导出 JSON 存档，并兼容旧版单/双段式数据格式的导入。
+- **暗黑模式适配**：完全跟随主站主题，使用主仓库 `theme.css` 变量。
 
-- **搜索**：按「角色名」或「旅闻名」模糊匹配
-- **筛选**：版本 / 完成状态 / 显示类型（正常 / 隐藏）
-- **完成计数**：右上角显示「已完成 X / 156」
-- **勾选记录**：点击卡片切换完成状态，自动存 `localStorage`
-- **UID 输入**：可选，用于存档文件名
-- **导出存档**：`游逸旅闻存档记录-[UID-]YYYYMMDD.json`
-- **导入存档**：恢复勾选，兼容旧格式
-- **清空记录**：一键清空所有完成标记（二次确认，提示先备份）
-- **主题**：跟随系统 / 手动切换，浅色 / 深色
-- **响应式**：桌面 + 移动端
-
-> 隐藏旅闻：旅闻名红色加粗（判定依据为「触发条件」字段非空）。
-
-### 编辑器（规划中）
-
-<details>
-<summary><b>计划支持</b></summary>
-
-<br>
-
-- 独立页面 `editor/`，用于维护 `data.js`
-- 导入 / 导出 `data.js`
-- 条目增删改
-- 角色名 / 版本联想
-- 一键重排 ID
-
-</details>
+### 2. 尘歌壶赠礼套装（规划中）
+> [!NOTE]
+> 预计包含室内外套装分类，支持多角色多套装的复杂多对多进度记录。
 
 ---
 
 <a id="data" name="data"></a>
-## 📊 数据说明
+## 📊 数据与图标系统
 
-数据在 `data.js`，挂载到 `window.TRAVELERS_TALES`。
-
+### 数据结构 (`tools/tales/data.js`)
+数据全量挂载在 `window.TRAVELERS_TALES`：
 ```js
 {
   meta: { version, total, updatedAt, source },
-  versions: ["5.4", "5.7", "月之一", ...],
+  versions: ["5.4", "5.7", ...],
   entries: [
     {
       id: 1,
@@ -91,17 +69,10 @@
 }
 ```
 
-<details>
-<summary><b>排序规则 / 维护提示 / 头像</b></summary>
-
-<br>
-
-- **排序**：字典物理顺序为「先版本、后角色（按 `icon-dict` order 升序）」；主站显示顺序为「先角色、后版本」（运行时排序）。
-- **空字段不渲染。**
-- 新增版本时需同步 `versions` 数组和 `meta.total`。
-- **头像**：主站运行时从 `window.ICON_DICT` 反查角色头像 URL，只匹配**主角色**。
-
-</details>
+### 图标智能处理 (`icons.js`)
+- **外链代理**：使用 `wsrv.nl` 代理加载 Fandom Wiki 官方原图，绕过防盗链。
+- **像素级裁切**：前端利用 Canvas 自动扫描透明像素并裁切，确保图标在容器中最大化显示，无多余白边。
+- **比例精调**：首页/侧边栏与子页面顶栏采用独立的 CSS 比例适配。
 
 ---
 
@@ -120,22 +91,8 @@
 }
 ```
 
-- 记录格式：`角色名·版本·旅闻名`（三段式 key）
-- 不含头像、不含文本
-- 无 UID 时文件名为 `游逸旅闻存档记录-YYYYMMDD.json`
-
-<details>
-<summary><b>导入兼容 / 本地持久化</b></summary>
-
-<br>
-
-- **导入兼容**：
-  - 三段式字符串 → 直接匹配
-  - 两段式字符串（旧版）→ 匹配所有同名条目
-  - 数字（更旧版）→ 按 id 反查
-- **本地持久化**：key 为 `genshin_travelers_tales_completed_v2`，值为字符串数组。每次勾选自动保存。
-
-</details>
+- 记录格式统一为**三段式 key**：`角色名·版本·旅闻名`。
+- 本地持久化 key 为 `genshin_travelers_tales_completed_v2`。
 
 > [!WARNING]
 > 清除浏览器数据会丢失本地记录，建议定期导出存档备份。
@@ -145,34 +102,39 @@
 <a id="structure" name="structure"></a>
 ## 📁 文件结构
 
-```
+```text
 genshin-travelers-tales/
-├── index.html          主站
-├── index.css
-├── index.js
-├── data.js             数据字典（156 条）
+├── index.html          主站外壳 (提瓦特冒险之证)
+├── style.css           外壳样式
+├── app.js              外壳逻辑 (路由 / iframe / 主题)
+├── icons.js            本地业务图标字典
+├── data.js
 ├── README.md
 ├── CHANGELOG.md
-└── editor/             编辑器（规划中）
-    ├── index.html
-    ├── index.css
-    └── index.js
+└── tools/              所有子应用
+    ├── tales/          游逸旅闻
+    │   ├── index.html
+    │   ├── style.css
+    │   ├── app.js
+    │   └── data.js
+    └── gift-set/       尘歌壶赠礼 (规划中)
 ```
 
 ---
 
 <a id="deps" name="deps"></a>
-## 🔗 外部依赖
+## 🔗 跨仓库共享架构
 
-跨仓库依赖来自 [GRILLED-TIGER-FISH-LW/genshin-guide](https://github.com/GRILLED-TIGER-FISH-LW/genshin-guide)，通过 GitHub Pages 外链加载，需联网。
+本仓库复用主仓库 [genshin-guide](https://github.com/GRILLED-TIGER-FISH-LW/genshin-guide) 的底层 UI 体系，通过 GitHub Pages 绝对路径加载：
 
 | 文件 | 来源 | 用途 |
 |---|---|---|
-| `theme.css` | `genshin-guide/shared/` | 主题变量 + 通用控件 |
-| `ui-icons.js` | `genshin-guide/shared/` | 通用图标库（`window.ICONS`） |
-| `icon-dict.js` | `genshin-guide/shared/gi-icons/` | 角色头像字典（`window.ICON_DICT`） |
+| `theme.css` | `genshin-guide/shared/` | 2026 现代主题变量 + 控件 |
+| `ui-icons.js` | `genshin-guide/shared/` | 通用系统图标库 (`window.ICONS`) |
+| `icon-dict.js` | `genshin-guide/shared/gi-icons/` | 角色头像字典 (`window.ICON_DICT`) |
 
-> 加载方式：`index.html` 内联启动器，**6 个资源并行下载，全部带时间戳**。
+> [!IMPORTANT]
+> 所有资源必须通过带时间戳的动态加载器加载，彻底杜绝浏览器缓存，并防止 Promise 死锁。
 
 ---
 
