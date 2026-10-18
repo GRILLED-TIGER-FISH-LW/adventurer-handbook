@@ -1,5 +1,6 @@
 /* ============================================================
  * 游逸旅闻编辑器 · 逻辑
+ * 【本次改动】renderForm 里上移/下移按钮 class：btn-sm → float-btn
  * ============================================================ */
 (function () {
   'use strict';
@@ -8,7 +9,7 @@
   const THEME_KEY = 'genshin_travelers_tales_theme_v1';
 
   /* ============================================================
-   * 1. 兜底图标（ui-icons.js 中缺失的 4 个）
+   * 1. 兜底图标
    * ============================================================ */
   const FALLBACK_ICONS = {
     reload:
@@ -314,7 +315,6 @@
   }
 
   function serializeData(data) {
-    /* 8.1 补全 versions（entries 中出现但 versions 缺失的版本） */
     const versionSet = new Set(data.versions);
     for (const e of data.entries) {
       if (e.version && !versionSet.has(e.version)) {
@@ -323,7 +323,6 @@
       }
     }
 
-    /* 8.2 按版本分组 */
     const grouped = new Map();
     data.versions.forEach((v) => grouped.set(v, []));
     for (const e of data.entries) {
@@ -331,7 +330,6 @@
       grouped.get(e.version).push(e);
     }
 
-    /* 8.3 组内排序：角色 order → id */
     for (const list of grouped.values()) {
       list.sort((a, b) => {
         const oa = ORDER_MAP.get(a.character) ?? 9999;
@@ -341,7 +339,6 @@
       });
     }
 
-    /* 8.4 生成文本 */
     const lines = [];
     lines.push('/* ============================================================');
     lines.push(' * 原神 · 游逸旅闻 数据字典');
@@ -531,10 +528,12 @@
             '<label class="ed-label">id <span class="ed-label-hint">可手动改，需唯一</span></label>' +
             '<div class="ed-id-wrap">' +
               '<input type="text" data-field="id" value="' + esc(entry.id) + '" inputmode="numeric" autocomplete="off">' +
-              '<button type="button" class="btn-sm ed-id-move" id="btnIdUp" title="上移">' +
+              /* 【改动】上移按钮：btn-sm ed-id-move → float-btn */
+              '<button type="button" class="float-btn" id="btnIdUp" title="上移">' +
                 '<span class="ic" data-icon="ui.arrowUp"></span>' +
               '</button>' +
-              '<button type="button" class="btn-sm ed-id-move" id="btnIdDown" title="下移">' +
+              /* 【改动】下移按钮：btn-sm ed-id-move → float-btn */
+              '<button type="button" class="float-btn" id="btnIdDown" title="下移">' +
                 '<span class="ic icon-flip-y" data-icon="ui.arrowUp"></span>' +
               '</button>' +
             '</div>' +
@@ -641,7 +640,6 @@
           renderList();
         }
 
-        /* 更新 heading（不重建表单，避免失焦） */
         const nameEl = els.edFormPane.querySelector('.ed-form-heading-name');
         if (nameEl && (field === 'character' || field === 'title')) {
           nameEl.textContent =
@@ -654,7 +652,6 @@
             : (entry.hidden ? '隐藏旅闻' : '正常旅闻') + ' · id ' + entry.id;
         }
 
-        /* 头像联动 */
         if (field === 'character') {
           const url = avatarUrl(entry.character);
           const initial2 = entry.character ? entry.character.charAt(0) : '?';
@@ -686,7 +683,6 @@
       input.addEventListener(eventName, handler);
     });
 
-    /* 版本 Combobox */
     setupCombobox(
       els.edFormPane.querySelector('.ed-combobox[data-combobox="version"]'),
       {
@@ -702,7 +698,6 @@
       }
     );
 
-    /* 角色 Combobox */
     setupCombobox(
       els.edFormPane.querySelector('.ed-combobox[data-combobox="character"]'),
       {
@@ -716,7 +711,6 @@
       }
     );
 
-    /* 上移 / 下移 */
     const btnIdUp = $('btnIdUp');
     const btnIdDown = $('btnIdDown');
 
@@ -740,7 +734,6 @@
     btnIdUp?.addEventListener('click', () => moveEntry('up'));
     btnIdDown?.addEventListener('click', () => moveEntry('down'));
 
-    /* 删除 */
     $('btnDelete')?.addEventListener('click', async () => {
       const ok = await confirmDialog({
         title: '删除条目',
@@ -760,7 +753,6 @@
       renderForm();
     });
 
-    /* 移动端返回 */
     $('btnMobileBack')?.addEventListener('click', () => {
       els.edListPane.classList.remove('mobile-hidden');
       els.edFormPane.classList.remove('mobile-visible');
@@ -855,7 +847,6 @@
       }
     });
 
-    /* 用 pointerdown 兼容触屏 */
     popup.addEventListener('pointerdown', (e) => {
       const opt = e.target.closest('.ed-combobox-option');
       if (!opt) return;
@@ -878,14 +869,12 @@
    * 14. 主流程事件
    * ============================================================ */
   function bindHeaderEvents() {
-    /* 主题 */
     els.btnTheme.addEventListener('click', () => {
       const next = currentTheme() === 'dark' ? 'light' : 'dark';
       applyTheme(next);
       try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
     });
 
-    /* 搜索 */
     let searchTimer = null;
     els.searchInput.addEventListener('input', () => {
       els.searchClear.classList.toggle('show', els.searchInput.value.length > 0);
@@ -902,7 +891,6 @@
       renderList();
     });
 
-    /* 版本过滤 */
     els.versionTrigger.addEventListener('click', () => {
       if (!state.data) return;
       const items = [{ value: 'all', label: '全部版本' }];
@@ -920,7 +908,6 @@
       });
     });
 
-    /* 类型过滤 */
     els.visibilityTrigger.addEventListener('click', () => {
       openSheet({
         header: '类型',
@@ -940,7 +927,6 @@
       });
     });
 
-    /* 重排 ID */
     els.btnRenumber.addEventListener('click', async () => {
       if (!state.data) return toast('数据未加载', 'error');
       const sorted = allSortedEntries();
@@ -966,7 +952,6 @@
       toast('已重排 ' + n + ' 条 id', 'success');
     });
 
-    /* 重载线上 */
     els.btnReload.addEventListener('click', async () => {
       if (state.dirty) {
         const ok = await confirmDialog({
@@ -999,7 +984,6 @@
       }
     });
 
-    /* 导入本地 */
     els.btnImport.addEventListener('click', () => els.fileInput.click());
     els.fileInput.addEventListener('change', (ev) => {
       const file = ev.target.files?.[0];
@@ -1024,7 +1008,6 @@
       reader.readAsText(file);
     });
 
-    /* 导出 */
     els.btnExport.addEventListener('click', async () => {
       if (!state.data) return toast('数据未加载', 'error');
 
@@ -1070,7 +1053,6 @@
       toast('已导出 data.js', 'success');
     });
 
-    /* 列表点击 */
     els.edList.addEventListener('click', (e) => {
       const item = e.target.closest('.ed-list-item');
       if (!item) return;
@@ -1086,7 +1068,6 @@
       }
     });
 
-    /* 新增 */
     els.btnAdd.addEventListener('click', () => {
       if (!state.data) return toast('数据未加载，请先「重载」或「导入」', 'error');
       const newId = state.data.entries.reduce((m, x) => Math.max(m, x.id || 0), 0) + 1;
@@ -1118,7 +1099,6 @@
       }, 60);
     });
 
-    /* 离开提示 */
     window.addEventListener('beforeunload', (e) => {
       if (state.dirty) {
         e.preventDefault();
