@@ -7,7 +7,7 @@
 const TOOLS = [
   {
     key: 'tales',
-    label: '游历旅闻',
+    label: '游逸旅闻',
     icon: 'character',      // 暂时借用，后续可换
     iconBold: 'characterBold',
     src: 'tools/tales/index.html'
