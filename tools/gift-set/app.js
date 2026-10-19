@@ -9,7 +9,6 @@
   const KEY_UID = 'genshin_homeworld_gift_sets_uid_v1';
   const THEME_KEY = 'genshin_travelers_tales_theme_v1';
 
-  /* 角色黑名单：不参与拥有/完成/推荐/套装进度 */
   const EXCLUDED_CHARS = new Set(['旅行者']);
 
   const IS_IFRAME = (function () {
@@ -105,8 +104,10 @@
     gsSearchClear: $('gsSearchClear'),
     gsRegionTrigger: $('gsRegionTrigger'),
     gsRegionLabel: $('gsRegionLabel'),
+    gsRegionPanel: $('gsRegionPanel'),
     gsTypeTrigger: $('gsTypeTrigger'),
     gsTypeLabel: $('gsTypeLabel'),
+    gsTypePanel: $('gsTypePanel'),
     gsSetList: $('gsSetList'),
     gsSetEmpty: $('gsSetEmpty'),
     gsFirstTip: $('gsFirstTip'),
@@ -114,15 +115,11 @@
     modalBackdrop: $('modalBackdrop'),
     modalTitle: $('modalTitle'),
     modalMessage: $('modalMessage'),
-    modalActions: $('modalActions'),
-    sheetBackdrop: $('sheetBackdrop'),
-    sheet: $('sheet'),
-    sheetHeader: $('sheetHeader'),
-    sheetList: $('sheetList')
+    modalActions: $('modalActions')
   };
 
   /* ============================================================
-   * 4. Toast / 确认框 / 下拉抽屉
+   * 4. Toast / 确认框
    * ============================================================ */
   function toast(message, type = '') {
     const el = document.createElement('div');
@@ -172,40 +169,6 @@
       okBtn.addEventListener('click', onOk);
       els.modalBackdrop.addEventListener('click', onBackdrop);
     });
-  }
-
-  function openSheet({ header, items, current, onSelect }) {
-    els.sheetHeader.textContent = header || '';
-    els.sheetList.innerHTML = '';
-
-    items.forEach((item) => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'tab-sheet-item' + (item.value === current ? ' active' : '');
-      btn.innerHTML =
-        '<span>' + esc(item.label) + '</span>' +
-        '<span class="tab-sheet-item-check"><span class="ic" data-icon="ui.check"></span></span>';
-      btn.addEventListener('click', () => {
-        closeSheet();
-        onSelect(item.value);
-      });
-      els.sheetList.appendChild(btn);
-    });
-    injectIcons(els.sheetList);
-
-    els.sheetBackdrop.classList.add('show');
-    els.sheet.classList.add('show');
-
-    const onBackdrop = (e) => {
-      if (e.target === els.sheetBackdrop) closeSheet();
-    };
-    els.sheetBackdrop.addEventListener('click', onBackdrop);
-
-    function closeSheet() {
-      els.sheetBackdrop.classList.remove('show');
-      els.sheet.classList.remove('show');
-      els.sheetBackdrop.removeEventListener('click', onBackdrop);
-    }
   }
 
   /* ============================================================
@@ -284,7 +247,8 @@
     uid: '',
     search: '',
     regionFilter: 'all',
-    typeFilter: 'all'
+    typeFilter: 'all',
+    openDropdown: null
   };
 
   function sanitizeOwnedList(list) {
@@ -628,7 +592,7 @@
   }
 
   /* ============================================================
-   * 11. 汇总刷新（全部套装区始终显示）
+   * 11. 汇总刷新
    * ============================================================ */
   function refreshDerivedSections() {
     const hasOwned = state.owned.length > 0;
@@ -677,7 +641,46 @@
   }
 
   /* ============================================================
-   * 13. 定位到某套装
+   * 13. 筛选下拉（对齐 tales 的 dropdown）
+   * ============================================================ */
+  function renderGsDropdown(panelEl, items, current) {
+    panelEl.innerHTML = items.map((it) => {
+      const active = it.value === current ? ' active' : '';
+      return `<button type="button" class="gs-dropdown-item${active}" data-value="${esc(it.value)}">${esc(it.label)}</button>`;
+    }).join('');
+  }
+
+  function openGsDropdown(key) {
+    closeGsDropdown();
+    state.openDropdown = key;
+    document.querySelector(`.gs-dropdown-wrap[data-key="${key}"]`)?.classList.add('open');
+
+    if (key === 'region') {
+      const items = [{ value: 'all', label: '全部地区' }];
+      state.regions.forEach((r) => items.push({ value: r, label: r }));
+      renderGsDropdown(els.gsRegionPanel, items, state.regionFilter);
+    } else if (key === 'type') {
+      const items = [
+        { value: 'all', label: '全部类型' },
+        { value: 'interior', label: '室内' },
+        { value: 'exterior', label: '室外' }
+      ];
+      renderGsDropdown(els.gsTypePanel, items, state.typeFilter);
+    }
+  }
+
+  function closeGsDropdown() {
+    state.openDropdown = null;
+    document.querySelectorAll('.gs-dropdown-wrap').forEach((w) => w.classList.remove('open'));
+  }
+
+  function toggleGsDropdown(key) {
+    if (state.openDropdown === key) closeGsDropdown();
+    else openGsDropdown(key);
+  }
+
+  /* ============================================================
+   * 14. 定位到某套装
    * ============================================================ */
   function clearFilters() {
     const hadFilter =
@@ -693,8 +696,6 @@
     els.gsSearchClear.classList.remove('show');
     els.gsRegionLabel.textContent = '全部地区';
     els.gsTypeLabel.textContent = '全部类型';
-    els.gsRegionTrigger.classList.remove('active');
-    els.gsTypeTrigger.classList.remove('active');
 
     renderAllSets();
     return true;
@@ -716,7 +717,7 @@
   }
 
   /* ============================================================
-   * 14. 导入 / 导出 / 重置
+   * 15. 导入 / 导出 / 重置
    * ============================================================ */
   function resetFiltersUI() {
     state.search = '';
@@ -726,9 +727,8 @@
     els.gsSearchClear.classList.remove('show');
     els.gsRegionLabel.textContent = '全部地区';
     els.gsTypeLabel.textContent = '全部类型';
-    els.gsRegionTrigger.classList.remove('active');
-    els.gsTypeTrigger.classList.remove('active');
     els.gsCharSearch.value = '';
+    closeGsDropdown();
   }
 
   function exportData() {
@@ -836,7 +836,7 @@
   }
 
   /* ============================================================
-   * 15. 事件绑定
+   * 16. 事件绑定
    * ============================================================ */
   function bindCharSectionEvents() {
     els.btnCharToggle.addEventListener('click', () => {
@@ -928,39 +928,44 @@
       renderAllSets();
     });
 
-    els.gsRegionTrigger.addEventListener('click', () => {
-      const items = [{ value: 'all', label: '全部地区' }];
-      state.regions.forEach((r) => items.push({ value: r, label: r }));
-      openSheet({
-        header: '地区',
-        items,
-        current: state.regionFilter,
-        onSelect: (v) => {
-          state.regionFilter = v;
-          els.gsRegionLabel.textContent = v === 'all' ? '全部地区' : v;
-          els.gsRegionTrigger.classList.toggle('active', v !== 'all');
-          renderAllSets();
+    els.gsRegionTrigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleGsDropdown('region');
+    });
+
+    els.gsTypeTrigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleGsDropdown('type');
+    });
+
+    [els.gsRegionPanel, els.gsTypePanel].forEach((panel) => {
+      panel.addEventListener('click', (e) => {
+        const item = e.target.closest('.gs-dropdown-item');
+        if (!item) return;
+        e.stopPropagation();
+        const value = item.dataset.value;
+        const key = state.openDropdown;
+
+        if (key === 'region') {
+          state.regionFilter = value;
+          els.gsRegionLabel.textContent = value === 'all' ? '全部地区' : value;
+        } else if (key === 'type') {
+          state.typeFilter = value;
+          els.gsTypeLabel.textContent =
+            value === 'all' ? '全部类型' : value === 'interior' ? '室内' : '室外';
         }
+
+        closeGsDropdown();
+        renderAllSets();
       });
     });
 
-    els.gsTypeTrigger.addEventListener('click', () => {
-      openSheet({
-        header: '类型',
-        items: [
-          { value: 'all', label: '全部类型' },
-          { value: 'interior', label: '室内' },
-          { value: 'exterior', label: '室外' }
-        ],
-        current: state.typeFilter,
-        onSelect: (v) => {
-          state.typeFilter = v;
-          els.gsTypeLabel.textContent =
-            v === 'all' ? '全部类型' : v === 'interior' ? '室内' : '室外';
-          els.gsTypeTrigger.classList.toggle('active', v !== 'all');
-          renderAllSets();
-        }
-      });
+    document.addEventListener('click', (e) => {
+      if (state.openDropdown && !e.target.closest('.gs-dropdown-wrap')) closeGsDropdown();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && state.openDropdown) closeGsDropdown();
     });
   }
 
@@ -1008,7 +1013,7 @@
   }
 
   /* ============================================================
-   * 16. iframe 主题接收 + 图片加载失败兜底
+   * 17. iframe 主题接收 + 图片加载失败兜底
    * ============================================================ */
   window.addEventListener('message', (e) => {
     const data = e.data;
@@ -1026,7 +1031,7 @@
   }, true);
 
   /* ============================================================
-   * 17. 启动
+   * 18. 启动
    * ============================================================ */
   (function init() {
     if (IS_IFRAME) {
