@@ -24,7 +24,8 @@
 | 主站（冒险之证） | [打开首页](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/) | ✅ |
 | 游逸旅闻 | [#tales](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/#tales) | ✅ |
 | 游逸旅闻编辑器 | [#tales-editor](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/tools/tales-editor/) | ✅ |
-| 尘歌壶赠礼 | `#gift-set`（规划中，暂未上线） | 🚧 |
+| 尘歌壶赠礼套装 | `#gift-set`（规划中，暂未上线） | 🚧 |
+| 尘歌壶赠礼套装编辑器 | [#gift-set-editor](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/tools/gift-set-editor/) | ✅ |
 
 **本地使用**：克隆或下载仓库后，必须启动本地静态服务器（如 `python -m http.server 8080`），双击直接打开会有 CORS 跨域限制。
 
@@ -50,16 +51,28 @@
 - **草稿自动恢复**：`localStorage` 400ms debounce 保存，刷新不丢；导出成功后自动清空草稿。
 - **导出格式**：与主站 `tools/tales/data.js` 完全兼容，先版本分组、再按角色 order 排序。
 
-### 3. 尘歌壶赠礼套装（规划中）
+### 3. 尘歌壶赠礼套装编辑器
+> 独立工具页：[#gift-set-editor](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/tools/gift-set-editor/)
+
+- **URL 智能识别**：粘贴任意域名下的套装图直链，自动截取文件名作为 `key`（忽略查询参数、去掉扩展名）。
+- **2:1 比例预览**：套装图统一按 640×320 比例展示，列表缩略图、大预览、表单小图全部按原比例缩放。
+- **室内 / 室外**：`exterior` / `interior` 二选一，识别 key 时自动推断，用户手动切换后不再覆盖。
+- **偏好角色 chips**：多选角色（中文名数组），chip 背景用 `ICON_LIB.load()` 生成的星级色径向渐变。
+- **地区管理**：从 `regions` 下拉选择，输入新值即新建地区，导出时写回数组。
+- **导出前校验**：id 重复 / 缺 key / 缺名称 / 缺地区 / 类型非法，共 5 类问题提示。
+- **草稿自动恢复**：`localStorage` 400ms debounce 保存，刷新不丢；导出成功后自动清空草稿。
+
+### 4. 尘歌壶赠礼套装（规划中）
 > [!NOTE]
-> 预计包含室内外套装分类，支持多角色多套装的复杂多对多进度记录。
+> 面向用户的主站子页面，规划中。预计包含室内外套装分类筛选、按角色反查套装、按地区汇总进度。
 
 ---
 
 <a id="data" name="data"></a>
 ## 📊 数据与图标系统
 
-### 数据结构 (`tools/tales/data.js`)
+### 游逸旅闻 (`tools/tales/data.js`)
+
 数据全量挂载在 `window.TRAVELERS_TALES`：
 ```js
 {
@@ -81,19 +94,52 @@
 }
 ```
 
-### 图标系统（两套并存）
+### 尘歌壶赠礼套装 (`tools/gift-set/data.js`)
+
+数据全量挂载在 `window.HOMEWORLD_GIFT_SETS`：
+```js
+{
+  config: {
+    image: {
+      prefix: "https://gi.yatta.moe/assets/UI/furnitureSuite/",
+      ext: ".png"
+    }
+  },
+  meta: { total, updatedAt, source },
+  regions: ["蒙德/璃月", "稻妻", ...],
+  sets: [
+    {
+      id: 1,
+      key: "UI_Home_Suite_Exterior_xxx",
+      name: "甜蜜小憩",
+      type: "exterior",
+      region: "蒙德/璃月",
+      preferredCharacters: ["琴", "迪卢克"]
+    }
+  ]
+}
+```
+
+- **key 不含扩展名**：图片 URL = `config.image.prefix + key + config.image.ext`
+- **type**：`"exterior"`（室外）/ `"interior"`（室内）
+- **preferredCharacters**：存角色中文名，对应 `icon-dict.js` 的 `name`
+
+### 图标系统（三套并存）
 
 | 用途 | 来源 | 加载方式 |
 |---|---|---|
 | **业务图标**（按钮 / 系统 UI） | `genshin-guide/shared/ui-icons.js` → `window.ICONS` | 走 `wsrv.nl` 代理加载 Fandom Wiki 原图，前端 Canvas 像素级去白边 |
 | **角色头像字典** | `genshin-guide/shared/gi-icons/icon-dict.js` → `window.ICON_DICT` | `config.characters.prefix` = `https://api.lunaris.moe/data/assets/avataricon/`，前端按 `prefix + key + ext` 或 `item.url` 拼装 |
+| **图标渲染器** | `genshin-guide/shared/gi-icons/icon-loader.js` → `window.ICON_LIB` | 提供 `getPath()`（拿原图 URL）、`load()`（生成带星级色径向渐变的 dataURL）、`starColors`（1~5 星颜色映射） |
 
-**编辑器兜底图标**：`ui-icons.js` 中缺失的 `reload` / `reorder` / `back` / `file`，在 `app.js` 顶部 `FALLBACK_ICONS` 内嵌，通过 `resolveIcon(key)` 按 `ICONS[key] ?? FALLBACK_ICONS[key]` 兜底。
+**编辑器兜底图标**：`ui-icons.js` 中缺失的 `reload` / `reorder` / `back` / `file`，在两个编辑器的 `app.js` 顶部 `FALLBACK_ICONS` 内嵌，通过 `resolveIcon(key)` 按 `ICONS[key] ?? FALLBACK_ICONS[key]` 兜底。
 
 ---
 
 <a id="save" name="save"></a>
 ## 💾 存档说明
+
+### 游逸旅闻
 
 **导出文件**：`游逸旅闻存档记录-[UID]-YYYYMMDD.json`
 
@@ -109,7 +155,13 @@
 
 - 记录格式统一为**三段式 key**：`角色名·版本·旅闻名`。
 - 本地持久化 key 为 `genshin_travelers_tales_completed_v2`。
-- 编辑器草稿 key 为 `genshin_travelers_tales_editor_draft_v1`（与游玩存档完全独立）。
+
+### 编辑器草稿
+
+| 编辑器 | 本地草稿 key |
+|---|---|
+| 游逸旅闻编辑器 | `genshin_travelers_tales_editor_draft_v1` |
+| 赠礼套装编辑器 | `genshin_homeworld_gift_sets_editor_draft_v1` |
 
 > [!WARNING]
 > 清除浏览器数据会丢失本地记录，建议定期导出存档备份。
@@ -121,24 +173,29 @@
 
 ```text
 genshin-travelers-tales/
-├── index.html          主站外壳 (提瓦特冒险之证)
-├── style.css           外壳样式
-├── app.js              外壳逻辑 (路由 / iframe / 主题)
-├── icons.js            本地业务图标字典
+├── index.html              主站外壳 (提瓦特冒险之证)
+├── style.css               外壳样式
+├── app.js                  外壳逻辑 (路由 / iframe / 主题)
+├── icons.js                本地业务图标字典
 ├── data.js
 ├── README.md
 ├── CHANGELOG.md
-└── tools/              所有子应用
-    ├── tales/          游逸旅闻
+└── tools/                  所有子应用
+    ├── tales/              游逸旅闻
     │   ├── index.html
     │   ├── style.css
     │   ├── app.js
     │   └── data.js
-    ├── tales-editor/   游逸旅闻编辑器（独立工具页）
+    ├── tales-editor/       游逸旅闻编辑器（独立工具页）
     │   ├── index.html
     │   ├── style.css
     │   └── app.js
-    └── gift-set/       尘歌壶赠礼 (规划中)
+    ├── gift-set/           尘歌壶赠礼套装（数据 + 未来用户页）
+    │   └── data.js
+    └── gift-set-editor/    尘歌壶赠礼套装编辑器（独立工具页）
+        ├── index.html
+        ├── style.css
+        └── app.js
 ```
 
 ---
@@ -153,9 +210,10 @@ genshin-travelers-tales/
 | `theme.css` | `genshin-guide/shared/` | 2026 现代主题变量 + 通用控件 |
 | `ui-icons.js` | `genshin-guide/shared/` | 通用系统图标库（`window.ICONS`） |
 | `icon-dict.js` | `genshin-guide/shared/gi-icons/` | 角色头像字典（`window.ICON_DICT`） |
+| `icon-loader.js` | `genshin-guide/shared/gi-icons/` | 图标渲染器（`window.ICON_LIB`） |
 
 > [!IMPORTANT]
-> 所有资源必须通过带时间戳的动态加载器加载（`?t=Date.now()`），彻底杜绝浏览器缓存，并防止 Promise 死锁。编辑器与子应用共用同一套 `loadStyle` / `loadScript` 写法。
+> 所有资源必须通过带时间戳的动态加载器加载（`?t=Date.now()`），彻底杜绝浏览器缓存，并防止 Promise 死锁。两个编辑器与子应用共用同一套 `loadStyle` / `loadScript` 写法。
 
 ---
 
