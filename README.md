@@ -4,8 +4,8 @@
 
 > 《原神》游逸旅闻与尘歌壶赠礼查询及进度记录工具 · 纯前端 · 本地记录 · 不收集数据
 
-[![在线访问](https://img.shields.io/badge/在线访问-打开网站-9E6C47?style=flat-square&logo=googlechrome&logoColor=white)](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/)
-[![最后更新](https://img.shields.io/github/last-commit/GRILLED-TIGER-FISH-LW/genshin-travelers-tales?style=flat-square&label=最后更新&color=9E6C47&logo=github&logoColor=white)](https://github.com/GRILLED-TIGER-FISH-LW/genshin-travelers-tales/commits)
+[![在线访问](https://img.shields.io/badge/在线访问-打开网站-9E6C47?style=flat-square&logo=googlechrome&logoColor=white)](https://grilled-tiger-fish-lw.github.io/adventurer-handbook/)
+[![最后更新](https://img.shields.io/github/last-commit/GRILLED-TIGER-FISH-LW/adventurer-handbook?style=flat-square&label=最后更新&color=9E6C47&logo=github&logoColor=white)](https://github.com/GRILLED-TIGER-FISH-LW/adventurer-handbook/commits)
 [![Tech Stack](https://img.shields.io/badge/Tech-Vanilla%20JS%20%7C%20HTML5-F4F1EA?style=flat-square)]()
 
 [快速开始](#start) · [功能](#features) · [数据说明](#data) · [存档说明](#save) · [文件结构](#structure) · [外部依赖](#deps)
@@ -21,11 +21,11 @@
 
 | 入口 | 访问链接 | 状态 |
 |---|---|---|
-| 主站（冒险之证） | [打开首页](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/) | ✅ |
-| 游逸旅闻 | [#tales](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/#tales) | ✅ |
-| 游逸旅闻编辑器 | [#tales-editor](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/tools/tales-editor/) | ✅ |
-| 尘歌壶赠礼套装 | [#gift-set](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/#gift-set) | ✅ |
-| 尘歌壶赠礼套装编辑器 | [#gift-set-editor](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/tools/gift-set-editor/) | ✅ |
+| 主站（冒险之证） | [打开首页](https://grilled-tiger-fish-lw.github.io/adventurer-handbook/) | ✅ |
+| 游逸旅闻 | [#tales](https://grilled-tiger-fish-lw.github.io/adventurer-handbook/#tales) | ✅ |
+| 游逸旅闻编辑器 | [#tales-editor](https://grilled-tiger-fish-lw.github.io/adventurer-handbook/tools/tales-editor/) | ✅ |
+| 尘歌壶赠礼套装 | [#gift-set](https://grilled-tiger-fish-lw.github.io/adventurer-handbook/#gift-set) | ✅ |
+| 尘歌壶赠礼套装编辑器 | [#gift-set-editor](https://grilled-tiger-fish-lw.github.io/adventurer-handbook/tools/gift-set-editor/) | ✅ |
 
 **本地使用**：克隆或下载仓库后，必须启动本地静态服务器（如 `python -m http.server 8080`），双击直接打开会有 CORS 跨域限制。
 
@@ -41,7 +41,7 @@
 - **暗黑模式适配**：完全跟随主站主题，使用主仓库 `theme.css` 变量。
 
 ### 2. 游逸旅闻编辑器
-> 独立工具页：[#tales-editor](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/tools/tales-editor/)
+> 独立工具页：[#tales-editor](https://grilled-tiger-fish-lw.github.io/adventurer-handbook/tools/tales-editor/)
 
 - **双栏编辑**：左侧列表（头像 + 标题 + 角色·版本），右侧表单实时编辑。
 - **头像自动匹配**：读 `window.ICON_DICT`，按 `prefix + key + ext` 或 `item.url` 拼装，无需手动填图。
@@ -52,7 +52,7 @@
 - **导出格式**：与主站 `tools/tales/data.js` 完全兼容，先版本分组、再按角色 order 排序。
 
 ### 3. 尘歌壶赠礼套装
-> 子页面：[#gift-set](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/#gift-set)
+> 子页面：[#gift-set](https://grilled-tiger-fish-lw.github.io/adventurer-handbook/#gift-set)
 
 - **我的角色**：54px 卡片 / 40px 头像的网格，手机一行 6 个。已拥有角色按星级色背景（4 星紫 / 5 星金），未拥有灰化 35%。按 `order` 倒序排列（最新实装角色在前），排除旅行者。可折叠，默认在有 owned 数据时折叠。
 - **推荐套装**：按「已有但未完成角色数（pending）」降序 → 「owned/total 比例」降序 → `id` 升序，截取前 5 个。点击卡片自动清空筛选并滚动定位到全部套装对应卡片。
@@ -63,7 +63,7 @@
 - **暗黑模式适配**：跟随主站主题，iframe 场景下自身主题按钮自动隐藏，通过 `postMessage` 同步。
 
 ### 4. 尘歌壶赠礼套装编辑器
-> 独立工具页：[#gift-set-editor](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/tools/gift-set-editor/)
+> 独立工具页：[#gift-set-editor](https://grilled-tiger-fish-lw.github.io/adventurer-handbook/tools/gift-set-editor/)
 
 - **URL 智能识别**：粘贴任意域名下的套装图直链，自动截取文件名作为 `key`（忽略查询参数、去掉扩展名）。
 - **类型 / 地区自动推断**：识别 key 时，`Exterior` → 室外、`Interior` → 室内；`Mond` / `Liyue` / `Dq` / `Xm` / `Fd` / `Nt` / `Ndkl` / `Zd` → 对应地区。key 变化才推断，用户手动改动不被覆盖。
@@ -202,7 +202,7 @@
 ## 📁 文件结构
 
 ```text
-genshin-travelers-tales/
+adventurer-handbook/
 ├── index.html              主站外壳 (提瓦特冒险之证)
 ├── style.css               外壳样式
 ├── app.js                  外壳逻辑 (路由 / iframe / 主题)
