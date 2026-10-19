@@ -18,12 +18,7 @@ body {
 }
 
 /* ============================================================
- * 2. 图标尺寸统一
- * ============================================================ */
-button .ic { width: 16px; height: 16px; }
-
-/* ============================================================
- * 3. 顶栏
+ * 2. 顶栏
  * ============================================================ */
 .ed-header {
   height: 54px;
@@ -74,7 +69,6 @@ button .ic { width: 16px; height: 16px; }
   flex-shrink: 0;
 }
 
-/* 顶栏内所有按钮统一 36px 高（覆盖 theme.css 的 .btn-sm 32px） */
 .ed-header-actions .btn-sm {
   height: var(--ctl-h) !important;
 }
@@ -85,7 +79,7 @@ html[data-theme="dark"] .ed-theme-sun  { display: none; }
 html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
 
 /* ============================================================
- * 4. 主布局
+ * 3. 主布局
  * ============================================================ */
 .ed-main {
   flex: 1;
@@ -96,7 +90,7 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
 }
 
 /* ============================================================
- * 5. 左栏
+ * 4. 左栏
  * ============================================================ */
 .ed-list-pane {
   display: flex;
@@ -116,7 +110,6 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
   flex-shrink: 0;
 }
 
-/* 搜索 */
 .ed-search-wrap {
   position: relative;
   display: flex;
@@ -155,7 +148,6 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
 .ed-search-clear .ic { width: 12px; height: 12px; }
 .ed-search-clear:hover { background: var(--bg-hover); color: var(--text-primary); }
 
-/* 两个过滤下拉 */
 .ed-filter-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -191,7 +183,6 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
 }
 .ed-dropdown-trigger.active .ed-dropdown-arrow { transform: rotate(180deg); }
 
-/* 列表 */
 .ed-list {
   flex: 1;
   min-height: 0;
@@ -294,7 +285,7 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
 }
 
 /* ============================================================
- * 6. 右栏 · 表单
+ * 5. 右栏 · 表单
  * ============================================================ */
 .ed-form-pane {
   overflow-y: auto;
@@ -383,7 +374,6 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
   line-height: 1.55;
 }
 
-/* 表单字段 */
 .ed-group {
   display: flex;
   flex-direction: column;
@@ -410,7 +400,6 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
   gap: 12px;
 }
 
-/* id + 上下移 */
 .ed-id-wrap {
   display: flex;
   gap: 4px;
@@ -424,7 +413,7 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
 }
 
 /* ============================================================
- * 7. URL 输入区
+ * 6. URL 输入区
  * ============================================================ */
 .pg-url-wrap {
   display: flex;
@@ -452,7 +441,7 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
 .pg-url-key:empty { display: none; }
 
 /* ============================================================
- * 8. 偏好角色 chips
+ * 7. 偏好角色 chips
  * ============================================================ */
 .pg-char-list {
   display: flex;
@@ -559,7 +548,7 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
 }
 
 /* ============================================================
- * 9. Combobox（复用旅闻结构）
+ * 8. Combobox
  * ============================================================ */
 .ed-combobox { position: relative; }
 .ed-combobox-input-wrap {
@@ -603,7 +592,7 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
 }
 
 /* ============================================================
- * 10. 提示 / 底部操作 / 移动端返回
+ * 9. 提示 / 底部操作 / 移动端返回
  * ============================================================ */
 .ed-hint {
   font-size: 11px;
@@ -625,7 +614,7 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
 .ed-mobile-back .ic { width: 14px; height: 14px; }
 
 /* ============================================================
- * 11. 响应式
+ * 10. 响应式
  * ============================================================ */
 @media (max-width: 900px) {
   .ed-main {
@@ -652,12 +641,8 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
     font-size: 12.5px;
   }
 
-  .pg-preview {
-    gap: 12px;
-  }
-  .pg-preview-frame {
-    height: 100px;
-  }
+  .pg-preview { gap: 12px; }
+  .pg-preview-frame { height: 100px; }
   .pg-preview-name { font-size: 14px; }
 }
 
