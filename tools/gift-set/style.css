@@ -20,27 +20,33 @@ body {
 body.in-iframe .gs-theme-btn { display: none !important; }
 
 /* ============================================================
- * 2. 顶栏（无标题，UID 左 + 按钮右，参照游逸旅闻）
+ * 2. 顶栏（对齐 tales：padding 12px 14px，无固定高度）
  * ============================================================ */
 .gs-header {
   flex-shrink: 0;
-  height: 52px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 0 14px;
+  padding: 12px 14px;
   background: var(--bg-base);
   border-bottom: 1px solid var(--border-subtle);
 }
 
 .gs-uid {
-  width: 96px;
-  height: 34px;
-  padding: 0 10px;
-  font-size: 12.5px;
+  width: 80px !important;
+  height: 32px !important;
+  padding: 0 8px !important;
+  background: var(--bg-sunken) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: var(--radius-sm) !important;
+  color: var(--text-primary) !important;
+  font-size: 12px !important;
+  text-align: center;
+  outline: none !important;
   flex-shrink: 0;
 }
+.gs-uid:focus { border-color: var(--accent) !important; }
 
 .gs-header-actions {
   display: flex;
@@ -49,15 +55,16 @@ body.in-iframe .gs-theme-btn { display: none !important; }
   flex-shrink: 0;
 }
 
+/* 顶栏按钮 32px 高（theme.css 的 .btn-sm 默认即 32，此处显式锁定） */
 .gs-header-actions .btn-sm {
-  height: 34px !important;
-  padding: 0 12px !important;
-  font-size: 13px;
+  height: 32px !important;
+  min-width: 0;
 }
 
+/* 主题按钮 32×32 */
 .gs-header-actions .float-btn {
-  width: 34px !important;
-  height: 34px !important;
+  width: 32px !important;
+  height: 32px !important;
 }
 
 .gs-theme-sun  { display: inline-flex; }
@@ -66,14 +73,14 @@ html[data-theme="dark"] .gs-theme-sun  { display: none; }
 html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 
 /* ============================================================
- * 3. 主滚动区
+ * 3. 主滚动区（对齐 tales 主区 padding）
  * ============================================================ */
 .gs-main {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 12px 14px 40px;
+  padding: 12px 14px 24px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -142,7 +149,6 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 .gs-toggle-btn:hover { background: var(--bg-hover); border-color: var(--border-strong); }
 .gs-toggle-btn .ic { width: 12px; height: 12px; transition: transform 0.2s var(--ease-spring); }
 
-/* 折叠时箭头旋转 180 度 */
 .gs-section.collapsed .gs-toggle-btn .ic { transform: rotate(180deg); }
 
 .gs-section.collapsed .gs-section-body { display: none; }
@@ -228,7 +234,7 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 .gs-chip-remove:hover { background: var(--danger-bg); color: var(--danger); }
 
 /* ============================================================
- * 6. 角色栏 · 网格（展开态，头像 40px）
+ * 6. 角色栏 · 网格（54px 卡 / 40px 头像 / gap 4px → 手机一行 6 个）
  * ============================================================ */
 .gs-char-grid-wrap {
   display: flex;
@@ -268,19 +274,19 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 
 .gs-char-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, 64px);
-  gap: 8px 6px;
+  grid-template-columns: repeat(auto-fill, 54px);
+  gap: 8px 4px;
   justify-content: center;
   padding: 4px 0;
 }
 
 .gs-char-cell {
-  width: 64px;
+  width: 54px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 4px 2px;
+  gap: 3px;
+  padding: 4px 0;
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
   background: transparent;
@@ -319,7 +325,7 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
   line-height: 1.2;
   color: var(--text-secondary);
   text-align: center;
-  max-width: 60px;
+  max-width: 52px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -331,7 +337,6 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 }
 .gs-char-cell.owned .gs-char-cell-name { color: var(--text-primary); font-weight: 500; }
 
-/* 已拥有 ✓ 角标（在头像右上角） */
 .gs-char-cell.owned::after {
   content: "✓";
   position: absolute;
@@ -571,10 +576,11 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 }
 .gs-set-item:not(.expanded) .gs-set-body { display: none; }
 
+/* 偏好角色格：与角色栏同宽（54px / 40px 头像 / gap 4px） */
 .gs-set-chars {
   display: grid;
-  grid-template-columns: repeat(auto-fill, 64px);
-  gap: 6px;
+  grid-template-columns: repeat(auto-fill, 54px);
+  gap: 6px 4px;
   justify-content: start;
   padding-top: 4px;
 }
@@ -582,12 +588,12 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 .gs-set-chars .gs-empty { grid-column: 1 / -1; }
 
 .gs-set-char {
-  width: 64px;
+  width: 54px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 4px 2px;
+  gap: 3px;
+  padding: 4px 0;
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
   background: transparent;
@@ -626,7 +632,7 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
   line-height: 1.2;
   color: var(--text-secondary);
   text-align: center;
-  max-width: 60px;
+  max-width: 52px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -695,21 +701,23 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 }
 
 /* ============================================================
- * 10. 响应式
+ * 10. 响应式（对齐 tales 手机断点 480px）
  * ============================================================ */
-@media (max-width: 640px) {
+@media (max-width: 480px) {
+  .gs-header { padding: 10px; gap: 6px; }
   .gs-btn-text { display: none; }
+  .gs-header-actions { gap: 4px; }
   .gs-header-actions .btn-sm {
-    width: 34px !important;
+    width: 32px !important;
     padding: 0 !important;
   }
   .gs-header-actions .float-btn {
-    width: 34px !important;
-    height: 34px !important;
+    width: 32px !important;
+    height: 32px !important;
   }
-  .gs-uid { width: 72px; font-size: 11px; padding: 0 8px; height: 34px; }
-  .gs-header { padding: 0 10px; gap: 6px; height: 52px; }
-  .gs-main { padding: 10px 10px 30px; }
+  .gs-uid { width: 72px !important; font-size: 11px !important; }
+
+  .gs-main { padding: 10px 10px 24px; }
   .gs-char-grid-wrap { max-height: 340px; }
 }
 
