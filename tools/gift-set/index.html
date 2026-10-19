@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>尘歌壶赠礼套装</title>
+
+<script>
+/* =========================================================================
+ * 主题同步初始化
+ * ========================================================================= */
+(function () {
+  try {
+    if (localStorage.getItem('genshin_travelers_tales_theme_v1') === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  } catch (e) {}
+})();
+
+/* =========================================================================
+ * 资源加载器（全动态加载 + 强制时间戳 + 失败可见化）
+ * ========================================================================= */
+(async function () {
+  const ts = Date.now();
+  const withTs = (url) => url + (url.indexOf('?') >= 0 ? '&' : '?') + 't=' + ts;
+
+  const loadStyle = (href) => new Promise((resolve, reject) => {
+    const l = document.createElement('link');
+    l.rel = 'stylesheet';
+    l.href = withTs(href);
+    l.onload = resolve;
+    l.onerror = () => reject(href);
+    document.head.appendChild(l);
+  });
+
+  const loadScript = (src) => new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = withTs(src);
+    s.onload = resolve;
+    s.onerror = () => reject(src);
+    document.head.appendChild(s);
+  });
+
+  window.__bootPromise = (async function () {
+    const coreFails = [];
+
+    try {
+      await Promise.all([
+        loadStyle('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/theme.css'),
+        loadStyle('style.css'),
+        loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/ui-icons.js'),
+        loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-dict.js')
+      ]);
+    } catch (failUrl) {
+      coreFails.push(failUrl);
+      showBootError(coreFails);
+      return;
+    }
+
+    try {
+      await loadScript('data.js');
+    } catch (failUrl) {
+      console.warn('[boot] 数据字典加载失败：', failUrl);
+    }
+
+    try {
+      await loadScript('app.js');
+    } catch (failUrl) {
+      coreFails.push(failUrl);
+      showBootError(coreFails);
+    }
+  })();
+
+  function showBootError(list) {
+    const errBox = document.getElementById('bootErr');
+    const loadBox = document.getElementById('bootLoading');
+    const listBox = document.getElementById('bootErrList');
+    if (!errBox || !listBox) return;
+    if (loadBox) loadBox.hidden = true;
+    listBox.innerHTML = list.map((u) => '<div>' + u + '</div>').join('');
+    errBox.hidden = false;
+  }
+
+  document.getElementById('bootRetry')?.addEventListener('click', () => location.reload());
+})();
+</script>
+
+<style>
+/* 启动期防闪 */
+[hidden] { display: none !important; }
+
+html { background: var(--bg-base, #F4F1EA); }
+html[data-theme="dark"] { background: var(--bg-base, #1A1816); }
+
+body { visibility: hidden; }
+body.ready { visibility: visible; }
+
+.boot-loading,
+.boot-err {
+  position: fixed; inset: 0; z-index: 99999;
+  display: flex; flex-direction: column; gap: 12px;
+  align-items: center; justify-content: center;
+  background: var(--bg-base, #F4F1EA);
+  color: var(--text-tertiary, #A69E95);
+  font-size: 13px;
+  font-family: var(--std-font, system-ui, sans-serif);
+  visibility: visible !important;
+  padding: 20px;
+  text-align: center;
+}
+body.ready .boot-loading { display: none; }
+
+.boot-err-title { font-size: 14px; font-weight: 600; color: var(--text-primary, #312E2B); }
+.boot-err-list {
+  font-size: 12px; line-height: 1.6;
+  max-width: 80vw; word-break: break-all;
+  color: var(--text-secondary, #7A736B);
+}
+.boot-err-list > div { opacity: 0.85; }
+
+.ic {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1em; height: 1em; flex-shrink: 0;
+}
+.ic > svg { width: 100% !important; height: 100% !important; display: block !important; }
+</style>
+</head>
+<body>
+
+<div class="boot-loading" id="bootLoading">正在加载尘歌壶赠礼套装…</div>
+<div class="boot-err" id="bootErr" hidden>
+  <div class="boot-err-title">资源加载失败</div>
+  <div class="boot-err-list" id="bootErrList"></div>
+  <button type="button" class="btn-sm" id="bootRetry">重试</button>
+</div>
+
+<header class="gs-header">
+  <h1 class="gs-title">尘歌壶赠礼套装</h1>
+  <div class="gs-header-actions">
+    <input type="text" id="uidInput" class="gs-uid" placeholder="UID" maxlength="15" inputmode="numeric" autocomplete="off" spellcheck="false">
+    <button type="button" class="btn-sm" id="btnImport" title="导入存档">
+      <span class="ic" data-icon="ui.import"></span>
+      <span class="gs-btn-text">导入</span>
+    </button>
+    <button type="button" class="btn-sm ios-btn-fill" id="btnExport" title="导出存档">
+      <span class="ic" data-icon="ui.export"></span>
+      <span class="gs-btn-text">导出</span>
+    </button>
+    <button type="button" class="btn-sm" id="btnReset" title="重置全部数据">
+      <span class="ic" data-icon="ui.trash"></span>
+      <span class="gs-btn-text">重置</span>
+    </button>
+    <button type="button" class="float-btn gs-theme-btn" id="btnTheme" aria-label="切换主题" title="切换主题">
+      <span class="ic gs-theme-sun" data-icon="app.sun"></span>
+      <span class="ic gs-theme-moon" data-icon="app.moon"></span>
+    </button>
+  </div>
+</header>
+
+<main class="gs-main">
+
+  <!-- ============================ 角色栏 ============================ -->
+  <section class="gs-section gs-section-char" id="gsCharSection">
+    <div class="gs-section-head" id="gsCharHead">
+      <div class="gs-section-title">
+        我的角色
+        <span class="gs-count" id="gsCharCount">0</span>
+      </div>
+      <button type="button" class="gs-toggle-btn" id="btnCharToggle" aria-label="展开/收起角色栏">
+        <span class="ic gs-toggle-icon" data-icon="ui.chevronDown"></span>
+      </button>
+    </div>
+    <div class="gs-section-body">
+      <div class="gs-chips" id="gsCharChips"></div>
+      <div class="gs-char-grid-wrap" id="gsCharGridWrap" hidden>
+        <div class="gs-char-search">
+          <span class="ic gs-char-search-icon" data-icon="ui.search"></span>
+          <input type="text" id="gsCharSearch" placeholder="搜索角色名" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="gs-char-grid" id="gsCharGrid"></div>
+        <button type="button" class="btn-sm gs-char-collapse" id="btnCharCollapse">收起角色栏</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ 推荐套装 ============================ -->
+  <section class="gs-section" id="gsRecommendSection" hidden>
+    <div class="gs-section-head" id="gsRecommendHead">
+      <div class="gs-section-title">推荐套装</div>
+      <button type="button" class="gs-toggle-btn" id="btnRecommendToggle" aria-label="展开/收起推荐">
+        <span class="ic gs-toggle-icon" data-icon="ui.chevronDown"></span>
+      </button>
+    </div>
+    <div class="gs-section-body" id="gsRecommendBody">
+      <div class="gs-recommend-list" id="gsRecommendList"></div>
+    </div>
+  </section>
+
+  <!-- ============================ 全部套装 ============================ -->
+  <section class="gs-section" id="gsAllSection" hidden>
+    <div class="gs-section-head">
+      <div class="gs-section-title">全部套装</div>
+    </div>
+    <div class="gs-section-body">
+      <div class="gs-filters">
+        <div class="gs-search-wrap">
+          <span class="ic gs-search-icon" data-icon="ui.search"></span>
+          <input type="text" id="gsSearch" class="gs-search-input" placeholder="搜索套装名 / 角色名" autocomplete="off" spellcheck="false">
+          <button type="button" class="gs-search-clear" id="gsSearchClear" aria-label="清除">
+            <span class="ic" data-icon="app.close"></span>
+          </button>
+        </div>
+        <div class="gs-filter-row">
+          <button type="button" class="gs-filter-btn" id="gsRegionTrigger">
+            <span class="gs-filter-label" id="gsRegionLabel">全部地区</span>
+            <span class="ic gs-filter-arrow" data-icon="ui.chevronDown"></span>
+          </button>
+          <button type="button" class="gs-filter-btn" id="gsTypeTrigger">
+            <span class="gs-filter-label" id="gsTypeLabel">全部类型</span>
+            <span class="ic gs-filter-arrow" data-icon="ui.chevronDown"></span>
+          </button>
+        </div>
+      </div>
+      <div class="gs-set-list" id="gsSetList"></div>
+      <div class="gs-empty" id="gsSetEmpty" hidden></div>
+    </div>
+  </section>
+
+  <div class="gs-first-tip" id="gsFirstTip">
+    先在上方选择你拥有的角色，即可开始记录
+  </div>
+
+</main>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal-box">
+    <div class="modal-title" id="modalTitle"></div>
+    <div class="modal-message" id="modalMessage"></div>
+    <div class="modal-actions" id="modalActions"></div>
+  </div>
+</div>
+
+<div class="tab-sheet-backdrop" id="sheetBackdrop"></div>
+<div class="tab-sheet" id="sheet">
+  <div class="tab-sheet-handle"></div>
+  <div class="tab-sheet-header" id="sheetHeader"></div>
+  <div class="tab-sheet-list" id="sheetList"></div>
+</div>
+
+<input type="file" id="fileInput" accept=".json,application/json" hidden>
+
+</body>
+</html>
