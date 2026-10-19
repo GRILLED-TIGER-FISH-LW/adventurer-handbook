@@ -24,7 +24,8 @@ window.HOMEWORLD_GIFT_SETS = {
   },
 
   regions: [
-    '蒙德/璃月',
+    '蒙德',
+    '璃月',
     '稻妻',
     '须弥',
     '枫丹',
