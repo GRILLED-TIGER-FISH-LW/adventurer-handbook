@@ -1,5 +1,5 @@
 /* ============================================================
- * 游历旅闻 · 子页面专属样式 (2026 现代扁平修复版)
+ * 游逸旅闻 · 子页面专属样式 (2026 现代扁平修复版)
  * ============================================================ */
 
 body {
@@ -83,7 +83,6 @@ body {
 .dropdown-wrap.open .dropdown-arrow { transform: rotate(180deg); }
 .dropdown-wrap.open .dropdown-trigger { border-color: var(--accent); }
 
-/* 下拉面板：从按钮下方弹出，不再覆盖按钮 */
 .dropdown-panel {
   position: absolute;
   top: calc(100% + 4px);
@@ -106,14 +105,22 @@ body {
   opacity: 1; visibility: visible; pointer-events: auto;
 }
 
+/* 左对齐（display: block + width: 100%） */
 .dropdown-item {
+  display: block;
+  width: 100%;
   padding: 10px 8px;
   border-radius: var(--radius-sm);
-  font-size: 13px; color: var(--text-primary);
+  font-size: 13px;
+  color: var(--text-primary);
   cursor: pointer;
-  background: transparent; border: none;
+  background: transparent;
+  border: none;
   font-family: inherit;
   text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .dropdown-item:hover { background: var(--bg-hover); }
 .dropdown-item.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
@@ -151,14 +158,25 @@ body {
   color: var(--text-primary);
   font-size: 12px; font-weight: 500;
   cursor: pointer;
-  display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
   font-family: inherit;
-  transition: background 0.15s;
+  transition: background 0.15s, border-color 0.15s;
 }
 .action-btn:hover { background: var(--bg-hover); }
-.action-btn.danger { border-color: var(--danger-border); color: var(--danger); }
-.action-btn.danger:hover { background: var(--danger-bg); }
-.action-btn-icon { width: 14px; height: 14px; display: block; }
+
+/* 危险按钮：明显红调 */
+.action-btn.danger {
+  background: var(--danger-bg);
+  border-color: var(--danger-border);
+  color: var(--danger);
+}
+.action-btn.danger:hover {
+  background: var(--danger-hover);
+  border-color: var(--danger);
+}
+
+/* 图标 16px（与 theme.css 的 button svg 规则对齐） */
+.action-btn-icon { width: 16px !important; height: 16px !important; display: block; }
 
 /* ============================================================
  * 列表区
@@ -231,13 +249,13 @@ body {
 .empty-state { padding: 60px 20px; text-align: center; color: var(--text-tertiary); }
 .empty-state-icon { width: 40px; height: 40px; opacity: 0.5; margin: 0 auto 12px; }
 
-/* ---------- 手机端适配 (收起文字，只留图标) ---------- */
+/* ---------- 手机端适配 ---------- */
 @media (max-width: 480px) {
   .app-header { padding: 10px; gap: 8px; }
   .meta-right { gap: 4px; }
-  .action-btn { width: 32px; padding: 0; }
+  .action-btn { width: 32px; padding: 0; gap: 0; }
   .action-btn-text { display: none; }
-  .action-btn-icon { width: 16px; height: 16px; }
+  .action-btn-icon { width: 16px !important; height: 16px !important; }
   .tale-card { grid-template-columns: 36px 1fr 18px; padding: 10px; }
   .tale-avatar { width: 36px; height: 36px; }
 }
