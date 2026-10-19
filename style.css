@@ -139,21 +139,3 @@ body {
   border-radius: 50%; animation: spin .8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-
-/* =========================================================================
- * 修复：子页面顶栏图片图标的专属大小（严格锁定容器20px，仅调图片）
- * ========================================================================= */
-
-/* 游逸旅闻在顶栏：100% 撑满（20px） */
-.nav-title-icon img[alt="游历旅闻"] {
-  width: 100% !important;
-  height: 100% !important;
-  margin: 0 !important;
-}
-
-/* 尘歌壶在顶栏：90% 居中（18px），留出一点呼吸感 */
-.nav-title-icon img[alt="尘歌壶赠礼套装"] {
-  width: 90% !important;
-  height: 90% !important;
-  margin: auto !important;
-}
