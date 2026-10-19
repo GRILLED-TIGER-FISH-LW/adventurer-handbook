@@ -1,18 +1,22 @@
 /* =========================================================================
- * 提瓦特冒险之证 · 本地业务图标字典 (独立比例适配版)
+ * 提瓦特冒险之证 · 本地业务图标字典
  * =========================================================================
  * 说明：
- * 1. 游逸旅闻比例 80%
- * 2. 尘歌壶赠礼套装比例 70%
- * 3. 配合前端 Canvas 自动裁切，实现完美的居中与呼吸感
+ * 1. 全部使用内联 SVG，fill="currentColor" 跟随主题
+ * 2. viewBox 256×256，无内联尺寸 / 无 Canvas 裁切
+ * 3. 正常版 / 加粗版分别对应 page 与 active 态
  * ========================================================================= */
 
 window.LOCAL_ICONS = {
-  // 游逸旅闻 (80%)
-  tales: `<img src="https://wsrv.nl/?url=static.wikia.nocookie.net/gensin-impact/images/b/b5/Icon_Anecdote_Chronicles.png" crossorigin="anonymous" class="auto-crop-img" style="width:80%; height:80%; object-fit:contain; margin:auto;" alt="游历旅闻">`,
-  talesBold: `<img src="https://wsrv.nl/?url=static.wikia.nocookie.net/gensin-impact/images/b/b5/Icon_Anecdote_Chronicles.png" crossorigin="anonymous" class="auto-crop-img" style="width:80%; height:80%; object-fit:contain; margin:auto;" alt="游历旅闻">`,
+  // 游逸旅闻 · 正常
+  tales: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="M128 64a40 40 0 1 0 40 40a40 40 0 0 0-40-40m0 64a24 24 0 1 1 24-24a24 24 0 0 1-24 24m0-112a88.1 88.1 0 0 0-88 88c0 31.4 14.51 64.68 42 96.25a254.2 254.2 0 0 0 41.45 38.3a8 8 0 0 0 9.18 0a254.2 254.2 0 0 0 41.37-38.3c27.45-31.57 42-64.85 42-96.25a88.1 88.1 0 0 0-88-88m0 206c-16.53-13-72-60.75-72-118a72 72 0 0 1 144 0c0 57.23-55.47 105-72 118"/></svg>`,
 
-  // 尘歌壶赠礼套装 (70%)
-  'gift-set': `<img src="https://wsrv.nl/?url=static.wikia.nocookie.net/gensin-impact/images/a/a5/Icon_Housing_Outdoor_Set_Set.png" crossorigin="anonymous" class="auto-crop-img" style="width:70%; height:70%; object-fit:contain; margin:auto;" alt="尘歌壶赠礼套装">`,
-  'gift-setBold': `<img src="https://wsrv.nl/?url=static.wikia.nocookie.net/gensin-impact/images/a/a5/Icon_Housing_Outdoor_Set_Set.png" crossorigin="anonymous" class="auto-crop-img" style="width:70%; height:70%; object-fit:contain; margin:auto;" alt="尘歌壶赠礼套装">`
+  // 游逸旅闻 · 加粗
+  talesBold: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="M128 16a88.1 88.1 0 0 0-88 88c0 75.3 80 132.17 83.41 134.55a8 8 0 0 0 9.18 0C136 236.17 216 179.3 216 104a88.1 88.1 0 0 0-88-88m0 56a32 32 0 1 1-32 32a32 32 0 0 1 32-32"/></svg>`,
+
+  // 尘歌壶赠礼套装 · 正常
+  'gift-set': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="M216 72h-35.08c.39-.33.79-.65 1.17-1A29.53 29.53 0 0 0 192 49.57A32.62 32.62 0 0 0 158.44 16A29.53 29.53 0 0 0 137 25.91a55 55 0 0 0-9 14.48a55 55 0 0 0-9-14.48A29.53 29.53 0 0 0 97.56 16A32.62 32.62 0 0 0 64 49.57A29.53 29.53 0 0 0 73.91 71c.38.33.78.65 1.17 1H40a16 16 0 0 0-16 16v32a16 16 0 0 0 16 16v64a16 16 0 0 0 16 16h144a16 16 0 0 0 16-16v-64a16 16 0 0 0 16-16V88a16 16 0 0 0-16-16m-67-35.49a13.7 13.7 0 0 1 10-4.5h.49A16.62 16.62 0 0 1 176 49.08a13.7 13.7 0 0 1-4.5 10c-9.49 8.4-25.24 11.36-35 12.4c1.2-10.59 4.5-25.98 12.5-34.97m-64.09.36A16.63 16.63 0 0 1 96.59 32h.49a13.7 13.7 0 0 1 10 4.5c8.39 9.48 11.35 25.2 12.39 34.92c-9.72-1-25.44-4-34.92-12.39a13.7 13.7 0 0 1-4.5-10a16.6 16.6 0 0 1 4.82-12.16ZM40 88h80v32H40Zm16 48h64v64H56Zm144 64h-64v-64h64Zm16-80h-80V88h80z"/></svg>`,
+
+  // 尘歌壶赠礼套装 · 加粗
+  'gift-setBold': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="M216 72h-35.08c.39-.33.79-.65 1.17-1A29.53 29.53 0 0 0 192 49.57A32.62 32.62 0 0 0 158.44 16A29.53 29.53 0 0 0 137 25.91a55 55 0 0 0-9 14.48a55 55 0 0 0-9-14.48A29.53 29.53 0 0 0 97.56 16A32.62 32.62 0 0 0 64 49.57A29.53 29.53 0 0 0 73.91 71c.38.33.78.65 1.17 1H40a16 16 0 0 0-16 16v32a16 16 0 0 0 16 16v64a16 16 0 0 0 16 16h60a4 4 0 0 0 4-4v-92H40V88h80v32h16V88h80v32h-80v92a4 4 0 0 0 4 4h60a16 16 0 0 0 16-16v-64a16 16 0 0 0 16-16V88a16 16 0 0 0-16-16M84.51 59a13.7 13.7 0 0 1-4.5-10a16.62 16.62 0 0 1 16.58-17h.49a13.7 13.7 0 0 1 10 4.5c8.39 9.48 11.35 25.2 12.39 34.92C109.71 70.39 94 67.43 84.51 59m87 0c-9.49 8.4-25.24 11.36-35 12.4C137.7 60.89 141 45.5 149 36.51a13.7 13.7 0 0 1 10-4.5h.49A16.62 16.62 0 0 1 176 49.08a13.7 13.7 0 0 1-4.51 9.92Z"/></svg>`
 };
