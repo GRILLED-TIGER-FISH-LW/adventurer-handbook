@@ -18,12 +18,7 @@ body {
 }
 
 /* ============================================================
- * 2. 图标尺寸统一（与 theme.css 的 button svg 16px 对齐）
- * ============================================================ */
-button .ic { width: 16px; height: 16px; }
-
-/* ============================================================
- * 3. 顶栏
+ * 2. 顶栏
  * ============================================================ */
 .ed-header {
   height: 54px;
@@ -74,19 +69,18 @@ button .ic { width: 16px; height: 16px; }
   flex-shrink: 0;
 }
 
-/* 【关键】顶栏内所有按钮统一 36px 高（覆盖 theme.css 的 .btn-sm 32px） */
+/* 顶栏内所有按钮统一 36px 高（覆盖 theme.css 的 .btn-sm 32px） */
 .ed-header-actions .btn-sm {
   height: var(--ctl-h) !important;
 }
 
-/* 主题按钮：仅切换 sun/moon，尺寸由 .float-btn 提供 */
 .ed-theme-sun  { display: inline-flex; }
 .ed-theme-moon { display: none; }
 html[data-theme="dark"] .ed-theme-sun  { display: none; }
 html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
 
 /* ============================================================
- * 4. 主布局
+ * 3. 主布局
  * ============================================================ */
 .ed-main {
   flex: 1;
@@ -97,7 +91,7 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
 }
 
 /* ============================================================
- * 5. 左侧：列表
+ * 4. 左侧：列表
  * ============================================================ */
 .ed-list-pane {
   display: flex;
@@ -287,7 +281,7 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
 }
 
 /* ============================================================
- * 6. 右侧：表单
+ * 5. 右侧：表单
  * ============================================================ */
 .ed-form-pane {
   overflow-y: auto;
@@ -509,7 +503,7 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
 .ed-mobile-back .ic { width: 14px; height: 14px; }
 
 /* ============================================================
- * 7. 响应式
+ * 6. 响应式
  * ============================================================ */
 @media (max-width: 900px) {
   .ed-main {
