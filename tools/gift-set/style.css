@@ -20,7 +20,7 @@ body {
 body.in-iframe .gs-theme-btn { display: none !important; }
 
 /* ============================================================
- * 2. 顶栏（对齐 tales：padding 12px 14px，无固定高度）
+ * 2. 顶栏
  * ============================================================ */
 .gs-header {
   flex-shrink: 0;
@@ -55,13 +55,11 @@ body.in-iframe .gs-theme-btn { display: none !important; }
   flex-shrink: 0;
 }
 
-/* 顶栏按钮 32px 高（theme.css 的 .btn-sm 默认即 32，此处显式锁定） */
 .gs-header-actions .btn-sm {
   height: 32px !important;
   min-width: 0;
 }
 
-/* 主题按钮 32×32 */
 .gs-header-actions .float-btn {
   width: 32px !important;
   height: 32px !important;
@@ -73,7 +71,7 @@ html[data-theme="dark"] .gs-theme-sun  { display: none; }
 html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 
 /* ============================================================
- * 3. 主滚动区（对齐 tales 主区 padding）
+ * 3. 主滚动区
  * ============================================================ */
 .gs-main {
   flex: 1;
@@ -163,16 +161,10 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 /* ============================================================
  * 5. 角色栏 · chips bar
  * ============================================================ */
-.gs-chips-bar {
-  padding: 0 12px 10px;
-}
+.gs-chips-bar { padding: 0 12px 10px; }
 .gs-chips-bar[hidden] { display: none; }
 
-.gs-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
+.gs-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 
 .gs-chip {
   display: inline-flex;
@@ -234,7 +226,7 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 .gs-chip-remove:hover { background: var(--danger-bg); color: var(--danger); }
 
 /* ============================================================
- * 6. 角色栏 · 网格（54px 卡 / 40px 头像 / gap 4px → 手机一行 6 个）
+ * 6. 角色栏 · 网格（54px 卡 / 40px 头像 / gap 4px）
  * ============================================================ */
 .gs-char-grid-wrap {
   display: flex;
@@ -256,10 +248,10 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
   padding: 2px 0 6px;
 }
 .gs-char-search input[type="text"] {
-  height: 34px;
-  padding: 0 34px;
-  font-size: 12.5px;
-  background: var(--bg-sunken);
+  height: 34px !important;
+  padding: 0 34px !important;
+  font-size: 12.5px !important;
+  background: var(--bg-sunken) !important;
 }
 .gs-char-search-icon {
   position: absolute;
@@ -383,12 +375,14 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
   height: 14px;
   color: var(--text-tertiary);
   pointer-events: none;
+  z-index: 1;
 }
+/* 修复：padding-left 必须 > 图标右侧边界（10 + 14 = 24px） */
 .gs-search-input {
-  height: 34px;
-  padding: 0 34px;
-  font-size: 12.5px;
-  background: var(--bg-sunken);
+  height: 34px !important;
+  padding: 0 34px !important;
+  font-size: 12.5px !important;
+  background: var(--bg-sunken) !important;
 }
 .gs-search-clear {
   position: absolute;
@@ -409,22 +403,38 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 .gs-search-clear .ic { width: 12px; height: 12px; }
 .gs-search-clear:hover { background: var(--bg-hover); color: var(--text-primary); }
 
+/* 下拉筛选（对齐 tales 的 dropdown） */
 .gs-filter-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 6px;
 }
-.gs-filter-btn {
-  height: 30px;
-  padding: 0 9px;
-  gap: 4px;
-  justify-content: space-between;
-  background: var(--bg-sunken);
-  font-size: 12px;
-  letter-spacing: -0.2px;
-  overflow: hidden;
+
+.gs-dropdown-wrap {
+  position: relative;
+  min-width: 0;
 }
-.gs-filter-label {
+
+.gs-dropdown-trigger {
+  height: 30px;
+  width: 100%;
+  padding: 0 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+  background: var(--bg-sunken);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.gs-dropdown-label {
   flex: 1;
   min-width: 0;
   text-align: left;
@@ -432,17 +442,68 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.gs-filter-arrow {
+.gs-dropdown-arrow {
   width: 9px;
   height: 9px;
+  flex-shrink: 0;
   color: var(--text-secondary);
   transition: transform 0.2s var(--ease-spring);
 }
-.gs-filter-btn.active {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-soft);
+.gs-dropdown-wrap.open .gs-dropdown-arrow { transform: rotate(180deg); }
+.gs-dropdown-wrap.open .gs-dropdown-trigger { border-color: var(--accent); }
+
+.gs-dropdown-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  padding: 6px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 280px;
+  overflow-y: auto;
+  z-index: 50;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.16s ease;
 }
-.gs-filter-btn.active .gs-filter-arrow { transform: rotate(180deg); }
+[data-theme="dark"] .gs-dropdown-panel {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+.gs-dropdown-wrap.open .gs-dropdown-panel {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.gs-dropdown-item {
+  padding: 10px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  color: var(--text-primary);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  text-align: left;
+  width: 100%;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gs-dropdown-item:hover { background: var(--bg-hover); }
+.gs-dropdown-item.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
 
 /* ============================================================
  * 8. 套装卡片
@@ -576,7 +637,6 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 }
 .gs-set-item:not(.expanded) .gs-set-body { display: none; }
 
-/* 偏好角色格：与角色栏同宽（54px / 40px 头像 / gap 4px） */
 .gs-set-chars {
   display: grid;
   grid-template-columns: repeat(auto-fill, 54px);
@@ -701,7 +761,7 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 }
 
 /* ============================================================
- * 10. 响应式（对齐 tales 手机断点 480px）
+ * 10. 响应式
  * ============================================================ */
 @media (max-width: 480px) {
   .gs-header { padding: 10px; gap: 6px; }
@@ -726,6 +786,11 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
  * ============================================================ */
 .gs-char-grid-wrap::-webkit-scrollbar { width: 6px; }
 .gs-char-grid-wrap::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 3px;
+}
+.gs-dropdown-panel::-webkit-scrollbar { width: 6px; }
+.gs-dropdown-panel::-webkit-scrollbar-thumb {
   background: var(--border-default);
   border-radius: 3px;
 }
