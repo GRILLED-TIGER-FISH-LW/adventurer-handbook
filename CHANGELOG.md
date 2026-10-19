@@ -8,6 +8,27 @@
 
 ---
 
+## 2026-10-20 · 尘歌壶赠礼套装上线 + 图标系统重构
+
+**里程碑**
+
+- **尘歌壶赠礼套装正式上线**：`tools/gift-set/` 三件套（`index.html` / `style.css` / `app.js`）+ 空骨架 `data.js`。提供角色栏选择、推荐套装（按 pending 数量排序）、全部套装单列手风琴、搜索筛选、导入导出重置。完成判定采用「拥有且完成所有拥有角色」，套装中一个角色都没拥有时视为未完成。存档格式 `赠礼套装存档记录-[UID]-YYYYMMDD.json`，UID 可选。
+- **角色栏设计**：54px 卡片 / 40px 头像 / 4px gap，手机一行 6 个。已拥有角色按星级色背景（4 星紫 `#9174A9` / 5 星金 `#DCA454`），未拥有灰化 35%。排除旅行者（不参与任何拥有/完成/推荐逻辑）。按 `icon-dict` order 倒序排列。折叠箭头逻辑：展开态朝上（可点击收起）、折叠态朝下（可点击展开）。
+- **推荐算法**：过滤 pending=0 和 owned=0；按 pending 降序 → owned/total 降序 → id 升序；截取前 5 个。点击推荐卡片清空筛选并滚动定位到全部套装对应卡片。
+- **父页面图标系统重构**：`icons.js` 从外链 `<img>`（含 `wsrv.nl` 代理 + Canvas 自动裁切）改为内联 Phosphor SVG（`viewBox="0 0 256 256"`，`fill="currentColor"`）。`app.js` 删除 `autoCropImages` / `processCrop` 约 65 行死代码。`style.css` 删除针对 `<img alt="...">` 的死规则。
+- **父页面按钮/图标尺寸对齐**：`.menu-main-icon svg` 从 `100%` 改为 `20px`（对齐 genshin-guide）；`.dash-card-icon` / `.nav-title-icon` 保持 32/20px 撑满；删除全部冗余 `!important`。
+- **游逸旅闻下拉面板修复**：`.dropdown-panel` 从 `top: 0` 改为 `top: calc(100% + 4px)`，从按钮下方弹出，不再覆盖按钮文字；删除装饰性右侧 ✓（`.dropdown-item-check` + `CHECK_HTML`）；`.dropdown-item` 加 `display: block; width: 100%` 修复文本居中问题。
+- **游逸旅闻按钮增强**：`.action-btn-icon` 14px → 16px；`.action-btn.danger` 补红背景 + 红边框。
+- **两个编辑器上下移逻辑修复**：从「与相邻项交换 id」改为「± 1，冲突时交换」，解决不连续 id 场景的跳跃问题。
+- **编辑器冗余清理**：删除 `button .ic { width: 16px }` 泛化规则（3 处）；顶栏按钮统一 36px 高（手机 36×36）；主题按钮改用 `.float-btn`。
+- **赠礼套装编辑器修复**：新增套装聚焦名称输入框（原 URL 输入框）；批量粘贴角色支持（`InputEvent.inputType` + 长度突变检测 + `lastIsSep` 判断，解决末尾无分隔符时下拉菜单弹出的问题）。
+
+**待办**
+
+- 无
+
+---
+
 ## 2026-10-19 · 外壳重构与架构升级
 
 **里程碑**
@@ -67,5 +88,6 @@
 ### 3. 关键坑位备忘
 - **全动态加载**：所有静态资源必须带 `?t=时间戳`，严禁使用静态 `<script>` 标签。
 - **路径前缀**：由于迁移到了 `tools/tales/`，引入外部资源时需要多一层 `../../../`。
-- **图标防崩**：Fandom 外链必须走 `wsrv.nl` 代理，前端必须配合 `autoCropImages` 去白边。
-- **iframe 通信**：父页面切换主题时，必须通过 `postMessage` 告知子页面。
+- **图标防崩**：业务图标走 Phosphor 内联 SVG（`icons.js`），角色头像走 `icon-dict.js`，两套独立。
+- **iframe 通信**：父页面切换主题时，必须通过 `postMessage` 告知子页面；子页面同时读 localStorage 兜底。
+- **tales 与 gift-set 的顶栏样式对齐**：`.app-header` 与 `.gs-header` 均采用 `padding: 12px 14px`，UID 80×32 / 12px / 居中，按钮 32px 高、16px 图标。
