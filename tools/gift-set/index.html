@@ -136,9 +136,8 @@ body.ready .boot-loading { display: none; }
 </div>
 
 <header class="gs-header">
-  <h1 class="gs-title">尘歌壶赠礼套装</h1>
+  <input type="text" id="uidInput" class="gs-uid" placeholder="UID" maxlength="15" inputmode="numeric" autocomplete="off" spellcheck="false">
   <div class="gs-header-actions">
-    <input type="text" id="uidInput" class="gs-uid" placeholder="UID" maxlength="15" inputmode="numeric" autocomplete="off" spellcheck="false">
     <button type="button" class="btn-sm" id="btnImport" title="导入存档">
       <span class="ic" data-icon="ui.import"></span>
       <span class="gs-btn-text">导入</span>
@@ -159,6 +158,10 @@ body.ready .boot-loading { display: none; }
 </header>
 
 <main class="gs-main">
+
+  <div class="gs-first-tip" id="gsFirstTip">
+    先在上方选择你拥有的角色，即可开始记录
+  </div>
 
   <!-- ============================ 角色栏 ============================ -->
   <section class="gs-section gs-section-char" id="gsCharSection">
@@ -199,7 +202,7 @@ body.ready .boot-loading { display: none; }
   </section>
 
   <!-- ============================ 全部套装 ============================ -->
-  <section class="gs-section" id="gsAllSection" hidden>
+  <section class="gs-section" id="gsAllSection">
     <div class="gs-section-head">
       <div class="gs-section-title">全部套装</div>
     </div>
@@ -227,10 +230,6 @@ body.ready .boot-loading { display: none; }
       <div class="gs-empty" id="gsSetEmpty" hidden></div>
     </div>
   </section>
-
-  <div class="gs-first-tip" id="gsFirstTip">
-    先在上方选择你拥有的角色，即可开始记录
-  </div>
 
 </main>
 
