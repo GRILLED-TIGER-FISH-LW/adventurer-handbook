@@ -6,7 +6,7 @@
 
 const TOOLS = [
   { key: 'tales', label: '游逸旅闻', icon: 'tales', iconBold: 'talesBold', src: 'tools/tales/index.html' },
-  { key: 'gift-set', label: '尘歌壶赠礼套装', icon: 'gift-set', iconBold: 'gift-setBold' }
+  { key: 'gift-set', label: '尘歌壶赠礼套装', icon: 'gift-set', iconBold: 'gift-setBold', src: 'tools/gift-set/index.html' }
 ];
 
 const THEME_KEY = 'teyvat_handbook_theme_v1';
