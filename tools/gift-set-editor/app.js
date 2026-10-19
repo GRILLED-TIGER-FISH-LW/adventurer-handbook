@@ -528,7 +528,7 @@
   }
 
   /* ============================================================
-   * 13. 渲染 chips
+   * 13. 渲染 chips + 批量输入
    * ============================================================ */
   function buildChipAvatar(name) {
     const key = state.charKeyMap.get(name);
@@ -593,6 +593,7 @@
 
     const hasSep = CHAR_SPLIT_TEST.test(val);
 
+    /* 无分隔符：blur 时当单个名字处理 */
     if (!hasSep) {
       if (!blur) return;
       const name = val.trim();
@@ -608,12 +609,15 @@
       return;
     }
 
-    const parts = val.split(CHAR_SPLIT_RE).filter(Boolean);
-    if (!parts.length) { input.value = ''; return; }
+    /* 有分隔符：拆分后按「末尾是否分隔符」决定处理策略 */
+    const parts = val.split(CHAR_SPLIT_RE);
+    const lastIsSep = parts[parts.length - 1] === '';
 
     let remaining = '';
-    let toProcess = parts;
-    if (!blur) {
+    let toProcess;
+    if (blur || lastIsSep) {
+      toProcess = parts.filter(Boolean);
+    } else {
       remaining = parts[parts.length - 1];
       toProcess = parts.slice(0, -1);
     }
@@ -621,6 +625,7 @@
     const toAdd = [];
     const notInDict = [];
     for (const name of toProcess) {
+      if (!name) continue;
       if (entry.preferredCharacters.includes(name)) continue;
       if (state.charKeyMap.has(name)) {
         toAdd.push(name);
@@ -688,26 +693,19 @@
     if (!input) return;
 
     let composing = false;
-    let pasting = false;
     input.addEventListener('compositionstart', () => { composing = true; });
     input.addEventListener('compositionend', () => { composing = false; });
 
-    input.addEventListener('paste', () => {
-      pasting = true;
-      setTimeout(() => {
-        const v = input.value;
-        if (v && CHAR_SPLIT_TEST.test(v)) {
-          processCharInput(input, entry, { blur: true });
-        }
-        pasting = false;
-      }, 0);
-    });
-
-    input.addEventListener('input', () => {
-      if (composing || pasting) return;
-      processCharInput(input, entry, { blur: false });
+    /* 主监听：靠 InputEvent.inputType 判断粘贴 */
+    input.addEventListener('input', (e) => {
+      if (composing) return;
+      const isPaste =
+        e.inputType === 'insertFromPaste' ||
+        e.inputType === 'insertFromYank';
+      processCharInput(input, entry, { blur: isPaste });
     }, true);
 
+    /* Enter：有分隔符时走全量 */
     input.addEventListener('keydown', (e) => {
       if (e.key !== 'Enter') return;
       if (composing) return;
@@ -718,6 +716,7 @@
       }
     }, true);
 
+    /* 失焦兜底 */
     input.addEventListener('blur', () => {
       setTimeout(() => processCharInput(input, entry, { blur: true }), 160);
     });
@@ -747,6 +746,7 @@
 
   async function upgradeChipImages(entry) {
     const chips = els.edFormPane.querySelectorAll('.pg-chip[data-char]');
+    const tasks = [];
     for (const chip of chips) {
       const name = chip.dataset.char;
       if (!name) continue;
@@ -756,11 +756,18 @@
       if (!avatar) continue;
       const img = avatar.querySelector('img');
       if (img && state.chipCache.has(key)) continue;
-      const dataURL = await getChipImage(name);
-      if (!dataURL) continue;
-      if (!document.contains(chip)) continue;
-      avatar.innerHTML = `<img src="${esc(dataURL)}" alt="">`;
+
+      tasks.push(
+        getChipImage(name).then((dataURL) => {
+          if (!dataURL) return;
+          if (!document.contains(chip)) return;
+          const a = chip.querySelector('.pg-chip-avatar');
+          if (!a) return;
+          a.innerHTML = `<img src="${esc(dataURL)}" alt="">`;
+        })
+      );
     }
+    await Promise.all(tasks);
   }
 
   /* ============================================================
