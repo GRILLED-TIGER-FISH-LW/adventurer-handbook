@@ -111,15 +111,12 @@ body {
   border-radius: var(--radius-sm);
   font-size: 13px; color: var(--text-primary);
   cursor: pointer;
-  display: flex; justify-content: space-between; align-items: center;
   background: transparent; border: none;
   font-family: inherit;
   text-align: left;
 }
 .dropdown-item:hover { background: var(--bg-hover); }
 .dropdown-item.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
-.dropdown-item-check { width: 14px; height: 14px; display: none; flex-shrink: 0; }
-.dropdown-item.active .dropdown-item-check { display: inline-flex; }
 
 /* ---------- 3. UID/计数 与 操作按钮行 ---------- */
 .row-meta-actions { justify-content: space-between; flex-wrap: wrap; }
