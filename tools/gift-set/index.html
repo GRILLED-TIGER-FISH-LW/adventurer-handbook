@@ -171,15 +171,16 @@ body.ready .boot-loading { display: none; }
         <span class="ic gs-toggle-icon" data-icon="ui.chevronDown"></span>
       </button>
     </div>
-    <div class="gs-section-body">
+    <div class="gs-chips-bar" id="gsCharChipsBar" hidden>
       <div class="gs-chips" id="gsCharChips"></div>
-      <div class="gs-char-grid-wrap" id="gsCharGridWrap" hidden>
+    </div>
+    <div class="gs-section-body">
+      <div class="gs-char-grid-wrap" id="gsCharGridWrap">
         <div class="gs-char-search">
           <span class="ic gs-char-search-icon" data-icon="ui.search"></span>
           <input type="text" id="gsCharSearch" placeholder="搜索角色名" autocomplete="off" spellcheck="false">
         </div>
         <div class="gs-char-grid" id="gsCharGrid"></div>
-        <button type="button" class="btn-sm gs-char-collapse" id="btnCharCollapse">收起角色栏</button>
       </div>
     </div>
   </section>
