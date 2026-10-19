@@ -7,9 +7,6 @@
 <title>尘歌壶赠礼套装</title>
 
 <script>
-/* =========================================================================
- * 主题同步初始化
- * ========================================================================= */
 (function () {
   try {
     if (localStorage.getItem('genshin_travelers_tales_theme_v1') === 'dark') {
@@ -18,9 +15,6 @@
   } catch (e) {}
 })();
 
-/* =========================================================================
- * 资源加载器（全动态加载 + 强制时间戳 + 失败可见化）
- * ========================================================================= */
 (async function () {
   const ts = Date.now();
   const withTs = (url) => url + (url.indexOf('?') >= 0 ? '&' : '?') + 't=' + ts;
@@ -87,7 +81,6 @@
 </script>
 
 <style>
-/* 启动期防闪 */
 [hidden] { display: none !important; }
 
 html { background: var(--bg-base, #F4F1EA); }
@@ -213,14 +206,20 @@ body.ready .boot-loading { display: none; }
           </button>
         </div>
         <div class="gs-filter-row">
-          <button type="button" class="gs-filter-btn" id="gsRegionTrigger">
-            <span class="gs-filter-label" id="gsRegionLabel">全部地区</span>
-            <span class="ic gs-filter-arrow" data-icon="ui.chevronDown"></span>
-          </button>
-          <button type="button" class="gs-filter-btn" id="gsTypeTrigger">
-            <span class="gs-filter-label" id="gsTypeLabel">全部类型</span>
-            <span class="ic gs-filter-arrow" data-icon="ui.chevronDown"></span>
-          </button>
+          <div class="gs-dropdown-wrap" data-key="region">
+            <button type="button" class="gs-dropdown-trigger" id="gsRegionTrigger">
+              <span class="gs-dropdown-label" id="gsRegionLabel">全部地区</span>
+              <span class="ic gs-dropdown-arrow" data-icon="ui.chevronDown"></span>
+            </button>
+            <div class="gs-dropdown-panel" id="gsRegionPanel"></div>
+          </div>
+          <div class="gs-dropdown-wrap" data-key="type">
+            <button type="button" class="gs-dropdown-trigger" id="gsTypeTrigger">
+              <span class="gs-dropdown-label" id="gsTypeLabel">全部类型</span>
+              <span class="ic gs-dropdown-arrow" data-icon="ui.chevronDown"></span>
+            </button>
+            <div class="gs-dropdown-panel" id="gsTypePanel"></div>
+          </div>
         </div>
       </div>
       <div class="gs-set-list" id="gsSetList"></div>
@@ -238,13 +237,6 @@ body.ready .boot-loading { display: none; }
     <div class="modal-message" id="modalMessage"></div>
     <div class="modal-actions" id="modalActions"></div>
   </div>
-</div>
-
-<div class="tab-sheet-backdrop" id="sheetBackdrop"></div>
-<div class="tab-sheet" id="sheet">
-  <div class="tab-sheet-handle"></div>
-  <div class="tab-sheet-header" id="sheetHeader"></div>
-  <div class="tab-sheet-list" id="sheetList"></div>
 </div>
 
 <input type="file" id="fileInput" accept=".json,application/json" hidden>
