@@ -6,6 +6,8 @@
 
   const DRAFT_KEY = 'genshin_homeworld_gift_sets_editor_draft_v1';
   const THEME_KEY = 'genshin_travelers_tales_theme_v1';
+  const CHAR_SPLIT_RE = /[\s，,、;；]+/;
+  const CHAR_SPLIT_TEST = /[\s，,、;；]/;
 
   /* ============================================================
    * 1. 兜底图标
@@ -253,14 +255,6 @@
     };
   }
 
-  /**
-   * 规范化数据：
-   * 1. 补全 config / meta / regions / sets
-   * 2. regions：丢弃旧的含糊值 '蒙德/璃月'（它是「或」的意思，不是「和」），
-   *    确保 '蒙德' '璃月' 存在，按官方顺序重排，新增地区追加末尾
-   * 3. sets：region === '蒙德/璃月' 时用 key 推断覆盖；
-   *    推断失败则保留原值，让用户在 UI 上手动修正
-   */
   function normalizeData(data) {
     const base = defaultData();
     if (!data || typeof data !== 'object') return base;
@@ -273,7 +267,7 @@
     if (!data.meta) data.meta = base.meta;
     if (!Array.isArray(data.sets)) data.sets = [];
 
-    /* ---- regions ---- */
+    /* regions：丢弃旧的含糊值「蒙德/璃月」，确保蒙德/璃月存在，按官方顺序重排 */
     const rawRegions = Array.isArray(data.regions) ? data.regions : [];
     const regionSet = new Set();
     for (const r of rawRegions) {
@@ -293,7 +287,7 @@
     for (const r of regionSet) ordered.push(r);
     data.regions = ordered.length ? ordered : base.regions;
 
-    /* ---- sets ---- */
+    /* sets：旧「蒙德/璃月」尝试从 key 推断，失败则保留原值 */
     data.sets.forEach((s) => {
       s.preferredCharacters ||= [];
       if (s.region === '蒙德/璃月') {
@@ -411,7 +405,6 @@
   }
 
   function serializeData(data) {
-    /* 补全 regions（跳过旧的含糊值 '蒙德/璃月'，不写进 regions 数组） */
     const regionSet = new Set(data.regions);
     for (const s of data.sets) {
       if (s.region && s.region !== '蒙德/璃月' && !regionSet.has(s.region)) {
@@ -519,8 +512,7 @@
       if (state.typeFilter !== 'all' && s.type !== state.typeFilter) return false;
       if (state.regionFilter !== 'all' && s.region !== state.regionFilter) return false;
       if (kw) {
-        const hay =
-          (s.name || '') + ' ' + (s.preferredCharacters || []).join(' ');
+        const hay = (s.name || '') + ' ' + (s.preferredCharacters || []).join(' ');
         if (!hay.toLowerCase().includes(kw)) return false;
       }
       return true;
@@ -548,9 +540,7 @@
     els.edList.innerHTML = list
       .map((s) => {
         const url = getSetImageUrl(s);
-        const thumbInner = url
-          ? `<img src="${esc(url)}" alt="" loading="lazy">`
-          : '';
+        const thumbInner = url ? `<img src="${esc(url)}" alt="" loading="lazy">` : '';
         const active = s.id === state.selectedId ? ' active' : '';
         const chars = (s.preferredCharacters || []).length;
         const sub = [s.region || '?', typeLabel(s.type), chars + ' 人'].join(' · ');
@@ -582,22 +572,32 @@
       : esc(initial);
   }
 
+  function renderChipHtml(name) {
+    return (
+      `<span class="pg-chip" data-char="${esc(name)}">` +
+        `<span class="pg-chip-avatar">${buildChipAvatar(name)}</span>` +
+        `<span class="pg-chip-name">${esc(name)}</span>` +
+        `<button type="button" class="pg-chip-remove" data-remove="${esc(name)}">` +
+          '<span class="ic" data-icon="app.close"></span>' +
+        '</button>' +
+      '</span>'
+    );
+  }
+
   function renderChipsInner(entry) {
     const chars = entry.preferredCharacters || [];
-    if (!chars.length) {
-      return '<span class="pg-char-empty">尚未添加角色</span>';
-    }
-    return chars.map((name) => {
-      return (
-        `<span class="pg-chip" data-char="${esc(name)}">` +
-          `<span class="pg-chip-avatar">${buildChipAvatar(name)}</span>` +
-          `<span class="pg-chip-name">${esc(name)}</span>` +
-          `<button type="button" class="pg-chip-remove" data-remove="${esc(name)}">` +
-            '<span class="ic" data-icon="app.close"></span>' +
-          '</button>' +
-        '</span>'
-      );
-    }).join('');
+    if (!chars.length) return '<span class="pg-char-empty">尚未添加角色</span>';
+    return chars.map(renderChipHtml).join('');
+  }
+
+  function appendChips(entry, newNames) {
+    const listEl = els.edFormPane.querySelector('#pgCharList');
+    if (!listEl || !newNames.length) return;
+    const emptyEl = listEl.querySelector('.pg-char-empty');
+    if (emptyEl) emptyEl.remove();
+    listEl.insertAdjacentHTML('beforeend', newNames.map(renderChipHtml).join(''));
+    injectIcons(listEl);
+    upgradeChipImages(entry);
   }
 
   function renderCharArea(entry) {
@@ -607,7 +607,7 @@
       `<div class="pg-char-list" id="pgCharList">${renderChipsInner(entry)}</div>` +
       '<div class="ed-combobox" data-combobox="character-add">' +
         '<div class="ed-combobox-input-wrap">' +
-          '<input type="text" placeholder="输入角色名添加…" autocomplete="off" spellcheck="false">' +
+          '<input type="text" placeholder="输入角色名，多个用逗号/空格分隔" autocomplete="off" spellcheck="false">' +
         '</div>' +
         '<div class="ed-combobox-popup" hidden></div>' +
       '</div>';
@@ -615,6 +615,74 @@
     injectIcons(area);
     bindCharAreaEvents(entry);
     upgradeChipImages(entry);
+  }
+
+  /**
+   * 处理批量输入：
+   * · blur=false（实时）：只处理分隔符前的完整部分，最后一段留在输入框
+   * · blur=true（失焦/Enter）：处理所有分隔符分开的部分 + 最后一段（若为已知角色）
+   */
+  function processCharInput(input, entry, { blur = false } = {}) {
+    const val = input.value;
+    if (!val) return;
+
+    const hasSep = CHAR_SPLIT_TEST.test(val);
+
+    /* 无分隔符：只有失焦时，整段当作一个完整名字处理 */
+    if (!hasSep) {
+      if (!blur) return;
+      const name = val.trim();
+      if (!name) { input.value = ''; return; }
+      if (state.charKeyMap.has(name) && !entry.preferredCharacters.includes(name)) {
+        entry.preferredCharacters.push(name);
+        markDirty();
+        appendChips(entry, [name]);
+        renderList();
+        updatePreview(entry);
+        input.value = '';
+      }
+      return;
+    }
+
+    /* 有分隔符：分批处理 */
+    const parts = val.split(CHAR_SPLIT_RE).filter(Boolean);
+    if (!parts.length) { input.value = ''; return; }
+
+    let remaining = '';
+    let toProcess = parts;
+    if (!blur) {
+      remaining = parts[parts.length - 1];
+      toProcess = parts.slice(0, -1);
+    }
+
+    const toAdd = [];
+    const notInDict = [];
+    for (const name of toProcess) {
+      if (entry.preferredCharacters.includes(name)) continue;
+      if (state.charKeyMap.has(name)) {
+        toAdd.push(name);
+      } else {
+        notInDict.push(name);
+      }
+    }
+
+    input.value = remaining;
+
+    if (toAdd.length) {
+      entry.preferredCharacters.push(...toAdd);
+      markDirty();
+      appendChips(entry, toAdd);
+      renderList();
+      updatePreview(entry);
+    }
+
+    if (notInDict.length) {
+      toast('字典中未找到：' + notInDict.join('、'), 'error');
+    }
+
+    /* 关闭下拉菜单 */
+    const popup = input.closest('.ed-combobox')?.querySelector('.ed-combobox-popup');
+    if (popup) popup.hidden = true;
   }
 
   function bindCharAreaEvents(entry) {
@@ -651,6 +719,35 @@
         }
       }
     );
+
+    /* 批量输入监听 */
+    const input = els.edFormPane.querySelector(
+      '.ed-combobox[data-combobox="character-add"] input'
+    );
+    if (!input) return;
+
+    let composing = false;
+    input.addEventListener('compositionstart', () => { composing = true; });
+    input.addEventListener('compositionend', () => { composing = false; });
+
+    input.addEventListener('input', () => {
+      if (composing) return;
+      processCharInput(input, entry, { blur: false });
+    }, true);
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      if (composing) return;
+      if (CHAR_SPLIT_TEST.test(input.value)) {
+        e.preventDefault();
+        e.stopPropagation();
+        processCharInput(input, entry, { blur: true });
+      }
+    }, true);
+
+    input.addEventListener('blur', () => {
+      setTimeout(() => processCharInput(input, entry, { blur: true }), 160);
+    });
   }
 
   async function getChipImage(name) {
@@ -682,11 +779,14 @@
       if (!name) continue;
       const key = state.charKeyMap.get(name);
       if (!key) continue;
+      const avatar = chip.querySelector('.pg-chip-avatar');
+      if (!avatar) continue;
+      /* 已经是最终渐变图则跳过 */
+      const img = avatar.querySelector('img');
+      if (img && state.chipCache.has(key)) continue;
       const dataURL = await getChipImage(name);
       if (!dataURL) continue;
       if (!document.contains(chip)) continue;
-      const avatar = chip.querySelector('.pg-chip-avatar');
-      if (!avatar) continue;
       avatar.innerHTML = `<img src="${esc(dataURL)}" alt="">`;
     }
   }
@@ -816,7 +916,7 @@
         '</div>' +
 
         '<div class="ed-group">' +
-          '<label class="ed-label">偏好角色</label>' +
+          '<label class="ed-label">偏好角色 <span class="ed-label-hint">支持逗号/空格/顿号分隔批量输入</span></label>' +
           '<div id="pgCharArea"></div>' +
         '</div>' +
 
@@ -878,7 +978,7 @@
       }
     );
 
-    /* ---------- URL 识别（key 变化才推断覆盖） ---------- */
+    /* URL 识别 */
     const urlInput = $('pgUrlInput');
     const urlKeyEl = $('pgUrlKey');
     const btnRecognize = $('btnRecognize');
@@ -976,7 +1076,6 @@
       tryApply(v);
     });
 
-    /* ---------- 类型段控 ---------- */
     $('pgTypeSeg')?.addEventListener('click', (e) => {
       const btn = e.target.closest('.seg-btn');
       if (!btn) return;
@@ -989,7 +1088,6 @@
       updatePreview(entry);
     });
 
-    /* ---------- 上移 / 下移 ---------- */
     const btnIdUp = $('btnIdUp');
     const btnIdDown = $('btnIdDown');
     const move = (dir) => {
@@ -1009,7 +1107,6 @@
     btnIdUp?.addEventListener('click', () => move('up'));
     btnIdDown?.addEventListener('click', () => move('down'));
 
-    /* ---------- 删除 ---------- */
     $('btnDelete')?.addEventListener('click', async () => {
       const ok = await confirmDialog({
         title: '删除套装',
@@ -1026,14 +1123,12 @@
       renderList();
       renderForm();
 
-      /* 移动端：删除后自动回到列表页 */
       if (window.innerWidth <= 900) {
         els.edListPane.classList.remove('mobile-hidden');
         els.edFormPane.classList.remove('mobile-visible');
       }
     });
 
-    /* ---------- 移动端返回 ---------- */
     $('btnMobileBack')?.addEventListener('click', () => {
       els.edListPane.classList.remove('mobile-hidden');
       els.edFormPane.classList.remove('mobile-visible');
