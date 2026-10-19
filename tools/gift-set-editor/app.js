@@ -221,7 +221,7 @@
         }
       },
       meta: { total: 0, updatedAt: '', source: '' },
-      regions: ['蒙德/璃月', '稻妻', '须弥', '枫丹', '纳塔', '挪德卡莱', '至冬'],
+      regions: ['蒙德', '璃月', '稻妻', '须弥', '枫丹', '纳塔', '挪德卡莱', '至冬'],
       sets: []
     };
   }
@@ -239,6 +239,7 @@
     if (!Array.isArray(data.sets)) data.sets = [];
     data.sets.forEach((s) => {
       s.preferredCharacters ||= [];
+      if (s.region === '蒙德/璃月') s.region = '';
     });
     return data;
   }
@@ -277,7 +278,7 @@
   };
 
   /* ============================================================
-   * 8. 数据路径 / URL 工具
+   * 8. URL / key / 地区 / 类型 推断
    * ============================================================ */
   function getSetImageUrl(set) {
     if (!set?.key || !state.data?.config?.image) return '';
@@ -306,6 +307,24 @@
     if (/exterior/i.test(key)) return 'exterior';
     if (/interior/i.test(key)) return 'interior';
     return null;
+  }
+
+  const REGION_CODE_MAP = {
+    mond: '蒙德',
+    liyue: '璃月',
+    dq: '稻妻',
+    xm: '须弥',
+    fd: '枫丹',
+    nt: '纳塔',
+    ndkl: '挪德卡莱',
+    zd: '至冬'
+  };
+
+  function inferRegion(key) {
+    if (!key) return null;
+    const m = key.match(/(?:Exterior|Interior)_([A-Za-z]+)(?:_|$)/i);
+    if (!m) return null;
+    return REGION_CODE_MAP[m[1].toLowerCase()] || null;
   }
 
   const typeLabel = (t) => (t === 'exterior' ? '室外' : t === 'interior' ? '室内' : '?');
@@ -358,7 +377,6 @@
   }
 
   function serializeData(data) {
-    /* 补全 regions */
     const regionSet = new Set(data.regions);
     for (const s of data.sets) {
       if (s.region && !regionSet.has(s.region)) {
@@ -367,7 +385,6 @@
       }
     }
 
-    /* 按地区分组 */
     const grouped = new Map();
     data.regions.forEach((r) => grouped.set(r, []));
     for (const s of data.sets) {
@@ -742,7 +759,7 @@
         '</div>' +
 
         '<div class="ed-group">' +
-          '<label class="ed-label">套装图 URL <span class="ed-label-hint">粘贴后自动识别 key</span></label>' +
+          '<label class="ed-label">套装图 URL <span class="ed-label-hint">粘贴后自动识别 key / 类型 / 地区</span></label>' +
           '<div class="pg-url-wrap">' +
             `<input type="text" id="pgUrlInput" value="${esc(urlValue)}" placeholder="粘贴图片直链…" autocomplete="off" spellcheck="false">` +
             '<button type="button" class="btn-sm" id="btnRecognize">识别</button>' +
@@ -783,10 +800,9 @@
    * 15. 表单事件
    * ============================================================ */
   function bindFormEvents(entry) {
-    /* 普通字段 */
     els.edFormPane.querySelectorAll('[data-field]').forEach((input) => {
       const field = input.dataset.field;
-      if (field === 'region') return; // combobox 自行处理
+      if (field === 'region') return;
 
       input.addEventListener('input', () => {
         let value;
@@ -811,7 +827,6 @@
       });
     });
 
-    /* 地区 combobox */
     setupCombobox(
       els.edFormPane.querySelector('.ed-combobox[data-combobox="region"]'),
       {
@@ -828,71 +843,121 @@
       }
     );
 
-    /* URL 识别 */
+    /* ---------- URL 识别（方案 B：key 变化才推断覆盖） ---------- */
     const urlInput = $('pgUrlInput');
     const urlKeyEl = $('pgUrlKey');
     const btnRecognize = $('btnRecognize');
 
+    const syncTypeSeg = () => {
+      const seg = $('pgTypeSeg');
+      if (!seg) return;
+      seg.querySelectorAll('.seg-btn').forEach((b) => {
+        b.classList.toggle('active', b.dataset.type === entry.type);
+      });
+    };
+
+    const syncRegionInput = () => {
+      const regionInput = els.edFormPane.querySelector('input[data-field="region"]');
+      if (regionInput) regionInput.value = entry.region || '';
+    };
+
     const tryApply = (text) => {
-      const key = parseSetUrl(text);
+      const normalized = (text || '').trim();
+
+      /* 空 URL → 清空 key */
+      if (!normalized) {
+        if (entry.key) {
+          entry.key = '';
+          urlInput.classList.remove('ed-invalid');
+          urlKeyEl.textContent = '';
+          urlKeyEl.classList.remove('warn');
+          markDirty();
+          renderList();
+          updatePreview(entry);
+        }
+        return false;
+      }
+
+      const key = parseSetUrl(normalized);
       if (!key) {
         urlInput.classList.add('ed-invalid');
         urlKeyEl.textContent = '无法识别该 URL，请检查链接';
         urlKeyEl.classList.add('warn');
         return false;
       }
+
+      /* key 未变 → 跳过（保留用户手动修改的 type / region） */
+      if (key === entry.key) return false;
+
       urlInput.classList.remove('ed-invalid');
       urlKeyEl.classList.remove('warn');
       entry.key = key;
-      if (!entry.type) {
-        const inferred = inferType(key);
-        if (inferred) entry.type = inferred;
+
+      /* 推断优先：能推断就覆盖 */
+      const inferredType = inferType(key);
+      if (inferredType) entry.type = inferredType;
+
+      const inferredRegion = inferRegion(key);
+      if (inferredRegion) {
+        entry.region = inferredRegion;
+        if (!state.data.regions.includes(inferredRegion)) {
+          state.data.regions.push(inferredRegion);
+        }
       }
+
       urlKeyEl.textContent = 'key: ' + key;
       markDirty();
       renderList();
       updatePreview(entry);
-      /* 更新段控选中态 */
-      const seg = $('pgTypeSeg');
-      if (seg) {
-        seg.querySelectorAll('.seg-btn').forEach((b) => {
-          b.classList.toggle('active', b.dataset.type === entry.type);
-        });
-      }
+      syncTypeSeg();
+      syncRegionInput();
+
       return true;
     };
 
     urlInput.addEventListener('blur', () => {
-      const v = urlInput.value.trim();
-      if (!v) return;
-      tryApply(v);
-    });
-    urlInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        tryApply(urlInput.value.trim());
-      }
-    });
-    btnRecognize?.addEventListener('click', () => {
       tryApply(urlInput.value.trim());
     });
 
-    /* 类型段控 */
+    urlInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        btnRecognize?.click();
+      }
+    });
+
+    btnRecognize?.addEventListener('click', () => {
+      const v = urlInput.value.trim();
+      if (!v) {
+        toast('请先粘贴图片链接', 'error');
+        return;
+      }
+      const key = parseSetUrl(v);
+      if (!key) {
+        tryApply(v);
+        return;
+      }
+      if (key === entry.key) {
+        toast('URL 未变化，无需重新识别');
+        return;
+      }
+      tryApply(v);
+    });
+
+    /* ---------- 类型段控 ---------- */
     $('pgTypeSeg')?.addEventListener('click', (e) => {
       const btn = e.target.closest('.seg-btn');
       if (!btn) return;
       const t = btn.dataset.type;
       if (entry.type === t) return;
       entry.type = t;
-      $('pgTypeSeg').querySelectorAll('.seg-btn').forEach((b) => {
-        b.classList.toggle('active', b.dataset.type === t);
-      });
+      syncTypeSeg();
       markDirty();
       renderList();
       updatePreview(entry);
     });
 
-    /* 上移 / 下移 */
+    /* ---------- 上移 / 下移 ---------- */
     const btnIdUp = $('btnIdUp');
     const btnIdDown = $('btnIdDown');
     const move = (dir) => {
@@ -912,7 +977,7 @@
     btnIdUp?.addEventListener('click', () => move('up'));
     btnIdDown?.addEventListener('click', () => move('down'));
 
-    /* 删除 */
+    /* ---------- 删除 ---------- */
     $('btnDelete')?.addEventListener('click', async () => {
       const ok = await confirmDialog({
         title: '删除套装',
@@ -930,7 +995,7 @@
       renderForm();
     });
 
-    /* 移动端返回 */
+    /* ---------- 移动端返回 ---------- */
     $('btnMobileBack')?.addEventListener('click', () => {
       els.edListPane.classList.remove('mobile-hidden');
       els.edFormPane.classList.remove('mobile-visible');
@@ -1040,14 +1105,12 @@
    * 17. 主流程事件
    * ============================================================ */
   function bindHeaderEvents() {
-    /* 主题 */
     els.btnTheme.addEventListener('click', () => {
       const next = currentTheme() === 'dark' ? 'light' : 'dark';
       applyTheme(next);
       try { localStorage.setItem(THEME_KEY, next); } catch {}
     });
 
-    /* 搜索 */
     let searchTimer = null;
     els.searchInput.addEventListener('input', () => {
       els.searchClear.classList.toggle('show', els.searchInput.value.length > 0);
@@ -1064,7 +1127,6 @@
       renderList();
     });
 
-    /* 类型过滤 */
     els.typeTrigger.addEventListener('click', () => {
       openSheet({
         header: '类型',
@@ -1084,7 +1146,6 @@
       });
     });
 
-    /* 地区过滤 */
     els.regionTrigger.addEventListener('click', () => {
       if (!state.data) return;
       const items = [{ value: 'all', label: '全部地区' }];
@@ -1102,7 +1163,6 @@
       });
     });
 
-    /* 重排 id */
     els.btnRenumber.addEventListener('click', async () => {
       if (!state.data) return toast('数据未加载', 'error');
       const sorted = allSortedSets();
@@ -1128,7 +1188,6 @@
       toast(`已重排 ${n} 条 id`, 'success');
     });
 
-    /* 重载线上 */
     els.btnReload.addEventListener('click', async () => {
       if (state.dirty) {
         const ok = await confirmDialog({
@@ -1161,7 +1220,6 @@
       }
     });
 
-    /* 导入 */
     els.btnImport.addEventListener('click', () => els.fileInput.click());
     els.fileInput.addEventListener('change', (ev) => {
       const file = ev.target.files?.[0];
@@ -1186,7 +1244,6 @@
       reader.readAsText(file);
     });
 
-    /* 导出 */
     els.btnExport.addEventListener('click', async () => {
       if (!state.data) return toast('数据未加载', 'error');
 
@@ -1232,7 +1289,6 @@
       toast('已导出 data.js', 'success');
     });
 
-    /* 列表点击 */
     els.edList.addEventListener('click', (e) => {
       const item = e.target.closest('.ed-list-item');
       if (!item) return;
@@ -1248,7 +1304,6 @@
       }
     });
 
-    /* 新增 */
     els.btnAdd.addEventListener('click', () => {
       if (!state.data) state.data = normalizeData(null);
       const newId = state.data.sets.reduce((m, x) => Math.max(m, x.id || 0), 0) + 1;
@@ -1277,7 +1332,6 @@
       }, 60);
     });
 
-    /* beforeunload */
     window.addEventListener('beforeunload', (e) => {
       if (state.dirty) {
         e.preventDefault();
@@ -1285,7 +1339,6 @@
       }
     });
 
-    /* 图片加载失败全局清理（error 不冒泡，需 capture） */
     document.addEventListener('error', (e) => {
       const img = e.target;
       if (img.tagName !== 'IMG') return;
