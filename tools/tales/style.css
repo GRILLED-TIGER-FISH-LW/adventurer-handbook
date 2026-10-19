@@ -2,7 +2,6 @@
  * 游历旅闻 · 子页面专属样式 (2026 现代扁平修复版)
  * ============================================================ */
 
-html, body { margin: 0; padding: 0; }
 body {
   background: var(--bg-base);
   color: var(--text-primary);
@@ -20,7 +19,7 @@ body {
   padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 10px; /* 行与行之间的间距 */
+  gap: 10px;
 }
 
 .header-row { display: flex; align-items: center; gap: 8px; width: 100%; }
@@ -28,22 +27,33 @@ body {
 /* ---------- 1. 搜索行 ---------- */
 .row-search { justify-content: stretch; }
 .search-wrap { position: relative; flex: 1; display: flex; align-items: center; }
-.search-icon { position: absolute; left: 12px; width: 16px; height: 16px; color: var(--text-tertiary); pointer-events: none; }
+.search-icon {
+  position: absolute; left: 12px;
+  width: 16px; height: 16px;
+  color: var(--text-tertiary); pointer-events: none;
+}
 .search-input {
-  width: 100% !important; 
-  height: 40px !important; 
-  padding: 0 36px 0 36px !important;
-  background: var(--bg-sunken) !important; 
+  width: 100% !important;
+  height: 40px !important;
+  padding: 0 36px !important;
+  background: var(--bg-sunken) !important;
   border: 1px solid var(--border-default) !important;
-  border-radius: var(--radius-sm) !important; 
-  color: var(--text-primary) !important; 
-  font-size: 14px !important; 
+  border-radius: var(--radius-sm) !important;
+  color: var(--text-primary) !important;
+  font-size: 14px !important;
   outline: none !important;
 }
-.search-input:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 2px var(--accent-soft) !important; }
+.search-input:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 2px var(--accent-soft) !important;
+}
 .search-clear {
-  position: absolute; right: 6px; width: 28px; height: 28px; border: none; background: transparent;
-  color: var(--text-tertiary); cursor: pointer; border-radius: 50%; display: none; align-items: center; justify-content: center;
+  position: absolute; right: 6px;
+  width: 28px; height: 28px; padding: 0;
+  border: 0; background: transparent;
+  color: var(--text-tertiary); cursor: pointer;
+  border-radius: 50%;
+  display: none; align-items: center; justify-content: center;
 }
 .search-clear .ic { width: 16px; height: 16px; }
 .search-clear.visible { display: inline-flex; }
@@ -51,32 +61,64 @@ body {
 /* ---------- 2. 下拉行 ---------- */
 .row-filters { gap: 8px; }
 .dropdown-wrap { position: relative; flex: 1 1 0; min-width: 0; }
+
 .dropdown-trigger {
-  height: 38px; width: 100%; padding: 0 10px; display: inline-flex; align-items: center; justify-content: space-between;
-  border-radius: var(--radius-sm); border: 1px solid var(--border-default); background: var(--bg-surface);
-  color: var(--text-primary); font-size: 13px; cursor: pointer; white-space: nowrap;
+  height: 38px; width: 100%; padding: 0 10px;
+  display: inline-flex; align-items: center; justify-content: space-between;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 13px; cursor: pointer; white-space: nowrap;
+  transition: border-color 0.15s;
 }
-.dropdown-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; text-align: left; }
-.dropdown-arrow { width: 14px; height: 14px; transition: transform 0.25s; flex-shrink: 0; margin-left: 4px; }
+.dropdown-label {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  flex: 1; text-align: left;
+}
+.dropdown-arrow {
+  width: 14px; height: 14px; flex-shrink: 0; margin-left: 4px;
+  transition: transform 0.25s;
+}
 .dropdown-wrap.open .dropdown-arrow { transform: rotate(180deg); }
 .dropdown-wrap.open .dropdown-trigger { border-color: var(--accent); }
 
-/* 下拉面板 */
+/* 下拉面板：从按钮下方弹出，不再覆盖按钮 */
 .dropdown-panel {
-  position: absolute; top: 0; left: 0; right: 0; 
-  padding: calc(38px + 6px) 6px 6px 6px;
-  background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: var(--radius-md);
-  box-shadow: 0 6px 20px rgba(0,0,0,.15); display: flex; flex-direction: column; gap: 2px;
-  z-index: 5; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .16s ease;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  padding: 6px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  display: flex; flex-direction: column; gap: 2px;
+  max-height: 300px; overflow-y: auto;
+  z-index: 50;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity 0.16s ease;
 }
-.dropdown-wrap.open .dropdown-panel { opacity: 1; visibility: visible; pointer-events: auto; }
+[data-theme="dark"] .dropdown-panel {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+.dropdown-wrap.open .dropdown-panel {
+  opacity: 1; visibility: visible; pointer-events: auto;
+}
+
 .dropdown-item {
-  padding: 10px 8px; border-radius: var(--radius-sm); font-size: 13px; color: var(--text-primary);
-  cursor: pointer; display: flex; justify-content: space-between; background: transparent; border: none;
+  padding: 10px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 13px; color: var(--text-primary);
+  cursor: pointer;
+  display: flex; justify-content: space-between; align-items: center;
+  background: transparent; border: none;
+  font-family: inherit;
+  text-align: left;
 }
 .dropdown-item:hover { background: var(--bg-hover); }
 .dropdown-item.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
-.dropdown-item-check { width: 14px; height: 14px; display: none; }
+.dropdown-item-check { width: 14px; height: 14px; display: none; flex-shrink: 0; }
 .dropdown-item.active .dropdown-item-check { display: inline-flex; }
 
 /* ---------- 3. UID/计数 与 操作按钮行 ---------- */
@@ -86,30 +128,40 @@ body {
 
 .uid-input {
   width: 80px !important; height: 32px !important; padding: 0 8px !important;
-  background: var(--bg-sunken) !important; border: 1px solid var(--border-default) !important;
-  border-radius: var(--radius-sm) !important; color: var(--text-primary) !important;
+  background: var(--bg-sunken) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: var(--radius-sm) !important;
+  color: var(--text-primary) !important;
   font-size: 12px !important; text-align: center; outline: none !important;
 }
 .uid-input:focus { border-color: var(--accent) !important; }
 
 .counter {
-  display: inline-flex; align-items: center; font-size: 12px; padding: 0 10px;
-  height: 32px; border-radius: var(--radius-pill); background: var(--accent-soft); color: var(--accent); font-weight: 500;
+  display: inline-flex; align-items: center;
+  height: 32px; padding: 0 10px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft); color: var(--accent);
+  font-size: 12px; font-weight: 500;
 }
-.counter-label { opacity: .85; margin-right: 4px; }
+.counter-label { opacity: 0.85; margin-right: 4px; }
 .counter-done, .counter-total { font-weight: 700; }
 
-/* 操作按钮 */
 .action-btn {
-  height: 32px; padding: 0 10px; border-radius: var(--radius-sm);
-  border: 1px solid var(--border-default); background: var(--bg-surface); color: var(--text-primary);
-  font-size: 12px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+  height: 32px; padding: 0 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 12px; font-weight: 500;
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+  font-family: inherit;
   transition: background 0.15s;
 }
 .action-btn:hover { background: var(--bg-hover); }
 .action-btn.danger { border-color: var(--danger-border); color: var(--danger); }
 .action-btn.danger:hover { background: var(--danger-bg); }
-.action-btn-icon { width: 14px !important; height: 14px !important; display: block; }
+.action-btn-icon { width: 14px; height: 14px; display: block; }
 
 /* ============================================================
  * 列表区
@@ -117,49 +169,70 @@ body {
 .app-main { max-width: 920px; margin: 0 auto; padding: 12px 14px 24px; }
 .list-host { display: flex; flex-direction: column; gap: 10px; }
 
-/* 卡片 */
 .tale-card {
   display: grid; grid-template-columns: 40px 1fr 20px; column-gap: 10px; row-gap: 6px; align-items: start;
-  background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);
-  padding: 12px; cursor: pointer; transition: all 0.15s; user-select: none;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  cursor: pointer; user-select: none;
+  transition: all 0.15s;
 }
 .tale-card:hover { border-color: var(--border-default); }
 .tale-card.done { background: var(--bg-surface-2); border-color: var(--accent-soft); }
 .tale-card.done > *:not(.tale-check) { opacity: 0.55; }
 
 .tale-avatar {
-  grid-area: avatar; width: 40px; height: 40px; border-radius: 10px; background: var(--bg-sunken);
-  display: flex; align-items: center; justify-content: center; font-weight: 600; color: var(--text-secondary);
+  grid-area: avatar;
+  width: 40px; height: 40px; border-radius: 10px;
+  background: var(--bg-sunken);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; color: var(--text-secondary);
   position: relative; overflow: hidden;
 }
 .tale-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 
 .tale-head { grid-area: head; display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; }
 .tale-char { font-size: 14px; font-weight: 600; }
-.tale-version { font-size: 11px; padding: 1.5px 7px; border-radius: var(--radius-pill); background: var(--bg-sunken); color: var(--text-secondary); }
+.tale-version {
+  font-size: 11px; padding: 1.5px 7px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-sunken); color: var(--text-secondary);
+}
 .tale-title { font-size: 13.5px; }
 .tale-title.hidden { color: var(--danger); font-weight: 700; }
 
 .tale-check {
-  grid-area: check; width: 20px; height: 20px; border-radius: 6px; border: 1.5px solid var(--border-strong);
-  background: var(--bg-surface); display: flex; align-items: center; justify-content: center; color: #fff;
+  grid-area: check;
+  width: 20px; height: 20px; border-radius: 6px;
+  border: 1.5px solid var(--border-strong);
+  background: var(--bg-surface);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
 }
 .tale-check .ic { width: 12px; height: 12px; opacity: 0; }
 .tale-card.done .tale-check { background: var(--accent); border-color: var(--accent); }
 .tale-card.done .tale-check .ic { opacity: 1; }
 
-.tale-loc, .tale-trig, .tale-prereq { display: flex; gap: 6px; font-size: 12px; color: var(--text-secondary); grid-area: loc; }
+.tale-loc, .tale-trig, .tale-prereq {
+  display: flex; gap: 6px;
+  font-size: 12px; color: var(--text-secondary);
+  grid-area: loc;
+}
 .tale-trig { grid-area: trig; }
 .tale-prereq { grid-area: prereq; }
 .tale-meta-key { flex-shrink: 0; color: var(--text-tertiary); font-size: 11px; }
 
 .tale-desc {
-  grid-area: desc; font-size: 12.5px; color: var(--text-secondary); padding-top: 7px;
-  border-top: 1px dashed var(--border-subtle); white-space: pre-wrap; word-break: break-word; margin-top: 2px;
+  grid-area: desc;
+  font-size: 12.5px; color: var(--text-secondary);
+  padding-top: 7px; margin-top: 2px;
+  border-top: 1px dashed var(--border-subtle);
+  white-space: pre-wrap; word-break: break-word;
 }
 
 .empty-state { padding: 60px 20px; text-align: center; color: var(--text-tertiary); }
-.empty-state-icon { width: 40px; height: 40px; opacity: .5; margin: 0 auto 12px; }
+.empty-state-icon { width: 40px; height: 40px; opacity: 0.5; margin: 0 auto 12px; }
 
 /* ---------- 手机端适配 (收起文字，只留图标) ---------- */
 @media (max-width: 480px) {
@@ -167,7 +240,7 @@ body {
   .meta-right { gap: 4px; }
   .action-btn { width: 32px; padding: 0; }
   .action-btn-text { display: none; }
-  .action-btn-icon { width: 16px !important; height: 16px !important; }
+  .action-btn-icon { width: 16px; height: 16px; }
   .tale-card { grid-template-columns: 36px 1fr 18px; padding: 10px; }
   .tale-avatar { width: 36px; height: 36px; }
 }
