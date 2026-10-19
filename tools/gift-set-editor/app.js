@@ -22,7 +22,7 @@
   };
 
   /* ============================================================
-   * 2. 工具函数
+   * 2. 工具函数 + 地区/类型推断
    * ============================================================ */
   function resolveIcon(key) {
     if (window.ICONS) {
@@ -75,6 +75,33 @@
       String(d.getDate()).padStart(2, '0')
     );
   };
+
+  const REGION_CODE_MAP = {
+    mond: '蒙德',
+    liyue: '璃月',
+    dq: '稻妻',
+    xm: '须弥',
+    fd: '枫丹',
+    nt: '纳塔',
+    ndkl: '挪德卡莱',
+    zd: '至冬'
+  };
+
+  function inferType(key) {
+    if (!key) return null;
+    if (/exterior/i.test(key)) return 'exterior';
+    if (/interior/i.test(key)) return 'interior';
+    return null;
+  }
+
+  function inferRegion(key) {
+    if (!key) return null;
+    const m = key.match(/(?:Exterior|Interior)_([A-Za-z]+)(?:_|$)/i);
+    if (!m) return null;
+    return REGION_CODE_MAP[m[1].toLowerCase()] || null;
+  }
+
+  const typeLabel = (t) => (t === 'exterior' ? '室外' : t === 'interior' ? '室内' : '?');
 
   /* ============================================================
    * 3. DOM 引用
@@ -210,7 +237,7 @@
   }
 
   /* ============================================================
-   * 6. 数据默认骨架
+   * 6. 数据骨架 + 规范化
    * ============================================================ */
   function defaultData() {
     return {
@@ -226,21 +253,55 @@
     };
   }
 
+  /**
+   * 规范化数据：
+   * 1. 补全 config / meta / regions / sets
+   * 2. regions：丢弃旧的含糊值 '蒙德/璃月'（它是「或」的意思，不是「和」），
+   *    确保 '蒙德' '璃月' 存在，按官方顺序重排，新增地区追加末尾
+   * 3. sets：region === '蒙德/璃月' 时用 key 推断覆盖；
+   *    推断失败则保留原值，让用户在 UI 上手动修正
+   */
   function normalizeData(data) {
     const base = defaultData();
     if (!data || typeof data !== 'object') return base;
+
     if (!data.config?.image) data.config = base.config;
     else {
       data.config.image.prefix ||= base.config.image.prefix;
       data.config.image.ext ||= base.config.image.ext;
     }
-    if (!Array.isArray(data.regions) || !data.regions.length) data.regions = base.regions;
     if (!data.meta) data.meta = base.meta;
     if (!Array.isArray(data.sets)) data.sets = [];
+
+    /* ---- regions ---- */
+    const rawRegions = Array.isArray(data.regions) ? data.regions : [];
+    const regionSet = new Set();
+    for (const r of rawRegions) {
+      if (!r || r === '蒙德/璃月') continue;
+      regionSet.add(r);
+    }
+    regionSet.add('蒙德');
+    regionSet.add('璃月');
+
+    const ordered = [];
+    for (const r of base.regions) {
+      if (regionSet.has(r)) {
+        ordered.push(r);
+        regionSet.delete(r);
+      }
+    }
+    for (const r of regionSet) ordered.push(r);
+    data.regions = ordered.length ? ordered : base.regions;
+
+    /* ---- sets ---- */
     data.sets.forEach((s) => {
       s.preferredCharacters ||= [];
-      if (s.region === '蒙德/璃月') s.region = '';
+      if (s.region === '蒙德/璃月') {
+        const inferred = inferRegion(s.key);
+        if (inferred) s.region = inferred;
+      }
     });
+
     return data;
   }
 
@@ -278,7 +339,7 @@
   };
 
   /* ============================================================
-   * 8. URL / key / 地区 / 类型 推断
+   * 8. URL
    * ============================================================ */
   function getSetImageUrl(set) {
     if (!set?.key || !state.data?.config?.image) return '';
@@ -301,33 +362,6 @@
     if (!/^UI_[A-Za-z0-9_]+$/i.test(key)) return null;
     return key;
   }
-
-  function inferType(key) {
-    if (!key) return null;
-    if (/exterior/i.test(key)) return 'exterior';
-    if (/interior/i.test(key)) return 'interior';
-    return null;
-  }
-
-  const REGION_CODE_MAP = {
-    mond: '蒙德',
-    liyue: '璃月',
-    dq: '稻妻',
-    xm: '须弥',
-    fd: '枫丹',
-    nt: '纳塔',
-    ndkl: '挪德卡莱',
-    zd: '至冬'
-  };
-
-  function inferRegion(key) {
-    if (!key) return null;
-    const m = key.match(/(?:Exterior|Interior)_([A-Za-z]+)(?:_|$)/i);
-    if (!m) return null;
-    return REGION_CODE_MAP[m[1].toLowerCase()] || null;
-  }
-
-  const typeLabel = (t) => (t === 'exterior' ? '室外' : t === 'interior' ? '室内' : '?');
 
   /* ============================================================
    * 9. 草稿
@@ -377,9 +411,10 @@
   }
 
   function serializeData(data) {
+    /* 补全 regions（跳过旧的含糊值 '蒙德/璃月'，不写进 regions 数组） */
     const regionSet = new Set(data.regions);
     for (const s of data.sets) {
-      if (s.region && !regionSet.has(s.region)) {
+      if (s.region && s.region !== '蒙德/璃月' && !regionSet.has(s.region)) {
         regionSet.add(s.region);
         data.regions.push(s.region);
       }
@@ -843,7 +878,7 @@
       }
     );
 
-    /* ---------- URL 识别（方案 B：key 变化才推断覆盖） ---------- */
+    /* ---------- URL 识别（key 变化才推断覆盖） ---------- */
     const urlInput = $('pgUrlInput');
     const urlKeyEl = $('pgUrlKey');
     const btnRecognize = $('btnRecognize');
@@ -864,7 +899,6 @@
     const tryApply = (text) => {
       const normalized = (text || '').trim();
 
-      /* 空 URL → 清空 key */
       if (!normalized) {
         if (entry.key) {
           entry.key = '';
@@ -886,14 +920,12 @@
         return false;
       }
 
-      /* key 未变 → 跳过（保留用户手动修改的 type / region） */
       if (key === entry.key) return false;
 
       urlInput.classList.remove('ed-invalid');
       urlKeyEl.classList.remove('warn');
       entry.key = key;
 
-      /* 推断优先：能推断就覆盖 */
       const inferredType = inferType(key);
       if (inferredType) entry.type = inferredType;
 
@@ -993,6 +1025,12 @@
       markDirty();
       renderList();
       renderForm();
+
+      /* 移动端：删除后自动回到列表页 */
+      if (window.innerWidth <= 900) {
+        els.edListPane.classList.remove('mobile-hidden');
+        els.edFormPane.classList.remove('mobile-visible');
+      }
     });
 
     /* ---------- 移动端返回 ---------- */
@@ -1249,12 +1287,17 @@
 
       const warnings = [];
       const idSet = new Set();
+      const regionSet = new Set(state.data.regions);
       for (const s of state.data.sets) {
         if (idSet.has(s.id)) warnings.push(`id ${s.id} 重复`);
         idSet.add(s.id);
         if (!s.key) warnings.push(`id ${s.id} 缺少 key（图片未识别）`);
         if (!s.name) warnings.push(`id ${s.id} 缺少名称`);
-        if (!s.region) warnings.push(`id ${s.id} 缺少地区`);
+        if (!s.region) {
+          warnings.push(`id ${s.id} 缺少地区`);
+        } else if (!regionSet.has(s.region)) {
+          warnings.push(`id ${s.id} 地区「${s.region}」不在地区列表中`);
+        }
         if (s.type !== 'exterior' && s.type !== 'interior') {
           warnings.push(`id ${s.id} 类型不是室内/室外`);
         }
