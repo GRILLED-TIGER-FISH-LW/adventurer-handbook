@@ -267,7 +267,6 @@
     if (!data.meta) data.meta = base.meta;
     if (!Array.isArray(data.sets)) data.sets = [];
 
-    /* regions：丢弃旧的含糊值「蒙德/璃月」，确保蒙德/璃月存在，按官方顺序重排 */
     const rawRegions = Array.isArray(data.regions) ? data.regions : [];
     const regionSet = new Set();
     for (const r of rawRegions) {
@@ -287,7 +286,6 @@
     for (const r of regionSet) ordered.push(r);
     data.regions = ordered.length ? ordered : base.regions;
 
-    /* sets：旧「蒙德/璃月」尝试从 key 推断，失败则保留原值 */
     data.sets.forEach((s) => {
       s.preferredCharacters ||= [];
       if (s.region === '蒙德/璃月') {
@@ -413,15 +411,7 @@
       }
     }
 
-    const grouped = new Map();
-    data.regions.forEach((r) => grouped.set(r, []));
-    for (const s of data.sets) {
-      if (!grouped.has(s.region)) grouped.set(s.region, []);
-      grouped.get(s.region).push(s);
-    }
-    for (const list of grouped.values()) {
-      list.sort((a, b) => (a.id ?? 0) - (b.id ?? 0));
-    }
+    const sorted = data.sets.slice().sort((a, b) => (a.id ?? 0) - (b.id ?? 0));
 
     const lines = [];
     lines.push('/* ============================================================');
@@ -432,6 +422,7 @@
     lines.push(' *   图片 URL = config.image.prefix + key + config.image.ext');
     lines.push(' * · type: "exterior"（室外）| "interior"（室内）');
     lines.push(' * · preferredCharacters 存角色中文名');
+    lines.push(' * · sets 按 id 升序排列');
     lines.push(' * ============================================================ */');
     lines.push('');
     lines.push('window.HOMEWORLD_GIFT_SETS = {');
@@ -458,24 +449,14 @@
     lines.push('');
     lines.push('  sets: [');
 
-    const setLines = [];
-    for (const [region, list] of grouped) {
-      if (!list.length) continue;
-      if (setLines.length) setLines.push('');
-      setLines.push(`    /* ==================== ${region} ==================== */`);
-      for (const s of list) {
-        const chars = (s.preferredCharacters || []).map((c) => `'${escJs(c)}'`).join(', ');
-        setLines.push(
-          `    { id: ${s.id}, key: '${escJs(s.key)}', name: '${escJs(s.name)}', ` +
-          `type: '${escJs(s.type)}', region: '${escJs(s.region)}', preferredCharacters: [${chars}] },`
-        );
-      }
-    }
-    if (setLines.length) {
-      const last = setLines.length - 1;
-      if (setLines[last].endsWith(',')) setLines[last] = setLines[last].slice(0, -1);
-    }
-    lines.push(...setLines);
+    sorted.forEach((s, i) => {
+      const comma = i === sorted.length - 1 ? '' : ',';
+      const chars = (s.preferredCharacters || []).map((c) => `'${escJs(c)}'`).join(', ');
+      lines.push(
+        `    { id: ${s.id}, key: '${escJs(s.key)}', name: '${escJs(s.name)}', ` +
+        `type: '${escJs(s.type)}', region: '${escJs(s.region)}', preferredCharacters: [${chars}] }${comma}`
+      );
+    });
 
     lines.push('  ]');
     lines.push('};');
@@ -485,24 +466,13 @@
   /* ============================================================
    * 11. 排序 / 过滤
    * ============================================================ */
-  function regionIndex() {
-    const m = new Map();
-    (state.data?.regions || []).forEach((r, i) => m.set(r, i));
-    return m;
-  }
-
-  function setComparator(ridx) {
-    return (a, b) => {
-      const ra = ridx.get(a.region) ?? 9999;
-      const rb = ridx.get(b.region) ?? 9999;
-      if (ra !== rb) return ra - rb;
-      return (a.id ?? 0) - (b.id ?? 0);
-    };
+  function setComparator() {
+    return (a, b) => (a.id ?? 0) - (b.id ?? 0);
   }
 
   function allSortedSets() {
     if (!state.data) return [];
-    return state.data.sets.slice().sort(setComparator(regionIndex()));
+    return state.data.sets.slice().sort(setComparator());
   }
 
   function getFilteredSets() {
@@ -517,7 +487,7 @@
       }
       return true;
     });
-    return list.sort(setComparator(regionIndex()));
+    return list.sort(setComparator());
   }
 
   /* ============================================================
@@ -617,18 +587,12 @@
     upgradeChipImages(entry);
   }
 
-  /**
-   * 处理批量输入：
-   * · blur=false（实时）：只处理分隔符前的完整部分，最后一段留在输入框
-   * · blur=true（失焦/Enter）：处理所有分隔符分开的部分 + 最后一段（若为已知角色）
-   */
   function processCharInput(input, entry, { blur = false } = {}) {
     const val = input.value;
     if (!val) return;
 
     const hasSep = CHAR_SPLIT_TEST.test(val);
 
-    /* 无分隔符：只有失焦时，整段当作一个完整名字处理 */
     if (!hasSep) {
       if (!blur) return;
       const name = val.trim();
@@ -644,7 +608,6 @@
       return;
     }
 
-    /* 有分隔符：分批处理 */
     const parts = val.split(CHAR_SPLIT_RE).filter(Boolean);
     if (!parts.length) { input.value = ''; return; }
 
@@ -680,7 +643,6 @@
       toast('字典中未找到：' + notInDict.join('、'), 'error');
     }
 
-    /* 关闭下拉菜单 */
     const popup = input.closest('.ed-combobox')?.querySelector('.ed-combobox-popup');
     if (popup) popup.hidden = true;
   }
@@ -720,18 +682,29 @@
       }
     );
 
-    /* 批量输入监听 */
     const input = els.edFormPane.querySelector(
       '.ed-combobox[data-combobox="character-add"] input'
     );
     if (!input) return;
 
     let composing = false;
+    let pasting = false;
     input.addEventListener('compositionstart', () => { composing = true; });
     input.addEventListener('compositionend', () => { composing = false; });
 
+    input.addEventListener('paste', () => {
+      pasting = true;
+      setTimeout(() => {
+        const v = input.value;
+        if (v && CHAR_SPLIT_TEST.test(v)) {
+          processCharInput(input, entry, { blur: true });
+        }
+        pasting = false;
+      }, 0);
+    });
+
     input.addEventListener('input', () => {
-      if (composing) return;
+      if (composing || pasting) return;
       processCharInput(input, entry, { blur: false });
     }, true);
 
@@ -781,7 +754,6 @@
       if (!key) continue;
       const avatar = chip.querySelector('.pg-chip-avatar');
       if (!avatar) continue;
-      /* 已经是最终渐变图则跳过 */
       const img = avatar.querySelector('img');
       if (img && state.chipCache.has(key)) continue;
       const dataURL = await getChipImage(name);
@@ -978,7 +950,6 @@
       }
     );
 
-    /* URL 识别 */
     const urlInput = $('pgUrlInput');
     const urlKeyEl = $('pgUrlKey');
     const btnRecognize = $('btnRecognize');
