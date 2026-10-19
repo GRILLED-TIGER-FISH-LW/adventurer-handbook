@@ -65,14 +65,12 @@ body.in-iframe .gs-theme-btn { display: none !important; }
   height: 32px !important;
 }
 
-/* 图标 16px（与 theme.css button svg 规则对齐） */
 .gs-header-actions .btn-sm svg,
 .gs-header-actions .float-btn svg {
   width: 16px !important;
   height: 16px !important;
 }
 
-/* 危险按钮：明显红调 */
 .gs-header-actions .btn-danger {
   border-color: var(--danger-border) !important;
 }
@@ -157,9 +155,17 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
   transition: border-color 0.15s, background 0.15s;
 }
 .gs-toggle-btn:hover { background: var(--bg-hover); border-color: var(--border-strong); }
-.gs-toggle-btn .ic { width: 12px; height: 12px; transition: transform 0.2s var(--ease-spring); }
 
-.gs-section.collapsed .gs-toggle-btn .ic { transform: rotate(180deg); }
+/* 折叠切换箭头：展开态朝上（可点击收起），折叠态朝下（可点击展开） */
+.gs-toggle-btn .ic {
+  width: 12px;
+  height: 12px;
+  transition: transform 0.2s var(--ease-spring);
+  transform: rotate(180deg);
+}
+.gs-section.collapsed .gs-toggle-btn .ic {
+  transform: rotate(0deg);
+}
 
 .gs-section.collapsed .gs-section-body { display: none; }
 
@@ -171,7 +177,7 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 }
 
 /* ============================================================
- * 5. 角色栏 · 网格（54px 卡 / 40px 头像 / gap 4px）
+ * 5. 角色栏 · 网格
  * ============================================================ */
 .gs-char-grid-wrap {
   display: flex;
@@ -234,7 +240,6 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 }
 .gs-char-cell:hover { background: var(--bg-hover); }
 
-/* 头像容器：默认 bg-sunken，有星级时按 data-star 覆盖 */
 .gs-char-cell-avatar {
   position: relative;
   width: 40px;
@@ -258,7 +263,6 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
   object-fit: cover;
 }
 
-/* 星级色背景（4星紫 / 5星金） */
 .gs-char-cell-avatar[data-star="4"],
 .gs-set-char-avatar[data-star="4"] { background: #9174A9; }
 .gs-char-cell-avatar[data-star="5"],
@@ -354,7 +358,6 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 .gs-search-clear .ic { width: 12px; height: 12px; }
 .gs-search-clear:hover { background: var(--bg-hover); color: var(--text-primary); }
 
-/* 下拉筛选（对齐 tales） */
 .gs-filter-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -565,7 +568,6 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 }
 .gs-set-item.expanded .gs-set-arrow { transform: rotate(180deg); }
 
-/* 推荐角标：z-index 高于缩略图 */
 .gs-set-tag {
   position: absolute;
   top: 0;
