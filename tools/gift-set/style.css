@@ -17,8 +17,6 @@ body {
   flex-direction: column;
 }
 
-button .ic { width: 16px; height: 16px; }
-
 /* ============================================================
  * 2. 顶栏
  * ============================================================ */
@@ -236,6 +234,7 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 }
 
 .gs-char-search {
+  position: relative;
   position: sticky;
   top: 0;
   z-index: 2;
@@ -258,11 +257,6 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
   color: var(--text-tertiary);
   pointer-events: none;
 }
-.gs-char-search { position: sticky; }
-.gs-char-search { padding-left: 0; }
-.gs-char-search { position: relative; }
-.gs-char-search-icon { position: absolute; }
-.gs-char-search input { padding-left: 34px !important; }
 
 .gs-char-grid {
   display: grid;
@@ -322,10 +316,10 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
   white-space: nowrap;
 }
 
-/* 已拥有 */
 .gs-char-cell.owned {
   background: var(--accent-soft);
   border-color: var(--accent);
+  position: relative;
 }
 .gs-char-cell.owned .gs-char-cell-name { color: var(--text-primary); font-weight: 500; }
 .gs-char-cell.owned::after {
@@ -339,7 +333,6 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
   background: var(--accent);
   box-shadow: 0 0 0 2px var(--bg-surface);
 }
-.gs-char-cell.owned { position: relative; }
 .gs-char-cell.owned::before {
   content: "";
   position: absolute;
@@ -352,7 +345,6 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
   z-index: 1;
 }
 
-/* 未拥有 */
 .gs-char-cell.not-owned {
   opacity: 0.35;
   filter: grayscale(0.7);
@@ -364,7 +356,7 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 }
 
 /* ============================================================
- * 7. 推荐区 / 全部套装 · 搜索与筛选
+ * 7. 搜索与筛选
  * ============================================================ */
 .gs-filters {
   display: flex;
@@ -565,7 +557,6 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
   pointer-events: none;
 }
 
-/* 展开内容 */
 .gs-set-body {
   padding: 4px 10px 12px;
   border-top: 1px solid var(--border-subtle);
@@ -635,7 +626,6 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
   white-space: nowrap;
 }
 
-/* 未拥有（灰化不可点） */
 .gs-set-char.not-owned {
   opacity: 0.35;
   filter: grayscale(0.7);
@@ -643,10 +633,8 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 }
 .gs-set-char.not-owned:hover { background: transparent; }
 
-/* 已拥有未完成 */
 .gs-set-char.owned-pending .gs-set-char-name { color: var(--text-primary); }
 
-/* 已完成 */
 .gs-set-char.owned-done {
   background: var(--accent-soft);
   border-color: var(--accent);
@@ -710,7 +698,7 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 }
 
 /* ============================================================
- * 11. 滚动条（局部细调）
+ * 11. 局部滚动条
  * ============================================================ */
 .gs-char-grid-wrap::-webkit-scrollbar { width: 6px; }
 .gs-char-grid-wrap::-webkit-scrollbar-thumb {
