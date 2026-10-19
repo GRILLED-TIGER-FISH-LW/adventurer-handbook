@@ -196,12 +196,11 @@
     VERSION_ITEMS = items;
   }
 
-  const CHECK_HTML = '<span class="ic dropdown-item-check">' + getIcon('ui.check') + '</span>';
-
+  /* 移除：不再渲染右侧 ✓ 装饰 */
   function renderItems(panelEl, items, current) {
     panelEl.innerHTML = items.map(it => {
       const active = it.value === current ? ' active' : '';
-      return `<button type="button" class="dropdown-item${active}" data-value="${escapeHtml(it.value)}"><span>${escapeHtml(it.label)}</span>${CHECK_HTML}</button>`;
+      return `<button type="button" class="dropdown-item${active}" data-value="${escapeHtml(it.value)}">${escapeHtml(it.label)}</button>`;
     }).join('');
   }
 
@@ -413,7 +412,6 @@
     });
   }
 
-  // 监听父级 iframe 传来的主题
   window.addEventListener('message', function (e) {
     if (e.data && e.data.type === 'theme') {
       const html = document.documentElement;
@@ -457,7 +455,6 @@
     document.body.classList.add('ready');
   }
 
-  // 因为 index.html 使用了严格的 await 串行加载，运行到这里时 DATA 必然存在
   if (window.TRAVELERS_TALES && Array.isArray(window.TRAVELERS_TALES.entries)) {
     DATA = window.TRAVELERS_TALES;
     init();
