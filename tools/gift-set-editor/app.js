@@ -593,7 +593,6 @@
 
     const hasSep = CHAR_SPLIT_TEST.test(val);
 
-    /* 无分隔符：blur 时当单个名字处理 */
     if (!hasSep) {
       if (!blur) return;
       const name = val.trim();
@@ -609,7 +608,6 @@
       return;
     }
 
-    /* 有分隔符：拆分后按「末尾是否分隔符」决定处理策略 */
     const parts = val.split(CHAR_SPLIT_RE);
     const lastIsSep = parts[parts.length - 1] === '';
 
@@ -674,6 +672,7 @@
       {
         items: () => state.charList.filter((n) => !entry.preferredCharacters.includes(n)),
         allowCustom: true,
+        multiline: true,
         onSelect: (name) => {
           const trimmed = (name || '').trim();
           if (!trimmed) return;
@@ -693,19 +692,28 @@
     if (!input) return;
 
     let composing = false;
+    let lastValue = input.value;
+
     input.addEventListener('compositionstart', () => { composing = true; });
     input.addEventListener('compositionend', () => { composing = false; });
 
-    /* 主监听：靠 InputEvent.inputType 判断粘贴 */
     input.addEventListener('input', (e) => {
       if (composing) return;
-      const isPaste =
+
+      const currentValue = input.value;
+      const delta = currentValue.length - lastValue.length;
+      lastValue = currentValue;
+
+      const isPasteByType =
         e.inputType === 'insertFromPaste' ||
         e.inputType === 'insertFromYank';
+      const isPasteByLength =
+        delta >= 4 && CHAR_SPLIT_TEST.test(currentValue);
+      const isPaste = isPasteByType || isPasteByLength;
+
       processCharInput(input, entry, { blur: isPaste });
     }, true);
 
-    /* Enter：有分隔符时走全量 */
     input.addEventListener('keydown', (e) => {
       if (e.key !== 'Enter') return;
       if (composing) return;
@@ -716,7 +724,6 @@
       }
     }, true);
 
-    /* 失焦兜底 */
     input.addEventListener('blur', () => {
       setTimeout(() => processCharInput(input, entry, { blur: true }), 160);
     });
@@ -1172,7 +1179,18 @@
     };
 
     input.addEventListener('focus', () => { highlight = 0; refresh(input.value); });
-    input.addEventListener('input', () => { highlight = 0; refresh(input.value); });
+
+    input.addEventListener('input', () => {
+      /* 多值输入：含分隔符 / 空时关闭下拉，交给批量处理 */
+      if (opts.multiline && (!input.value || CHAR_SPLIT_TEST.test(input.value))) {
+        popup.hidden = true;
+        currentItems = [];
+        return;
+      }
+      highlight = 0;
+      refresh(input.value);
+    });
+
     input.addEventListener('keydown', (e) => {
       if (popup.hidden) {
         if (e.key === 'ArrowDown') { refresh(input.value); e.preventDefault(); }
