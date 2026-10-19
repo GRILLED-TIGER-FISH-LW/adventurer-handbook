@@ -1073,18 +1073,19 @@
       updatePreview(entry);
     });
 
+    /* ---------- 上移 / 下移：± 1，冲突时交换 ---------- */
     const btnIdUp = $('btnIdUp');
     const btnIdDown = $('btnIdDown');
     const move = (dir) => {
-      const sorted = allSortedSets();
-      const idx = sorted.indexOf(entry);
-      if (idx < 0) return;
-      const targetIdx = dir === 'up' ? idx - 1 : idx + 1;
-      if (targetIdx < 0 || targetIdx >= sorted.length) return;
-      const a = sorted[idx];
-      const b = sorted[targetIdx];
-      [a.id, b.id] = [b.id, a.id];
-      state.selectedId = a.id;
+      const delta = dir === 'up' ? -1 : 1;
+      const nextId = (entry.id ?? 0) + delta;
+      if (nextId < 1) return;
+
+      const conflict = state.data.sets.find((x) => x !== entry && x.id === nextId);
+      if (conflict) conflict.id = entry.id;
+      entry.id = nextId;
+      state.selectedId = nextId;
+
       markDirty();
       renderList();
       renderForm();
@@ -1181,7 +1182,6 @@
     input.addEventListener('focus', () => { highlight = 0; refresh(input.value); });
 
     input.addEventListener('input', () => {
-      /* 多值输入：含分隔符 / 空时关闭下拉，交给批量处理 */
       if (opts.multiline && (!input.value || CHAR_SPLIT_TEST.test(input.value))) {
         popup.hidden = true;
         currentItems = [];
@@ -1461,8 +1461,9 @@
         els.edListPane.classList.add('mobile-hidden');
         els.edFormPane.classList.add('mobile-visible');
       }
+      /* 新增后聚焦「名称」输入框（此前误聚焦 URL 输入框） */
       setTimeout(() => {
-        els.edFormPane.querySelector('#pgUrlInput')?.focus();
+        els.edFormPane.querySelector('input[data-field="name"]')?.focus();
       }, 60);
     });
 
