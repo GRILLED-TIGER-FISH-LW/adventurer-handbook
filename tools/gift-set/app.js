@@ -1,0 +1,1052 @@
+/* ============================================================
+ * 尘歌壶赠礼套装 · 逻辑
+ * ============================================================ */
+(function () {
+  'use strict';
+
+  const KEY_OWNED = 'genshin_homeworld_gift_sets_owned_v1';
+  const KEY_COMPLETED = 'genshin_homeworld_gift_sets_completed_v1';
+  const KEY_UID = 'genshin_homeworld_gift_sets_uid_v1';
+  const THEME_KEY = 'genshin_travelers_tales_theme_v1';
+
+  /* ============================================================
+   * 1. 兜底图标
+   * ============================================================ */
+  const FALLBACK_ICONS = {
+    file:
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="m213.66 82.34l-56-56A8 8 0 0 0 152 24H56a16 16 0 0 0-16 16v176a16 16 0 0 0 16 16h144a16 16 0 0 0 16-16V88a8 8 0 0 0-2.34-5.66M160 51.31L188.69 80H160ZM200 216H56V40h88v48a8 8 0 0 0 8 8h48z"/></svg>',
+    check:
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="m229.66 77.66l-128 128a8 8 0 0 1-11.32 0l-56-56a8 8 0 0 1 11.32-11.32L96 188.69L218.34 66.34a8 8 0 0 1 11.32 11.32"/></svg>'
+  };
+
+  function resolveIcon(key) {
+    if (window.ICONS) {
+      let cur = window.ICONS;
+      for (const p of key.split('.')) {
+        cur = cur?.[p];
+        if (!cur) break;
+      }
+      if (typeof cur === 'string') return cur;
+    }
+    return FALLBACK_ICONS[key] || '';
+  }
+
+  function injectIcons(root = document) {
+    root.querySelectorAll('[data-icon]').forEach((el) => {
+      if (el.dataset.iconReady === '1') return;
+      const svg = resolveIcon(el.dataset.icon);
+      if (svg) {
+        el.innerHTML = svg;
+        el.dataset.iconReady = '1';
+      }
+    });
+  }
+
+  /* ============================================================
+   * 2. 工具函数
+   * ============================================================ */
+  const esc = (str) => {
+    if (str == null) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  };
+
+  const todayStr = () => {
+    const d = new Date();
+    return (
+      d.getFullYear() + '-' +
+      String(d.getMonth() + 1).padStart(2, '0') + '-' +
+      String(d.getDate()).padStart(2, '0')
+    );
+  };
+
+  const todayFileStr = () => {
+    const d = new Date();
+    return (
+      String(d.getFullYear()) +
+      String(d.getMonth() + 1).padStart(2, '0') +
+      String(d.getDate()).padStart(2, '0')
+    );
+  };
+
+  /* ============================================================
+   * 3. DOM 引用
+   * ============================================================ */
+  const $ = (id) => document.getElementById(id);
+  const els = {
+    uidInput: $('uidInput'),
+    btnImport: $('btnImport'),
+    btnExport: $('btnExport'),
+    btnReset: $('btnReset'),
+    btnTheme: $('btnTheme'),
+    fileInput: $('fileInput'),
+    toastContainer: $('toastContainer'),
+
+    gsCharSection: $('gsCharSection'),
+    gsCharHead: $('gsCharHead'),
+    gsCharCount: $('gsCharCount'),
+    btnCharToggle: $('btnCharToggle'),
+    btnCharCollapse: $('btnCharCollapse'),
+    gsCharChips: $('gsCharChips'),
+    gsCharGridWrap: $('gsCharGridWrap'),
+    gsCharSearch: $('gsCharSearch'),
+    gsCharGrid: $('gsCharGrid'),
+
+    gsRecommendSection: $('gsRecommendSection'),
+    btnRecommendToggle: $('btnRecommendToggle'),
+    gsRecommendList: $('gsRecommendList'),
+
+    gsAllSection: $('gsAllSection'),
+    gsSearch: $('gsSearch'),
+    gsSearchClear: $('gsSearchClear'),
+    gsRegionTrigger: $('gsRegionTrigger'),
+    gsRegionLabel: $('gsRegionLabel'),
+    gsTypeTrigger: $('gsTypeTrigger'),
+    gsTypeLabel: $('gsTypeLabel'),
+    gsSetList: $('gsSetList'),
+    gsSetEmpty: $('gsSetEmpty'),
+    gsFirstTip: $('gsFirstTip'),
+
+    modalBackdrop: $('modalBackdrop'),
+    modalTitle: $('modalTitle'),
+    modalMessage: $('modalMessage'),
+    modalActions: $('modalActions'),
+    sheetBackdrop: $('sheetBackdrop'),
+    sheet: $('sheet'),
+    sheetHeader: $('sheetHeader'),
+    sheetList: $('sheetList')
+  };
+
+  /* ============================================================
+   * 4. Toast / 确认框 / 下拉抽屉
+   * ============================================================ */
+  function toast(message, type = '') {
+    const el = document.createElement('div');
+    el.className = 'toast' + (type ? ' toast-' + type : '');
+    el.textContent = message;
+    els.toastContainer.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('show'));
+    setTimeout(() => {
+      el.classList.remove('show');
+      setTimeout(() => el.remove(), 350);
+    }, 2200);
+  }
+
+  function confirmDialog({ title, message, okText = '确定', cancelText = '取消', danger = false }) {
+    return new Promise((resolve) => {
+      els.modalTitle.textContent = title || '';
+      els.modalMessage.textContent = message || '';
+      els.modalActions.innerHTML = '';
+
+      const cancelBtn = document.createElement('button');
+      cancelBtn.type = 'button';
+      cancelBtn.className = 'btn-sm';
+      cancelBtn.textContent = cancelText;
+
+      const okBtn = document.createElement('button');
+      okBtn.type = 'button';
+      okBtn.className = 'btn-sm ' + (danger ? 'btn-danger' : 'ios-btn-fill');
+      okBtn.textContent = okText;
+
+      els.modalActions.append(cancelBtn, okBtn);
+      els.modalBackdrop.classList.add('show');
+
+      const close = (result) => {
+        els.modalBackdrop.classList.remove('show');
+        cancelBtn.removeEventListener('click', onCancel);
+        okBtn.removeEventListener('click', onOk);
+        els.modalBackdrop.removeEventListener('click', onBackdrop);
+        resolve(result);
+      };
+      const onCancel = () => close(false);
+      const onOk = () => close(true);
+      const onBackdrop = (e) => {
+        if (e.target === els.modalBackdrop) close(false);
+      };
+
+      cancelBtn.addEventListener('click', onCancel);
+      okBtn.addEventListener('click', onOk);
+      els.modalBackdrop.addEventListener('click', onBackdrop);
+    });
+  }
+
+  function openSheet({ header, items, current, onSelect }) {
+    els.sheetHeader.textContent = header || '';
+    els.sheetList.innerHTML = '';
+
+    items.forEach((item) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'tab-sheet-item' + (item.value === current ? ' active' : '');
+      btn.innerHTML =
+        '<span>' + esc(item.label) + '</span>' +
+        '<span class="tab-sheet-item-check"><span class="ic" data-icon="ui.check"></span></span>';
+      btn.addEventListener('click', () => {
+        closeSheet();
+        onSelect(item.value);
+      });
+      els.sheetList.appendChild(btn);
+    });
+    injectIcons(els.sheetList);
+
+    els.sheetBackdrop.classList.add('show');
+    els.sheet.classList.add('show');
+
+    const onBackdrop = (e) => {
+      if (e.target === els.sheetBackdrop) closeSheet();
+    };
+    els.sheetBackdrop.addEventListener('click', onBackdrop);
+
+    function closeSheet() {
+      els.sheetBackdrop.classList.remove('show');
+      els.sheet.classList.remove('show');
+      els.sheetBackdrop.removeEventListener('click', onBackdrop);
+    }
+  }
+
+  /* ============================================================
+   * 5. 主题
+   * ============================================================ */
+  const currentTheme = () =>
+    document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+
+  function applyTheme(theme) {
+    document.documentElement.classList.add('theme-switching');
+    if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    else document.documentElement.removeAttribute('data-theme');
+    setTimeout(() => document.documentElement.classList.remove('theme-switching'), 120);
+  }
+
+  /* ============================================================
+   * 6. 角色字典（排序、头像映射）
+   * ============================================================ */
+  const CHAR_INDEX = (() => {
+    const dict = window.ICON_DICT;
+    if (!dict?.characters) {
+      return {
+        byName: new Map(),       // name → { key, order, star }
+        ascNames: [],            // order 升序
+        descNames: [],           // order 降序（角色栏用）
+        avatarUrl: new Map()     // name → url
+      };
+    }
+
+    const cfg = dict.config?.characters;
+    const byName = new Map();
+    const avatarUrl = new Map();
+
+    for (const [key, item] of Object.entries(dict.characters)) {
+      if (!item?.name) continue;
+      const order = item.order ?? 9999;
+      byName.set(item.name, { key, order, star: item.star ?? 0 });
+
+      let url = '';
+      if (item.url) url = item.url;
+      else if (cfg) {
+        if (/\.(webp|png|jpe?g)$/i.test(key)) url = cfg.prefix + key;
+        else url = cfg.prefix + key + cfg.ext;
+      }
+      if (url) avatarUrl.set(item.name, url);
+    }
+
+    const sorted = Array.from(byName.entries()).sort((a, b) => a[1].order - b[1].order);
+    const ascNames = sorted.map(([name]) => name);
+    const descNames = ascNames.slice().reverse();
+
+    return { byName, ascNames, descNames, avatarUrl };
+  })();
+
+  const getAvatarUrl = (name) => CHAR_INDEX.avatarUrl.get(name) || '';
+  const getOrder = (name) => CHAR_INDEX.byName.get(name)?.order ?? 9999;
+
+  /* ============================================================
+   * 7. 数据存储
+   * ============================================================ */
+  const state = {
+    sets: [],
+    regions: [],
+    owned: [],
+    completed: {},
+    uid: '',
+    search: '',
+    regionFilter: 'all',
+    typeFilter: 'all'
+  };
+
+  function loadOwned() {
+    try {
+      const raw = localStorage.getItem(KEY_OWNED);
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr.filter((x) => typeof x === 'string') : [];
+    } catch { return []; }
+  }
+
+  function loadCompleted() {
+    try {
+      const raw = localStorage.getItem(KEY_COMPLETED);
+      const obj = raw ? JSON.parse(raw) : {};
+      if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return {};
+      const out = {};
+      for (const key in obj) {
+        if (Array.isArray(obj[key])) {
+          out[key] = obj[key].filter((x) => typeof x === 'string');
+        }
+      }
+      return out;
+    } catch { return {}; }
+  }
+
+  function loadUid() {
+    try { return localStorage.getItem(KEY_UID) || ''; } catch { return ''; }
+  }
+
+  function saveOwned() {
+    try { localStorage.setItem(KEY_OWNED, JSON.stringify(state.owned)); } catch {}
+  }
+  function saveCompleted() {
+    try { localStorage.setItem(KEY_COMPLETED, JSON.stringify(state.completed)); } catch {}
+  }
+  function saveUid() {
+    try {
+      if (state.uid) localStorage.setItem(KEY_UID, state.uid);
+      else localStorage.removeItem(KEY_UID);
+    } catch {}
+  }
+
+  /* ============================================================
+   * 8. 套装工具
+   * ============================================================ */
+  function getSetImageUrl(set) {
+    if (!set?.key) return '';
+    const cfg = window.HOMEWORLD_GIFT_SETS?.config?.image;
+    if (!cfg) return '';
+    return cfg.prefix + set.key + cfg.ext;
+  }
+
+  const typeLabel = (t) => (t === 'exterior' ? '室外' : t === 'interior' ? '室内' : '?');
+
+  function getSetCharsSorted(set) {
+    const chars = Array.isArray(set.preferredCharacters) ? set.preferredCharacters : [];
+    return chars.slice().sort((a, b) => getOrder(a) - getOrder(b));
+  }
+
+  function getSetProgress(set) {
+    const ownedSet = new Set(state.owned);
+    const done = state.completed[set.key] || [];
+    const chars = set.preferredCharacters || [];
+
+    const ownedChars = chars.filter((c) => ownedSet.has(c));
+    if (!ownedChars.length) {
+      return { owned: 0, done: 0, total: chars.length, text: '未拥有角色', completed: false, empty: true };
+    }
+    const doneOwned = ownedChars.filter((c) => done.includes(c));
+    const isDone = doneOwned.length === ownedChars.length;
+    return {
+      owned: ownedChars.length,
+      done: doneOwned.length,
+      total: chars.length,
+      text: isDone ? '已完成' : `${doneOwned.length} / ${ownedChars.length}`,
+      completed: isDone,
+      empty: false
+    };
+  }
+
+  function computeRecommendations() {
+    const ownedSet = new Set(state.owned);
+    if (!ownedSet.size) return [];
+
+    const candidates = [];
+    for (const set of state.sets) {
+      const chars = set.preferredCharacters || [];
+      if (!chars.length) continue;
+
+      const ownedInSet = chars.filter((c) => ownedSet.has(c));
+      if (!ownedInSet.length) continue;
+
+      const doneInSet = state.completed[set.key] || [];
+      const pending = ownedInSet.filter((c) => !doneInSet.includes(c));
+      if (!pending.length) continue;
+
+      candidates.push({
+        set,
+        pendingCount: pending.length,
+        ratio: ownedInSet.length / chars.length
+      });
+    }
+
+    candidates.sort((a, b) => {
+      if (b.pendingCount !== a.pendingCount) return b.pendingCount - a.pendingCount;
+      if (b.ratio !== a.ratio) return b.ratio - a.ratio;
+      return (a.set.id ?? 0) - (b.set.id ?? 0);
+    });
+
+    return candidates.slice(0, 5).map((c) => c.set);
+  }
+
+  /* ============================================================
+   * 9. 渲染 · 角色栏
+   * ============================================================ */
+  function renderCharChips() {
+    const ownedSet = new Set(state.owned);
+    const sorted = CHAR_INDEX.descNames.filter((n) => ownedSet.has(n));
+
+    els.gsCharCount.textContent = String(state.owned.length);
+
+    if (!sorted.length) {
+      els.gsCharChips.innerHTML = '';
+      return;
+    }
+
+    els.gsCharChips.innerHTML = sorted
+      .map((name) => {
+        const url = getAvatarUrl(name);
+        const initial = name.charAt(0);
+        const avatarInner = url
+          ? `<img src="${esc(url)}" alt="">${esc(initial)}`
+          : esc(initial);
+        return (
+          `<span class="gs-chip" data-char="${esc(name)}">` +
+            `<span class="gs-chip-avatar">${avatarInner}</span>` +
+            `<span class="gs-chip-name">${esc(name)}</span>` +
+            `<button type="button" class="gs-chip-remove" data-remove="${esc(name)}" aria-label="移除">` +
+              '<span class="ic" data-icon="app.close"></span>' +
+            '</button>' +
+          '</span>'
+        );
+      })
+      .join('');
+    injectIcons(els.gsCharChips);
+  }
+
+  function renderCharGrid() {
+    const ownedSet = new Set(state.owned);
+    const q = els.gsCharSearch.value.trim().toLowerCase();
+
+    const names = CHAR_INDEX.descNames.filter((n) => {
+      if (!q) return true;
+      return n.toLowerCase().includes(q);
+    });
+
+    if (!names.length) {
+      els.gsCharGrid.innerHTML = '<div class="gs-empty" style="grid-column: 1/-1;"><div>没有匹配的角色</div></div>';
+      return;
+    }
+
+    els.gsCharGrid.innerHTML = names
+      .map((name) => {
+        const url = getAvatarUrl(name);
+        const initial = name.charAt(0);
+        const avatarInner = url
+          ? `<img src="${esc(url)}" alt="" loading="lazy">${esc(initial)}`
+          : esc(initial);
+        const isOwned = ownedSet.has(name);
+        const cls = 'gs-char-cell ' + (isOwned ? 'owned' : 'not-owned');
+        return (
+          `<div class="${cls}" data-char="${esc(name)}" title="${esc(name)}">` +
+            `<div class="gs-char-cell-avatar">${avatarInner}</div>` +
+            `<div class="gs-char-cell-name">${esc(name)}</div>` +
+          '</div>'
+        );
+      })
+      .join('');
+  }
+
+  function toggleOwned(name) {
+    const idx = state.owned.indexOf(name);
+    if (idx >= 0) {
+      state.owned.splice(idx, 1);
+    } else {
+      state.owned.push(name);
+    }
+    saveOwned();
+
+    /* 局部更新角色栏（不重建 grid，保留滚动位置和展开态） */
+    renderCharChips();
+    const cell = els.gsCharGrid.querySelector(`.gs-char-cell[data-char="${CSS.escape(name)}"]`);
+    if (cell) {
+      const isOwned = state.owned.includes(name);
+      cell.classList.toggle('owned', isOwned);
+      cell.classList.toggle('not-owned', !isOwned);
+    }
+
+    /* 推荐区和全部套装重算 */
+    refreshDerivedSections();
+  }
+
+  /* ============================================================
+   * 10. 渲染 · 套装卡片
+   * ============================================================ */
+  function renderSetCardHtml(set, { showRecommendTag = false } = {}) {
+    const url = getSetImageUrl(set);
+    const prog = getSetProgress(set);
+    const chars = getSetCharsSorted(set);
+    const ownedSet = new Set(state.owned);
+    const done = state.completed[set.key] || [];
+
+    const thumbInner = url
+      ? `<img src="${esc(url)}" alt="" loading="lazy">`
+      : '<span class="gs-set-thumb-fallback">无图</span>';
+
+    const progressCls = prog.empty ? 'empty' : prog.completed ? 'done' : '';
+    const cardCls = 'gs-set-item' + (prog.completed ? ' completed' : '');
+    const tagHtml = showRecommendTag ? '<span class="gs-set-tag">推荐</span>' : '';
+
+    const charsHtml = chars.length
+      ? chars
+          .map((name) => {
+            const isOwned = ownedSet.has(name);
+            const isDone = done.includes(name);
+            const cellCls =
+              'gs-set-char ' +
+              (!isOwned ? 'not-owned' : isDone ? 'owned-done' : 'owned-pending');
+            const charUrl = getAvatarUrl(name);
+            const initial = name.charAt(0);
+            const avatarInner = charUrl
+              ? `<img src="${esc(charUrl)}" alt="" loading="lazy">${esc(initial)}`
+              : esc(initial);
+            return (
+              `<div class="${cellCls}" data-char="${esc(name)}" title="${esc(name)}">` +
+                `<div class="gs-set-char-avatar">${avatarInner}</div>` +
+                `<div class="gs-set-char-name">${esc(name)}</div>` +
+              '</div>'
+            );
+          })
+          .join('')
+      : '<div class="gs-empty" style="grid-column: 1/-1; padding: 8px 0;">无偏好角色数据</div>';
+
+    return (
+      `<div class="${cardCls}" data-set-key="${esc(set.key)}">` +
+        '<div class="gs-set-head" role="button" tabindex="0">' +
+          tagHtml +
+          `<div class="gs-set-thumb">${thumbInner}</div>` +
+          '<div class="gs-set-main">' +
+            `<div class="gs-set-name">${esc(set.name || '(未命名套装)')}</div>` +
+            `<div class="gs-set-sub">${esc(set.region || '?')} · ${esc(typeLabel(set.type))}</div>` +
+          '</div>' +
+          `<div class="gs-set-progress ${progressCls}">${esc(prog.text)}</div>` +
+          '<span class="gs-set-arrow ic" data-icon="ui.chevronDown"></span>' +
+        '</div>' +
+        '<div class="gs-set-body">' +
+          `<div class="gs-set-chars">${charsHtml}</div>` +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function renderRecommend(recs = null) {
+    if (recs === null) recs = computeRecommendations();
+
+    if (!recs.length) {
+      els.gsRecommendSection.hidden = true;
+      els.gsRecommendList.innerHTML = '';
+      return;
+    }
+
+    els.gsRecommendSection.hidden = false;
+
+    /* 保留折叠态 */
+    const wasCollapsed = els.gsRecommendSection.classList.contains('collapsed');
+    if (wasCollapsed) els.gsRecommendSection.classList.add('collapsed');
+
+    els.gsRecommendList.innerHTML = recs
+      .map((s) => renderSetCardHtml(s, { showRecommendTag: true }))
+      .join('');
+    injectIcons(els.gsRecommendList);
+  }
+
+  function renderAllSets() {
+    /* 保存已展开状态 */
+    const expanded = new Set();
+    els.gsSetList.querySelectorAll('.gs-set-item.expanded').forEach((el) => {
+      if (el.dataset.setKey) expanded.add(el.dataset.setKey);
+    });
+
+    const kw = state.search.trim().toLowerCase();
+    const filtered = state.sets.filter((s) => {
+      if (state.regionFilter !== 'all' && s.region !== state.regionFilter) return false;
+      if (state.typeFilter !== 'all' && s.type !== state.typeFilter) return false;
+      if (kw) {
+        const chars = s.preferredCharacters || [];
+        const hitName = (s.name || '').toLowerCase().includes(kw);
+        const hitChar = chars.some((c) => c.toLowerCase().includes(kw));
+        if (!hitName && !hitChar) return false;
+      }
+      return true;
+    });
+
+    /* 按 id 升序 */
+    filtered.sort((a, b) => (a.id ?? 0) - (b.id ?? 0));
+
+    if (!state.sets.length) {
+      els.gsSetList.innerHTML = '';
+      els.gsSetEmpty.hidden = false;
+      els.gsSetEmpty.innerHTML =
+        '<span class="ic" data-icon="file"></span>' +
+        '<div>套装数据未加载<br>请检查 data.js 是否存在</div>';
+      injectIcons(els.gsSetEmpty);
+      return;
+    }
+
+    if (!filtered.length) {
+      els.gsSetList.innerHTML = '';
+      els.gsSetEmpty.hidden = false;
+      els.gsSetEmpty.innerHTML = '<div>没有匹配的套装</div>';
+      return;
+    }
+
+    els.gsSetEmpty.hidden = true;
+    els.gsSetList.innerHTML = filtered.map((s) => renderSetCardHtml(s)).join('');
+    injectIcons(els.gsSetList);
+
+    /* 恢复展开态 */
+    expanded.forEach((key) => {
+      const el = els.gsSetList.querySelector(`.gs-set-item[data-set-key="${CSS.escape(key)}"]`);
+      if (el) el.classList.add('expanded');
+    });
+  }
+
+  /* ============================================================
+   * 11. 汇总渲染
+   * ============================================================ */
+  function refreshDerivedSections() {
+    const hasOwned = state.owned.length > 0;
+    els.gsAllSection.hidden = !hasOwned;
+    els.gsFirstTip.hidden = hasOwned;
+
+    renderRecommend();
+    renderAllSets();
+  }
+
+  /* ============================================================
+   * 12. 套装内角色切换
+   * ============================================================ */
+  function toggleSetChar(setKey, name) {
+    const ownedSet = new Set(state.owned);
+    if (!ownedSet.has(name)) return;
+
+    const set = state.sets.find((s) => s.key === setKey);
+    if (!set || !(set.preferredCharacters || []).includes(name)) return;
+
+    if (!state.completed[setKey]) state.completed[setKey] = [];
+    const arr = state.completed[setKey];
+
+    const idx = arr.indexOf(name);
+    if (idx >= 0) arr.splice(idx, 1);
+    else arr.push(name);
+
+    if (!arr.length) delete state.completed[setKey];
+
+    saveCompleted();
+
+    /* 局部更新该卡片 */
+    const item = els.gsSetList.querySelector(`.gs-set-item[data-set-key="${CSS.escape(setKey)}"]`);
+    if (item) {
+      const wasExpanded = item.classList.contains('expanded');
+      item.outerHTML = renderSetCardHtml(set);
+      const newItem = els.gsSetList.querySelector(`.gs-set-item[data-set-key="${CSS.escape(setKey)}"]`);
+      if (newItem) {
+        if (wasExpanded) newItem.classList.add('expanded');
+        injectIcons(newItem);
+      }
+    }
+
+    /* 同步推荐区（因为 pending 变化） */
+    renderRecommend();
+
+    /* 全部套装卡片若在其它位置也受影响，但已完成/进度只影响同一卡片，上面的 outerHTML 已处理 */
+  }
+
+  /* ============================================================
+   * 13. 滚动定位到某套装
+   * ============================================================ */
+  function clearFilters() {
+    const hadFilter =
+      state.search !== '' ||
+      state.regionFilter !== 'all' ||
+      state.typeFilter !== 'all';
+    if (!hadFilter) return false;
+
+    state.search = '';
+    state.regionFilter = 'all';
+    state.typeFilter = 'all';
+    els.gsSearch.value = '';
+    els.gsSearchClear.classList.remove('show');
+    els.gsRegionLabel.textContent = '全部地区';
+    els.gsTypeLabel.textContent = '全部类型';
+    els.gsRegionTrigger.classList.remove('active');
+    els.gsTypeTrigger.classList.remove('active');
+
+    renderAllSets();
+    return true;
+  }
+
+  function scrollToSet(setKey) {
+    clearFilters();
+
+    const item = els.gsSetList.querySelector(`.gs-set-item[data-set-key="${CSS.escape(setKey)}"]`);
+    if (!item) {
+      toast('套装不存在', 'error');
+      return;
+    }
+
+    item.classList.add('expanded');
+    requestAnimationFrame(() => {
+      item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  }
+
+  /* ============================================================
+   * 14. 导入 / 导出 / 重置
+   * ============================================================ */
+  function exportData() {
+    const uid = state.uid.trim();
+    const exportedAt = todayStr();
+    const validKeys = new Set(state.sets.map((s) => s.key));
+
+    const filteredCompleted = {};
+    for (const key in state.completed) {
+      if (!validKeys.has(key)) continue;
+      const arr = state.completed[key];
+      if (arr && arr.length) filteredCompleted[key] = arr.slice();
+    }
+
+    const data = {
+      schema: 'genshin-homeworld-gift-sets',
+      uid: uid || '',
+      exportedAt,
+      owned: state.owned.slice(),
+      completed: filteredCompleted
+    };
+
+    const text = JSON.stringify(data, null, 2);
+    const blob = new Blob([text], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+
+    const fileDate = todayFileStr();
+    a.download = uid
+      ? `赠礼套装存档记录-${uid}-${fileDate}.json`
+      : `赠礼套装存档记录-${fileDate}.json`;
+
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+    toast('已导出存档', 'success');
+  }
+
+  function importData(text) {
+    let data;
+    try { data = JSON.parse(text); } catch { throw new Error('JSON 格式错误'); }
+    if (!data || typeof data !== 'object') throw new Error('存档格式无效');
+    if (data.schema && data.schema !== 'genshin-homeworld-gift-sets') {
+      throw new Error('存档 schema 不匹配');
+    }
+    if (!Array.isArray(data.owned)) throw new Error('缺少 owned 数组');
+    if (data.completed && (typeof data.completed !== 'object' || Array.isArray(data.completed))) {
+      throw new Error('completed 格式错误');
+    }
+
+    state.owned = data.owned.filter((x) => typeof x === 'string');
+    state.completed = {};
+    if (data.completed) {
+      for (const key in data.completed) {
+        if (Array.isArray(data.completed[key])) {
+          state.completed[key] = data.completed[key].filter((x) => typeof x === 'string');
+        }
+      }
+    }
+    state.uid = typeof data.uid === 'string' ? data.uid : '';
+    els.uidInput.value = state.uid;
+
+    saveOwned();
+    saveCompleted();
+    saveUid();
+
+    renderCharChips();
+    renderCharGrid();
+    refreshDerivedSections();
+
+    toast(`已导入：${state.owned.length} 个角色`, 'success');
+  }
+
+  async function resetAll() {
+    const ok = await confirmDialog({
+      title: '重置全部数据',
+      message: '将清空「我拥有的角色」和所有完成记录，此操作不可撤销。',
+      okText: '重置',
+      danger: true
+    });
+    if (!ok) return;
+
+    state.owned = [];
+    state.completed = {};
+    state.uid = '';
+    els.uidInput.value = '';
+
+    saveOwned();
+    saveCompleted();
+    saveUid();
+
+    renderCharChips();
+    renderCharGrid();
+    refreshDerivedSections();
+
+    toast('已重置', 'success');
+  }
+
+  /* ============================================================
+   * 15. 事件绑定
+   * ============================================================ */
+  function bindCharSectionEvents() {
+    /* 折叠 / 展开 */
+    const setCollapsed = (collapsed) => {
+      els.gsCharSection.classList.toggle('collapsed', collapsed);
+    };
+
+    els.btnCharToggle.addEventListener('click', () => {
+      const wasCollapsed = els.gsCharSection.classList.contains('collapsed');
+      setCollapsed(!wasCollapsed);
+      els.gsCharGridWrap.hidden = wasCollapsed; // 展开时显示 grid
+    });
+
+    els.btnCharCollapse.addEventListener('click', () => {
+      els.gsCharGridWrap.hidden = true;
+    });
+
+    /* 角色搜索 */
+    let charSearchTimer = null;
+    els.gsCharSearch.addEventListener('input', () => {
+      clearTimeout(charSearchTimer);
+      charSearchTimer = setTimeout(() => {
+        renderCharGrid();
+      }, 120);
+    });
+
+    /* 网格点击切换 */
+    els.gsCharGrid.addEventListener('click', (e) => {
+      const cell = e.target.closest('.gs-char-cell');
+      if (!cell) return;
+      const name = cell.dataset.char;
+      if (!name) return;
+      toggleOwned(name);
+    });
+
+    /* chips 移除 */
+    els.gsCharChips.addEventListener('click', (e) => {
+      const btn = e.target.closest('.gs-chip-remove');
+      if (!btn) return;
+      const name = btn.dataset.remove;
+      if (!name) return;
+      toggleOwned(name);
+    });
+  }
+
+  function bindRecommendSectionEvents() {
+    els.btnRecommendToggle.addEventListener('click', () => {
+      els.gsRecommendSection.classList.toggle('collapsed');
+    });
+
+    els.gsRecommendList.addEventListener('click', (e) => {
+      const head = e.target.closest('.gs-set-head');
+      if (!head) return;
+      const item = head.closest('.gs-set-item');
+      if (!item?.dataset.setKey) return;
+      scrollToSet(item.dataset.setKey);
+    });
+  }
+
+  function bindAllSectionEvents() {
+    els.gsSetList.addEventListener('click', (e) => {
+      const head = e.target.closest('.gs-set-head');
+      if (head) {
+        const item = head.closest('.gs-set-item');
+        if (item) item.classList.toggle('expanded');
+        return;
+      }
+
+      const char = e.target.closest('.gs-set-char');
+      if (char) {
+        if (char.classList.contains('not-owned')) return;
+        const item = char.closest('.gs-set-item');
+        if (!item?.dataset.setKey) return;
+        const name = char.dataset.char;
+        if (!name) return;
+        toggleSetChar(item.dataset.setKey, name);
+      }
+    });
+
+    /* 键盘：Enter / Space 展开 */
+    els.gsSetList.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      const head = e.target.closest('.gs-set-head');
+      if (!head) return;
+      e.preventDefault();
+      const item = head.closest('.gs-set-item');
+      if (item) item.classList.toggle('expanded');
+    });
+
+    /* 搜索 */
+    let searchTimer = null;
+    els.gsSearch.addEventListener('input', () => {
+      els.gsSearchClear.classList.toggle('show', els.gsSearch.value.length > 0);
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        state.search = els.gsSearch.value;
+        renderAllSets();
+      }, 150);
+    });
+
+    els.gsSearchClear.addEventListener('click', () => {
+      els.gsSearch.value = '';
+      els.gsSearchClear.classList.remove('show');
+      state.search = '';
+      renderAllSets();
+    });
+
+    /* 地区筛选 */
+    els.gsRegionTrigger.addEventListener('click', () => {
+      const items = [{ value: 'all', label: '全部地区' }];
+      state.regions.forEach((r) => items.push({ value: r, label: r }));
+      openSheet({
+        header: '地区',
+        items,
+        current: state.regionFilter,
+        onSelect: (v) => {
+          state.regionFilter = v;
+          els.gsRegionLabel.textContent = v === 'all' ? '全部地区' : v;
+          els.gsRegionTrigger.classList.toggle('active', v !== 'all');
+          renderAllSets();
+        }
+      });
+    });
+
+    /* 类型筛选 */
+    els.gsTypeTrigger.addEventListener('click', () => {
+      openSheet({
+        header: '类型',
+        items: [
+          { value: 'all', label: '全部类型' },
+          { value: 'interior', label: '室内' },
+          { value: 'exterior', label: '室外' }
+        ],
+        current: state.typeFilter,
+        onSelect: (v) => {
+          state.typeFilter = v;
+          els.gsTypeLabel.textContent =
+            v === 'all' ? '全部类型' : v === 'interior' ? '室内' : '室外';
+          els.gsTypeTrigger.classList.toggle('active', v !== 'all');
+          renderAllSets();
+        }
+      });
+    });
+  }
+
+  function bindHeaderEvents() {
+    /* UID 输入（只保留数字） */
+    els.uidInput.value = state.uid;
+    els.uidInput.addEventListener('input', () => {
+      const filtered = els.uidInput.value.replace(/\D/g, '').slice(0, 15);
+      if (els.uidInput.value !== filtered) els.uidInput.value = filtered;
+      state.uid = filtered;
+      saveUid();
+    });
+
+    /* 导出 */
+    els.btnExport.addEventListener('click', () => {
+      if (!state.owned.length && !Object.keys(state.completed).length) {
+        toast('还没有可导出的记录', 'error');
+        return;
+      }
+      exportData();
+    });
+
+    /* 导入 */
+    els.btnImport.addEventListener('click', () => els.fileInput.click());
+    els.fileInput.addEventListener('change', (ev) => {
+      const file = ev.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          importData(reader.result);
+        } catch (err) {
+          toast('导入失败：' + err.message, 'error');
+        }
+        els.fileInput.value = '';
+      };
+      reader.readAsText(file);
+    });
+
+    /* 重置 */
+    els.btnReset.addEventListener('click', resetAll);
+
+    /* 主题 */
+    els.btnTheme.addEventListener('click', () => {
+      const next = currentTheme() === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+      try { localStorage.setItem(THEME_KEY, next); } catch {}
+    });
+  }
+
+  /* ============================================================
+   * 16. 全局图片加载失败清理
+   * ============================================================ */
+  document.addEventListener(
+    'error',
+    (e) => {
+      const img = e.target;
+      if (img.tagName !== 'IMG') return;
+      if (!img.closest('.gs-set-thumb, .gs-chip-avatar, .gs-char-cell-avatar, .gs-set-char-avatar')) return;
+      img.remove();
+    },
+    true
+  );
+
+  /* ============================================================
+   * 17. 启动
+   * ============================================================ */
+  (function init() {
+    /* 加载静态数据 */
+    const data = window.HOMEWORLD_GIFT_SETS;
+    if (data?.sets && Array.isArray(data.sets)) {
+      state.sets = data.sets.slice();
+    }
+    if (data?.regions && Array.isArray(data.regions)) {
+      state.regions = data.regions.slice();
+    }
+
+    /* 加载本地存档 */
+    state.owned = loadOwned();
+    state.completed = loadCompleted();
+    state.uid = loadUid();
+
+    /* 初始 UI */
+    injectIcons(document);
+    bindHeaderEvents();
+    bindCharSectionEvents();
+    bindRecommendSectionEvents();
+    bindAllSectionEvents();
+
+    /* 首次体验：owned 为空时默认展开角色栏 */
+    if (!state.owned.length) {
+      els.gsCharSection.classList.remove('collapsed');
+      els.gsCharGridWrap.hidden = false;
+    } else {
+      els.gsCharSection.classList.add('collapsed');
+      els.gsCharGridWrap.hidden = true;
+    }
+
+    renderCharChips();
+    renderCharGrid();
+    refreshDerivedSections();
+
+    document.body.classList.add('ready');
+  })();
+})();
