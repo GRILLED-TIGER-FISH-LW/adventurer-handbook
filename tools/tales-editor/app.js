@@ -1,6 +1,5 @@
 /* ============================================================
  * 游逸旅闻编辑器 · 逻辑
- * 【本次改动】renderForm 里上移/下移按钮 class：btn-sm → float-btn
  * ============================================================ */
 (function () {
   'use strict';
@@ -9,7 +8,7 @@
   const THEME_KEY = 'genshin_travelers_tales_theme_v1';
 
   /* ============================================================
-   * 1. 兜底图标
+   * 1. 兜底图标（ui-icons.js 中缺失的 4 个）
    * ============================================================ */
   const FALLBACK_ICONS = {
     reload:
@@ -315,6 +314,7 @@
   }
 
   function serializeData(data) {
+    /* 8.1 补全 versions（entries 中出现但 versions 缺失的版本） */
     const versionSet = new Set(data.versions);
     for (const e of data.entries) {
       if (e.version && !versionSet.has(e.version)) {
@@ -323,6 +323,7 @@
       }
     }
 
+    /* 8.2 按版本分组 */
     const grouped = new Map();
     data.versions.forEach((v) => grouped.set(v, []));
     for (const e of data.entries) {
@@ -330,6 +331,7 @@
       grouped.get(e.version).push(e);
     }
 
+    /* 8.3 组内排序：角色 order → id */
     for (const list of grouped.values()) {
       list.sort((a, b) => {
         const oa = ORDER_MAP.get(a.character) ?? 9999;
@@ -339,6 +341,7 @@
       });
     }
 
+    /* 8.4 生成文本 */
     const lines = [];
     lines.push('/* ============================================================');
     lines.push(' * 原神 · 游逸旅闻 数据字典');
@@ -528,11 +531,9 @@
             '<label class="ed-label">id <span class="ed-label-hint">可手动改，需唯一</span></label>' +
             '<div class="ed-id-wrap">' +
               '<input type="text" data-field="id" value="' + esc(entry.id) + '" inputmode="numeric" autocomplete="off">' +
-              /* 【改动】上移按钮：btn-sm ed-id-move → float-btn */
               '<button type="button" class="float-btn" id="btnIdUp" title="上移">' +
                 '<span class="ic" data-icon="ui.arrowUp"></span>' +
               '</button>' +
-              /* 【改动】下移按钮：btn-sm ed-id-move → float-btn */
               '<button type="button" class="float-btn" id="btnIdDown" title="下移">' +
                 '<span class="ic icon-flip-y" data-icon="ui.arrowUp"></span>' +
               '</button>' +
@@ -715,17 +716,15 @@
     const btnIdDown = $('btnIdDown');
 
     const moveEntry = (direction) => {
-      const sorted = allSortedEntries();
-      const idx = sorted.indexOf(entry);
-      if (idx < 0) return;
-      const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
-      if (targetIdx < 0 || targetIdx >= sorted.length) return;
+      const delta = direction === 'up' ? -1 : 1;
+      const nextId = (entry.id ?? 0) + delta;
+      if (nextId < 1) return;
 
-      const a = sorted[idx];
-      const b = sorted[targetIdx];
-      [a.id, b.id] = [b.id, a.id];
+      const conflict = state.data.entries.find((x) => x !== entry && x.id === nextId);
+      if (conflict) conflict.id = entry.id;
+      entry.id = nextId;
+      state.selectedId = nextId;
 
-      state.selectedId = a.id;
       markDirty();
       renderList();
       renderForm();
