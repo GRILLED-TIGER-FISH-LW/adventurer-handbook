@@ -65,6 +65,18 @@ body.in-iframe .gs-theme-btn { display: none !important; }
   height: 32px !important;
 }
 
+/* 图标 16px（与 theme.css button svg 规则对齐） */
+.gs-header-actions .btn-sm svg,
+.gs-header-actions .float-btn svg {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+/* 危险按钮：明显红调 */
+.gs-header-actions .btn-danger {
+  border-color: var(--danger-border) !important;
+}
+
 .gs-theme-sun  { display: inline-flex; }
 .gs-theme-moon { display: none; }
 html[data-theme="dark"] .gs-theme-sun  { display: none; }
@@ -159,74 +171,7 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 }
 
 /* ============================================================
- * 5. 角色栏 · chips bar
- * ============================================================ */
-.gs-chips-bar { padding: 0 12px 10px; }
-.gs-chips-bar[hidden] { display: none; }
-
-.gs-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-
-.gs-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 24px;
-  padding: 0 4px 0 2px;
-  border-radius: var(--radius-pill);
-  background: var(--bg-sunken);
-  border: 1px solid var(--border-subtle);
-  font-size: 12px;
-  color: var(--text-primary);
-  flex-shrink: 0;
-  max-width: 140px;
-}
-.gs-chip-avatar {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  overflow: hidden;
-  flex-shrink: 0;
-  background: var(--bg-surface);
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 9px;
-  font-weight: 600;
-  color: var(--text-tertiary);
-}
-.gs-chip-avatar img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.gs-chip-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.gs-chip-remove {
-  width: 16px;
-  height: 16px;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: background 0.15s, color 0.15s;
-}
-.gs-chip-remove .ic { width: 10px; height: 10px; }
-.gs-chip-remove:hover { background: var(--danger-bg); color: var(--danger); }
-
-/* ============================================================
- * 6. 角色栏 · 网格（54px 卡 / 40px 头像 / gap 4px）
+ * 5. 角色栏 · 网格（54px 卡 / 40px 头像 / gap 4px）
  * ============================================================ */
 .gs-char-grid-wrap {
   display: flex;
@@ -289,6 +234,7 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 }
 .gs-char-cell:hover { background: var(--bg-hover); }
 
+/* 头像容器：默认 bg-sunken，有星级时按 data-star 覆盖 */
 .gs-char-cell-avatar {
   position: relative;
   width: 40px;
@@ -311,6 +257,12 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
   height: 100%;
   object-fit: cover;
 }
+
+/* 星级色背景（4星紫 / 5星金） */
+.gs-char-cell-avatar[data-star="4"],
+.gs-set-char-avatar[data-star="4"] { background: #9174A9; }
+.gs-char-cell-avatar[data-star="5"],
+.gs-set-char-avatar[data-star="5"] { background: #DCA454; }
 
 .gs-char-cell-name {
   font-size: 10px;
@@ -355,7 +307,7 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 .gs-char-grid .gs-empty { grid-column: 1 / -1; }
 
 /* ============================================================
- * 7. 搜索与筛选
+ * 6. 搜索与筛选
  * ============================================================ */
 .gs-filters {
   display: flex;
@@ -377,7 +329,6 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
   pointer-events: none;
   z-index: 1;
 }
-/* 修复：padding-left 必须 > 图标右侧边界（10 + 14 = 24px） */
 .gs-search-input {
   height: 34px !important;
   padding: 0 34px !important;
@@ -403,7 +354,7 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 .gs-search-clear .ic { width: 12px; height: 12px; }
 .gs-search-clear:hover { background: var(--bg-hover); color: var(--text-primary); }
 
-/* 下拉筛选（对齐 tales 的 dropdown） */
+/* 下拉筛选（对齐 tales） */
 .gs-filter-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -483,6 +434,8 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 }
 
 .gs-dropdown-item {
+  display: block;
+  width: 100%;
   padding: 10px 8px;
   border-radius: var(--radius-sm);
   font-size: 12.5px;
@@ -492,8 +445,6 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
   border: none;
   font-family: inherit;
   text-align: left;
-  width: 100%;
-  display: block;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -506,7 +457,7 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 }
 
 /* ============================================================
- * 8. 套装卡片
+ * 7. 套装卡片
  * ============================================================ */
 .gs-recommend-list,
 .gs-set-list {
@@ -614,6 +565,7 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 }
 .gs-set-item.expanded .gs-set-arrow { transform: rotate(180deg); }
 
+/* 推荐角标：z-index 高于缩略图 */
 .gs-set-tag {
   position: absolute;
   top: 0;
@@ -626,6 +578,7 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
   background: var(--accent);
   border-bottom-right-radius: var(--radius-sm);
   pointer-events: none;
+  z-index: 1;
 }
 
 .gs-set-body {
@@ -735,7 +688,7 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 }
 
 /* ============================================================
- * 9. 空态 / 首次提示
+ * 8. 空态 / 首次提示
  * ============================================================ */
 .gs-empty {
   padding: 30px 16px;
@@ -761,7 +714,7 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 }
 
 /* ============================================================
- * 10. 响应式
+ * 9. 响应式
  * ============================================================ */
 @media (max-width: 480px) {
   .gs-header { padding: 10px; gap: 6px; }
@@ -782,7 +735,7 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 }
 
 /* ============================================================
- * 11. 局部滚动条
+ * 10. 局部滚动条
  * ============================================================ */
 .gs-char-grid-wrap::-webkit-scrollbar { width: 6px; }
 .gs-char-grid-wrap::-webkit-scrollbar-thumb {
