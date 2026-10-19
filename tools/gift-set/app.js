@@ -9,6 +9,9 @@
   const KEY_UID = 'genshin_homeworld_gift_sets_uid_v1';
   const THEME_KEY = 'genshin_travelers_tales_theme_v1';
 
+  /* 角色黑名单：不参与拥有/完成/推荐/套装进度 */
+  const EXCLUDED_CHARS = new Set(['旅行者']);
+
   const IS_IFRAME = (function () {
     try { return window.parent !== window; } catch (e) { return false; }
   })();
@@ -225,7 +228,7 @@
   }
 
   /* ============================================================
-   * 6. 角色字典
+   * 6. 角色字典（排除旅行者）
    * ============================================================ */
   const CHAR_INDEX = (() => {
     const dict = window.ICON_DICT;
@@ -243,6 +246,8 @@
 
     for (const [key, item] of Object.entries(dict.characters)) {
       if (!item?.name) continue;
+      if (EXCLUDED_CHARS.has(item.name)) continue;
+
       byName.set(item.name, { key, order: item.order ?? 9999 });
 
       let url = '';
@@ -282,11 +287,17 @@
     typeFilter: 'all'
   };
 
+  function sanitizeOwnedList(list) {
+    if (!Array.isArray(list)) return [];
+    return list.filter(
+      (x) => typeof x === 'string' && !EXCLUDED_CHARS.has(x)
+    );
+  }
+
   function loadOwned() {
     try {
       const raw = localStorage.getItem(KEY_OWNED);
-      const arr = raw ? JSON.parse(raw) : [];
-      return Array.isArray(arr) ? arr.filter((x) => typeof x === 'string') : [];
+      return sanitizeOwnedList(raw ? JSON.parse(raw) : []);
     } catch { return []; }
   }
 
@@ -298,7 +309,9 @@
       const out = {};
       for (const key in obj) {
         if (Array.isArray(obj[key])) {
-          out[key] = obj[key].filter((x) => typeof x === 'string');
+          out[key] = obj[key].filter(
+            (x) => typeof x === 'string' && !EXCLUDED_CHARS.has(x)
+          );
         }
       }
       return out;
@@ -336,13 +349,16 @@
 
   function getSetCharsSorted(set) {
     const chars = Array.isArray(set.preferredCharacters) ? set.preferredCharacters : [];
-    return chars.slice().sort((a, b) => getOrder(a) - getOrder(b));
+    return chars
+      .filter((c) => !EXCLUDED_CHARS.has(c))
+      .slice()
+      .sort((a, b) => getOrder(a) - getOrder(b));
   }
 
   function getSetProgress(set) {
     const ownedSet = new Set(state.owned);
     const done = state.completed[set.key] || [];
-    const chars = set.preferredCharacters || [];
+    const chars = getSetCharsSorted(set);
 
     const ownedChars = chars.filter((c) => ownedSet.has(c));
     if (!ownedChars.length) {
@@ -363,7 +379,7 @@
 
     const candidates = [];
     for (const set of state.sets) {
-      const chars = set.preferredCharacters || [];
+      const chars = getSetCharsSorted(set);
       if (!chars.length) continue;
 
       const ownedInSet = chars.filter((c) => ownedSet.has(c));
@@ -396,8 +412,8 @@
     const ownedSet = new Set(state.owned);
     const sorted = CHAR_INDEX.descNames.filter((n) => ownedSet.has(n));
 
-    els.gsCharCount.textContent = String(state.owned.length);
-    els.gsCharChipsBar.hidden = !state.owned.length;
+    els.gsCharCount.textContent = String(sorted.length);
+    els.gsCharChipsBar.hidden = !sorted.length;
 
     if (!sorted.length) {
       els.gsCharChips.innerHTML = '';
@@ -468,6 +484,8 @@
   }
 
   function toggleOwned(name) {
+    if (EXCLUDED_CHARS.has(name)) return;
+
     const idx = state.owned.indexOf(name);
     if (idx >= 0) state.owned.splice(idx, 1);
     else state.owned.push(name);
@@ -610,12 +628,12 @@
   }
 
   /* ============================================================
-   * 11. 汇总刷新
+   * 11. 汇总刷新（全部套装区始终显示）
    * ============================================================ */
   function refreshDerivedSections() {
     const hasOwned = state.owned.length > 0;
-    els.gsAllSection.hidden = !hasOwned;
     els.gsFirstTip.hidden = hasOwned;
+    els.gsAllSection.hidden = false;
 
     renderRecommend();
     renderAllSets();
@@ -625,6 +643,8 @@
    * 12. 套装内角色切换
    * ============================================================ */
   function toggleSetChar(setKey, name) {
+    if (EXCLUDED_CHARS.has(name)) return;
+
     const ownedSet = new Set(state.owned);
     if (!ownedSet.has(name)) return;
 
@@ -761,12 +781,14 @@
       throw new Error('completed 格式错误');
     }
 
-    state.owned = data.owned.filter((x) => typeof x === 'string');
+    state.owned = sanitizeOwnedList(data.owned);
     state.completed = {};
     if (data.completed) {
       for (const key in data.completed) {
         if (Array.isArray(data.completed[key])) {
-          state.completed[key] = data.completed[key].filter((x) => typeof x === 'string');
+          state.completed[key] = data.completed[key].filter(
+            (x) => typeof x === 'string' && !EXCLUDED_CHARS.has(x)
+          );
         }
       }
     }
@@ -977,7 +999,6 @@
 
     els.btnReset.addEventListener('click', resetAll);
 
-    /* iframe 场景不绑定主题按钮（按钮已被 CSS 隐藏） */
     if (!IS_IFRAME) {
       els.btnTheme.addEventListener('click', () => {
         const next = currentTheme() === 'dark' ? 'light' : 'dark';
@@ -987,7 +1008,7 @@
   }
 
   /* ============================================================
-   * 16. 跨 iframe 主题接收 + 图片加载失败兜底
+   * 16. iframe 主题接收 + 图片加载失败兜底
    * ============================================================ */
   window.addEventListener('message', (e) => {
     const data = e.data;
@@ -997,7 +1018,6 @@
     }
   });
 
-  /* 图片加载失败时移除 img，让首字占位暴露；覆盖所有头像/缩略图容器 */
   document.addEventListener('error', (e) => {
     const img = e.target;
     if (img.tagName !== 'IMG') return;
@@ -1013,12 +1033,10 @@
       document.body.classList.add('in-iframe');
     }
 
-    /* 初始主题：始终读 localStorage（同源共享），iframe 不写回 */
     let savedTheme = 'light';
     try { savedTheme = localStorage.getItem(THEME_KEY) || 'light'; } catch {}
     applyTheme(savedTheme, { save: false });
 
-    /* 加载静态数据 */
     const data = window.HOMEWORLD_GIFT_SETS;
     if (data?.sets && Array.isArray(data.sets)) {
       state.sets = data.sets.slice();
@@ -1027,19 +1045,16 @@
       state.regions = data.regions.slice();
     }
 
-    /* 加载本地存档 */
     state.owned = loadOwned();
     state.completed = loadCompleted();
     state.uid = loadUid();
 
-    /* 初始 UI */
     injectIcons(document);
     bindHeaderEvents();
     bindCharSectionEvents();
     bindRecommendSectionEvents();
     bindAllSectionEvents();
 
-    /* 折叠/展开状态 + chips bar 显示 */
     updateCharSectionState();
 
     renderCharChips();
