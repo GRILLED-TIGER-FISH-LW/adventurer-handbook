@@ -24,7 +24,7 @@
 | 主站（冒险之证） | [打开首页](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/) | ✅ |
 | 游逸旅闻 | [#tales](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/#tales) | ✅ |
 | 游逸旅闻编辑器 | [#tales-editor](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/tools/tales-editor/) | ✅ |
-| 尘歌壶赠礼套装 | `#gift-set`（规划中，暂未上线） | 🚧 |
+| 尘歌壶赠礼套装 | [#gift-set](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/#gift-set) | ✅ |
 | 尘歌壶赠礼套装编辑器 | [#gift-set-editor](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/tools/gift-set-editor/) | ✅ |
 
 **本地使用**：克隆或下载仓库后，必须启动本地静态服务器（如 `python -m http.server 8080`），双击直接打开会有 CORS 跨域限制。
@@ -46,25 +46,31 @@
 - **双栏编辑**：左侧列表（头像 + 标题 + 角色·版本），右侧表单实时编辑。
 - **头像自动匹配**：读 `window.ICON_DICT`，按 `prefix + key + ext` 或 `item.url` 拼装，无需手动填图。
 - **Combobox 联想**：版本 / 角色名支持打字筛选，输入新值即新建条目，无需先维护列表。
-- **id 管理**：手动改（实时检测重复标红）、上下移动交换、一键按显示顺序重排。
+- **id 管理**：手动改（实时检测重复标红）、上下移动（± 1，冲突时交换）、一键按显示顺序重排。
 - **导出前校验**：缺角色 / 缺版本 / 缺标题 / id 重复 / 版本不在 `versions` 列表，共 5 类问题提示。
 - **草稿自动恢复**：`localStorage` 400ms debounce 保存，刷新不丢；导出成功后自动清空草稿。
 - **导出格式**：与主站 `tools/tales/data.js` 完全兼容，先版本分组、再按角色 order 排序。
 
-### 3. 尘歌壶赠礼套装编辑器
+### 3. 尘歌壶赠礼套装
+> 子页面：[#gift-set](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/#gift-set)
+
+- **我的角色**：54px 卡片 / 40px 头像的网格，手机一行 6 个。已拥有角色按星级色背景（4 星紫 / 5 星金），未拥有灰化 35%。按 `order` 倒序排列（最新实装角色在前），排除旅行者。可折叠，默认在有 owned 数据时折叠。
+- **推荐套装**：按「已有但未完成角色数（pending）」降序 → 「owned/total 比例」降序 → `id` 升序，截取前 5 个。点击卡片自动清空筛选并滚动定位到全部套装对应卡片。
+- **全部套装**：单列手风琴。每个卡片显示 2:1 缩略图（56×28）+ 名称 + 地区·类型 + 进度（`已完成 X/Y` / `未拥有角色` / `已完成`）。展开后显示偏好角色格（40px 头像 + 星级色背景），点击切换完成状态。
+- **完成判定**：方案 B（拥有且完成所有拥有角色）。套装中一个角色都没拥有时视为「未完成」。
+- **搜索与筛选**：搜索套装名 / 角色名，筛选按地区、室内外下拉（对齐 tales 的下拉面板样式）。
+- **存档**：可选 UID，`赠礼套装存档记录-[UID]-YYYYMMDD.json`，包含 `owned` 和 `completed` 两份数据。兼容旧版（自动过滤旅行者、清理孤儿套装）。
+- **暗黑模式适配**：跟随主站主题，iframe 场景下自身主题按钮自动隐藏，通过 `postMessage` 同步。
+
+### 4. 尘歌壶赠礼套装编辑器
 > 独立工具页：[#gift-set-editor](https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/tools/gift-set-editor/)
 
 - **URL 智能识别**：粘贴任意域名下的套装图直链，自动截取文件名作为 `key`（忽略查询参数、去掉扩展名）。
-- **2:1 比例预览**：套装图统一按 640×320 比例展示，列表缩略图、大预览、表单小图全部按原比例缩放。
-- **室内 / 室外**：`exterior` / `interior` 二选一，识别 key 时自动推断，用户手动切换后不再覆盖。
-- **偏好角色 chips**：多选角色（中文名数组），chip 背景用 `ICON_LIB.load()` 生成的星级色径向渐变。
-- **地区管理**：从 `regions` 下拉选择，输入新值即新建地区，导出时写回数组。
+- **类型 / 地区自动推断**：识别 key 时，`Exterior` → 室外、`Interior` → 室内；`Mond` / `Liyue` / `Dq` / `Xm` / `Fd` / `Nt` / `Ndkl` / `Zd` → 对应地区。key 变化才推断，用户手动改动不被覆盖。
+- **偏好角色批量输入**：chips 展示 + combobox 追加 + × 删除。支持逗号 / 空格 / 顿号 / 分号分隔的批量粘贴。
+- **id 管理**：手动改（实时检测重复标红）、上下移动（± 1，冲突时交换）、一键按显示顺序重排。
 - **导出前校验**：id 重复 / 缺 key / 缺名称 / 缺地区 / 类型非法，共 5 类问题提示。
 - **草稿自动恢复**：`localStorage` 400ms debounce 保存，刷新不丢；导出成功后自动清空草稿。
-
-### 4. 尘歌壶赠礼套装（规划中）
-> [!NOTE]
-> 面向用户的主站子页面，规划中。预计包含室内外套装分类筛选、按角色反查套装、按地区汇总进度。
 
 ---
 
@@ -106,14 +112,14 @@
     }
   },
   meta: { total, updatedAt, source },
-  regions: ["蒙德/璃月", "稻妻", ...],
+  regions: ["蒙德", "璃月", "稻妻", "须弥", "枫丹", "纳塔", "挪德卡莱", "至冬"],
   sets: [
     {
       id: 1,
-      key: "UI_Home_Suite_Exterior_xxx",
+      key: "UI_Home_Suite_Exterior_Mond_xxx",
       name: "甜蜜小憩",
       type: "exterior",
-      region: "蒙德/璃月",
+      region: "蒙德",
       preferredCharacters: ["琴", "迪卢克"]
     }
   ]
@@ -128,11 +134,14 @@
 
 | 用途 | 来源 | 加载方式 |
 |---|---|---|
-| **业务图标**（按钮 / 系统 UI） | `genshin-guide/shared/ui-icons.js` → `window.ICONS` | 走 `wsrv.nl` 代理加载 Fandom Wiki 原图，前端 Canvas 像素级去白边 |
+| **业务图标**（按钮 / 系统 UI） | `genshin-guide/shared/ui-icons.js` → `window.ICONS` | Phosphor 图标库，`viewBox="0 0 256 256"`，`fill="currentColor"` 跟随主题 |
 | **角色头像字典** | `genshin-guide/shared/gi-icons/icon-dict.js` → `window.ICON_DICT` | `config.characters.prefix` = `https://api.lunaris.moe/data/assets/avataricon/`，前端按 `prefix + key + ext` 或 `item.url` 拼装 |
-| **图标渲染器** | `genshin-guide/shared/gi-icons/icon-loader.js` → `window.ICON_LIB` | 提供 `getPath()`（拿原图 URL）、`load()`（生成带星级色径向渐变的 dataURL）、`starColors`（1~5 星颜色映射） |
+| **本地业务图标** | 本仓库 `icons.js` → `window.LOCAL_ICONS` | `tales` / `talesBold` / `gift-set` / `gift-setBold`，全部内联 Phosphor SVG |
+| **图标渲染器** | `genshin-guide/shared/gi-icons/icon-loader.js` → `window.ICON_LIB` | 提供 `getPath()`、`load()`、`starColors`（1~5 星颜色映射）。**仅编辑器使用**，用户页直接读 `icon-dict.js` 头像 URL，不调用 Canvas |
 
 **编辑器兜底图标**：`ui-icons.js` 中缺失的 `reload` / `reorder` / `back` / `file`，在两个编辑器的 `app.js` 顶部 `FALLBACK_ICONS` 内嵌，通过 `resolveIcon(key)` 按 `ICONS[key] ?? FALLBACK_ICONS[key]` 兜底。
+
+**星级色**（gift-set 用户页头像背景）：来自 `icon-loader.js` 的 `STAR_COLORS`，4 星 `#9174A9`（紫）/ 5 星 `#DCA454`（金）。
 
 ---
 
@@ -156,6 +165,27 @@
 - 记录格式统一为**三段式 key**：`角色名·版本·旅闻名`。
 - 本地持久化 key 为 `genshin_travelers_tales_completed_v2`。
 
+### 尘歌壶赠礼套装
+
+**导出文件**：`赠礼套装存档记录-[UID]-YYYYMMDD.json`
+
+```json
+{
+  "schema": "genshin-homeworld-gift-sets",
+  "uid": "123456789",
+  "exportedAt": "2026-10-20",
+  "owned": ["琴", "迪卢克", "香菱"],
+  "completed": {
+    "UI_Home_Suite_Exterior_Mond_xxx": ["琴", "迪卢克"],
+    "UI_Home_Suite_Exterior_Liyue_yyy": ["琴"]
+  }
+}
+```
+
+- `owned`：拥有的角色名数组（自动过滤旅行者）。
+- `completed`：`{ setKey: [角色名] }`，按 `set.key` 索引（不用 `set.id`，因为 id 在编辑器里可能变动）。
+- 本地持久化 key 为 `genshin_homeworld_gift_sets_owned_v1` / `genshin_homeworld_gift_sets_completed_v1` / `genshin_homeworld_gift_sets_uid_v1`。
+
 ### 编辑器草稿
 
 | 编辑器 | 本地草稿 key |
@@ -176,7 +206,7 @@ genshin-travelers-tales/
 ├── index.html              主站外壳 (提瓦特冒险之证)
 ├── style.css               外壳样式
 ├── app.js                  外壳逻辑 (路由 / iframe / 主题)
-├── icons.js                本地业务图标字典
+├── icons.js                本地业务图标字典 (内联 Phosphor SVG)
 ├── data.js
 ├── README.md
 ├── CHANGELOG.md
@@ -190,7 +220,10 @@ genshin-travelers-tales/
     │   ├── index.html
     │   ├── style.css
     │   └── app.js
-    ├── gift-set/           尘歌壶赠礼套装（数据 + 未来用户页）
+    ├── gift-set/           尘歌壶赠礼套装
+    │   ├── index.html
+    │   ├── style.css
+    │   ├── app.js
     │   └── data.js
     └── gift-set-editor/    尘歌壶赠礼套装编辑器（独立工具页）
         ├── index.html
@@ -208,12 +241,12 @@ genshin-travelers-tales/
 | 文件 | 来源 | 用途 |
 |---|---|---|
 | `theme.css` | `genshin-guide/shared/` | 2026 现代主题变量 + 通用控件 |
-| `ui-icons.js` | `genshin-guide/shared/` | 通用系统图标库（`window.ICONS`） |
+| `ui-icons.js` | `genshin-guide/shared/` | 通用系统图标库（`window.ICONS`，Phosphor） |
 | `icon-dict.js` | `genshin-guide/shared/gi-icons/` | 角色头像字典（`window.ICON_DICT`） |
-| `icon-loader.js` | `genshin-guide/shared/gi-icons/` | 图标渲染器（`window.ICON_LIB`） |
+| `icon-loader.js` | `genshin-guide/shared/gi-icons/` | 图标渲染器（`window.ICON_LIB`，仅编辑器使用） |
 
 > [!IMPORTANT]
-> 所有资源必须通过带时间戳的动态加载器加载（`?t=Date.now()`），彻底杜绝浏览器缓存，并防止 Promise 死锁。两个编辑器与子应用共用同一套 `loadStyle` / `loadScript` 写法。
+> 所有资源必须通过带时间戳的动态加载器加载（`?t=Date.now()`），彻底杜绝浏览器缓存，并防止 Promise 死锁。两个编辑器、tales 子页、gift-set 子页共用同一套 `loadStyle` / `loadScript` 写法。
 
 ---
 
