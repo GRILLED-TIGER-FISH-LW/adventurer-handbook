@@ -51,7 +51,7 @@
 
 **里程碑**
 
-- **主站上线**：`https://grilled-tiger-fish-lw.github.io/genshin-travelers-tales/`
+- **主站上线**：`https://grilled-tiger-fish-lw.github.io/adventurer-handbook/`
 - **游逸旅闻完整版**：7.1 版本 156 条数据、搜索筛选、完成记录、主题切换。
 
 ---
