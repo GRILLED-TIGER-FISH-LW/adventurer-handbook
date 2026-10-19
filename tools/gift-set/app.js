@@ -89,8 +89,6 @@
     gsCharSection: $('gsCharSection'),
     gsCharCount: $('gsCharCount'),
     btnCharToggle: $('btnCharToggle'),
-    gsCharChipsBar: $('gsCharChipsBar'),
-    gsCharChips: $('gsCharChips'),
     gsCharGridWrap: $('gsCharGridWrap'),
     gsCharSearch: $('gsCharSearch'),
     gsCharGrid: $('gsCharGrid'),
@@ -191,7 +189,7 @@
   }
 
   /* ============================================================
-   * 6. 角色字典（排除旅行者）
+   * 6. 角色字典（排除旅行者，记录星级）
    * ============================================================ */
   const CHAR_INDEX = (() => {
     const dict = window.ICON_DICT;
@@ -211,7 +209,11 @@
       if (!item?.name) continue;
       if (EXCLUDED_CHARS.has(item.name)) continue;
 
-      byName.set(item.name, { key, order: item.order ?? 9999 });
+      byName.set(item.name, {
+        key,
+        order: item.order ?? 9999,
+        star: item.star ?? 0
+      });
 
       let url = '';
       if (item.url) url = item.url;
@@ -235,6 +237,7 @@
 
   const getAvatarUrl = (name) => CHAR_INDEX.avatarUrl.get(name) || '';
   const getOrder = (name) => CHAR_INDEX.byName.get(name)?.order ?? 9999;
+  const getStar = (name) => CHAR_INDEX.byName.get(name)?.star ?? 0;
 
   /* ============================================================
    * 7. 数据存储
@@ -370,41 +373,8 @@
   }
 
   /* ============================================================
-   * 9. 角色栏渲染
+   * 9. 角色栏渲染（无 chips，只有网格）
    * ============================================================ */
-  function renderCharChips() {
-    const ownedSet = new Set(state.owned);
-    const sorted = CHAR_INDEX.descNames.filter((n) => ownedSet.has(n));
-
-    els.gsCharCount.textContent = String(sorted.length);
-    els.gsCharChipsBar.hidden = !sorted.length;
-
-    if (!sorted.length) {
-      els.gsCharChips.innerHTML = '';
-      return;
-    }
-
-    els.gsCharChips.innerHTML = sorted
-      .map((name) => {
-        const url = getAvatarUrl(name);
-        const initial = name.charAt(0);
-        const avatarInner = url
-          ? `<img src="${esc(url)}" alt="">${esc(initial)}`
-          : esc(initial);
-        return (
-          `<span class="gs-chip" data-char="${esc(name)}">` +
-            `<span class="gs-chip-avatar">${avatarInner}</span>` +
-            `<span class="gs-chip-name">${esc(name)}</span>` +
-            `<button type="button" class="gs-chip-remove" data-remove="${esc(name)}" aria-label="移除">` +
-              '<span class="ic" data-icon="app.close"></span>' +
-            '</button>' +
-          '</span>'
-        );
-      })
-      .join('');
-    injectIcons(els.gsCharChips);
-  }
-
   function renderCharGrid() {
     const ownedSet = new Set(state.owned);
     const q = els.gsCharSearch.value.trim().toLowerCase();
@@ -422,20 +392,25 @@
     els.gsCharGrid.innerHTML = names
       .map((name) => {
         const url = getAvatarUrl(name);
+        const star = getStar(name);
         const initial = name.charAt(0);
         const avatarInner = url
           ? `<img src="${esc(url)}" alt="" loading="lazy">${esc(initial)}`
           : esc(initial);
         const isOwned = ownedSet.has(name);
         const cls = 'gs-char-cell ' + (isOwned ? 'owned' : 'not-owned');
+        const starAttr = star ? ` data-star="${star}"` : '';
         return (
           `<div class="${cls}" data-char="${esc(name)}" title="${esc(name)}">` +
-            `<div class="gs-char-cell-avatar">${avatarInner}</div>` +
+            `<div class="gs-char-cell-avatar"${starAttr}>${avatarInner}</div>` +
             `<div class="gs-char-cell-name">${esc(name)}</div>` +
           '</div>'
         );
       })
       .join('');
+
+    /* 更新计数 */
+    els.gsCharCount.textContent = String(state.owned.length);
   }
 
   function updateCharSectionState() {
@@ -444,7 +419,6 @@
     } else {
       els.gsCharSection.classList.add('collapsed');
     }
-    els.gsCharChipsBar.hidden = !state.owned.length;
   }
 
   function toggleOwned(name) {
@@ -455,7 +429,8 @@
     else state.owned.push(name);
     saveOwned();
 
-    renderCharChips();
+    els.gsCharCount.textContent = String(state.owned.length);
+
     const cell = els.gsCharGrid.querySelector(`.gs-char-cell[data-char="${CSS.escape(name)}"]`);
     if (cell) {
       const isOwned = state.owned.includes(name);
@@ -493,13 +468,15 @@
               'gs-set-char ' +
               (!isOwned ? 'not-owned' : isDone ? 'owned-done' : 'owned-pending');
             const charUrl = getAvatarUrl(name);
+            const star = getStar(name);
             const initial = name.charAt(0);
             const avatarInner = charUrl
               ? `<img src="${esc(charUrl)}" alt="" loading="lazy">${esc(initial)}`
               : esc(initial);
+            const starAttr = star ? ` data-star="${star}"` : '';
             return (
               `<div class="${cellCls}" data-char="${esc(name)}" title="${esc(name)}">` +
-                `<div class="gs-set-char-avatar">${avatarInner}</div>` +
+                `<div class="gs-set-char-avatar"${starAttr}>${avatarInner}</div>` +
                 `<div class="gs-set-char-name">${esc(name)}</div>` +
               '</div>'
             );
@@ -641,7 +618,7 @@
   }
 
   /* ============================================================
-   * 13. 筛选下拉（对齐 tales 的 dropdown）
+   * 13. 筛选下拉
    * ============================================================ */
   function renderGsDropdown(panelEl, items, current) {
     panelEl.innerHTML = items.map((it) => {
@@ -801,7 +778,6 @@
 
     resetFiltersUI();
     updateCharSectionState();
-    renderCharChips();
     renderCharGrid();
     refreshDerivedSections();
 
@@ -828,7 +804,6 @@
 
     resetFiltersUI();
     updateCharSectionState();
-    renderCharChips();
     renderCharGrid();
     refreshDerivedSections();
 
@@ -855,14 +830,6 @@
       const cell = e.target.closest('.gs-char-cell');
       if (!cell) return;
       const name = cell.dataset.char;
-      if (!name) return;
-      toggleOwned(name);
-    });
-
-    els.gsCharChips.addEventListener('click', (e) => {
-      const btn = e.target.closest('.gs-chip-remove');
-      if (!btn) return;
-      const name = btn.dataset.remove;
       if (!name) return;
       toggleOwned(name);
     });
@@ -1026,7 +993,7 @@
   document.addEventListener('error', (e) => {
     const img = e.target;
     if (img.tagName !== 'IMG') return;
-    if (!img.closest('.gs-set-thumb, .gs-chip-avatar, .gs-char-cell-avatar, .gs-set-char-avatar')) return;
+    if (!img.closest('.gs-set-thumb, .gs-char-cell-avatar, .gs-set-char-avatar')) return;
     img.remove();
   }, true);
 
@@ -1062,7 +1029,6 @@
 
     updateCharSectionState();
 
-    renderCharChips();
     renderCharGrid();
     refreshDerivedSections();
 
