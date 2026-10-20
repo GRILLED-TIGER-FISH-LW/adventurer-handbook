@@ -12,9 +12,10 @@
 
 **里程碑**
 
-- **尘歌壶赠礼套装上线**：`tools/gift-set/` 三件套 + 空骨架 `data.js`。实现角色栏（按星级色区分、排除旅行者、order 倒序）、推荐套装（pending 优先排序、点击定位）、全部套装（单列手风琴）、搜索筛选、导入导出、重置。完成判定采用「拥有且完成所有拥有角色」。
+- **尘歌壶赠礼套装上线**：`tools/gift-set/` 三件套 + 空骨架 `data.js`。实现角色栏（按星级色区分、排除旅行者、order 倒序）、推荐套装（pending 优先排序、点击定位）、全部套装（单列手风琴、四档状态筛选：全部/已完成/已达成/未完成）、搜索筛选、导入导出、重置。完成判定采用「拥有且完成所有拥有角色」。
 - **图标系统从外链图片改为内联 Phosphor SVG**：`icons.js` 不再使用 `wsrv.nl` 代理和 Canvas 自动裁切，直接内联 `viewBox="0 0 256 256"` + `fill="currentColor"` 的 SVG。同步删除父页面 `app.js` 里的 `autoCropImages` / `processCrop` 约 65 行死代码，和 `style.css` 里针对 `<img alt="...">` 的死规则。
 - **两个编辑器的 id 上下移逻辑重构**：从「与相邻项交换 id」改为「± 1，冲突时交换」。解决不连续 id 场景下的跳跃问题。
+- **赠礼套装编辑器偏好角色排序统一**：编辑器 chips 显示和导出时均按 `icon-dict.js` 的 order 升序重排，与用户页展示一致。
 - **tales / gift-set 的 UI 规范统一**：顶栏 padding、UID 尺寸、按钮高度、图标尺寸、下拉面板结构全部对齐。批量 UX 修复一并完成（下拉面板位置、装饰性勾选移除、搜索框内边距、星级色背景、推荐角标层级、折叠箭头方向、id 输入聚焦等）。
 
 **待办**
@@ -79,3 +80,20 @@
 - **图标双轨**：业务图标走 `icons.js` 内联 Phosphor SVG；角色头像走 `icon-dict.js` 拼 URL。两套互不依赖。
 - **iframe 通信**：父页面切换主题时通过 `postMessage` 通知子页面；子页面同时读 localStorage 兜底。
 - **UI 对齐**：tales 和 gift-set 的顶栏 padding、UID 尺寸、按钮高度、下拉面板结构必须保持一致（详见 `README.md` 的「跨仓库共享架构」章节）。
+
+### 4. 代码规范对齐（重要）
+
+- **本仓库所有代码必须与主仓库 `genshin-guide` 保持风格一致**，包括但不限于：
+  - **显示切换**：统一使用 `class="hidden"`，禁止内联 `style="display:none"`（主仓库已正式采用此规范）
+  - **CSS 变量、控件类、图标体系**：一律复用 `genshin-guide/shared/`，禁止自造轮子（按钮、表单、模态、Toast、Sheet 等）
+  - **文件结构**：子工具放 `tools/`，共享资源走 `genshin-guide/shared/` 绝对路径
+- **每次修改代码前，先确认 `genshin-guide` 对应模块的最新规范**，确认没有偏离再动手。
+- **当前状态**：
+  - `tools/tales/` 和 `tools/gift-set/` 均无内联 `style="display:none"`，符合规范 ✅
+  - 显示切换使用原生 `hidden` 属性 + 独立 class（`.visible` / `.open` / `.active` / `.collapsed`），语义清晰 ✅
+  - 未来新增代码必须遵守「`hidden` 属性优先，`class="hidden"` 次之，禁止内联 `style`」的原则
+- **判断依据**：如果某段代码需要隐藏/显示元素，按以下优先级选择：
+  1. 有 `hidden` HTML 属性 → 用 `el.hidden = true/false`
+  2. 需要动画/过渡 → 用专用 class（如 `.open` / `.collapsed`）
+  3. 静态隐藏 → 用 `class="hidden"`
+  4. **永远不用** `style="display:none"`
