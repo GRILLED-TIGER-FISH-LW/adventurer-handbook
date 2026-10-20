@@ -196,7 +196,6 @@
     VERSION_ITEMS = items;
   }
 
-  /* 移除：不再渲染右侧 ✓ 装饰 */
   function renderItems(panelEl, items, current) {
     panelEl.innerHTML = items.map(it => {
       const active = it.value === current ? ' active' : '';
@@ -418,7 +417,9 @@
       html.classList.add('theme-switching');
       if (e.data.theme === 'dark') html.setAttribute('data-theme', 'dark');
       else html.removeAttribute('data-theme');
-      setTimeout(() => html.classList.remove('theme-switching'), 100);
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        html.classList.remove('theme-switching');
+      }));
     }
   });
 
