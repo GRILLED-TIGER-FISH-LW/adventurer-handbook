@@ -23,9 +23,6 @@
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="m213.66 82.34l-56-56A8 8 0 0 0 152 24H56a16 16 0 0 0-16 16v176a16 16 0 0 0 16 16h144a16 16 0 0 0 16-16V88a8 8 0 0 0-2.34-5.66M160 51.31L188.69 80H160ZM200 216H56V40h88v48a8 8 0 0 0 8 8h48z"/></svg>'
   };
 
-  /* ============================================================
-   * 2. 工具函数 + 地区/类型推断
-   * ============================================================ */
   function resolveIcon(key) {
     if (window.ICONS) {
       let cur = window.ICONS;
@@ -49,6 +46,9 @@
     });
   }
 
+  /* ============================================================
+   * 2. 工具函数 + 地区/类型推断
+   * ============================================================ */
   const esc = (str) => {
     if (str == null) return '';
     return String(str)
@@ -298,24 +298,40 @@
   }
 
   /* ============================================================
-   * 7. 状态 + 角色映射
+   * 7. 角色字典（含 order）
    * ============================================================ */
   function buildCharMaps() {
     const keyMap = new Map();
+    const orderMap = new Map();
     const list = [];
     const dict = window.ICON_DICT;
-    if (!dict?.characters) return { keyMap, list };
+    if (!dict?.characters) return { keyMap, orderMap, list };
     for (const [key, item] of Object.entries(dict.characters)) {
       if (!item?.name) continue;
+      const order = item.order ?? 9999;
       keyMap.set(item.name, key);
-      list.push({ name: item.name, order: item.order ?? 9999 });
+      orderMap.set(item.name, order);
+      list.push({ name: item.name, order });
     }
     list.sort((a, b) => a.order - b.order);
-    return { keyMap, list: list.map((x) => x.name) };
+    return { keyMap, orderMap, list: list.map((x) => x.name) };
   }
 
   const charMaps = buildCharMaps();
 
+  /* 按 icon-dict.js 的 order 升序排序角色名数组 */
+  function sortCharsByOrder(chars) {
+    if (!Array.isArray(chars)) return [];
+    return chars.slice().sort((a, b) => {
+      const oa = charMaps.orderMap.get(a) ?? 9999;
+      const ob = charMaps.orderMap.get(b) ?? 9999;
+      return oa - ob;
+    });
+  }
+
+  /* ============================================================
+   * 8. 状态
+   * ============================================================ */
   const state = {
     data: null,
     selectedId: null,
@@ -331,7 +347,7 @@
   };
 
   /* ============================================================
-   * 8. URL
+   * 9. URL
    * ============================================================ */
   function getSetImageUrl(set) {
     if (!set?.key || !state.data?.config?.image) return '';
@@ -356,7 +372,7 @@
   }
 
   /* ============================================================
-   * 9. 草稿
+   * 10. 草稿
    * ============================================================ */
   let draftTimer = null;
 
@@ -386,7 +402,7 @@
   }
 
   /* ============================================================
-   * 10. 解析 / 序列化
+   * 11. 解析 / 序列化
    * ============================================================ */
   function parseDataJs(text) {
     const prev = window.HOMEWORLD_GIFT_SETS;
@@ -421,7 +437,7 @@
     lines.push(' * · key 不含扩展名');
     lines.push(' *   图片 URL = config.image.prefix + key + config.image.ext');
     lines.push(' * · type: "exterior"（室外）| "interior"（室内）');
-    lines.push(' * · preferredCharacters 存角色中文名');
+    lines.push(' * · preferredCharacters 存角色中文名，按 icon-dict order 升序');
     lines.push(' * · sets 按 id 升序排列');
     lines.push(' * ============================================================ */');
     lines.push('');
@@ -451,7 +467,8 @@
 
     sorted.forEach((s, i) => {
       const comma = i === sorted.length - 1 ? '' : ',';
-      const chars = (s.preferredCharacters || []).map((c) => `'${escJs(c)}'`).join(', ');
+      const sortedChars = sortCharsByOrder(s.preferredCharacters || []);
+      const chars = sortedChars.map((c) => `'${escJs(c)}'`).join(', ');
       lines.push(
         `    { id: ${s.id}, key: '${escJs(s.key)}', name: '${escJs(s.name)}', ` +
         `type: '${escJs(s.type)}', region: '${escJs(s.region)}', preferredCharacters: [${chars}] }${comma}`
@@ -464,7 +481,7 @@
   }
 
   /* ============================================================
-   * 11. 排序 / 过滤
+   * 12. 排序 / 过滤
    * ============================================================ */
   function setComparator() {
     return (a, b) => (a.id ?? 0) - (b.id ?? 0);
@@ -491,7 +508,7 @@
   }
 
   /* ============================================================
-   * 12. 渲染列表
+   * 13. 渲染列表
    * ============================================================ */
   function renderList() {
     if (!state.data) {
@@ -528,7 +545,7 @@
   }
 
   /* ============================================================
-   * 13. 渲染 chips + 批量输入
+   * 14. 渲染 chips（按 order 升序）
    * ============================================================ */
   function buildChipAvatar(name) {
     const key = state.charKeyMap.get(name);
@@ -555,7 +572,7 @@
   }
 
   function renderChipsInner(entry) {
-    const chars = entry.preferredCharacters || [];
+    const chars = sortCharsByOrder(entry.preferredCharacters || []);
     if (!chars.length) return '<span class="pg-char-empty">尚未添加角色</span>';
     return chars.map(renderChipHtml).join('');
   }
@@ -563,9 +580,7 @@
   function appendChips(entry, newNames) {
     const listEl = els.edFormPane.querySelector('#pgCharList');
     if (!listEl || !newNames.length) return;
-    const emptyEl = listEl.querySelector('.pg-char-empty');
-    if (emptyEl) emptyEl.remove();
-    listEl.insertAdjacentHTML('beforeend', newNames.map(renderChipHtml).join(''));
+    listEl.innerHTML = renderChipsInner(entry);
     injectIcons(listEl);
     upgradeChipImages(entry);
   }
@@ -778,7 +793,7 @@
   }
 
   /* ============================================================
-   * 14. 渲染表单
+   * 15. 渲染表单
    * ============================================================ */
   function buildPreviewSub(entry) {
     const parts = [];
@@ -902,7 +917,7 @@
         '</div>' +
 
         '<div class="ed-group">' +
-          '<label class="ed-label">偏好角色 <span class="ed-label-hint">支持逗号/空格/顿号分隔批量输入</span></label>' +
+          '<label class="ed-label">偏好角色 <span class="ed-label-hint">支持逗号/空格/顿号分隔批量输入；显示按 icon-dict order 升序</span></label>' +
           '<div id="pgCharArea"></div>' +
         '</div>' +
 
@@ -918,7 +933,7 @@
   }
 
   /* ============================================================
-   * 15. 表单事件
+   * 16. 表单事件
    * ============================================================ */
   function bindFormEvents(entry) {
     els.edFormPane.querySelectorAll('[data-field]').forEach((input) => {
@@ -1122,7 +1137,7 @@
   }
 
   /* ============================================================
-   * 16. Combobox
+   * 17. Combobox
    * ============================================================ */
   function setupCombobox(box, opts) {
     if (!box) return;
@@ -1231,7 +1246,7 @@
   }
 
   /* ============================================================
-   * 17. 主流程事件
+   * 18. 主流程事件
    * ============================================================ */
   function bindHeaderEvents() {
     els.btnTheme.addEventListener('click', () => {
@@ -1461,7 +1476,6 @@
         els.edListPane.classList.add('mobile-hidden');
         els.edFormPane.classList.add('mobile-visible');
       }
-      /* 新增后聚焦「名称」输入框（此前误聚焦 URL 输入框） */
       setTimeout(() => {
         els.edFormPane.querySelector('input[data-field="name"]')?.focus();
       }, 60);
@@ -1483,7 +1497,7 @@
   }
 
   /* ============================================================
-   * 18. 启动
+   * 19. 启动
    * ============================================================ */
   (function init() {
     injectIcons(document);
