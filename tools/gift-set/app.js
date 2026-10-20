@@ -188,7 +188,9 @@
       try { localStorage.setItem(THEME_KEY, next); } catch {}
     }
 
-    setTimeout(() => document.documentElement.classList.remove('theme-switching'), 120);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      document.documentElement.classList.remove('theme-switching');
+    }));
   }
 
   /* ============================================================
@@ -243,8 +245,8 @@
   /* ============================================================
    * 7. 头像渐变（ICON_LIB.load）
    * ============================================================ */
-  const avatarGradientCache = new Map();   // name → dataURL
-  const avatarGradientPending = new Map(); // name → Promise<dataURL|null>
+  const avatarGradientCache = new Map();
+  const avatarGradientPending = new Map();
 
   function getAvatarGradient(name) {
     if (avatarGradientCache.has(name)) return Promise.resolve(avatarGradientCache.get(name));
@@ -276,7 +278,6 @@
 
     const tasks = [];
     imgs.forEach((img) => {
-      /* 已经是 dataURL 就不再处理 */
       if (img.src.startsWith('data:')) return;
       const name = img.dataset.avatarName;
       if (!name) return;
@@ -376,14 +377,6 @@
       .sort((a, b) => getOrder(a) - getOrder(b));
   }
 
-  /**
-   * 返回：
-   * { status: 'done' | 'achieved' | 'incomplete' | 'unowned', text, completed }
-   * done       拥有角色全部完成，且所有角色都被拥有
-   * achieved   拥有角色全部完成，但有未拥有角色
-   * incomplete 拥有角色中还有没完成的
-   * unowned    0 个角色被拥有
-   */
   function getSetProgress(set) {
     const ownedSet = new Set(state.owned);
     const done = state.completed[set.key] || [];
