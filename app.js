@@ -55,15 +55,30 @@ function getSvgIcon(key, fallbackSvg = '') {
 }
 
 /* =========================================================================
- * 业务逻辑
+ * 主题切换：同源直接操作 iframe，同步生效；postMessage 兜底跨域
  * ========================================================================= */
 function applyTheme(theme) {
   currentTheme = theme === 'dark' ? 'dark' : 'light';
   document.documentElement.classList.add('theme-switching');
   document.documentElement.setAttribute('data-theme', currentTheme);
 
+  const iframeRoots = [];
+
   frameCache.forEach(record => {
     if (!record.loaded) return;
+
+    /* 同源直接操作：同步生效，零延迟 */
+    try {
+      const doc = record.iframe.contentDocument;
+      if (doc && doc.documentElement) {
+        doc.documentElement.classList.add('theme-switching');
+        if (currentTheme === 'dark') doc.documentElement.setAttribute('data-theme', 'dark');
+        else doc.documentElement.removeAttribute('data-theme');
+        iframeRoots.push(doc.documentElement);
+      }
+    } catch (e) {}
+
+    /* postMessage 兜底：跨域场景使用 */
     try {
       if (record.iframe.contentWindow) {
         record.iframe.contentWindow.postMessage({ type: 'theme', theme: currentTheme }, '*');
@@ -82,6 +97,9 @@ function applyTheme(theme) {
 
   requestAnimationFrame(() => requestAnimationFrame(() => {
     document.documentElement.classList.remove('theme-switching');
+    iframeRoots.forEach(root => {
+      try { root.classList.remove('theme-switching'); } catch (e) {}
+    });
   }));
 }
 
@@ -159,6 +177,17 @@ function ensureFrame(tool) {
   iframe.addEventListener('load', () => {
     record.loaded = true;
     if (view.classList.contains('active')) DOM.loadingMask.classList.remove('show');
+
+    /* 同源直接操作：同步生效，避免首帧闪烁 */
+    try {
+      const doc = iframe.contentDocument;
+      if (doc && doc.documentElement) {
+        if (currentTheme === 'dark') doc.documentElement.setAttribute('data-theme', 'dark');
+        else doc.documentElement.removeAttribute('data-theme');
+      }
+    } catch (e) {}
+
+    /* postMessage 兜底 */
     try {
       if (iframe.contentWindow) iframe.contentWindow.postMessage({ type: 'theme', theme: currentTheme }, '*');
     } catch (e) {}
