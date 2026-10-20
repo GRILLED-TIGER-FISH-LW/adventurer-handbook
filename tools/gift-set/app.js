@@ -106,6 +106,9 @@
     gsTypeTrigger: $('gsTypeTrigger'),
     gsTypeLabel: $('gsTypeLabel'),
     gsTypePanel: $('gsTypePanel'),
+    gsStatusTrigger: $('gsStatusTrigger'),
+    gsStatusLabel: $('gsStatusLabel'),
+    gsStatusPanel: $('gsStatusPanel'),
     gsSetList: $('gsSetList'),
     gsSetEmpty: $('gsSetEmpty'),
     gsFirstTip: $('gsFirstTip'),
@@ -189,7 +192,7 @@
   }
 
   /* ============================================================
-   * 6. 角色字典（排除旅行者，记录星级）
+   * 6. 角色字典
    * ============================================================ */
   const CHAR_INDEX = (() => {
     const dict = window.ICON_DICT;
@@ -211,8 +214,7 @@
 
       byName.set(item.name, {
         key,
-        order: item.order ?? 9999,
-        star: item.star ?? 0
+        order: item.order ?? 9999
       });
 
       let url = '';
@@ -237,10 +239,61 @@
 
   const getAvatarUrl = (name) => CHAR_INDEX.avatarUrl.get(name) || '';
   const getOrder = (name) => CHAR_INDEX.byName.get(name)?.order ?? 9999;
-  const getStar = (name) => CHAR_INDEX.byName.get(name)?.star ?? 0;
 
   /* ============================================================
-   * 7. 数据存储
+   * 7. 头像渐变（ICON_LIB.load）
+   * ============================================================ */
+  const avatarGradientCache = new Map();   // name → dataURL
+  const avatarGradientPending = new Map(); // name → Promise<dataURL|null>
+
+  function getAvatarGradient(name) {
+    if (avatarGradientCache.has(name)) return Promise.resolve(avatarGradientCache.get(name));
+    if (avatarGradientPending.has(name)) return avatarGradientPending.get(name);
+
+    const info = CHAR_INDEX.byName.get(name);
+    if (!info) return Promise.resolve(null);
+    if (!window.ICON_LIB?.load) return Promise.resolve(null);
+
+    const promise = (async () => {
+      try {
+        const dataURL = await window.ICON_LIB.load('characters', info.key, { size: 80 });
+        avatarGradientCache.set(name, dataURL);
+        return dataURL;
+      } catch {
+        return null;
+      } finally {
+        avatarGradientPending.delete(name);
+      }
+    })();
+
+    avatarGradientPending.set(name, promise);
+    return promise;
+  }
+
+  async function upgradeAvatars(root = document) {
+    const imgs = root.querySelectorAll('img[data-avatar-name]');
+    if (!imgs.length) return;
+
+    const tasks = [];
+    imgs.forEach((img) => {
+      /* 已经是 dataURL 就不再处理 */
+      if (img.src.startsWith('data:')) return;
+      const name = img.dataset.avatarName;
+      if (!name) return;
+
+      tasks.push(
+        getAvatarGradient(name).then((url) => {
+          if (!url) return;
+          if (!document.contains(img)) return;
+          img.src = url;
+        })
+      );
+    });
+    await Promise.all(tasks);
+  }
+
+  /* ============================================================
+   * 8. 数据存储
    * ============================================================ */
   const state = {
     sets: [],
@@ -251,6 +304,7 @@
     search: '',
     regionFilter: 'all',
     typeFilter: 'all',
+    statusFilter: 'all',
     openDropdown: null
   };
 
@@ -303,7 +357,7 @@
   }
 
   /* ============================================================
-   * 8. 套装工具
+   * 9. 套装工具
    * ============================================================ */
   function getSetImageUrl(set) {
     if (!set?.key) return '';
@@ -322,21 +376,38 @@
       .sort((a, b) => getOrder(a) - getOrder(b));
   }
 
+  /**
+   * 返回：
+   * { status: 'done' | 'achieved' | 'incomplete' | 'unowned', text, completed }
+   * done       拥有角色全部完成，且所有角色都被拥有
+   * achieved   拥有角色全部完成，但有未拥有角色
+   * incomplete 拥有角色中还有没完成的
+   * unowned    0 个角色被拥有
+   */
   function getSetProgress(set) {
     const ownedSet = new Set(state.owned);
     const done = state.completed[set.key] || [];
     const chars = getSetCharsSorted(set);
 
     const ownedChars = chars.filter((c) => ownedSet.has(c));
+
     if (!ownedChars.length) {
-      return { text: '未拥有角色', completed: false, empty: true };
+      return { status: 'unowned', text: '未拥有角色', completed: false };
     }
+
     const doneOwned = ownedChars.filter((c) => done.includes(c));
-    const isDone = doneOwned.length === ownedChars.length;
+    const allOwnedDone = doneOwned.length === ownedChars.length;
+
+    if (allOwnedDone && ownedChars.length === chars.length) {
+      return { status: 'done', text: '已完成', completed: true };
+    }
+    if (allOwnedDone) {
+      return { status: 'achieved', text: '已达成', completed: true };
+    }
     return {
-      text: isDone ? '已完成' : `${doneOwned.length} / ${ownedChars.length}`,
-      completed: isDone,
-      empty: false
+      status: 'incomplete',
+      text: `${doneOwned.length} / ${ownedChars.length}`,
+      completed: false
     };
   }
 
@@ -373,7 +444,7 @@
   }
 
   /* ============================================================
-   * 9. 角色栏渲染（无 chips，只有网格）
+   * 10. 角色栏渲染
    * ============================================================ */
   function renderCharGrid() {
     const ownedSet = new Set(state.owned);
@@ -392,25 +463,23 @@
     els.gsCharGrid.innerHTML = names
       .map((name) => {
         const url = getAvatarUrl(name);
-        const star = getStar(name);
         const initial = name.charAt(0);
         const avatarInner = url
-          ? `<img src="${esc(url)}" alt="" loading="lazy">${esc(initial)}`
+          ? `<img src="${esc(url)}" alt="" loading="lazy" data-avatar-name="${esc(name)}">${esc(initial)}`
           : esc(initial);
         const isOwned = ownedSet.has(name);
         const cls = 'gs-char-cell ' + (isOwned ? 'owned' : 'not-owned');
-        const starAttr = star ? ` data-star="${star}"` : '';
         return (
           `<div class="${cls}" data-char="${esc(name)}" title="${esc(name)}">` +
-            `<div class="gs-char-cell-avatar"${starAttr}>${avatarInner}</div>` +
+            `<div class="gs-char-cell-avatar">${avatarInner}</div>` +
             `<div class="gs-char-cell-name">${esc(name)}</div>` +
           '</div>'
         );
       })
       .join('');
 
-    /* 更新计数 */
     els.gsCharCount.textContent = String(state.owned.length);
+    upgradeAvatars(els.gsCharGrid).catch(() => {});
   }
 
   function updateCharSectionState() {
@@ -442,7 +511,7 @@
   }
 
   /* ============================================================
-   * 10. 套装卡片
+   * 11. 套装卡片
    * ============================================================ */
   function renderSetCardHtml(set, { showRecommendTag = false } = {}) {
     const url = getSetImageUrl(set);
@@ -455,7 +524,6 @@
       ? `<img src="${esc(url)}" alt="" loading="lazy">`
       : '<span class="gs-set-thumb-fallback">无图</span>';
 
-    const progressCls = prog.empty ? 'empty' : prog.completed ? 'done' : '';
     const cardCls = 'gs-set-item' + (prog.completed ? ' completed' : '');
     const tagHtml = showRecommendTag ? '<span class="gs-set-tag">推荐</span>' : '';
 
@@ -468,15 +536,13 @@
               'gs-set-char ' +
               (!isOwned ? 'not-owned' : isDone ? 'owned-done' : 'owned-pending');
             const charUrl = getAvatarUrl(name);
-            const star = getStar(name);
             const initial = name.charAt(0);
             const avatarInner = charUrl
-              ? `<img src="${esc(charUrl)}" alt="" loading="lazy">${esc(initial)}`
+              ? `<img src="${esc(charUrl)}" alt="" loading="lazy" data-avatar-name="${esc(name)}">${esc(initial)}`
               : esc(initial);
-            const starAttr = star ? ` data-star="${star}"` : '';
             return (
               `<div class="${cellCls}" data-char="${esc(name)}" title="${esc(name)}">` +
-                `<div class="gs-set-char-avatar"${starAttr}>${avatarInner}</div>` +
+                `<div class="gs-set-char-avatar">${avatarInner}</div>` +
                 `<div class="gs-set-char-name">${esc(name)}</div>` +
               '</div>'
             );
@@ -493,7 +559,7 @@
             `<div class="gs-set-name">${esc(set.name || '(未命名套装)')}</div>` +
             `<div class="gs-set-sub">${esc(set.region || '?')} · ${esc(typeLabel(set.type))}</div>` +
           '</div>' +
-          `<div class="gs-set-progress ${progressCls}">${esc(prog.text)}</div>` +
+          `<div class="gs-set-progress ${prog.status}">${esc(prog.text)}</div>` +
           '<span class="gs-set-arrow ic" data-icon="ui.chevronDown"></span>' +
         '</div>' +
         '<div class="gs-set-body">' +
@@ -518,6 +584,7 @@
       .map((s) => renderSetCardHtml(s, { showRecommendTag: true }))
       .join('');
     injectIcons(els.gsRecommendList);
+    upgradeAvatars(els.gsRecommendList).catch(() => {});
   }
 
   function renderAllSets() {
@@ -530,6 +597,14 @@
     const filtered = state.sets.filter((s) => {
       if (state.regionFilter !== 'all' && s.region !== state.regionFilter) return false;
       if (state.typeFilter !== 'all' && s.type !== state.typeFilter) return false;
+
+      if (state.statusFilter !== 'all') {
+        const status = getSetProgress(s).status;
+        if (state.statusFilter === 'done' && status !== 'done') return false;
+        if (state.statusFilter === 'achieved' && status !== 'achieved') return false;
+        if (state.statusFilter === 'incomplete' && status !== 'incomplete' && status !== 'unowned') return false;
+      }
+
       if (kw) {
         const chars = s.preferredCharacters || [];
         const hitName = (s.name || '').toLowerCase().includes(kw);
@@ -561,6 +636,7 @@
     els.gsSetEmpty.hidden = true;
     els.gsSetList.innerHTML = filtered.map((s) => renderSetCardHtml(s)).join('');
     injectIcons(els.gsSetList);
+    upgradeAvatars(els.gsSetList).catch(() => {});
 
     expanded.forEach((key) => {
       const el = els.gsSetList.querySelector(`.gs-set-item[data-set-key="${CSS.escape(key)}"]`);
@@ -569,7 +645,7 @@
   }
 
   /* ============================================================
-   * 11. 汇总刷新
+   * 12. 汇总刷新
    * ============================================================ */
   function refreshDerivedSections() {
     const hasOwned = state.owned.length > 0;
@@ -581,7 +657,7 @@
   }
 
   /* ============================================================
-   * 12. 套装内角色切换
+   * 13. 套装内角色切换
    * ============================================================ */
   function toggleSetChar(setKey, name) {
     if (EXCLUDED_CHARS.has(name)) return;
@@ -611,6 +687,7 @@
       if (newItem) {
         if (wasExpanded) newItem.classList.add('expanded');
         injectIcons(newItem);
+        upgradeAvatars(newItem).catch(() => {});
       }
     }
 
@@ -618,8 +695,15 @@
   }
 
   /* ============================================================
-   * 13. 筛选下拉
+   * 14. 筛选下拉
    * ============================================================ */
+  const STATUS_OPTIONS = [
+    { value: 'all', label: '全部状态' },
+    { value: 'done', label: '已完成' },
+    { value: 'achieved', label: '已达成' },
+    { value: 'incomplete', label: '未完成' }
+  ];
+
   function renderGsDropdown(panelEl, items, current) {
     panelEl.innerHTML = items.map((it) => {
       const active = it.value === current ? ' active' : '';
@@ -643,6 +727,8 @@
         { value: 'exterior', label: '室外' }
       ];
       renderGsDropdown(els.gsTypePanel, items, state.typeFilter);
+    } else if (key === 'status') {
+      renderGsDropdown(els.gsStatusPanel, STATUS_OPTIONS, state.statusFilter);
     }
   }
 
@@ -657,22 +743,25 @@
   }
 
   /* ============================================================
-   * 14. 定位到某套装
+   * 15. 定位到某套装
    * ============================================================ */
   function clearFilters() {
     const hadFilter =
       state.search !== '' ||
       state.regionFilter !== 'all' ||
-      state.typeFilter !== 'all';
+      state.typeFilter !== 'all' ||
+      state.statusFilter !== 'all';
     if (!hadFilter) return false;
 
     state.search = '';
     state.regionFilter = 'all';
     state.typeFilter = 'all';
+    state.statusFilter = 'all';
     els.gsSearch.value = '';
     els.gsSearchClear.classList.remove('show');
     els.gsRegionLabel.textContent = '全部地区';
     els.gsTypeLabel.textContent = '全部类型';
+    els.gsStatusLabel.textContent = '全部状态';
 
     renderAllSets();
     return true;
@@ -694,16 +783,18 @@
   }
 
   /* ============================================================
-   * 15. 导入 / 导出 / 重置
+   * 16. 导入 / 导出 / 重置
    * ============================================================ */
   function resetFiltersUI() {
     state.search = '';
     state.regionFilter = 'all';
     state.typeFilter = 'all';
+    state.statusFilter = 'all';
     els.gsSearch.value = '';
     els.gsSearchClear.classList.remove('show');
     els.gsRegionLabel.textContent = '全部地区';
     els.gsTypeLabel.textContent = '全部类型';
+    els.gsStatusLabel.textContent = '全部状态';
     els.gsCharSearch.value = '';
     closeGsDropdown();
   }
@@ -811,7 +902,7 @@
   }
 
   /* ============================================================
-   * 16. 事件绑定
+   * 17. 事件绑定
    * ============================================================ */
   function bindCharSectionEvents() {
     els.btnCharToggle.addEventListener('click', () => {
@@ -905,7 +996,12 @@
       toggleGsDropdown('type');
     });
 
-    [els.gsRegionPanel, els.gsTypePanel].forEach((panel) => {
+    els.gsStatusTrigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleGsDropdown('status');
+    });
+
+    [els.gsRegionPanel, els.gsTypePanel, els.gsStatusPanel].forEach((panel) => {
       panel.addEventListener('click', (e) => {
         const item = e.target.closest('.gs-dropdown-item');
         if (!item) return;
@@ -920,6 +1016,10 @@
           state.typeFilter = value;
           els.gsTypeLabel.textContent =
             value === 'all' ? '全部类型' : value === 'interior' ? '室内' : '室外';
+        } else if (key === 'status') {
+          state.statusFilter = value;
+          const opt = STATUS_OPTIONS.find((o) => o.value === value);
+          els.gsStatusLabel.textContent = opt ? opt.label : '全部状态';
         }
 
         closeGsDropdown();
@@ -980,7 +1080,7 @@
   }
 
   /* ============================================================
-   * 17. iframe 主题接收 + 图片加载失败兜底
+   * 18. iframe 主题接收 + 图片加载失败兜底
    * ============================================================ */
   window.addEventListener('message', (e) => {
     const data = e.data;
@@ -998,7 +1098,7 @@
   }, true);
 
   /* ============================================================
-   * 18. 启动
+   * 19. 启动
    * ============================================================ */
   (function init() {
     if (IS_IFRAME) {
