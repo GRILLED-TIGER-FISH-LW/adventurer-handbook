@@ -180,6 +180,9 @@
 
   function applyTheme(theme, { save = true } = {}) {
     const next = theme === 'dark' ? 'dark' : 'light';
+    const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    if (next === current) return;
+
     document.documentElement.classList.add('theme-switching');
     if (next === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
     else document.documentElement.removeAttribute('data-theme');
@@ -243,7 +246,7 @@
   const getOrder = (name) => CHAR_INDEX.byName.get(name)?.order ?? 9999;
 
   /* ============================================================
-   * 7. 头像渐变（ICON_LIB.load）
+   * 7. 头像渐变
    * ============================================================ */
   const avatarGradientCache = new Map();
   const avatarGradientPending = new Map();
