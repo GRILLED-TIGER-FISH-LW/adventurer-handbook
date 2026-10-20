@@ -5,7 +5,7 @@
  * · key 不含扩展名
  *   图片 URL = config.image.prefix + key + config.image.ext
  * · type: "exterior"（室外）| "interior"（室内）
- * · preferredCharacters 存角色中文名
+ * · preferredCharacters 存角色中文名，按 icon-dict order 升序
  * · sets 按 id 升序排列
  * ============================================================ */
 
@@ -36,21 +36,21 @@ window.HOMEWORLD_GIFT_SETS = {
   ],
 
   sets: [
-    { id: 1, key: 'UI_Home_Suite_Interior_Mond_Room_Of_Recollection', name: '诗歌沉思间', type: 'interior', region: '蒙德', preferredCharacters: ['琴', '丽莎', '菲谢尔', '莫娜', '优菈', '塔利雅', '杜林'] },
-    { id: 2, key: 'UI_Home_Suite_Interior_Mond_Room_Of_Whispers', name: '柔风低语间', type: 'interior', region: '蒙德', preferredCharacters: ['芭芭拉', '优菈', '诺艾尔'] },
-    { id: 3, key: 'UI_Home_Suite_Interior_Liyue_Room_Of_Clouds', name: '绯云文斋', type: 'interior', region: '璃月', preferredCharacters: ['行秋', '钟离', '凝光', '云堇', '白术', '蓝砚', '兹白'] },
-    { id: 4, key: 'UI_Home_Suite_Interior_Liyue_Room_Of_Dreams', name: '烟霞入梦阁', type: 'interior', region: '璃月', preferredCharacters: ['胡桃', '烟绯', '甘雨', '刻晴', '重云', '嘉明'] },
-    { id: 5, key: 'UI_Home_Suite_Interior_Common_Arcane_Laboratory', name: '秘术研究所', type: 'interior', region: '蒙德', preferredCharacters: ['可莉', '砂糖', '阿贝多', '丽莎', '布伦妮'] },
-    { id: 6, key: 'UI_Home_Suite_Interior_Common_Scented_Kitchen', name: '柴烟庖屋', type: 'interior', region: '璃月', preferredCharacters: ['达达利亚', '莫娜', '魈', '香菱', '雷泽', '瑶瑶', '米卡', '白术'] },
-    { id: 7, key: 'UI_Home_Suite_Exterior_Common_Blacksmith_Shop', name: '兵刃锻造站', type: 'exterior', region: '蒙德', preferredCharacters: ['诺艾尔', '班尼特', '迪卢克', '迪奥娜', '法尔伽'] },
-    { id: 8, key: 'UI_Home_Suite_Exterior_Mond_Pastoral_Village', name: '牧歌之镇', type: 'exterior', region: '蒙德', preferredCharacters: ['迪奥娜', '安柏', '雷泽'] },
-    { id: 9, key: 'UI_Home_Suite_Exterior_Mond_Floral_Garden', name: '花鸟公园', type: 'exterior', region: '蒙德', preferredCharacters: ['温迪', '罗莎莉亚', '芭芭拉', '琴', '凯亚', '塔利雅'] },
-    { id: 10, key: 'UI_Home_Suite_Exterior_Liyue_All_Delicacy', name: '千家饔飧坊', type: 'exterior', region: '璃月', preferredCharacters: ['北斗', '香菱', '甘雨', '辛焱', '达达利亚', '夜兰', '嘉明', '闲云'] },
-    { id: 11, key: 'UI_Home_Suite_Exterior_Liyue_Shopping_Street', name: '百里琳琅街', type: 'exterior', region: '璃月', preferredCharacters: ['凝光', '刻晴', '烟绯', '行秋', '钟离', '申鹤', '云堇', '蓝砚'] },
-    { id: 12, key: 'UI_Home_Suite_Exterior_Liyue_Qingce_Village', name: '轻策闲云居', type: 'exterior', region: '璃月', preferredCharacters: ['辛焱', '魈', '胡桃', '七七', '申鹤', '夜兰', '瑶瑶', '闲云', '兹白'] },
-    { id: 13, key: 'UI_Home_Suite_Exterior_Common_Domu_Camp', name: '狩猎与歌舞之营', type: 'exterior', region: '蒙德', preferredCharacters: ['安柏', '砂糖', '可莉', '北斗', '埃洛伊', '洛恩'] },
-    { id: 14, key: 'UI_Home_Suite_Exterior_Common_Journey_Of_Abyss', name: '星辰与深渊之旅', type: 'exterior', region: '蒙德', preferredCharacters: ['班尼特', '七七', '重云', '菲谢尔', '阿贝多', '埃洛伊', '米卡'] },
-    { id: 15, key: 'UI_Home_Suite_Exterior_Common_Dawn_Orchard', name: '晨曦果园', type: 'exterior', region: '蒙德', preferredCharacters: ['迪卢克', '凯亚', '温迪', '罗莎莉亚'] },
+    { id: 1, key: 'UI_Home_Suite_Interior_Mond_Room_Of_Recollection', name: '诗歌沉思间', type: 'interior', region: '蒙德', preferredCharacters: ['丽莎', '菲谢尔', '琴', '莫娜', '优菈', '塔利雅', '杜林'] },
+    { id: 2, key: 'UI_Home_Suite_Interior_Mond_Room_Of_Whispers', name: '柔风低语间', type: 'interior', region: '蒙德', preferredCharacters: ['芭芭拉', '诺艾尔', '优菈'] },
+    { id: 3, key: 'UI_Home_Suite_Interior_Liyue_Room_Of_Clouds', name: '绯云文斋', type: 'interior', region: '璃月', preferredCharacters: ['行秋', '凝光', '钟离', '云堇', '白术', '蓝砚', '兹白'] },
+    { id: 4, key: 'UI_Home_Suite_Interior_Liyue_Room_Of_Dreams', name: '烟霞入梦阁', type: 'interior', region: '璃月', preferredCharacters: ['重云', '刻晴', '甘雨', '胡桃', '烟绯', '嘉明'] },
+    { id: 5, key: 'UI_Home_Suite_Interior_Common_Arcane_Laboratory', name: '秘术研究所', type: 'interior', region: '蒙德', preferredCharacters: ['丽莎', '砂糖', '可莉', '阿贝多', '布伦妮'] },
+    { id: 6, key: 'UI_Home_Suite_Interior_Common_Scented_Kitchen', name: '柴烟庖屋', type: 'interior', region: '璃月', preferredCharacters: ['雷泽', '香菱', '莫娜', '达达利亚', '魈', '瑶瑶', '米卡', '白术'] },
+    { id: 7, key: 'UI_Home_Suite_Exterior_Common_Blacksmith_Shop', name: '兵刃锻造站', type: 'exterior', region: '蒙德', preferredCharacters: ['班尼特', '诺艾尔', '迪卢克', '迪奥娜', '法尔伽'] },
+    { id: 8, key: 'UI_Home_Suite_Exterior_Mond_Pastoral_Village', name: '牧歌之镇', type: 'exterior', region: '蒙德', preferredCharacters: ['安柏', '雷泽', '迪奥娜'] },
+    { id: 9, key: 'UI_Home_Suite_Exterior_Mond_Floral_Garden', name: '花鸟公园', type: 'exterior', region: '蒙德', preferredCharacters: ['凯亚', '芭芭拉', '琴', '温迪', '罗莎莉亚', '塔利雅'] },
+    { id: 10, key: 'UI_Home_Suite_Exterior_Liyue_All_Delicacy', name: '千家饔飧坊', type: 'exterior', region: '璃月', preferredCharacters: ['香菱', '北斗', '达达利亚', '辛焱', '甘雨', '夜兰', '嘉明', '闲云'] },
+    { id: 11, key: 'UI_Home_Suite_Exterior_Liyue_Shopping_Street', name: '百里琳琅街', type: 'exterior', region: '璃月', preferredCharacters: ['行秋', '凝光', '刻晴', '钟离', '烟绯', '云堇', '申鹤', '蓝砚'] },
+    { id: 12, key: 'UI_Home_Suite_Exterior_Liyue_Qingce_Village', name: '轻策闲云居', type: 'exterior', region: '璃月', preferredCharacters: ['七七', '辛焱', '魈', '胡桃', '申鹤', '夜兰', '瑶瑶', '闲云', '兹白'] },
+    { id: 13, key: 'UI_Home_Suite_Exterior_Common_Domu_Camp', name: '狩猎与歌舞之营', type: 'exterior', region: '蒙德', preferredCharacters: ['安柏', '北斗', '砂糖', '可莉', '埃洛伊', '洛恩'] },
+    { id: 14, key: 'UI_Home_Suite_Exterior_Common_Journey_Of_Abyss', name: '星辰与深渊之旅', type: 'exterior', region: '蒙德', preferredCharacters: ['菲谢尔', '班尼特', '重云', '七七', '阿贝多', '埃洛伊', '米卡'] },
+    { id: 15, key: 'UI_Home_Suite_Exterior_Common_Dawn_Orchard', name: '晨曦果园', type: 'exterior', region: '蒙德', preferredCharacters: ['凯亚', '迪卢克', '温迪', '罗莎莉亚'] },
     { id: 16, key: 'UI_Home_Suite_Exterior_Dq_Build_Courtyard', name: '正格之庭', type: 'exterior', region: '稻妻', preferredCharacters: ['九条裟罗', '神里绫人'] },
     { id: 17, key: 'UI_Home_Suite_Exterior_Dq_Build_Hotspring', name: '醒意汤泉', type: 'exterior', region: '稻妻', preferredCharacters: ['宵宫', '五郎', '八重神子', '鹿野院平藏', '千织', '梦见月瑞希'] },
     { id: 18, key: 'UI_Home_Suite_Exterior_Dq_Build_Village', name: '村中匿影', type: 'exterior', region: '稻妻', preferredCharacters: ['早柚', '五郎'] },
@@ -60,10 +60,10 @@ window.HOMEWORLD_GIFT_SETS = {
     { id: 22, key: 'UI_Home_Suite_Exterior_Dq_Street_Fete', name: '夏夜的追想', type: 'exterior', region: '稻妻', preferredCharacters: ['神里绫华', '荒泷一斗', '神里绫人'] },
     { id: 23, key: 'UI_Home_Suite_Exterior_Dq_Street_Shopping', name: '樱染的街巷', type: 'exterior', region: '稻妻', preferredCharacters: ['宵宫', '托马', '久岐忍', '绮良良', '丝柯克'] },
     { id: 24, key: 'UI_Home_Suite_Interior_Dq_Room_of_Bedroom', name: '遐久瞬梦间', type: 'interior', region: '稻妻', preferredCharacters: ['早柚', '珊瑚宫心海', '鹿野院平藏'] },
-    { id: 25, key: 'UI_Home_Suite_Interior_Dq_Room_of_Ground', name: '千振致业', type: 'interior', region: '稻妻', preferredCharacters: ['雷电将军', '神里绫华'] },
+    { id: 25, key: 'UI_Home_Suite_Interior_Dq_Room_of_Ground', name: '千振致业', type: 'interior', region: '稻妻', preferredCharacters: ['神里绫华', '雷电将军'] },
     { id: 26, key: 'UI_Home_Suite_Interior_Dq_Room_of_Study', name: '沉墨书舍', type: 'interior', region: '稻妻', preferredCharacters: ['珊瑚宫心海', '久岐忍'] },
-    { id: 27, key: 'UI_Home_Suite_Interior_Dq_Room_of_Teahouse', name: '枫香茶雾一室中', type: 'interior', region: '稻妻', preferredCharacters: ['托马', '枫原万叶', '梦见月瑞希'] },
-    { id: 28, key: 'UI_Home_Suite_Interior_Xm_Room_Of_Forest', name: '巡林常途的百千趣事', type: 'interior', region: '须弥', preferredCharacters: ['提纳里', '柯莱'] },
+    { id: 27, key: 'UI_Home_Suite_Interior_Dq_Room_of_Teahouse', name: '枫香茶雾一室中', type: 'interior', region: '稻妻', preferredCharacters: ['枫原万叶', '托马', '梦见月瑞希'] },
+    { id: 28, key: 'UI_Home_Suite_Interior_Xm_Room_Of_Forest', name: '巡林常途的百千趣事', type: 'interior', region: '须弥', preferredCharacters: ['柯莱', '提纳里'] },
     { id: 29, key: 'UI_Home_Suite_Interior_Xm_Room_Of_Jewelry', name: '凝停的绮璨明彩', type: 'interior', region: '须弥', preferredCharacters: ['多莉', '妮露'] },
     { id: 30, key: 'UI_Home_Suite_Interior_Xm_Room_Of_Barbecue', name: '至烈至强的醇香', type: 'interior', region: '须弥', preferredCharacters: ['艾尔海森', '迪希雅', '赛索斯'] },
     { id: 31, key: 'UI_Home_Suite_Interior_Xm_Room_Of_Library', name: '识见沉降之地', type: 'interior', region: '须弥', preferredCharacters: ['赛诺', '珐露珊', '艾尔海森', '丝柯克'] },
@@ -110,7 +110,7 @@ window.HOMEWORLD_GIFT_SETS = {
     { id: 72, key: 'UI_Home_Suite_Interior_Ndkl_Room_Zhidengren', name: '战前的小憩', type: 'interior', region: '挪德卡莱', preferredCharacters: ['菲林斯', '叶洛亚'] },
     { id: 73, key: 'UI_Home_Suite_Interior_Ndkl_Room_Factory', name: '暇间的茶会', type: 'interior', region: '挪德卡莱', preferredCharacters: ['桑多涅'] },
     { id: 74, key: 'UI_Home_Suite_Exterior_Ndkl_Field_Nature', name: '终北之地的原野', type: 'exterior', region: '挪德卡莱', preferredCharacters: ['杜林', '莉奈娅', '尼可'] },
-    { id: 75, key: 'UI_Home_Suite_Exterior_Ndkl_Build_Naxia', name: '繁忙的边地小镇', type: 'exterior', region: '挪德卡莱', preferredCharacters: ['奈芙尔', '雅珂达', '法尔伽', '洛恩', '布伦妮'] },
+    { id: 75, key: 'UI_Home_Suite_Exterior_Ndkl_Build_Naxia', name: '繁忙的边地小镇', type: 'exterior', region: '挪德卡莱', preferredCharacters: ['奈芙尔', '雅珂达', '法尔伽', '布伦妮', '洛恩'] },
     { id: 76, key: 'UI_Home_Suite_Exterior_Ndkl_Build_Shuangyue', name: '月下的恬静祷歌', type: 'exterior', region: '挪德卡莱', preferredCharacters: ['菈乌玛', '哥伦比娅'] },
     { id: 77, key: 'UI_Home_Suite_Exterior_Ndkl_Build_Zhidengren', name: '漫漫长夜中的孤灯', type: 'exterior', region: '挪德卡莱', preferredCharacters: ['菲林斯', '叶洛亚'] },
     { id: 78, key: 'UI_Home_Suite_Exterior_Ndkl_Build_Workshop', name: '方兴未艾的工坊', type: 'exterior', region: '挪德卡莱', preferredCharacters: ['伊涅芙', '爱诺'] },
