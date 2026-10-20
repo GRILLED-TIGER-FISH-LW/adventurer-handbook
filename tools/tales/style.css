@@ -105,7 +105,6 @@ body {
   opacity: 1; visibility: visible; pointer-events: auto;
 }
 
-/* 左对齐（display: block + width: 100%） */
 .dropdown-item {
   display: block;
   width: 100%;
@@ -164,7 +163,6 @@ body {
 }
 .action-btn:hover { background: var(--bg-hover); }
 
-/* 危险按钮：明显红调 */
 .action-btn.danger {
   background: var(--danger-bg);
   border-color: var(--danger-border);
@@ -175,7 +173,6 @@ body {
   border-color: var(--danger);
 }
 
-/* 图标 16px（与 theme.css 的 button svg 规则对齐） */
 .action-btn-icon { width: 16px !important; height: 16px !important; display: block; }
 
 /* ============================================================
@@ -258,4 +255,20 @@ body {
   .action-btn-icon { width: 16px !important; height: 16px !important; }
   .tale-card { grid-template-columns: 36px 1fr 18px; padding: 10px; }
   .tale-avatar { width: 36px; height: 36px; }
+}
+
+/* ============================================================
+ * 滚动条（track margin 让 thumb 上下不贴圆角）
+ * ============================================================ */
+.dropdown-panel::-webkit-scrollbar { width: 6px; }
+.dropdown-panel::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 8px 0;
+}
+.dropdown-panel::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 3px;
+}
+.dropdown-panel::-webkit-scrollbar-thumb:hover {
+  background: var(--border-strong);
 }
