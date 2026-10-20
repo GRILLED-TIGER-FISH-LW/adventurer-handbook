@@ -693,20 +693,30 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
     width: 32px !important;
     height: 32px !important;
   }
+
   .gs-main { padding: 10px 10px 24px; }
   .gs-char-grid-wrap { max-height: 340px; }
 }
 
 /* ============================================================
- * 10. 局部滚动条
+ * 10. 局部滚动条（track margin 让 thumb 上下不贴圆角）
  * ============================================================ */
-.gs-char-grid-wrap::-webkit-scrollbar { width: 6px; }
-.gs-char-grid-wrap::-webkit-scrollbar-thumb {
-  background: var(--border-default);
-  border-radius: 3px;
-}
+.gs-char-grid-wrap::-webkit-scrollbar,
 .gs-dropdown-panel::-webkit-scrollbar { width: 6px; }
+
+.gs-char-grid-wrap::-webkit-scrollbar-track,
+.gs-dropdown-panel::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 8px 0;
+}
+
+.gs-char-grid-wrap::-webkit-scrollbar-thumb,
 .gs-dropdown-panel::-webkit-scrollbar-thumb {
   background: var(--border-default);
   border-radius: 3px;
+}
+
+.gs-char-grid-wrap::-webkit-scrollbar-thumb:hover,
+.gs-dropdown-panel::-webkit-scrollbar-thumb:hover {
+  background: var(--border-strong);
 }
