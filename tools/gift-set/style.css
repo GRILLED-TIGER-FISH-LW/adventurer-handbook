@@ -156,7 +156,6 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 }
 .gs-toggle-btn:hover { background: var(--bg-hover); border-color: var(--border-strong); }
 
-/* 折叠切换箭头：展开态朝上（可点击收起），折叠态朝下（可点击展开） */
 .gs-toggle-btn .ic {
   width: 12px;
   height: 12px;
@@ -263,11 +262,6 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
   object-fit: cover;
 }
 
-.gs-char-cell-avatar[data-star="4"],
-.gs-set-char-avatar[data-star="4"] { background: #9174A9; }
-.gs-char-cell-avatar[data-star="5"],
-.gs-set-char-avatar[data-star="5"] { background: #DCA454; }
-
 .gs-char-cell-name {
   font-size: 10px;
   line-height: 1.2;
@@ -284,24 +278,6 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
   border-color: var(--accent);
 }
 .gs-char-cell.owned .gs-char-cell-name { color: var(--text-primary); font-weight: 500; }
-
-.gs-char-cell.owned::after {
-  content: "✓";
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 14px;
-  height: 14px;
-  line-height: 14px;
-  text-align: center;
-  font-size: 9px;
-  font-weight: 700;
-  color: #fff;
-  background: var(--accent);
-  border-radius: 50%;
-  box-shadow: 0 0 0 2px var(--bg-surface);
-  pointer-events: none;
-}
 
 .gs-char-cell.not-owned {
   opacity: 0.35;
@@ -360,7 +336,7 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 
 .gs-filter-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 6px;
 }
 
@@ -372,7 +348,7 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 .gs-dropdown-trigger {
   height: 30px;
   width: 100%;
-  padding: 0 9px;
+  padding: 0 8px;
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
@@ -553,11 +529,16 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
   flex-shrink: 0;
   padding-left: 6px;
 }
-.gs-set-progress.done {
+.gs-set-progress.done,
+.gs-set-progress.achieved {
   color: var(--accent);
   text-shadow: 0 0 6px var(--accent-soft);
 }
-.gs-set-progress.empty { color: var(--text-tertiary); font-weight: 400; }
+.gs-set-progress.empty,
+.gs-set-progress.unowned {
+  color: var(--text-tertiary);
+  font-weight: 400;
+}
 
 .gs-set-arrow {
   width: 12px;
@@ -669,24 +650,6 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 .gs-set-char.owned-done .gs-set-char-name {
   color: var(--text-primary);
   font-weight: 500;
-}
-
-.gs-set-char.owned-done::after {
-  content: "✓";
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 14px;
-  height: 14px;
-  line-height: 14px;
-  text-align: center;
-  font-size: 9px;
-  font-weight: 700;
-  color: #fff;
-  background: var(--accent);
-  border-radius: 50%;
-  box-shadow: 0 0 0 2px var(--bg-surface);
-  pointer-events: none;
 }
 
 /* ============================================================
