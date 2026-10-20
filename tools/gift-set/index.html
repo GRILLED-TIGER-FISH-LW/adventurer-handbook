@@ -44,7 +44,8 @@
         loadStyle('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/theme.css'),
         loadStyle('style.css'),
         loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/ui-icons.js'),
-        loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-dict.js')
+        loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-dict.js'),
+        loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-loader.js')
       ]);
     } catch (failUrl) {
       coreFails.push(failUrl);
@@ -216,6 +217,13 @@ body.ready .boot-loading { display: none; }
               <span class="ic gs-dropdown-arrow" data-icon="ui.chevronDown"></span>
             </button>
             <div class="gs-dropdown-panel" id="gsTypePanel"></div>
+          </div>
+          <div class="gs-dropdown-wrap" data-key="status">
+            <button type="button" class="gs-dropdown-trigger" id="gsStatusTrigger">
+              <span class="gs-dropdown-label" id="gsStatusLabel">全部状态</span>
+              <span class="ic gs-dropdown-arrow" data-icon="ui.chevronDown"></span>
+            </button>
+            <div class="gs-dropdown-panel" id="gsStatusPanel"></div>
           </div>
         </div>
       </div>
