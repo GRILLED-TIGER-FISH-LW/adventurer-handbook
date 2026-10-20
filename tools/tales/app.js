@@ -411,9 +411,13 @@
     });
   }
 
+  /* 主题同步：父页面会先同源直接设好，postMessage 到达时若已一致则跳过，避免重复 */
   window.addEventListener('message', function (e) {
     if (e.data && e.data.type === 'theme') {
       const html = document.documentElement;
+      const current = html.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      if (current === e.data.theme) return;
+
       html.classList.add('theme-switching');
       if (e.data.theme === 'dark') html.setAttribute('data-theme', 'dark');
       else html.removeAttribute('data-theme');
