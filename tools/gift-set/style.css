@@ -2,6 +2,13 @@
  * 尘歌壶赠礼套装 · style.css
  * 依赖：shared/css/theme.css
  * ------------------------------------------------------------
+ * v5 变更：
+ *  1. 【按钮收图标改用共享类】480px 下 .gs-header-actions .btn 的本地规则删除，
+ *     改由 shared/css/buttons.css 的 .btn-collapse 处理（断点 640px）。
+ *     注意：481~640px 之间按钮会提前收成图标（原来该区间显示文字）。
+ *  2. 【折叠按钮升档】.gs-toggle-btn .icon-slot 从 --icon-sm(14) 提到 --icon(18)。
+ *     三个区块的折叠开关都是 32px 方块里的 14px 图标（44%），偏小。
+ * ------------------------------------------------------------
  * v4 变更：
  *  1. 【顶栏跟滚 + 滚动条包全页】body 补回 height: 100dvh / overflow: hidden。
  *     v2 删这两行时判断「与 theme.css 重复」，但 theme.css 只有 min-height，
@@ -125,13 +132,14 @@ body {
   border-color: var(--border-strong);
 }
 
-/* 共享 CSS 只给 .dropdown-trigger 上下文里的 .icon-slot 定了尺寸，这里补上 */
+/* 共享 CSS 只给 .dropdown-trigger 上下文里的 .icon-slot 定了尺寸，这里补上。
+ * 纯图标按钮 → 按 --icon(18) 渲染，与 .btn-icon 同档。 */
 .gs-toggle-btn .icon-slot {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--icon-sm);
-  height: var(--icon-sm);
+  width: var(--icon);
+  height: var(--icon);
   flex-shrink: 0;
   transition: transform var(--dur) var(--ease);
   transform: rotate(180deg);
@@ -444,6 +452,7 @@ body {
 
 /* ============================================================
  * 10. 响应式
+ *    顶栏按钮「收成纯图标」由共享 .btn-collapse 处理（断点 640px）
  * ============================================================ */
 @media (max-width: 480px) {
   .gs-header { padding: var(--gap-sm) var(--gap); }
@@ -454,12 +463,6 @@ body {
   .gs-set-body { padding: var(--gap-sm) var(--gap) var(--gap); }
   .gs-char-grid-wrap { max-height: 300px; }
   .gs-danger-zone { padding: var(--gap) var(--gap); }
-
-  .gs-header-actions .btn {
-    width: var(--h-ctl);
-    padding: 0;
-  }
-  .gs-header-actions .btn-text { display: none; }
 }
 
 /* ============================================================
