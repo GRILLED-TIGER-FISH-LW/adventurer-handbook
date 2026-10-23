@@ -1,38 +1,39 @@
 /* ============================================================
- * 尘歌壶赠礼套装编辑器 · 逻辑
+ * 尘歌壶赠礼套装编辑器 · app.js
+ * ------------------------------------------------------------
+ * v2 变更（对齐 index.html v2 / style.css v2）：
+ *  1. 【图标】删除 FALLBACK_ICONS，全部改用 ui.reload / ui.reorder /
+ *     ui.back / ui.file / ui.close
+ *  2. 【主题】删除 THEME_KEY / currentTheme / applyTheme，改用 Theme.toggle()
+ *  3. 【类名】Toast / 弹窗 / 搜索清除 → .is-visible
+ *  4. 【下拉】删除 tab-sheet 一整套（openSheet / els.sheet*），
+ *     筛选改用共享 dropdown.js + dropdown:select
+ *  5. 【联想】.ed-combobox* → 共享 .combobox*，highlight → is-highlight
+ *  6. 【表单】.ed-group / .ed-label / .ed-row-2 → .field / .field-label / .field-row
+ *  7. 【按钮】.btn-sm / .ios-btn-fill → .btn；.ic → .icon-slot
+ *  8. 【状态类】.active → .is-active；.warn → .is-warn
+ *  9. 【健壮】init 改为 async + 等待 __bootPromise + 全流程 try/catch
+ * 10. 「重排 ID」按钮位置在 HTML 里已移到列表底部，ID 不变、逻辑不变
  * ============================================================ */
+
 (function () {
   'use strict';
 
   const DRAFT_KEY = 'genshin_homeworld_gift_sets_editor_draft_v1';
-  const THEME_KEY = 'genshin_travelers_tales_theme_v1';
   const CHAR_SPLIT_RE = /[\s，,、;；]+/;
   const CHAR_SPLIT_TEST = /[\s，,、;；]/;
 
   /* ============================================================
-   * 1. 兜底图标
+   * 1. 图标
    * ============================================================ */
-  const FALLBACK_ICONS = {
-    reload:
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="M224 48v48a8 8 0 0 1-8 8h-48a8 8 0 0 1 0-16h28.69l-14.63-14.63a79.56 79.56 0 0 0-56.13-23.43h-.45a79.52 79.52 0 0 0-55.89 22.77a8 8 0 0 1-11.18-11.44a96 96 0 0 1 135 .79L208 76.69V48a8 8 0 0 1 16 0m-37.59 135.29a80 80 0 0 1-112.47-.66L59.31 168H88a8 8 0 0 0 0-16H40a8 8 0 0 0-8 8v48a8 8 0 0 0 16 0v-28.69l14.63 14.63A95.43 95.43 0 0 0 130 222.06h.53a95.36 95.36 0 0 0 67.07-27.33a8 8 0 0 0-11.18-11.44Z"/></svg>',
-    reorder:
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="M237.66 178.34a8 8 0 0 1 0 11.32l-24 24a8 8 0 0 1-11.32-11.32L212.69 192h-11.75a72.12 72.12 0 0 1-58.59-30.15l-41.72-58.4A56.1 56.1 0 0 0 55.06 80H32a8 8 0 0 1 0-16h23.06a72.12 72.12 0 0 1 58.59 30.15l41.72 58.4A56.1 56.1 0 0 0 200.94 176h11.75l-10.35-10.34a8 8 0 0 1 11.32-11.32ZM143 107a8 8 0 0 0 11.16-1.86l1.2-1.67A56.1 56.1 0 0 1 200.94 80h11.75l-10.35 10.34a8 8 0 0 0 11.32 11.32l24-24a8 8 0 0 0 0-11.32l-24-24a8 8 0 0 0-11.32 11.32L212.69 64h-11.75a72.12 72.12 0 0 0-58.59 30.15l-1.2 1.67A8 8 0 0 0 143 107m-30 42a8 8 0 0 0-11.16 1.86l-1.2 1.67A56.1 56.1 0 0 1 55.06 176H32a8 8 0 0 0 0 16h23.06a72.12 72.12 0 0 0 58.59-30.15l1.2-1.67A8 8 0 0 0 113 149"/></svg>',
-    back:
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="M232 184a8 8 0 0 1-16 0a88 88 0 0 0-150.22-62.22L43.4 144H88a8 8 0 0 1 0 16H24a8 8 0 0 1-8-8V88a8 8 0 0 1 16 0v44.77l22.48-22.33A104 104 0 0 1 232 184"/></svg>',
-    file:
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="m213.66 82.34l-56-56A8 8 0 0 0 152 24H56a16 16 0 0 0-16 16v176a16 16 0 0 0 16 16h144a16 16 0 0 0 16-16V88a8 8 0 0 0-2.34-5.66M160 51.31L188.69 80H160ZM200 216H56V40h88v48a8 8 0 0 0 8 8h48z"/></svg>'
-  };
-
   function resolveIcon(key) {
-    if (window.ICONS) {
-      let cur = window.ICONS;
-      for (const p of key.split('.')) {
-        cur = cur?.[p];
-        if (!cur) break;
-      }
-      if (typeof cur === 'string') return cur;
+    let cur = window.ICONS;
+    if (!cur) return '';
+    for (const p of String(key).split('.')) {
+      cur = cur?.[p];
+      if (!cur) return '';
     }
-    return FALLBACK_ICONS[key] || '';
+    return typeof cur === 'string' ? cur : '';
   }
 
   function injectIcons(root = document) {
@@ -118,10 +119,10 @@
     btnTheme: $('btnTheme'),
     searchInput: $('searchInput'),
     searchClear: $('searchClear'),
-    typeTrigger: $('typeTrigger'),
     typeLabel: $('typeLabel'),
-    regionTrigger: $('regionTrigger'),
+    typePanel: $('typePanel'),
     regionLabel: $('regionLabel'),
+    regionPanel: $('regionPanel'),
     edListPane: $('edListPane'),
     edList: $('edList'),
     btnAdd: $('btnAdd'),
@@ -131,49 +132,48 @@
     modalBackdrop: $('modalBackdrop'),
     modalTitle: $('modalTitle'),
     modalMessage: $('modalMessage'),
-    modalActions: $('modalActions'),
-    sheetBackdrop: $('sheetBackdrop'),
-    sheet: $('sheet'),
-    sheetHeader: $('sheetHeader'),
-    sheetList: $('sheetList')
+    modalActions: $('modalActions')
   };
 
   /* ============================================================
-   * 4. Toast / 确认框 / 下拉抽屉
+   * 4. Toast / 确认框
    * ============================================================ */
   function toast(message, type = '') {
+    if (!els.toastContainer) return;
     const el = document.createElement('div');
     el.className = 'toast' + (type ? ' toast-' + type : '');
     el.textContent = message;
     els.toastContainer.appendChild(el);
-    requestAnimationFrame(() => el.classList.add('show'));
+    requestAnimationFrame(() => el.classList.add('is-visible'));
     setTimeout(() => {
-      el.classList.remove('show');
+      el.classList.remove('is-visible');
       setTimeout(() => el.remove(), 350);
     }, 2200);
   }
 
   function confirmDialog({ title, message, okText = '确定', cancelText = '取消', danger = false }) {
     return new Promise((resolve) => {
+      if (!els.modalBackdrop) { resolve(false); return; }
+
       els.modalTitle.textContent = title || '';
       els.modalMessage.textContent = message || '';
       els.modalActions.innerHTML = '';
 
       const cancelBtn = document.createElement('button');
       cancelBtn.type = 'button';
-      cancelBtn.className = 'btn-sm';
+      cancelBtn.className = 'btn';
       cancelBtn.textContent = cancelText;
 
       const okBtn = document.createElement('button');
       okBtn.type = 'button';
-      okBtn.className = 'btn-sm ' + (danger ? 'btn-danger' : 'ios-btn-fill');
+      okBtn.className = 'btn' + (danger ? ' btn-danger' : '');
       okBtn.textContent = okText;
 
       els.modalActions.append(cancelBtn, okBtn);
-      els.modalBackdrop.classList.add('show');
+      els.modalBackdrop.classList.add('is-visible');
 
       const close = (result) => {
-        els.modalBackdrop.classList.remove('show');
+        els.modalBackdrop.classList.remove('is-visible');
         cancelBtn.removeEventListener('click', onCancel);
         okBtn.removeEventListener('click', onOk);
         els.modalBackdrop.removeEventListener('click', onBackdrop);
@@ -191,55 +191,8 @@
     });
   }
 
-  function openSheet({ header, items, current, onSelect }) {
-    els.sheetHeader.textContent = header || '';
-    els.sheetList.innerHTML = '';
-
-    items.forEach((item) => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'tab-sheet-item' + (item.value === current ? ' active' : '');
-      btn.innerHTML =
-        '<span>' + esc(item.label) + '</span>' +
-        '<span class="tab-sheet-item-check"><span class="ic" data-icon="ui.check"></span></span>';
-      btn.addEventListener('click', () => {
-        closeSheet();
-        onSelect(item.value);
-      });
-      els.sheetList.appendChild(btn);
-    });
-    injectIcons(els.sheetList);
-
-    els.sheetBackdrop.classList.add('show');
-    els.sheet.classList.add('show');
-
-    const onBackdrop = (e) => {
-      if (e.target === els.sheetBackdrop) closeSheet();
-    };
-    els.sheetBackdrop.addEventListener('click', onBackdrop);
-
-    function closeSheet() {
-      els.sheetBackdrop.classList.remove('show');
-      els.sheet.classList.remove('show');
-      els.sheetBackdrop.removeEventListener('click', onBackdrop);
-    }
-  }
-
   /* ============================================================
-   * 5. 主题
-   * ============================================================ */
-  const currentTheme = () =>
-    document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-
-  function applyTheme(theme) {
-    document.documentElement.classList.add('theme-switching');
-    if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-    else document.documentElement.removeAttribute('data-theme');
-    setTimeout(() => document.documentElement.classList.remove('theme-switching'), 120);
-  }
-
-  /* ============================================================
-   * 6. 数据骨架 + 规范化
+   * 5. 数据骨架 + 规范化
    * ============================================================ */
   function defaultData() {
     return {
@@ -298,7 +251,7 @@
   }
 
   /* ============================================================
-   * 7. 角色字典（含 order）
+   * 6. 角色字典（含 order）
    * ============================================================ */
   function buildCharMaps() {
     const keyMap = new Map();
@@ -319,7 +272,6 @@
 
   const charMaps = buildCharMaps();
 
-  /* 按 icon-dict.js 的 order 升序排序角色名数组 */
   function sortCharsByOrder(chars) {
     if (!Array.isArray(chars)) return [];
     return chars.slice().sort((a, b) => {
@@ -330,7 +282,7 @@
   }
 
   /* ============================================================
-   * 8. 状态
+   * 7. 状态
    * ============================================================ */
   const state = {
     data: null,
@@ -347,7 +299,7 @@
   };
 
   /* ============================================================
-   * 9. URL
+   * 8. URL
    * ============================================================ */
   function getSetImageUrl(set) {
     if (!set?.key || !state.data?.config?.image) return '';
@@ -372,7 +324,7 @@
   }
 
   /* ============================================================
-   * 10. 草稿
+   * 9. 草稿
    * ============================================================ */
   let draftTimer = null;
 
@@ -391,18 +343,18 @@
   }
   function markDirty() {
     state.dirty = true;
-    els.dirtyDot.hidden = false;
+    if (els.dirtyDot) els.dirtyDot.hidden = false;
     clearTimeout(draftTimer);
     draftTimer = setTimeout(saveDraft, 400);
   }
   function clearDirty() {
     state.dirty = false;
-    els.dirtyDot.hidden = true;
+    if (els.dirtyDot) els.dirtyDot.hidden = true;
     clearTimeout(draftTimer);
   }
 
   /* ============================================================
-   * 11. 解析 / 序列化
+   * 10. 解析 / 序列化
    * ============================================================ */
   function parseDataJs(text) {
     const prev = window.HOMEWORLD_GIFT_SETS;
@@ -481,7 +433,7 @@
   }
 
   /* ============================================================
-   * 12. 排序 / 过滤
+   * 11. 排序 / 过滤
    * ============================================================ */
   function setComparator() {
     return (a, b) => (a.id ?? 0) - (b.id ?? 0);
@@ -508,9 +460,11 @@
   }
 
   /* ============================================================
-   * 13. 渲染列表
+   * 12. 渲染列表
    * ============================================================ */
   function renderList() {
+    if (!els.edList) return;
+
     if (!state.data) {
       els.edList.innerHTML = '<div class="ed-list-empty">数据未加载<br>点「重载」或「导入」</div>';
       return;
@@ -524,28 +478,26 @@
       return;
     }
 
-    els.edList.innerHTML = list
-      .map((s) => {
-        const url = getSetImageUrl(s);
-        const thumbInner = url ? `<img src="${esc(url)}" alt="" loading="lazy">` : '';
-        const active = s.id === state.selectedId ? ' active' : '';
-        const chars = (s.preferredCharacters || []).length;
-        const sub = [s.region || '?', typeLabel(s.type), chars + ' 人'].join(' · ');
-        return (
-          `<div class="ed-list-item${active}" data-id="${s.id}">` +
-            `<div class="pg-list-thumb">${thumbInner}</div>` +
-            '<div class="ed-list-item-body">' +
-              `<div class="ed-list-item-title">${esc(s.name || '(未命名套装)')}</div>` +
-              `<div class="ed-list-item-sub">${esc(sub)}</div>` +
-            '</div>' +
-          '</div>'
-        );
-      })
-      .join('');
+    els.edList.innerHTML = list.map((s) => {
+      const url = getSetImageUrl(s);
+      const thumbInner = url ? `<img src="${esc(url)}" alt="" loading="lazy">` : '';
+      const active = s.id === state.selectedId ? ' is-active' : '';
+      const chars = (s.preferredCharacters || []).length;
+      const sub = [s.region || '?', typeLabel(s.type), chars + ' 人'].join(' · ');
+      return (
+        `<div class="ed-list-item${active}" data-id="${s.id}">` +
+          `<div class="pg-list-thumb">${thumbInner}</div>` +
+          '<div class="ed-list-item-body">' +
+            `<div class="ed-list-item-title">${esc(s.name || '(未命名套装)')}</div>` +
+            `<div class="ed-list-item-sub">${esc(sub)}</div>` +
+          '</div>' +
+        '</div>'
+      );
+    }).join('');
   }
 
   /* ============================================================
-   * 14. 渲染 chips（按 order 升序）
+   * 13. 渲染 chips（按 order 升序）
    * ============================================================ */
   function buildChipAvatar(name) {
     const key = state.charKeyMap.get(name);
@@ -565,7 +517,7 @@
         `<span class="pg-chip-avatar">${buildChipAvatar(name)}</span>` +
         `<span class="pg-chip-name">${esc(name)}</span>` +
         `<button type="button" class="pg-chip-remove" data-remove="${esc(name)}">` +
-          '<span class="ic" data-icon="app.close"></span>' +
+          '<span class="icon-slot" data-icon="ui.close"></span>' +
         '</button>' +
       '</span>'
     );
@@ -590,11 +542,11 @@
     if (!area) return;
     area.innerHTML =
       `<div class="pg-char-list" id="pgCharList">${renderChipsInner(entry)}</div>` +
-      '<div class="ed-combobox" data-combobox="character-add">' +
-        '<div class="ed-combobox-input-wrap">' +
+      '<div class="combobox" data-combobox="character-add">' +
+        '<div class="combobox-input-wrap">' +
           '<input type="text" placeholder="输入角色名，多个用逗号/空格分隔" autocomplete="off" spellcheck="false">' +
         '</div>' +
-        '<div class="ed-combobox-popup" hidden></div>' +
+        '<div class="combobox-popup" hidden></div>' +
       '</div>';
 
     injectIcons(area);
@@ -661,7 +613,7 @@
       toast('字典中未找到：' + notInDict.join('、'), 'error');
     }
 
-    const popup = input.closest('.ed-combobox')?.querySelector('.ed-combobox-popup');
+    const popup = input.closest('.combobox')?.querySelector('.combobox-popup');
     if (popup) popup.hidden = true;
   }
 
@@ -683,7 +635,7 @@
     }
 
     setupCombobox(
-      els.edFormPane.querySelector('.ed-combobox[data-combobox="character-add"]'),
+      els.edFormPane.querySelector('.combobox[data-combobox="character-add"]'),
       {
         items: () => state.charList.filter((n) => !entry.preferredCharacters.includes(n)),
         allowCustom: true,
@@ -702,7 +654,7 @@
     );
 
     const input = els.edFormPane.querySelector(
-      '.ed-combobox[data-combobox="character-add"] input'
+      '.combobox[data-combobox="character-add"] input'
     );
     if (!input) return;
 
@@ -793,7 +745,7 @@
   }
 
   /* ============================================================
-   * 15. 渲染表单
+   * 14. 渲染表单
    * ============================================================ */
   function buildPreviewSub(entry) {
     const parts = [];
@@ -815,7 +767,7 @@
       '<div class="pg-preview">' +
         `<div class="pg-preview-frame">${frameInner}</div>` +
         '<div class="pg-preview-info">' +
-          `<h2 class="pg-preview-name">${esc(name)}</h2>` +
+          `<div class="pg-preview-name">${esc(name)}</div>` +
           `<div class="pg-preview-sub">${esc(buildPreviewSub(entry))}</div>` +
         '</div>' +
       '</div>'
@@ -831,10 +783,12 @@
   }
 
   function renderForm() {
+    if (!els.edFormPane) return;
+
     if (!state.data) {
       els.edFormPane.innerHTML =
         '<div class="ed-form-empty">' +
-          '<span class="ic" data-icon="file"></span>' +
+          '<span class="empty-icon" data-icon="ui.file"></span>' +
           '<div>数据未加载<br>请点右上角「重载」或「导入」</div>' +
         '</div>';
       injectIcons(els.edFormPane);
@@ -855,74 +809,74 @@
       return;
     }
 
-    const segInterior = entry.type === 'interior' ? ' active' : '';
-    const segExterior = entry.type === 'exterior' ? ' active' : '';
+    const segInterior = entry.type === 'interior' ? ' is-active' : '';
+    const segExterior = entry.type === 'exterior' ? ' is-active' : '';
     const urlValue = getSetImageUrl(entry);
     const keyHint = entry.key ? 'key: ' + entry.key : '';
 
     els.edFormPane.innerHTML =
       '<div class="ed-form">' +
 
-        '<button type="button" class="btn-sm ed-mobile-back" id="btnMobileBack">' +
-          '<span class="ic" data-icon="back"></span>' +
-          '<span>返回列表</span>' +
+        '<button type="button" class="btn ed-mobile-back" id="btnMobileBack">' +
+          '<span class="icon-slot" data-icon="ui.back"></span>' +
+          '<span class="btn-text">返回列表</span>' +
         '</button>' +
 
         renderPreviewHtml(entry) +
 
-        '<div class="ed-row-2">' +
-          '<div class="ed-group">' +
-            '<label class="ed-label">id <span class="ed-label-hint">可手动改，需唯一</span></label>' +
+        '<div class="field-row">' +
+          '<div class="field">' +
+            '<span class="field-label">id <span class="ed-label-hint">可手动改，需唯一</span></span>' +
             '<div class="ed-id-wrap">' +
               `<input type="text" data-field="id" value="${esc(entry.id)}" inputmode="numeric" autocomplete="off">` +
               '<button type="button" class="float-btn" id="btnIdUp" title="上移">' +
-                '<span class="ic" data-icon="ui.arrowUp"></span>' +
+                '<span class="icon-slot" data-icon="ui.arrowUp"></span>' +
               '</button>' +
               '<button type="button" class="float-btn" id="btnIdDown" title="下移">' +
-                '<span class="ic icon-flip-y" data-icon="ui.arrowUp"></span>' +
+                '<span class="icon-slot icon-flip-y" data-icon="ui.arrowUp"></span>' +
               '</button>' +
             '</div>' +
           '</div>' +
-          '<div class="ed-group">' +
-            '<label class="ed-label">地区 <span class="ed-label-hint">输入可新建</span></label>' +
-            '<div class="ed-combobox" data-combobox="region">' +
-              '<div class="ed-combobox-input-wrap">' +
+          '<div class="field">' +
+            '<span class="field-label">地区 <span class="ed-label-hint">输入可新建</span></span>' +
+            '<div class="combobox" data-combobox="region">' +
+              '<div class="combobox-input-wrap">' +
                 `<input type="text" data-field="region" value="${esc(entry.region || '')}" autocomplete="off" spellcheck="false">` +
               '</div>' +
-              '<div class="ed-combobox-popup" hidden></div>' +
+              '<div class="combobox-popup" hidden></div>' +
             '</div>' +
           '</div>' +
         '</div>' +
 
-        '<div class="ed-group">' +
-          '<label class="ed-label">套装图 URL <span class="ed-label-hint">粘贴后自动识别 key / 类型 / 地区</span></label>' +
+        '<div class="field">' +
+          '<span class="field-label">套装图 URL <span class="ed-label-hint">粘贴后自动识别 key / 类型 / 地区</span></span>' +
           '<div class="pg-url-wrap">' +
             `<input type="text" id="pgUrlInput" value="${esc(urlValue)}" placeholder="粘贴图片直链…" autocomplete="off" spellcheck="false">` +
-            '<button type="button" class="btn-sm" id="btnRecognize">识别</button>' +
+            '<button type="button" class="btn" id="btnRecognize">识别</button>' +
           '</div>' +
           `<div class="pg-url-key" id="pgUrlKey">${esc(keyHint)}</div>` +
         '</div>' +
 
-        '<div class="ed-group">' +
-          '<label class="ed-label">名称</label>' +
+        '<div class="field">' +
+          '<span class="field-label">名称</span>' +
           `<input type="text" data-field="name" value="${esc(entry.name || '')}">` +
         '</div>' +
 
-        '<div class="ed-group">' +
-          '<label class="ed-label">室内 / 室外</label>' +
+        '<div class="field">' +
+          '<span class="field-label">室内 / 室外</span>' +
           '<div class="seg-control" id="pgTypeSeg">' +
             `<button type="button" class="seg-btn${segInterior}" data-type="interior">室内</button>` +
             `<button type="button" class="seg-btn${segExterior}" data-type="exterior">室外</button>` +
           '</div>' +
         '</div>' +
 
-        '<div class="ed-group">' +
-          '<label class="ed-label">偏好角色 <span class="ed-label-hint">支持逗号/空格/顿号分隔批量输入；显示按 icon-dict order 升序</span></label>' +
+        '<div class="field">' +
+          '<span class="field-label">偏好角色 <span class="ed-label-hint">支持逗号/空格/顿号分隔批量输入；显示按 icon-dict order 升序</span></span>' +
           '<div id="pgCharArea"></div>' +
         '</div>' +
 
         '<div class="ed-actions">' +
-          '<button type="button" class="btn-sm btn-danger" id="btnDelete">删除此套</button>' +
+          '<button type="button" class="btn btn-danger" id="btnDelete">删除此套</button>' +
         '</div>' +
 
       '</div>';
@@ -933,7 +887,7 @@
   }
 
   /* ============================================================
-   * 16. 表单事件
+   * 15. 表单事件
    * ============================================================ */
   function bindFormEvents(entry) {
     els.edFormPane.querySelectorAll('[data-field]').forEach((input) => {
@@ -964,7 +918,7 @@
     });
 
     setupCombobox(
-      els.edFormPane.querySelector('.ed-combobox[data-combobox="region"]'),
+      els.edFormPane.querySelector('.combobox[data-combobox="region"]'),
       {
         items: () => state.data.regions,
         allowCustom: true,
@@ -973,6 +927,7 @@
           entry.region = r;
           if (!state.data.regions.includes(r)) state.data.regions.push(r);
           markDirty();
+          renderFilters();
           renderList();
           updatePreview(entry);
         }
@@ -987,7 +942,7 @@
       const seg = $('pgTypeSeg');
       if (!seg) return;
       seg.querySelectorAll('.seg-btn').forEach((b) => {
-        b.classList.toggle('active', b.dataset.type === entry.type);
+        b.classList.toggle('is-active', b.dataset.type === entry.type);
       });
     };
 
@@ -1004,7 +959,7 @@
           entry.key = '';
           urlInput.classList.remove('ed-invalid');
           urlKeyEl.textContent = '';
-          urlKeyEl.classList.remove('warn');
+          urlKeyEl.classList.remove('is-warn');
           markDirty();
           renderList();
           updatePreview(entry);
@@ -1016,14 +971,14 @@
       if (!key) {
         urlInput.classList.add('ed-invalid');
         urlKeyEl.textContent = '无法识别该 URL，请检查链接';
-        urlKeyEl.classList.add('warn');
+        urlKeyEl.classList.add('is-warn');
         return false;
       }
 
       if (key === entry.key) return false;
 
       urlInput.classList.remove('ed-invalid');
-      urlKeyEl.classList.remove('warn');
+      urlKeyEl.classList.remove('is-warn');
       entry.key = key;
 
       const inferredType = inferType(key);
@@ -1039,6 +994,7 @@
 
       urlKeyEl.textContent = 'key: ' + key;
       markDirty();
+      renderFilters();
       renderList();
       updatePreview(entry);
       syncTypeSeg();
@@ -1137,12 +1093,12 @@
   }
 
   /* ============================================================
-   * 17. Combobox
+   * 16. Combobox（共享 .combobox 结构）
    * ============================================================ */
   function setupCombobox(box, opts) {
     if (!box) return;
     const input = box.querySelector('input');
-    const popup = box.querySelector('.ed-combobox-popup');
+    const popup = box.querySelector('.combobox-popup');
     if (!input || !popup) return;
 
     let highlight = 0;
@@ -1151,6 +1107,13 @@
     const close = () => {
       popup.hidden = true;
       currentItems = [];
+    };
+
+    const refreshHighlight = () => {
+      popup.querySelectorAll('.combobox-option').forEach((el, i) => {
+        el.classList.toggle('is-highlight', i === highlight);
+      });
+      popup.querySelector('.combobox-option.is-highlight')?.scrollIntoView({ block: 'nearest' });
     };
 
     const refresh = (query) => {
@@ -1168,21 +1131,19 @@
       }
 
       if (!currentItems.length) {
-        popup.innerHTML = '<div class="ed-combobox-empty">无匹配</div>';
+        popup.innerHTML = '<div class="combobox-empty">无匹配</div>';
         popup.hidden = false;
         return;
       }
 
-      popup.innerHTML = currentItems
-        .map((it, i) => {
-          const cls =
-            'ed-combobox-option' +
-            (it.isNew ? ' is-new' : '') +
-            (i === highlight ? ' highlight' : '');
-          const label = it.isNew && opts.customLabel ? opts.customLabel(it.value) : it.value;
-          return `<div class="${cls}" data-idx="${i}">${esc(label)}</div>`;
-        })
-        .join('');
+      popup.innerHTML = currentItems.map((it, i) => {
+        const cls =
+          'combobox-option' +
+          (it.isNew ? ' is-new' : '') +
+          (i === highlight ? ' is-highlight' : '');
+        const label = it.isNew && opts.customLabel ? opts.customLabel(it.value) : it.value;
+        return `<div class="${cls}" data-idx="${i}">${esc(label)}</div>`;
+      }).join('');
       popup.hidden = false;
     };
 
@@ -1228,7 +1189,7 @@
     });
 
     popup.addEventListener('pointerdown', (e) => {
-      const opt = e.target.closest('.ed-combobox-option');
+      const opt = e.target.closest('.combobox-option');
       if (!opt) return;
       const idx = parseInt(opt.dataset.idx, 10);
       select(idx);
@@ -1236,78 +1197,86 @@
     });
 
     input.addEventListener('blur', () => setTimeout(close, 150));
+  }
 
-    const refreshHighlight = () => {
-      popup.querySelectorAll('.ed-combobox-option').forEach((el, i) => {
-        el.classList.toggle('highlight', i === highlight);
-      });
-      popup.querySelector('.ed-combobox-option.highlight')?.scrollIntoView({ block: 'nearest' });
-    };
+  /* ============================================================
+   * 17. 筛选下拉
+   * ============================================================ */
+  function renderDropdownOptions(panelEl, items, current) {
+    if (!panelEl) return;
+    panelEl.innerHTML = items.map((it) => {
+      const active = it.value === current ? ' is-active' : '';
+      return `<button type="button" class="dropdown-item${active}" data-value="${esc(it.value)}">${esc(it.label)}</button>`;
+    }).join('');
+  }
+
+  function renderFilters() {
+    renderDropdownOptions(
+      els.typePanel,
+      [
+        { value: 'all', label: '全部类型' },
+        { value: 'interior', label: '室内' },
+        { value: 'exterior', label: '室外' }
+      ],
+      state.typeFilter
+    );
+
+    const regions = [{ value: 'all', label: '全部地区' }]
+      .concat((state.data?.regions || []).map((r) => ({ value: r, label: r })));
+    renderDropdownOptions(els.regionPanel, regions, state.regionFilter);
   }
 
   /* ============================================================
    * 18. 主流程事件
    * ============================================================ */
-  function bindHeaderEvents() {
-    els.btnTheme.addEventListener('click', () => {
-      const next = currentTheme() === 'dark' ? 'light' : 'dark';
-      applyTheme(next);
-      try { localStorage.setItem(THEME_KEY, next); } catch {}
+  function bindEvents() {
+    /* ---- 主题 ---- */
+    els.btnTheme?.addEventListener('click', () => {
+      if (window.Theme?.toggle) window.Theme.toggle();
     });
 
+    /* ---- 搜索 ---- */
     let searchTimer = null;
-    els.searchInput.addEventListener('input', () => {
-      els.searchClear.classList.toggle('show', els.searchInput.value.length > 0);
+    els.searchInput?.addEventListener('input', () => {
+      els.searchClear?.classList.toggle('is-visible', els.searchInput.value.length > 0);
       clearTimeout(searchTimer);
       searchTimer = setTimeout(() => {
         state.search = els.searchInput.value;
         renderList();
       }, 150);
     });
-    els.searchClear.addEventListener('click', () => {
+    els.searchClear?.addEventListener('click', () => {
       els.searchInput.value = '';
-      els.searchClear.classList.remove('show');
+      els.searchClear.classList.remove('is-visible');
       state.search = '';
       renderList();
     });
 
-    els.typeTrigger.addEventListener('click', () => {
-      openSheet({
-        header: '类型',
-        items: [
-          { value: 'all', label: '全部类型' },
-          { value: 'interior', label: '室内' },
-          { value: 'exterior', label: '室外' }
-        ],
-        current: state.typeFilter,
-        onSelect: (v) => {
-          state.typeFilter = v;
+    /* ---- 筛选下拉 ---- */
+    document.addEventListener('dropdown:select', (e) => {
+      const { dropdown, value } = e.detail || {};
+      const filter = dropdown?.dataset?.filter;
+      if (!filter || value == null) return;
+
+      if (filter === 'type') {
+        state.typeFilter = value;
+        if (els.typeLabel) {
           els.typeLabel.textContent =
-            v === 'all' ? '全部类型' : v === 'interior' ? '室内' : '室外';
-          els.typeTrigger.classList.toggle('active', v !== 'all');
-          renderList();
+            value === 'all' ? '全部类型' : value === 'interior' ? '室内' : '室外';
         }
-      });
+      } else if (filter === 'region') {
+        state.regionFilter = value;
+        if (els.regionLabel) {
+          els.regionLabel.textContent = value === 'all' ? '全部地区' : value;
+        }
+      }
+
+      renderFilters();
+      renderList();
     });
 
-    els.regionTrigger.addEventListener('click', () => {
-      if (!state.data) return;
-      const items = [{ value: 'all', label: '全部地区' }];
-      state.data.regions.forEach((r) => items.push({ value: r, label: r }));
-      openSheet({
-        header: '地区',
-        items,
-        current: state.regionFilter,
-        onSelect: (v) => {
-          state.regionFilter = v;
-          els.regionLabel.textContent = v === 'all' ? '全部地区' : v;
-          els.regionTrigger.classList.toggle('active', v !== 'all');
-          renderList();
-        }
-      });
-    });
-
-    els.btnRenumber.addEventListener('click', async () => {
+    /* ---- 重排 ID ---- */
+    els.btnRenumber?.addEventListener('click', async () => {
       if (!state.data) return toast('数据未加载', 'error');
       const sorted = allSortedSets();
       const n = sorted.length;
@@ -1332,7 +1301,8 @@
       toast(`已重排 ${n} 条 id`, 'success');
     });
 
-    els.btnReload.addEventListener('click', async () => {
+    /* ---- 重载 ---- */
+    els.btnReload?.addEventListener('click', async () => {
       if (state.dirty) {
         const ok = await confirmDialog({
           title: '放弃修改',
@@ -1350,36 +1320,37 @@
         const res = await fetch('../gift-set/data.js?t=' + Date.now(), { cache: 'no-store' });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const text = await res.text();
-        const data = parseDataJs(text);
-        state.data = data;
+        state.data = parseDataJs(text);
         state.selectedId = null;
         state.isNew = false;
         clearDirty();
         clearDraft();
+        renderFilters();
         renderList();
         renderForm();
-        toast(`已重载 ${data.sets.length} 条`, 'success');
+        toast(`已重载 ${state.data.sets.length} 条`, 'success');
       } catch (err) {
         toast('重载失败：' + err.message, 'error');
       }
     });
 
-    els.btnImport.addEventListener('click', () => els.fileInput.click());
-    els.fileInput.addEventListener('change', (ev) => {
+    /* ---- 导入 ---- */
+    els.btnImport?.addEventListener('click', () => els.fileInput?.click());
+    els.fileInput?.addEventListener('change', (ev) => {
       const file = ev.target.files?.[0];
       if (!file) return;
       const reader = new FileReader();
       reader.onload = () => {
         try {
-          const data = parseDataJs(reader.result);
-          state.data = data;
+          state.data = parseDataJs(reader.result);
           state.selectedId = null;
           state.isNew = false;
           clearDirty();
           saveDraft();
+          renderFilters();
           renderList();
           renderForm();
-          toast(`已导入 ${data.sets.length} 条`, 'success');
+          toast(`已导入 ${state.data.sets.length} 条`, 'success');
         } catch (err) {
           toast('导入失败：' + err.message, 'error');
         }
@@ -1388,7 +1359,8 @@
       reader.readAsText(file);
     });
 
-    els.btnExport.addEventListener('click', async () => {
+    /* ---- 导出 ---- */
+    els.btnExport?.addEventListener('click', async () => {
       if (!state.data) return toast('数据未加载', 'error');
 
       const warnings = [];
@@ -1438,7 +1410,8 @@
       toast('已导出 data.js', 'success');
     });
 
-    els.edList.addEventListener('click', (e) => {
+    /* ---- 列表点选 ---- */
+    els.edList?.addEventListener('click', (e) => {
       const item = e.target.closest('.ed-list-item');
       if (!item) return;
       const id = parseInt(item.dataset.id, 10);
@@ -1453,7 +1426,8 @@
       }
     });
 
-    els.btnAdd.addEventListener('click', () => {
+    /* ---- 新增 ---- */
+    els.btnAdd?.addEventListener('click', () => {
       if (!state.data) state.data = normalizeData(null);
       const newId = state.data.sets.reduce((m, x) => Math.max(m, x.id || 0), 0) + 1;
       const entry = {
@@ -1488,6 +1462,7 @@
       }
     });
 
+    /* ---- 图片加载失败兜底 ---- */
     document.addEventListener('error', (e) => {
       const img = e.target;
       if (img.tagName !== 'IMG') return;
@@ -1499,28 +1474,51 @@
   /* ============================================================
    * 19. 启动
    * ============================================================ */
-  (function init() {
-    injectIcons(document);
-    bindHeaderEvents();
+  (async function init() {
+    try {
+      try {
+        await window.__bootPromise;
+      } catch (e) {
+        console.warn('[boot]', e);
+      }
 
-    const draft = loadDraft();
-    if (draft?.sets) {
-      state.data = normalizeData(draft);
-      renderList();
-      renderForm();
-      state.dirty = true;
-      els.dirtyDot.hidden = false;
-      toast('已恢复草稿（未导出）', 'success');
-    } else if (window.HOMEWORLD_GIFT_SETS) {
-      state.data = normalizeData(structuredClone(window.HOMEWORLD_GIFT_SETS));
-      renderList();
-      renderForm();
-    } else {
-      state.data = normalizeData(null);
-      renderList();
-      renderForm();
+      if (typeof window.ICONS === 'undefined') {
+        throw new Error('图标库未加载（ui-icons.js），请刷新重试');
+      }
+
+      injectIcons(document);
+      bindEvents();
+
+      const draft = loadDraft();
+      if (draft?.sets) {
+        state.data = normalizeData(draft);
+        renderFilters();
+        renderList();
+        renderForm();
+        state.dirty = true;
+        if (els.dirtyDot) els.dirtyDot.hidden = false;
+        toast('已恢复草稿（未导出）', 'success');
+      } else if (window.HOMEWORLD_GIFT_SETS) {
+        state.data = normalizeData(structuredClone(window.HOMEWORLD_GIFT_SETS));
+        renderFilters();
+        renderList();
+        renderForm();
+      } else {
+        state.data = normalizeData(null);
+        renderFilters();
+        renderList();
+        renderForm();
+      }
+
+      document.body.classList.add('ready');
+    } catch (err) {
+      console.error('[init]', err);
+      const bootEl = document.querySelector('.boot-loading');
+      if (bootEl) {
+        bootEl.style.whiteSpace = 'pre-wrap';
+        bootEl.textContent = '初始化失败：' + (err && err.message ? err.message : String(err)) +
+          '\n请刷新重试；若持续失败，请把这条信息反馈给维护者。';
+      }
     }
-
-    document.body.classList.add('ready');
   })();
 })();
