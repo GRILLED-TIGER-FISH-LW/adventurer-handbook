@@ -198,23 +198,9 @@ adventurer-handbook/
 │
 └── tools/
     ├── tales/              游逸旅闻（嵌入外壳）
-    │   ├── index.html
-    │   ├── style.css
-    │   ├── app.js
-    │   └── data.js
     ├── tales-editor/       游逸旅闻编辑器（独立页）
-    │   ├── index.html
-    │   ├── style.css
-    │   └── app.js
     ├── gift-set/           尘歌壶赠礼套装（嵌入外壳）
-    │   ├── index.html
-    │   ├── style.css
-    │   ├── app.js
-    │   └── data.js
     └── gift-set-editor/    尘歌壶赠礼套装编辑器（独立页）
-        ├── index.html
-        ├── style.css
-        └── app.js
 ```
 
 > 根目录只有 4 个文件。曾经的 `style.css` / `app.js` / `icons.js` 已全部合并或删除：
