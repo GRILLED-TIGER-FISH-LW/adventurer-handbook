@@ -2,16 +2,23 @@
  * 游逸旅闻编辑器 · style.css
  * 依赖：shared/css/theme.css
  * ------------------------------------------------------------
+ * v4 变更：
+ *  1. .ed-checkbox-wrap 补 width: 100%
+ *     —— .field 是 align-items: flex-start，子元素不会被拉伸；
+ *        <input> 自己有 width:100% 所以满行，而 .ed-checkbox-wrap 是
+ *        <label>，只按内容宽度收缩，和上下字段对不齐。
+ *  （.combobox 的 width: 100% 属于 shared/css/inputs.css，不在本文件）
+ * ------------------------------------------------------------
  * v3 变更：
- *  1. 【主题图标双显】.ed-theme-moon 的 display:none 特异性 (0,1,0)
+ *  1. 主题图标双显：.ed-theme-moon 的 display:none 特异性 (0,1,0)
  *     被 shared buttons.css 的 .float-btn .icon-slot (0,2,0) 压掉，
- *     导致太阳和月亮同时出现。提到 (0,3,0) 修复。
- *  2. 【手机端字段宽度】.field-row 的共享单列断点是 640px，
- *     而编辑器手机模式断点是 900px —— 640~900 之间 id/版本仍是两列，
- *     与顶满的「角色名」不一致。本地在 900 以下整体单列。
+ *     太阳和月亮同时出现。提到 (0,3,0) 修复。
+ *  2. 手机端字段宽度：.field-row 的共享单列断点是 640px，而编辑器手机模式
+ *     断点是 900px —— 640~900 之间 id/版本仍是两列，与顶满的「角色名」不一致。
+ *     本地在 900 以下整体单列。
  *  3. .ed-list-item.active → .is-active（对齐状态类命名规范）
  *  4. .ed-form-empty 的 height:100% 改 flex:1（父容器有 padding 时会溢出）
- *  5. .ed-form-empty .empty-icon 补尺寸（不在 .empty-state 上下文，共享没给）
+ *  5. .ed-form-empty .empty-icon 补尺寸
  * ------------------------------------------------------------
  * v2 变更：
  *  · 修掉 --ctl-h / --radius-sm / --ease-spring / --danger-bg / --shadow-nav
@@ -360,6 +367,7 @@ html[data-theme="dark"] .ed-theme-btn .icon-slot.ed-theme-moon { display: inline
 .ed-checkbox-wrap {
   display: flex;
   align-items: center;
+  width: 100%;                /* .field 是 align-items:flex-start，这里必须自己撑满 */
   gap: var(--gap);
   min-height: var(--h-ctl);
   padding: 0 var(--gap-sm);
