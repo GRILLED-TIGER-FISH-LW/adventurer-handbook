@@ -9,9 +9,6 @@
 <script src="https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/css/theme-init.js"></script>
 
 <script>
-/* =========================================================================
- * 资源加载器：跨仓库共享资源 + 本地文件，全部带时间戳
- * ========================================================================= */
 (() => {
   const ts = Date.now();
   const withTs = (url) => url + (url.indexOf('?') >= 0 ? '&' : '?') + 't=' + ts;
@@ -59,7 +56,7 @@
 </script>
 
 <style>
-  /* CSS 到位前的兜底背景（此处必须用字面值，拿不到 CSS 变量） */
+  /* CSS 到位前的兜底背景（此处必须用字面值） */
   html { background: #F4F1EA; }
   html[data-theme="dark"] { background: #1A1816; }
 
@@ -84,7 +81,7 @@
 
 <header class="app-header">
 
-  <!-- 1. 搜索 -->
+  <!-- 1. 搜索 + 完成度 -->
   <div class="header-row row-search">
     <div class="search">
       <span class="search-icon" data-icon="ui.search"></span>
@@ -93,9 +90,15 @@
         <span data-icon="app.close"></span>
       </button>
     </div>
+    <div class="count-badge">
+      <span class="counter-label">已完成</span>
+      <span class="counter-done" id="counterDone">0</span>
+      <span class="counter-sep">/</span>
+      <span class="counter-total" id="counterTotal">156</span>
+    </div>
   </div>
 
-  <!-- 2. 三个下拉并排 -->
+  <!-- 2. 三个筛选下拉 -->
   <div class="header-row row-filters">
     <div class="dropdown" data-key="version">
       <button type="button" class="dropdown-trigger" id="versionTrigger">
@@ -131,16 +134,10 @@
     </div>
   </div>
 
-  <!-- 3. UID + 计数 / 操作按钮 -->
+  <!-- 3. UID / 操作按钮 -->
   <div class="header-row row-meta-actions">
     <div class="meta-left">
       <input type="text" id="uidInput" class="uid-input" placeholder="UID" maxlength="15" inputmode="numeric" autocomplete="off" spellcheck="false">
-      <div class="count-badge">
-        <span class="counter-label">已完成</span>
-        <span class="counter-done" id="counterDone">0</span>
-        <span class="counter-sep">/</span>
-        <span class="counter-total" id="counterTotal">156</span>
-      </div>
     </div>
     <div class="meta-right">
       <button type="button" class="btn" id="btnExport" title="导出存档">
