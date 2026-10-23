@@ -35,7 +35,6 @@
     await loadScript('app.js');
   })();
 
-  /* ② 加载失败兜底 */
   window.__bootPromise.catch((e) => {
     console.error('[Boot]', e);
     const bootEl = document.querySelector('.boot-loading');
@@ -72,15 +71,15 @@
 
 <div class="boot-loading">正在加载游逸旅闻数据…</div>
 
-<header class="app-header">
+<header class="app-header" id="appHeader">
 
-  <!-- 1. 搜索 + 完成度 -->
+  <!-- 1. 搜索 + 完成度 + 折叠开关 -->
   <div class="header-row row-search">
     <div class="search">
       <span class="search-icon" data-icon="ui.search"></span>
       <input type="text" id="searchInput" class="search-input" placeholder="搜索角色名 / 旅闻名" autocomplete="off" spellcheck="false">
       <button type="button" class="search-clear" id="searchClear" aria-label="清除">
-        <span data-icon="app.close"></span>
+        <span data-icon="ui.close"></span>
       </button>
     </div>
     <div class="count-badge">
@@ -89,6 +88,10 @@
       <span class="counter-sep">/</span>
       <span class="counter-total" id="counterTotal">156</span>
     </div>
+    <button type="button" class="header-toggle" id="btnHeaderToggle"
+            aria-label="收起/展开筛选区" aria-expanded="true">
+      <span class="icon-slot" data-icon="ui.chevronDown"></span>
+    </button>
   </div>
 
   <!-- 2. 三个筛选下拉 -->
@@ -127,7 +130,7 @@
     </div>
   </div>
 
-  <!-- 3. UID + 日常操作（危险操作已移到页尾） -->
+  <!-- 3. UID + 日常操作（危险操作在页尾固定区） -->
   <div class="header-row row-meta-actions">
     <div class="meta-left">
       <input type="text" id="uidInput" class="uid-input" placeholder="UID" maxlength="15" inputmode="numeric" autocomplete="off" spellcheck="false">
@@ -151,7 +154,7 @@
   </div>
 </main>
 
-<!-- 4. 危险区（页尾，与日常操作彻底分开） -->
+<!-- 4. 危险区：固定在页面底部，不随列表滚动 -->
 <div class="danger-zone">
   <button type="button" class="btn btn-danger" id="btnClear" title="清空全部记录">
     <span class="icon-slot" data-icon="ui.trash"></span>
@@ -160,5 +163,29 @@
 </div>
 
 <input type="file" id="importFile" accept=".json,application/json" hidden>
+
+<!-- 5. 顶栏折叠（不侵入 app.js） -->
+<script>
+(() => {
+  const KEY = 'tales_header_collapsed';
+  const header = document.getElementById('appHeader');
+  const btn = document.getElementById('btnHeaderToggle');
+  if (!header || !btn) return;
+
+  const apply = (collapsed) => {
+    header.classList.toggle('is-collapsed', collapsed);
+    btn.setAttribute('aria-expanded', String(!collapsed));
+  };
+
+  try { apply(localStorage.getItem(KEY) === '1'); } catch {}
+
+  btn.addEventListener('click', () => {
+    const collapsed = header.classList.toggle('is-collapsed');
+    btn.setAttribute('aria-expanded', String(!collapsed));
+    try { localStorage.setItem(KEY, collapsed ? '1' : '0'); } catch {}
+  });
+})();
+</script>
+
 </body>
 </html>
