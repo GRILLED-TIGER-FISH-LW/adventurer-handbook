@@ -43,7 +43,6 @@
     await loadScript('app.js');
   })();
 
-  /* ② 加载失败兜底：任一核心资源 404 时给出可见提示，而不是永久白屏 */
   window.__bootPromise.catch((e) => {
     console.error('[Boot]', e);
     const bootEl = document.querySelector('.boot-loading');
@@ -137,11 +136,11 @@
     </div>
   </section>
 
-  <!-- ③ 全部套装 -->
+  <!-- ③ 全部套装（整块可折叠） -->
   <section class="gs-section" id="gsAllSection">
     <div class="gs-section-head">
       <div class="gs-section-title">全部套装</div>
-      <button type="button" class="gs-toggle-btn gs-expand-all" id="btnExpandAll" aria-label="全部展开 / 收起">
+      <button type="button" class="gs-toggle-btn" id="btnAllToggle" aria-label="展开/收起全部套装">
         <span class="icon-slot" data-icon="ui.chevronDown"></span>
       </button>
     </div>
