@@ -4,14 +4,9 @@
  * 通用控件（搜索框 / 下拉 / 输入框 / 按钮 / 计数徽标 / 空态 / Toast / 弹窗）
  * 全部来自共享体系，本文件只写「这一页特有的结构」。
  * ------------------------------------------------------------
- * v2 变更：
- *  1. 删除 5 个不存在的变量（--radius-sm / -md / -pill）→ 改用 --r-ctl / --r-panel / --r-pill
- *  2. 删除约 20 个 !important —— 搜索框 / UID 输入框 / 按钮改用共享组件，不再抢同名类
- *  3. .tale-title.hidden → .is-biz-hidden（避免被全局 .hidden 藏掉）
- *  4. .tale-card.done → .is-done；.open / .active / .visible 全部 → .is-*
- *  5. 内联 grid-template-areas → 改由 CSS 变量 --areas 注入
- *  6. 控件高度统一到 --h-ctl（32px）
- *  7. 清除 5 处 margin、自制滚动条、transition: all
+ * v3 变更：
+ *  · 完成度徽标从「操作行」移到「搜索行」右侧，利用空白、理顺动线
+ *  · 手机上隐藏「已完成」三字，只留 12/156
  * ============================================================ */
 
 /* ============================================================
@@ -23,6 +18,7 @@ body {
 
 /* ============================================================
  * 1. 顶部栏（吸顶）
+ *    三行：搜索+完成度 / 筛选 / UID+操作
  * ============================================================ */
 .app-header {
   position: sticky;
@@ -43,19 +39,25 @@ body {
   width: 100%;
 }
 
-/* 搜索行：共享 .search 自带 flex:1，这里只需让它占满 */
+/* 第 1 行：搜索（占满）+ 完成度徽标（不收缩） */
+.row-search {
+  justify-content: space-between;
+}
 .row-search > .search {
   flex: 1;
 }
+.row-search > .count-badge {
+  flex-shrink: 0;
+}
 
-/* 三个下拉并排等分 */
+/* 第 2 行：三个下拉并排等分 */
 .row-filters > .dropdown {
   flex: 1 1 0;
   width: auto;
   min-width: 0;
 }
 
-/* UID + 计数 / 操作按钮 */
+/* 第 3 行：UID 左 / 按钮右 */
 .row-meta-actions {
   justify-content: space-between;
   flex-wrap: wrap;
@@ -74,7 +76,7 @@ body {
   flex-shrink: 0;
 }
 
-/* 计数徽标：共享 .count-badge 提供外观，这里补内部间隔 */
+/* 完成度徽标：共享 .count-badge 提供外观，这里补内部间隔 */
 .count-badge {
   gap: var(--gap-sm);
 }
@@ -105,7 +107,6 @@ body {
 /* ============================================================
  * 3. 旅闻卡片
  *    grid-template-areas 由 app.js 通过 --areas 变量注入
- *    （哪几段内容存在，就只排哪几行）
  * ============================================================ */
 .tale-card {
   display: grid;
@@ -268,7 +269,7 @@ body {
 }
 
 /* ============================================================
- * 5. 手机端
+ * 5. 窄屏适配
  * ============================================================ */
 @media (max-width: 640px) {
   .app-header {
@@ -277,6 +278,12 @@ body {
   .app-main {
     padding: var(--gap) var(--gap);
   }
+
+  /* 完成度只显示 12/156，省宽度 */
+  .row-search .counter-label {
+    display: none;
+  }
+
   .tale-card {
     grid-template-columns: 36px minmax(0, 1fr) 18px;
     padding: var(--pad-ctl);
@@ -285,6 +292,7 @@ body {
     width: 36px;
     height: 36px;
   }
+
   /* 操作按钮收成纯图标 */
   .meta-right .btn {
     width: var(--h-ctl);
