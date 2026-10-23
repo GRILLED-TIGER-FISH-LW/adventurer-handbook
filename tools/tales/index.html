@@ -73,7 +73,7 @@
 
 <header class="app-header" id="appHeader">
 
-  <!-- 1. 搜索 + 完成度 + 折叠开关 -->
+  <!-- 1. 搜索 + 完成度 + 列表折叠开关 -->
   <div class="header-row row-search">
     <div class="search">
       <span class="search-icon" data-icon="ui.search"></span>
@@ -89,7 +89,7 @@
       <span class="counter-total" id="counterTotal">156</span>
     </div>
     <button type="button" class="header-toggle" id="btnHeaderToggle"
-            aria-label="收起/展开筛选区" aria-expanded="true">
+            aria-label="收起/展开旅闻列表" aria-expanded="true">
       <span class="icon-slot" data-icon="ui.chevronDown"></span>
     </button>
   </div>
@@ -164,24 +164,24 @@
 
 <input type="file" id="importFile" accept=".json,application/json" hidden>
 
-<!-- 5. 顶栏折叠（不侵入 app.js） -->
+<!-- 5. 旅闻列表折叠（不侵入 app.js，状态记在 localStorage） -->
 <script>
 (() => {
-  const KEY = 'tales_header_collapsed';
-  const header = document.getElementById('appHeader');
+  const KEY = 'tales_list_collapsed';
   const btn = document.getElementById('btnHeaderToggle');
-  if (!header || !btn) return;
+  const main = document.querySelector('.app-main');
+  if (!btn || !main) return;
 
   const apply = (collapsed) => {
-    header.classList.toggle('is-collapsed', collapsed);
+    document.body.classList.toggle('is-list-collapsed', collapsed);
     btn.setAttribute('aria-expanded', String(!collapsed));
   };
 
   try { apply(localStorage.getItem(KEY) === '1'); } catch {}
 
   btn.addEventListener('click', () => {
-    const collapsed = header.classList.toggle('is-collapsed');
-    btn.setAttribute('aria-expanded', String(!collapsed));
+    const collapsed = !document.body.classList.contains('is-list-collapsed');
+    apply(collapsed);
     try { localStorage.setItem(KEY, collapsed ? '1' : '0'); } catch {}
   });
 })();
