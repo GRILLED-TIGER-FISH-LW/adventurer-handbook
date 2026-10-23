@@ -5,38 +5,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>游逸旅闻</title>
 
-<!-- ① 主题初始化：必须同步加载（不加 defer / async） -->
+<!-- ① 主题初始化：必须同步加载（不加 defer / async），否则首帧会闪 -->
 <script src="https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/css/theme-init.js"></script>
 
 <script>
 (() => {
+  const BASE = 'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/';
   const ts = Date.now();
-  const withTs = (url) => url + (url.indexOf('?') >= 0 ? '&' : '?') + 't=' + ts;
-
-  const loadStyle = (href) => new Promise((resolve, reject) => {
-    const l = document.createElement('link');
-    l.rel = 'stylesheet';
-    l.href = withTs(href);
-    l.onload = resolve;
-    l.onerror = () => reject(new Error('CSS加载失败：' + href));
-    document.head.appendChild(l);
+  const withTs = (url) => url + (url.includes('?') ? '&' : '?') + `t=${ts}`;
+  const loadNode = (tag, attrs) => new Promise((resolve, reject) => {
+    const el = document.createElement(tag);
+    Object.assign(el, attrs);
+    el.onload = resolve;
+    el.onerror = () => reject(new Error(`加载失败：${attrs.href || attrs.src}`));
+    document.head.appendChild(el);
   });
-
-  const loadScript = (src) => new Promise((resolve, reject) => {
-    const s = document.createElement('script');
-    s.src = withTs(src);
-    s.onload = resolve;
-    s.onerror = () => reject(new Error('JS加载失败：' + src));
-    document.head.appendChild(s);
-  });
+  const loadScript = (src) => loadNode('script', { src: withTs(src) });
+  const loadStyle = (href) => loadNode('link', { rel: 'stylesheet', href: withTs(href) });
 
   window.__bootPromise = (async () => {
     await Promise.all([
-      loadStyle('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/css/theme.css'),
+      loadStyle(BASE + 'css/theme.css'),
       loadStyle('style.css'),
-      loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/ui-icons.js'),
-      loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/css/dropdown.js'),
-      loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-dict.js')
+      loadScript(BASE + 'ui-icons.js'),
+      loadScript(BASE + 'css/dropdown.js'),
+      loadScript(BASE + 'gi-icons/icon-dict.js')
     ]);
     await loadScript('data.js');
     await loadScript('app.js');
@@ -134,7 +127,7 @@
     </div>
   </div>
 
-  <!-- 3. UID / 操作按钮 -->
+  <!-- 3. UID + 日常操作（危险操作已移到页尾） -->
   <div class="header-row row-meta-actions">
     <div class="meta-left">
       <input type="text" id="uidInput" class="uid-input" placeholder="UID" maxlength="15" inputmode="numeric" autocomplete="off" spellcheck="false">
@@ -145,9 +138,6 @@
       </button>
       <button type="button" class="btn" id="btnImport" title="导入存档">
         <span class="icon-slot" data-icon="ui.import"></span><span class="btn-text">导入</span>
-      </button>
-      <button type="button" class="btn btn-danger" id="btnClear" title="清空记录">
-        <span class="icon-slot" data-icon="ui.trash"></span><span class="btn-text">清空</span>
       </button>
     </div>
   </div>
@@ -160,6 +150,14 @@
     <p>没有找到匹配的旅闻</p>
   </div>
 </main>
+
+<!-- 4. 危险区（页尾，与日常操作彻底分开） -->
+<div class="danger-zone">
+  <button type="button" class="btn btn-danger" id="btnClear" title="清空全部记录">
+    <span class="icon-slot" data-icon="ui.trash"></span>
+    <span class="btn-text">清空全部记录</span>
+  </button>
+</div>
 
 <input type="file" id="importFile" accept=".json,application/json" hidden>
 </body>
