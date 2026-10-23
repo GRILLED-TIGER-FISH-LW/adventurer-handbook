@@ -2,60 +2,80 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="color-scheme" content="light dark">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>游逸旅闻</title>
+
+<!-- ① 主题初始化：必须同步加载（不加 defer / async） -->
+<script src="https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/css/theme-init.js"></script>
 
 <script>
 /* =========================================================================
- * 资源加载器 (全动态加载 + 强制时间戳防缓存 + 链式防死锁)
+ * 资源加载器：跨仓库共享资源 + 本地文件，全部带时间戳
  * ========================================================================= */
-(async function () {
+(() => {
   const ts = Date.now();
   const withTs = (url) => url + (url.indexOf('?') >= 0 ? '&' : '?') + 't=' + ts;
 
   const loadStyle = (href) => new Promise((resolve, reject) => {
-    const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = withTs(href);
-    l.onload = resolve; l.onerror = reject; document.head.appendChild(l);
+    const l = document.createElement('link');
+    l.rel = 'stylesheet';
+    l.href = withTs(href);
+    l.onload = resolve;
+    l.onerror = () => reject(new Error('CSS加载失败：' + href));
+    document.head.appendChild(l);
   });
 
   const loadScript = (src) => new Promise((resolve, reject) => {
-    const s = document.createElement('script'); s.src = withTs(src);
-    s.onload = resolve; s.onerror = reject; document.head.appendChild(s);
+    const s = document.createElement('script');
+    s.src = withTs(src);
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('JS加载失败：' + src));
+    document.head.appendChild(s);
   });
 
-  window.__bootPromise = (async function () {
-    // 1. 并行加载基础依赖
+  window.__bootPromise = (async () => {
     await Promise.all([
-      loadStyle('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/theme.css'),
+      loadStyle('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/css/theme.css'),
       loadStyle('style.css'),
       loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/ui-icons.js'),
+      loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/css/dropdown.js'),
       loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-dict.js')
     ]);
-    
-    // 2. 加载数据
     await loadScript('data.js');
-    
-    // 3. 最后执行逻辑
     await loadScript('app.js');
   })();
+
+  /* ② 加载失败兜底 */
+  window.__bootPromise.catch((e) => {
+    console.error('[Boot]', e);
+    const bootEl = document.querySelector('.boot-loading');
+    if (bootEl) {
+      bootEl.style.whiteSpace = 'pre-wrap';
+      bootEl.textContent = '载入失败：' + (e && e.message ? e.message : String(e)) +
+        '\n请刷新重试；若持续失败，请把这条信息反馈给维护者。';
+    }
+  });
 })();
 </script>
 
 <style>
-  /* 初始化防闪烁 */
-  html { background: var(--bg-base, #F4F1EA); }
-  [data-theme="dark"] html { background: var(--bg-base, #1A1816); }
+  /* CSS 到位前的兜底背景（此处必须用字面值，拿不到 CSS 变量） */
+  html { background: #F4F1EA; }
+  html[data-theme="dark"] { background: #1A1816; }
+
   body { visibility: hidden; }
   body.ready { visibility: visible; }
   .boot-loading {
-    position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center;
-    background: var(--bg-base, #F4F1EA); color: var(--text-tertiary, #A69E95);
-    font-size: 13px; font-family: var(--std-font, sans-serif); visibility: visible;
+    position: fixed; inset: 0; z-index: 99999;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg-base, #F4F1EA);
+    color: var(--text-tertiary, #A69E95);
+    font-size: 12px;
+    font-family: var(--std-font, system-ui, sans-serif);
+    visibility: visible;
+    padding: 24px; text-align: center; line-height: 1.6;
   }
   body.ready .boot-loading { display: none; }
-  .ic { display: inline-flex; align-items: center; justify-content: center; width: 1em; height: 1em; flex-shrink: 0; }
-  .ic > svg { width: 100% !important; height: 100% !important; display: block !important; }
 </style>
 </head>
 <body>
@@ -63,46 +83,59 @@
 <div class="boot-loading">正在加载游逸旅闻数据…</div>
 
 <header class="app-header">
-  
-  <!-- 1. 搜索框独占一行 -->
+
+  <!-- 1. 搜索 -->
   <div class="header-row row-search">
-    <div class="search-wrap">
-      <span class="ic search-icon" data-icon="ui.search"></span>
+    <div class="search">
+      <span class="search-icon" data-icon="ui.search"></span>
       <input type="text" id="searchInput" class="search-input" placeholder="搜索角色名 / 旅闻名" autocomplete="off" spellcheck="false">
-      <button type="button" class="search-clear" id="searchClear" aria-label="清除"><span class="ic" data-icon="app.close"></span></button>
+      <button type="button" class="search-clear" id="searchClear" aria-label="清除">
+        <span data-icon="app.close"></span>
+      </button>
     </div>
   </div>
 
-  <!-- 2. 三个下拉并排等分 -->
+  <!-- 2. 三个下拉并排 -->
   <div class="header-row row-filters">
-    <div class="dropdown-wrap" data-key="version">
+    <div class="dropdown" data-key="version">
       <button type="button" class="dropdown-trigger" id="versionTrigger">
         <span class="dropdown-label" id="versionLabel">全部版本</span>
-        <span class="ic dropdown-arrow" data-icon="ui.chevronDown"></span>
+        <span class="dropdown-arrow">
+          <span class="arrow-down" data-icon="ui.chevronDown"></span>
+          <span class="arrow-up" data-icon="ui.chevronUp"></span>
+        </span>
       </button>
       <div class="dropdown-panel" id="versionPanel"></div>
     </div>
-    <div class="dropdown-wrap" data-key="status">
+
+    <div class="dropdown" data-key="status">
       <button type="button" class="dropdown-trigger" id="statusTrigger">
         <span class="dropdown-label" id="statusLabel">全部状态</span>
-        <span class="ic dropdown-arrow" data-icon="ui.chevronDown"></span>
+        <span class="dropdown-arrow">
+          <span class="arrow-down" data-icon="ui.chevronDown"></span>
+          <span class="arrow-up" data-icon="ui.chevronUp"></span>
+        </span>
       </button>
       <div class="dropdown-panel" id="statusPanel"></div>
     </div>
-    <div class="dropdown-wrap" data-key="visibility">
+
+    <div class="dropdown" data-key="visibility">
       <button type="button" class="dropdown-trigger" id="visibilityTrigger">
         <span class="dropdown-label" id="visibilityLabel">全部类型</span>
-        <span class="ic dropdown-arrow" data-icon="ui.chevronDown"></span>
+        <span class="dropdown-arrow">
+          <span class="arrow-down" data-icon="ui.chevronDown"></span>
+          <span class="arrow-up" data-icon="ui.chevronUp"></span>
+        </span>
       </button>
       <div class="dropdown-panel" id="visibilityPanel"></div>
     </div>
   </div>
 
-  <!-- 3. UID + 计数 (左) / 操作按钮 (右) -->
+  <!-- 3. UID + 计数 / 操作按钮 -->
   <div class="header-row row-meta-actions">
     <div class="meta-left">
       <input type="text" id="uidInput" class="uid-input" placeholder="UID" maxlength="15" inputmode="numeric" autocomplete="off" spellcheck="false">
-      <div class="counter">
+      <div class="count-badge">
         <span class="counter-label">已完成</span>
         <span class="counter-done" id="counterDone">0</span>
         <span class="counter-sep">/</span>
@@ -110,14 +143,14 @@
       </div>
     </div>
     <div class="meta-right">
-      <button type="button" class="action-btn" id="btnExport" title="导出存档">
-        <span class="ic action-btn-icon" data-icon="ui.export"></span><span class="action-btn-text">导出</span>
+      <button type="button" class="btn" id="btnExport" title="导出存档">
+        <span class="icon-slot" data-icon="ui.export"></span><span class="btn-text">导出</span>
       </button>
-      <button type="button" class="action-btn" id="btnImport" title="导入存档">
-        <span class="ic action-btn-icon" data-icon="ui.import"></span><span class="action-btn-text">导入</span>
+      <button type="button" class="btn" id="btnImport" title="导入存档">
+        <span class="icon-slot" data-icon="ui.import"></span><span class="btn-text">导入</span>
       </button>
-      <button type="button" class="action-btn danger" id="btnClear" title="清空记录">
-        <span class="ic action-btn-icon" data-icon="ui.trash"></span><span class="action-btn-text">清空</span>
+      <button type="button" class="btn btn-danger" id="btnClear" title="清空记录">
+        <span class="icon-slot" data-icon="ui.trash"></span><span class="btn-text">清空</span>
       </button>
     </div>
   </div>
@@ -126,7 +159,7 @@
 <main class="app-main">
   <div class="list-host" id="listHost"></div>
   <div class="empty-state" id="emptyState" hidden>
-    <span class="ic empty-state-icon" data-icon="ui.search"></span>
+    <span class="empty-icon" data-icon="ui.search"></span>
     <p>没有找到匹配的旅闻</p>
   </div>
 </main>
