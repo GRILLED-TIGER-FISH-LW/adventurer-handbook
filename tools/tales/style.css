@@ -4,16 +4,17 @@
  * 通用控件（搜索框 / 下拉 / 输入框 / 按钮 / 计数徽标 / 空态 / Toast / 弹窗）
  * 全部来自共享体系，本文件只写「这一页特有的结构」。
  * ------------------------------------------------------------
+ * v7 变更：
+ *  1. 【危险区回归内容流】.danger-zone 从「固定底部通栏工具栏」
+ *     改回页面内容末尾的居中区块 —— 不再有一条悬浮的独立色带。
+ *  2. 【折叠只收列表】body.is-list-collapsed 只隐藏 .list-host / .empty-state，
+ *     .danger-zone 保留。收起列表后清空按钮自然顶到顶栏下方，不用滚。
+ *  3. 分隔线改用 ::before 定位，线上方留出 var(--gap-lg) 间距（不用 margin）。
  * v6 变更：
- *  1. 【折叠对象修正】折叠按钮收起的是「旅闻列表」，不是筛选区。
- *     顶栏三行（搜索 / 筛选 / UID+操作）全部常驻。
- *     —— 原来收起筛选和 UID 行会把导出/导入一起藏掉，方向搞反了。
- *  2. 状态类从 .app-header.is-collapsed 改为 body.is-list-collapsed，
- *     这样按钮（在 header 内）和列表（在 main 内）能被同一个类控制。
+ *  · 折叠对象从筛选区改为旅闻列表；顶栏三行全部常驻
  * v5 变更：
  *  · body 锁死视口，滚动容器下移到 .app-main
  *  · 顶栏改实色背景，去掉 position: sticky
- *  · .danger-zone 移出滚动区，固定在页面底部
  *  · 新增 .header-toggle
  * v4 变更：
  *  · 「清空记录」从顶栏移到 .danger-zone
@@ -93,8 +94,9 @@ body {
 .header-toggle .icon-slot svg { width: 100%; height: 100%; }
 body.is-list-collapsed .header-toggle .icon-slot { transform: rotate(0deg); }
 
-/* 收起旅闻列表（顶栏与页尾危险区都保留） */
-body.is-list-collapsed .app-main > * { display: none; }
+/* 收起时只藏列表，危险区保留 */
+body.is-list-collapsed .list-host,
+body.is-list-collapsed .empty-state { display: none; }
 
 /* 第 2 行：三个下拉并排等分 */
 .row-filters > .dropdown {
@@ -145,7 +147,7 @@ body.is-list-collapsed .app-main > * { display: none; }
   width: 100%;
   max-width: 920px;
   align-self: center;
-  padding: var(--gap) var(--gap-lg) var(--gap-lg);
+  padding: var(--gap) var(--gap-lg) 0;
 }
 
 .list-host {
@@ -319,17 +321,24 @@ body.is-list-collapsed .app-main > * { display: none; }
 }
 
 /* ============================================================
- * 5. 危险区（固定在页面底部，不随列表滚动）
+ * 5. 危险区（页面内容末尾，随列表滚动）
+ *    分隔线用 ::before 定位，线上方留 var(--gap-lg) 间距，不靠 margin
  * ============================================================ */
 .danger-zone {
-  flex-shrink: 0;
+  position: relative;
   display: flex;
   justify-content: center;
-  width: 100%;
-  padding: var(--gap) var(--gap-lg);
-  padding-bottom: calc(var(--gap) + env(safe-area-inset-bottom));
-  background: var(--bg-base);
-  border-top: 1px solid var(--border-subtle);
+  padding-top: calc(var(--gap-lg) * 2);
+  padding-bottom: calc(var(--gap-lg) + env(safe-area-inset-bottom));
+}
+.danger-zone::before {
+  content: "";
+  position: absolute;
+  top: var(--gap-lg);
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--border-subtle);
 }
 
 /* ============================================================
@@ -340,10 +349,10 @@ body.is-list-collapsed .app-main > * { display: none; }
     padding: var(--gap);
   }
   .app-main {
-    padding: var(--gap) var(--gap);
+    padding: var(--gap) var(--gap) 0;
   }
   .danger-zone {
-    padding: var(--gap);
+    padding-top: calc(var(--gap-lg) * 1.5);
     padding-bottom: calc(var(--gap) + env(safe-area-inset-bottom));
   }
 
