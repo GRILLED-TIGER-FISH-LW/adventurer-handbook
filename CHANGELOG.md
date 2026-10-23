@@ -7,7 +7,32 @@
 > 不记流水账。细节看代码本身。
 
 ---
+## 2026-10-24
 
+### 图标尺寸统一：纯图标按钮一律 18px
+
+**规则**：带文字的按钮用 `--icon-sm`(14px)，纯图标按钮用 `--icon`(18px)。
+
+#### 改用共享 `.btn-collapse`（删除各自本地规则）
+
+| 页面 | 按钮 |
+|---|---|
+| `tales` | 导出 / 导入 |
+| `tales-editor` | 重载 / 导入 / 导出 |
+| `gift-set` | 导入 / 导出 |
+| `gift-set-editor` | 重载 / 导入 / 导出 |
+
+#### 手写 14px 的地方改回 18px
+
+- `tales`：收起 / 展开列表的 `.header-toggle .icon-slot`
+- `gift-set`：三个区块折叠开关的 `.gs-toggle-btn .icon-slot`
+- `tales-editor` / `gift-set-editor`：`.ed-id-wrap` 上下移按钮删除本地 14px 覆盖，
+  跟随共享 `.float-btn`
+
+#### 附带行为变化
+
+`gift-set` 顶栏按钮收图标的断点从 480px 变为 640px（共享类断点）。
+480px 以下无影响；481~640px 区间会提前收成图标。
 ## 2026-10-23 · 全仓库迁移至统一设计系统
 
 **里程碑**
