@@ -52,21 +52,6 @@ body {
   flex-shrink: 0;
 }
 
-.gs-theme-btn {
-  width: var(--h-ctl);
-  height: var(--h-ctl);
-}
-.gs-theme-btn .icon-slot {
-  width: var(--icon);
-  height: var(--icon);
-}
-.gs-theme-btn .icon-slot svg { width: 100%; height: 100%; }
-
-/* 太阳 / 月亮切换：特异性必须压过 .float-btn .icon-slot (0,2,0) */
-.gs-theme-btn .icon-slot.gs-theme-moon { display: none; }
-html[data-theme="dark"] .gs-theme-btn .icon-slot.gs-theme-sun  { display: none; }
-html[data-theme="dark"] .gs-theme-btn .icon-slot.gs-theme-moon { display: inline-flex; }
-
 /* ============================================================
  * 2. 主滚动区（唯一的滚动容器）
  * ============================================================ */
