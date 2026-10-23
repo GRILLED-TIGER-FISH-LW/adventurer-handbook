@@ -2,33 +2,37 @@
  * 尘歌壶赠礼套装 · style.css
  * 依赖：shared/css/theme.css
  * ------------------------------------------------------------
+ * v4 变更：
+ *  1. 【顶栏跟滚 + 滚动条包全页】body 补回 height: 100dvh / overflow: hidden。
+ *     v2 删这两行时判断「与 theme.css 重复」，但 theme.css 只有 min-height，
+ *     不是 height → .gs-main 的 flex:1 没有高度约束，整页在滚，顶栏跟着走。
+ *     现在 body 锁死视口，只有 .gs-main 内部滚动。
+ *  2. 【危险区固定底部】.gs-danger-zone 从 .gs-main 内部移到 body 末尾，
+ *     加 flex-shrink: 0，重置按钮永远可见，不用再滚到底。
+ *  3. 下拉面板的滚动条圆角问题改到共享 inputs.css（v7）统一处理。
+ * ------------------------------------------------------------
  * v3 变更：
- *  1. 【.gs-toggle-btn 里的图标】原来 .icon-slot 没有任何宽高定义
- *     —— 共享 CSS 的 .icon-slot 尺寸只在 .dropdown-trigger 上下文生效，
- *        .btn / .float-btn 由 buttons.css 单独给。
- *        补上 width/height = var(--icon-sm) 并让 svg 撑满。
- *  2. 删除 .gs-expand-all 两条规则 —— 「全部套装」按钮改为整块折叠，
- *     与另两个区块使用同一套 .gs-section.collapsed 机制。
- *  3. 【底部空白】.gs-main 的 padding-bottom 从
- *     calc(var(--dock-space) + …)（= 88px，给底部 dock 留位）
- *     改为 var(--gap-lg) —— 本页没有 dock，那 88px 是纯空白。
+ *  · .gs-toggle-btn 里的 .icon-slot 补宽高（共享只给 .dropdown-trigger 上下文定义）
+ *  · 「全部套装」改为整块折叠
+ *  · .gs-main 底部 88px 空白（--dock-space）改为 var(--gap-lg)
  * ------------------------------------------------------------
  * v2 变更（对齐主仓库设计系统）：
- *  1. 修掉 4 个已不存在的变量：
- *     --radius-sm → --r-ctl / --radius-md → --r-panel
- *     --radius-pill → --r-pill / --ease-spring → --ease
- *  2. --danger-border → var(--danger, #e5484d)
- *  3. 删除全部 !important（规范禁止）
- *  4. 搜索框 / 筛选下拉 / 计数徽标 / 空态 / Toast / 弹窗 → 共享组件
- *  5. 删除 -webkit-overflow-scrolling（iOS 13+ 已默认）
- *  6. 删除 html/body 上与 theme.css 重复的声明
- *  7. 删除 margin: 0 -12px，改为纯 padding
- *  8. 间距 / 圆角 / 字号 / 时长全部 token 化
- *  9. 角色格与套装内角色格合并同一套规则
+ *  · 修掉 4 个已不存在的变量、--danger-border
+ *  · 删除全部 !important、-webkit-overflow-scrolling、margin 负值
+ *  · 搜索/下拉/计数/空态/Toast/弹窗 → 共享组件
+ *  · 全部 token 化；角色格与套装角色格合并规则
  * ============================================================ */
 
 /* ============================================================
- * 1. 顶栏
+ * 0. 页面外壳（锁死视口，滚动只发生在 .gs-main 内部）
+ * ============================================================ */
+body {
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* ============================================================
+ * 1. 顶栏（固定，不参与滚动）
  * ============================================================ */
 .gs-header {
   flex-shrink: 0;
@@ -63,7 +67,7 @@ html[data-theme="dark"] .gs-theme-sun { display: none; }
 html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 
 /* ============================================================
- * 2. 主滚动区
+ * 2. 主滚动区（唯一的滚动容器）
  * ============================================================ */
 .gs-main {
   flex: 1;
@@ -135,8 +139,7 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
   border-color: var(--border-strong);
 }
 
-/* 图标容器：共享 CSS 只给 .dropdown-trigger 上下文里的 .icon-slot 定了尺寸，
-   本按钮自己写的类不在其中，必须补上宽高，否则 SVG 会撑成默认大小 */
+/* 共享 CSS 只给 .dropdown-trigger 上下文里的 .icon-slot 定了尺寸，这里补上 */
 .gs-toggle-btn .icon-slot {
   display: inline-flex;
   align-items: center;
@@ -148,7 +151,6 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
   transform: rotate(180deg);
 }
 .gs-toggle-btn .icon-slot svg { width: 100%; height: 100%; }
-
 .gs-section.collapsed .gs-toggle-btn .icon-slot { transform: rotate(0deg); }
 
 /* ============================================================
@@ -441,12 +443,16 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 }
 
 /* ============================================================
- * 9. 危险区（页尾）
+ * 9. 危险区（固定在页面底部，不随列表滚动）
  * ============================================================ */
 .gs-danger-zone {
+  flex-shrink: 0;
   display: flex;
   justify-content: center;
-  padding-top: var(--gap-lg);
+  width: 100%;
+  padding: var(--gap) var(--gap-lg);
+  padding-bottom: calc(var(--gap) + env(safe-area-inset-bottom));
+  background: var(--bg-base);
   border-top: 1px solid var(--border-subtle);
 }
 
@@ -455,12 +461,13 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
  * ============================================================ */
 @media (max-width: 480px) {
   .gs-header { padding: var(--gap-sm) var(--gap); }
-  .gs-main { padding: var(--gap) var(--gap) var(--gap); }
+  .gs-main { padding: var(--gap) var(--gap) var(--gap-lg); }
   .gs-section-head { padding: var(--gap) var(--gap); }
   .gs-section-body { padding: 0 var(--gap) var(--gap); }
   .gs-set-head { padding: var(--gap) var(--gap); }
   .gs-set-body { padding: var(--gap-sm) var(--gap) var(--gap); }
   .gs-char-grid-wrap { max-height: 300px; }
+  .gs-danger-zone { padding: var(--gap) var(--gap); }
 
   .gs-header-actions .btn {
     width: var(--h-ctl);
