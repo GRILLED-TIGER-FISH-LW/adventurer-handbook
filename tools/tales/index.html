@@ -130,7 +130,7 @@
     </div>
   </div>
 
-  <!-- 3. UID + 日常操作（危险操作在页尾固定区） -->
+  <!-- 3. UID + 日常操作 -->
   <div class="header-row row-meta-actions">
     <div class="meta-left">
       <input type="text" id="uidInput" class="uid-input" placeholder="UID" maxlength="15" inputmode="numeric" autocomplete="off" spellcheck="false">
@@ -152,19 +152,19 @@
     <span class="empty-icon" data-icon="ui.search"></span>
     <p>没有找到匹配的旅闻</p>
   </div>
-</main>
 
-<!-- 4. 危险区：固定在页面底部，不随列表滚动 -->
-<div class="danger-zone">
-  <button type="button" class="btn btn-danger" id="btnClear" title="清空全部记录">
-    <span class="icon-slot" data-icon="ui.trash"></span>
-    <span class="btn-text">清空全部记录</span>
-  </button>
-</div>
+  <!-- 危险区：页面内容末尾，跟着列表一起滚 -->
+  <div class="danger-zone">
+    <button type="button" class="btn btn-danger" id="btnClear" title="清空全部记录">
+      <span class="icon-slot" data-icon="ui.trash"></span>
+      <span class="btn-text">清空全部记录</span>
+    </button>
+  </div>
+</main>
 
 <input type="file" id="importFile" accept=".json,application/json" hidden>
 
-<!-- 5. 旅闻列表折叠（不侵入 app.js，状态记在 localStorage） -->
+<!-- 旅闻列表折叠（不侵入 app.js，状态记在 localStorage） -->
 <script>
 (() => {
   const KEY = 'tales_list_collapsed';
