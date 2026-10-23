@@ -4,6 +4,10 @@
  * 通用控件（搜索框 / 下拉 / 输入框 / 按钮 / 计数徽标 / 空态 / Toast / 弹窗）
  * 全部来自共享体系，本文件只写「这一页特有的结构」。
  * ------------------------------------------------------------
+ * v8 变更：
+ *  1. 【移动端图标按钮对齐】窄屏下「导出 / 导入」收成纯图标时，
+ *     图标从 --icon-sm(14) 提到 --icon(18)；.header-toggle 同步提升。
+ *     修正前 14/32 = 44%，修正后 18/32 = 56%，与 .btn-icon 同档。
  * v7 变更：
  *  1. 【危险区回归内容流】.danger-zone 从「固定底部通栏工具栏」
  *     改回页面内容末尾的居中区块 —— 不再有一条悬浮的独立色带。
@@ -85,8 +89,8 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--icon-sm);
-  height: var(--icon-sm);
+  width: var(--icon);
+  height: var(--icon);
   flex-shrink: 0;
   transition: transform var(--dur) var(--ease);
   transform: rotate(180deg);        /* 列表展开中：箭头朝上（点击收起） */
@@ -377,5 +381,10 @@ body.is-list-collapsed .empty-state { display: none; }
   }
   .meta-right .btn-text {
     display: none;
+  }
+  /* 文字隐藏后按图标按钮档渲染：14px → 18px，与 .btn-icon 同档 */
+  .meta-right .btn .icon-slot {
+    width: var(--icon);
+    height: var(--icon);
   }
 }
