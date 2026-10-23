@@ -1,14 +1,28 @@
 /* ============================================================
- * 游逸旅闻编辑器 · 逻辑
+ * 游逸旅闻编辑器 · app.js
+ * ------------------------------------------------------------
+ * v2 变更（对齐 index.html v2 / style.css v2）：
+ *  1. 【类名】Toast / 弹窗 / 搜索清除 → .is-visible（原来用 .show，
+ *     与共享 overlays.css 不匹配，Toast 和确认框根本弹不出来）
+ *  2. 【下拉】删除 tab-sheet 一整套（openSheet / els.sheet*），
+ *     筛选改用共享 dropdown.js + dropdown:select
+ *  3. 【联想】.ed-combobox* → 共享 .combobox* / .is-highlight
+ *  4. 【图标】.ic → .icon-slot；空态图标 → .empty-icon
+ *  5. 【主题】删除本地 applyTheme / THEME_KEY，改用 theme-init.js 的 Theme.toggle()
+ *  6. 【表单】.ed-group / .ed-label → 共享 .field / .field-label / .field-row
+ *  7. 【按钮】.btn-sm / .ios-btn-fill → .btn
+ *  8. 【类名】.hidden-title → .is-biz-hidden；.ed-hint.warn → .ed-hint.is-warn
+ *  9. 【健壮】init 改为 async + 等待 __bootPromise + 全流程 try/catch
+ * 10. 「重排 ID」按钮位置在 HTML 里已移到列表底部，这里 ID 不变、逻辑不变
  * ============================================================ */
+
 (function () {
   'use strict';
 
   const DRAFT_KEY = 'genshin_travelers_tales_editor_draft_v1';
-  const THEME_KEY = 'genshin_travelers_tales_theme_v1';
 
   /* ============================================================
-   * 1. 兜底图标（ui-icons.js 中缺失的 4 个）
+   * 1. 兜底图标（ui-icons.js 中若缺失则用这些）
    * ============================================================ */
   const FALLBACK_ICONS = {
     reload:
@@ -22,12 +36,12 @@
   };
 
   /* ============================================================
-   * 2. 工具函数
+   * 2. 工具
    * ============================================================ */
   function resolveIcon(key) {
     if (window.ICONS) {
       let cur = window.ICONS;
-      for (const p of key.split('.')) {
+      for (const p of String(key).split('.')) {
         cur = cur?.[p];
         if (!cur) break;
       }
@@ -89,10 +103,10 @@
     btnTheme: $('btnTheme'),
     searchInput: $('searchInput'),
     searchClear: $('searchClear'),
-    versionTrigger: $('versionTrigger'),
     versionLabel: $('versionLabel'),
-    visibilityTrigger: $('visibilityTrigger'),
+    versionPanel: $('versionPanel'),
     visibilityLabel: $('visibilityLabel'),
+    visibilityPanel: $('visibilityPanel'),
     edListPane: $('edListPane'),
     edList: $('edList'),
     btnAdd: $('btnAdd'),
@@ -102,49 +116,48 @@
     modalBackdrop: $('modalBackdrop'),
     modalTitle: $('modalTitle'),
     modalMessage: $('modalMessage'),
-    modalActions: $('modalActions'),
-    sheetBackdrop: $('sheetBackdrop'),
-    sheet: $('sheet'),
-    sheetHeader: $('sheetHeader'),
-    sheetList: $('sheetList')
+    modalActions: $('modalActions')
   };
 
   /* ============================================================
-   * 4. Toast / 确认框 / 下拉抽屉
+   * 4. Toast / 确认框（类名对齐共享 overlays.css）
    * ============================================================ */
   function toast(message, type = '') {
+    if (!els.toastContainer) return;
     const el = document.createElement('div');
     el.className = 'toast' + (type ? ' toast-' + type : '');
     el.textContent = message;
     els.toastContainer.appendChild(el);
-    requestAnimationFrame(() => el.classList.add('show'));
+    requestAnimationFrame(() => el.classList.add('is-visible'));
     setTimeout(() => {
-      el.classList.remove('show');
+      el.classList.remove('is-visible');
       setTimeout(() => el.remove(), 350);
     }, 2200);
   }
 
   function confirmDialog({ title, message, okText = '确定', cancelText = '取消', danger = false }) {
     return new Promise((resolve) => {
+      if (!els.modalBackdrop) { resolve(false); return; }
+
       els.modalTitle.textContent = title || '';
       els.modalMessage.textContent = message || '';
       els.modalActions.innerHTML = '';
 
       const cancelBtn = document.createElement('button');
       cancelBtn.type = 'button';
-      cancelBtn.className = 'btn-sm';
+      cancelBtn.className = 'btn';
       cancelBtn.textContent = cancelText;
 
       const okBtn = document.createElement('button');
       okBtn.type = 'button';
-      okBtn.className = 'btn-sm ' + (danger ? 'btn-danger' : 'ios-btn-fill');
+      okBtn.className = 'btn' + (danger ? ' btn-danger' : '');
       okBtn.textContent = okText;
 
       els.modalActions.append(cancelBtn, okBtn);
-      els.modalBackdrop.classList.add('show');
+      els.modalBackdrop.classList.add('is-visible');
 
       const close = (result) => {
-        els.modalBackdrop.classList.remove('show');
+        els.modalBackdrop.classList.remove('is-visible');
         cancelBtn.removeEventListener('click', onCancel);
         okBtn.removeEventListener('click', onOk);
         els.modalBackdrop.removeEventListener('click', onBackdrop);
@@ -162,55 +175,8 @@
     });
   }
 
-  function openSheet({ header, items, current, onSelect }) {
-    els.sheetHeader.textContent = header || '';
-    els.sheetList.innerHTML = '';
-
-    items.forEach((item) => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'tab-sheet-item' + (item.value === current ? ' active' : '');
-      btn.innerHTML =
-        '<span>' + esc(item.label) + '</span>' +
-        '<span class="tab-sheet-item-check"><span class="ic" data-icon="ui.check"></span></span>';
-      btn.addEventListener('click', () => {
-        closeSheet();
-        onSelect(item.value);
-      });
-      els.sheetList.appendChild(btn);
-    });
-    injectIcons(els.sheetList);
-
-    els.sheetBackdrop.classList.add('show');
-    els.sheet.classList.add('show');
-
-    const onBackdrop = (e) => {
-      if (e.target === els.sheetBackdrop) closeSheet();
-    };
-    els.sheetBackdrop.addEventListener('click', onBackdrop);
-
-    function closeSheet() {
-      els.sheetBackdrop.classList.remove('show');
-      els.sheet.classList.remove('show');
-      els.sheetBackdrop.removeEventListener('click', onBackdrop);
-    }
-  }
-
   /* ============================================================
-   * 5. 主题
-   * ============================================================ */
-  const currentTheme = () =>
-    document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-
-  function applyTheme(theme) {
-    document.documentElement.classList.add('theme-switching');
-    if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-    else document.documentElement.removeAttribute('data-theme');
-    setTimeout(() => document.documentElement.classList.remove('theme-switching'), 120);
-  }
-
-  /* ============================================================
-   * 6. 状态 + 头像缓存 + 角色排序
+   * 5. 头像缓存 / 角色排序
    * ============================================================ */
   function buildAvatarCache() {
     const cache = new Map();
@@ -264,7 +230,7 @@
   const avatarUrl = (name) => state.avatarCache.get(name) || '';
 
   /* ============================================================
-   * 7. 草稿持久化
+   * 6. 草稿持久化
    * ============================================================ */
   let draftTimer = null;
 
@@ -283,18 +249,18 @@
   }
   function markDirty() {
     state.dirty = true;
-    els.dirtyDot.hidden = false;
+    if (els.dirtyDot) els.dirtyDot.hidden = false;
     clearTimeout(draftTimer);
     draftTimer = setTimeout(saveDraft, 400);
   }
   function clearDirty() {
     state.dirty = false;
-    els.dirtyDot.hidden = true;
+    if (els.dirtyDot) els.dirtyDot.hidden = true;
     clearTimeout(draftTimer);
   }
 
   /* ============================================================
-   * 8. 数据解析 / 序列化
+   * 7. 数据解析 / 序列化
    * ============================================================ */
   function parseDataJs(text) {
     const prev = window.TRAVELERS_TALES;
@@ -314,7 +280,6 @@
   }
 
   function serializeData(data) {
-    /* 8.1 补全 versions（entries 中出现但 versions 缺失的版本） */
     const versionSet = new Set(data.versions);
     for (const e of data.entries) {
       if (e.version && !versionSet.has(e.version)) {
@@ -323,7 +288,6 @@
       }
     }
 
-    /* 8.2 按版本分组 */
     const grouped = new Map();
     data.versions.forEach((v) => grouped.set(v, []));
     for (const e of data.entries) {
@@ -331,7 +295,6 @@
       grouped.get(e.version).push(e);
     }
 
-    /* 8.3 组内排序：角色 order → id */
     for (const list of grouped.values()) {
       list.sort((a, b) => {
         const oa = ORDER_MAP.get(a.character) ?? 9999;
@@ -341,7 +304,6 @@
       });
     }
 
-    /* 8.4 生成文本 */
     const lines = [];
     lines.push('/* ============================================================');
     lines.push(' * 原神 · 游逸旅闻 数据字典');
@@ -391,7 +353,7 @@
   }
 
   /* ============================================================
-   * 9. 排序
+   * 8. 排序
    * ============================================================ */
   function getVersionIndex() {
     const m = new Map();
@@ -433,9 +395,11 @@
   }
 
   /* ============================================================
-   * 10. 渲染：列表
+   * 9. 渲染：列表
    * ============================================================ */
   function renderList() {
+    if (!els.edList) return;
+
     if (!state.data) {
       els.edList.innerHTML = '<div class="ed-list-empty">数据未加载<br>点「重载」或「导入」</div>';
       return;
@@ -446,36 +410,36 @@
       return;
     }
 
-    els.edList.innerHTML = list
-      .map((e) => {
-        const url = avatarUrl(e.character);
-        const initial = e.character ? e.character.charAt(0) : '?';
-        const avatarInner = url
-          ? '<img src="' + esc(url) + '" alt="" loading="lazy" onerror="this.remove()">' + esc(initial)
-          : esc(initial);
-        const active = e.id === state.selectedId ? ' active' : '';
-        const hiddenCls = e.hidden ? ' hidden-title' : '';
-        return (
-          '<div class="ed-list-item' + active + '" data-id="' + e.id + '">' +
-            '<div class="ed-list-item-avatar">' + avatarInner + '</div>' +
-            '<div class="ed-list-item-body">' +
-              '<div class="ed-list-item-title' + hiddenCls + '">' + esc(e.title || '(无标题)') + '</div>' +
-              '<div class="ed-list-item-sub">' + esc(e.character || '?') + ' · ' + esc(e.version || '?') + '</div>' +
-            '</div>' +
-          '</div>'
-        );
-      })
-      .join('');
+    els.edList.innerHTML = list.map((e) => {
+      const url = avatarUrl(e.character);
+      const initial = e.character ? e.character.charAt(0) : '?';
+      const avatarInner = url
+        ? '<img src="' + esc(url) + '" alt="" loading="lazy">' + esc(initial)
+        : esc(initial);
+      const active = e.id === state.selectedId ? ' active' : '';
+      const hiddenCls = e.hidden ? ' is-biz-hidden' : '';
+      return (
+        '<div class="ed-list-item' + active + '" data-id="' + e.id + '">' +
+          '<div class="ed-list-item-avatar">' + avatarInner + '</div>' +
+          '<div class="ed-list-item-body">' +
+            '<div class="ed-list-item-title' + hiddenCls + '">' + esc(e.title || '(无标题)') + '</div>' +
+            '<div class="ed-list-item-sub">' + esc(e.character || '?') + ' · ' + esc(e.version || '?') + '</div>' +
+          '</div>' +
+        '</div>'
+      );
+    }).join('');
   }
 
   /* ============================================================
-   * 11. 渲染：表单
+   * 10. 渲染：表单
    * ============================================================ */
   function renderForm() {
+    if (!els.edFormPane) return;
+
     if (!state.data) {
       els.edFormPane.innerHTML =
         '<div class="ed-form-empty">' +
-          '<span class="ic" data-icon="file"></span>' +
+          '<span class="empty-icon" data-icon="file"></span>' +
           '<div>数据未加载<br>请点右上角「重载」或「导入」</div>' +
         '</div>';
       injectIcons(els.edFormPane);
@@ -484,9 +448,7 @@
 
     if (state.selectedId == null) {
       els.edFormPane.innerHTML =
-        '<div class="ed-form-empty">' +
-          '<div>从左侧选择条目开始编辑<br>或点击「新增条目」</div>' +
-        '</div>';
+        '<div class="ed-form-empty"><div>从左侧选择条目开始编辑<br>或点击「新增」</div></div>';
       return;
     }
 
@@ -499,7 +461,7 @@
     const url = avatarUrl(entry.character);
     const initial = entry.character ? entry.character.charAt(0) : '?';
     const avatarInner = url
-      ? '<img src="' + esc(url) + '" alt="" onerror="this.remove()">' + esc(initial)
+      ? '<img src="' + esc(url) + '" alt="">' + esc(initial)
       : esc(initial);
 
     const headingSub = state.isNew
@@ -507,96 +469,96 @@
       : (entry.hidden ? '隐藏旅闻' : '正常旅闻') + ' · id ' + entry.id;
 
     const comboboxAvatar = url
-      ? '<div class="ed-combobox-avatar">' + avatarInner + '</div>'
+      ? '<div class="combobox-avatar">' + avatarInner + '</div>'
       : '';
 
     els.edFormPane.innerHTML =
       '<div class="ed-form">' +
 
-        '<button type="button" class="btn-sm ed-mobile-back" id="btnMobileBack">' +
-          '<span class="ic" data-icon="back"></span>' +
-          '<span>返回列表</span>' +
+        '<button type="button" class="btn ed-mobile-back" id="btnMobileBack">' +
+          '<span class="icon-slot" data-icon="back"></span>' +
+          '<span class="btn-text">返回列表</span>' +
         '</button>' +
 
         '<div class="ed-form-heading">' +
           '<div class="ed-form-heading-avatar">' + avatarInner + '</div>' +
           '<div class="ed-form-heading-info">' +
-            '<h2 class="ed-form-heading-name">' + esc(entry.character || '(未命名角色)') + ' · ' + esc(entry.title || '(无标题)') + '</h2>' +
+            '<div class="ed-form-heading-name">' + esc(entry.character || '(未命名角色)') + ' · ' + esc(entry.title || '(无标题)') + '</div>' +
             '<div class="ed-form-heading-sub">' + esc(headingSub) + '</div>' +
           '</div>' +
         '</div>' +
 
-        '<div class="ed-row-2">' +
-          '<div class="ed-group">' +
-            '<label class="ed-label">id <span class="ed-label-hint">可手动改，需唯一</span></label>' +
+        '<div class="field-row">' +
+          '<div class="field">' +
+            '<span class="field-label">id · 可手动改，需唯一</span>' +
             '<div class="ed-id-wrap">' +
               '<input type="text" data-field="id" value="' + esc(entry.id) + '" inputmode="numeric" autocomplete="off">' +
               '<button type="button" class="float-btn" id="btnIdUp" title="上移">' +
-                '<span class="ic" data-icon="ui.arrowUp"></span>' +
+                '<span class="icon-slot" data-icon="ui.arrowUp"></span>' +
               '</button>' +
               '<button type="button" class="float-btn" id="btnIdDown" title="下移">' +
-                '<span class="ic icon-flip-y" data-icon="ui.arrowUp"></span>' +
+                '<span class="icon-slot icon-flip-y" data-icon="ui.arrowUp"></span>' +
               '</button>' +
             '</div>' +
           '</div>' +
-          '<div class="ed-group">' +
-            '<label class="ed-label">版本 <span class="ed-label-hint">输入可新建</span></label>' +
-            '<div class="ed-combobox" data-combobox="version">' +
-              '<div class="ed-combobox-input-wrap">' +
+          '<div class="field">' +
+            '<span class="field-label">版本 · 输入可新建</span>' +
+            '<div class="combobox" data-combobox="version">' +
+              '<div class="combobox-input-wrap">' +
                 '<input type="text" data-field="version" value="' + esc(entry.version || '') + '" autocomplete="off" spellcheck="false">' +
               '</div>' +
-              '<div class="ed-combobox-popup" hidden></div>' +
+              '<div class="combobox-popup" hidden></div>' +
             '</div>' +
           '</div>' +
         '</div>' +
 
-        '<div class="ed-group">' +
-          '<label class="ed-label">角色名 <span class="ed-label-hint">从字典联想，可自定义</span></label>' +
-          '<div class="ed-combobox' + (url ? ' has-avatar' : '') + '" data-combobox="character">' +
-            '<div class="ed-combobox-input-wrap">' +
+        '<div class="field">' +
+          '<span class="field-label">角色名 · 从字典联想，可自定义</span>' +
+          '<div class="combobox' + (url ? ' has-avatar' : '') + '" data-combobox="character">' +
+            '<div class="combobox-input-wrap">' +
               comboboxAvatar +
               '<input type="text" data-field="character" value="' + esc(entry.character || '') + '" autocomplete="off" spellcheck="false">' +
             '</div>' +
-            '<div class="ed-combobox-popup" hidden></div>' +
+            '<div class="combobox-popup" hidden></div>' +
           '</div>' +
-          (entry.character && !url ? '<div class="ed-hint warn">字典中无此角色，将显示首字占位</div>' : '') +
+          (entry.character && !url ? '<div class="ed-hint is-warn">字典中无此角色，将显示首字占位</div>' : '') +
         '</div>' +
 
-        '<div class="ed-group">' +
-          '<label class="ed-label">旅闻名</label>' +
+        '<div class="field">' +
+          '<span class="field-label">旅闻名</span>' +
           '<input type="text" data-field="title" value="' + esc(entry.title || '') + '">' +
         '</div>' +
 
-        '<div class="ed-group">' +
-          '<label class="ed-label">隐藏</label>' +
+        '<div class="field">' +
+          '<span class="field-label">隐藏</span>' +
           '<label class="ed-checkbox-wrap">' +
             '<input type="checkbox" data-field="hidden"' + (entry.hidden ? ' checked' : '') + '>' +
             '<span>标记为隐藏旅闻（主界面红色加粗）</span>' +
           '</label>' +
         '</div>' +
 
-        '<div class="ed-group">' +
-          '<label class="ed-label">地点</label>' +
+        '<div class="field">' +
+          '<span class="field-label">地点</span>' +
           '<input type="text" data-field="location" value="' + esc(entry.location || '') + '">' +
         '</div>' +
 
-        '<div class="ed-group">' +
-          '<label class="ed-label">触发条件</label>' +
+        '<div class="field">' +
+          '<span class="field-label">触发条件</span>' +
           '<input type="text" data-field="trigger" value="' + esc(entry.trigger || '') + '">' +
         '</div>' +
 
-        '<div class="ed-group">' +
-          '<label class="ed-label">前置旅闻 <span class="ed-label-hint">只填旅闻名</span></label>' +
+        '<div class="field">' +
+          '<span class="field-label">前置旅闻 · 只填旅闻名</span>' +
           '<input type="text" data-field="prerequisite" value="' + esc(entry.prerequisite || '') + '">' +
         '</div>' +
 
-        '<div class="ed-group">' +
-          '<label class="ed-label">描述 <span class="ed-label-hint">支持换行</span></label>' +
+        '<div class="field">' +
+          '<span class="field-label">描述 · 支持换行</span>' +
           '<textarea data-field="description" rows="6">' + esc(entry.description || '') + '</textarea>' +
         '</div>' +
 
         '<div class="ed-actions">' +
-          '<button type="button" class="btn-sm btn-danger" id="btnDelete">删除此条</button>' +
+          '<button type="button" class="btn btn-danger" id="btnDelete">删除此条</button>' +
         '</div>' +
 
       '</div>';
@@ -606,7 +568,7 @@
   }
 
   /* ============================================================
-   * 12. 表单事件
+   * 11. 表单事件
    * ============================================================ */
   function bindFormEvents(entry) {
     els.edFormPane.querySelectorAll('[data-field]').forEach((input) => {
@@ -657,20 +619,20 @@
           const url = avatarUrl(entry.character);
           const initial2 = entry.character ? entry.character.charAt(0) : '?';
           const avatarInner = url
-            ? '<img src="' + esc(url) + '" alt="" onerror="this.remove()">' + esc(initial2)
+            ? '<img src="' + esc(url) + '" alt="">' + esc(initial2)
             : esc(initial2);
 
-          const combobox = els.edFormPane.querySelector('.ed-combobox[data-combobox="character"]');
+          const combobox = els.edFormPane.querySelector('.combobox[data-combobox="character"]');
           if (combobox) {
             combobox.classList.toggle('has-avatar', !!url);
-            const slot = combobox.querySelector('.ed-combobox-avatar');
+            const slot = combobox.querySelector('.combobox-avatar');
             if (slot) {
               slot.innerHTML = avatarInner;
             } else if (url) {
-              const wrap = combobox.querySelector('.ed-combobox-input-wrap');
+              const wrap = combobox.querySelector('.combobox-input-wrap');
               if (wrap) {
                 const d = document.createElement('div');
-                d.className = 'ed-combobox-avatar';
+                d.className = 'combobox-avatar';
                 d.innerHTML = avatarInner;
                 wrap.prepend(d);
               }
@@ -685,7 +647,7 @@
     });
 
     setupCombobox(
-      els.edFormPane.querySelector('.ed-combobox[data-combobox="version"]'),
+      els.edFormPane.querySelector('.combobox[data-combobox="version"]'),
       {
         items: () => state.data.versions,
         allowCustom: true,
@@ -694,13 +656,14 @@
           entry.version = v;
           if (!state.data.versions.includes(v)) state.data.versions.push(v);
           markDirty();
+          renderFilters();
           renderList();
         }
       }
     );
 
     setupCombobox(
-      els.edFormPane.querySelector('.ed-combobox[data-combobox="character"]'),
+      els.edFormPane.querySelector('.combobox[data-combobox="character"]'),
       {
         items: () => state.charList,
         allowCustom: true,
@@ -759,18 +722,27 @@
   }
 
   /* ============================================================
-   * 13. Combobox
+   * 12. Combobox（共享 .combobox 结构）
    * ============================================================ */
   function setupCombobox(box, opts) {
     if (!box) return;
     const input = box.querySelector('input[data-field]');
-    const popup = box.querySelector('.ed-combobox-popup');
+    const popup = box.querySelector('.combobox-popup');
+    if (!input || !popup) return;
+
     let highlight = 0;
     let currentItems = [];
 
     const close = () => {
       popup.hidden = true;
       currentItems = [];
+    };
+
+    const refreshHighlight = () => {
+      popup.querySelectorAll('.combobox-option').forEach((el, i) => {
+        el.classList.toggle('is-highlight', i === highlight);
+      });
+      popup.querySelector('.combobox-option.is-highlight')?.scrollIntoView({ block: 'nearest' });
     };
 
     const refresh = (query) => {
@@ -788,21 +760,19 @@
       }
 
       if (!currentItems.length) {
-        popup.innerHTML = '<div class="ed-combobox-empty">无匹配</div>';
+        popup.innerHTML = '<div class="combobox-empty">无匹配</div>';
         popup.hidden = false;
         return;
       }
 
-      popup.innerHTML = currentItems
-        .map((it, i) => {
-          const cls =
-            'ed-combobox-option' +
-            (it.isNew ? ' is-new' : '') +
-            (i === highlight ? ' highlight' : '');
-          const label = it.isNew && opts.customLabel ? opts.customLabel(it.value) : it.value;
-          return '<div class="' + cls + '" data-idx="' + i + '">' + esc(label) + '</div>';
-        })
-        .join('');
+      popup.innerHTML = currentItems.map((it, i) => {
+        const cls =
+          'combobox-option' +
+          (it.isNew ? ' is-new' : '') +
+          (i === highlight ? ' is-highlight' : '');
+        const label = it.isNew && opts.customLabel ? opts.customLabel(it.value) : it.value;
+        return '<div class="' + cls + '" data-idx="' + i + '">' + esc(label) + '</div>';
+      }).join('');
       popup.hidden = false;
     };
 
@@ -847,86 +817,91 @@
     });
 
     popup.addEventListener('pointerdown', (e) => {
-      const opt = e.target.closest('.ed-combobox-option');
+      const opt = e.target.closest('.combobox-option');
       if (!opt) return;
-      const idx = parseInt(opt.dataset.idx, 10);
-      select(idx);
+      select(parseInt(opt.dataset.idx, 10));
       e.preventDefault();
     });
 
     input.addEventListener('blur', () => setTimeout(close, 150));
+  }
 
-    const refreshHighlight = () => {
-      popup.querySelectorAll('.ed-combobox-option').forEach((el, i) => {
-        el.classList.toggle('highlight', i === highlight);
-      });
-      popup.querySelector('.ed-combobox-option.highlight')?.scrollIntoView({ block: 'nearest' });
-    };
+  /* ============================================================
+   * 13. 筛选下拉（共享 dropdown.js 负责开关，这里只渲染选项）
+   * ============================================================ */
+  function renderDropdownOptions(panelEl, items, current) {
+    if (!panelEl) return;
+    panelEl.innerHTML = items.map((it) => {
+      const active = it.value === current ? ' is-active' : '';
+      return `<button type="button" class="dropdown-item${active}" data-value="${esc(it.value)}">${esc(it.label)}</button>`;
+    }).join('');
+  }
+
+  function renderFilters() {
+    const versions = [{ value: 'all', label: '全部版本' }]
+      .concat((state.data?.versions || []).map((v) => ({ value: v, label: v })));
+    renderDropdownOptions(els.versionPanel, versions, state.versionFilter);
+
+    renderDropdownOptions(
+      els.visibilityPanel,
+      [
+        { value: 'all', label: '全部' },
+        { value: 'normal', label: '正常' },
+        { value: 'hidden', label: '隐藏' }
+      ],
+      state.visibilityFilter
+    );
   }
 
   /* ============================================================
    * 14. 主流程事件
    * ============================================================ */
-  function bindHeaderEvents() {
-    els.btnTheme.addEventListener('click', () => {
-      const next = currentTheme() === 'dark' ? 'light' : 'dark';
-      applyTheme(next);
-      try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+  function bindEvents() {
+    /* ---- 主题 ---- */
+    els.btnTheme?.addEventListener('click', () => {
+      if (window.Theme?.toggle) window.Theme.toggle();
     });
 
+    /* ---- 搜索 ---- */
     let searchTimer = null;
-    els.searchInput.addEventListener('input', () => {
-      els.searchClear.classList.toggle('show', els.searchInput.value.length > 0);
+    els.searchInput?.addEventListener('input', () => {
+      els.searchClear?.classList.toggle('is-visible', els.searchInput.value.length > 0);
       clearTimeout(searchTimer);
       searchTimer = setTimeout(() => {
         state.search = els.searchInput.value;
         renderList();
       }, 150);
     });
-    els.searchClear.addEventListener('click', () => {
+    els.searchClear?.addEventListener('click', () => {
       els.searchInput.value = '';
-      els.searchClear.classList.remove('show');
+      els.searchClear.classList.remove('is-visible');
       state.search = '';
       renderList();
     });
 
-    els.versionTrigger.addEventListener('click', () => {
-      if (!state.data) return;
-      const items = [{ value: 'all', label: '全部版本' }];
-      state.data.versions.forEach((v) => items.push({ value: v, label: v }));
-      openSheet({
-        header: '版本',
-        items,
-        current: state.versionFilter,
-        onSelect: (v) => {
-          state.versionFilter = v;
-          els.versionLabel.textContent = v === 'all' ? '全部版本' : v;
-          els.versionTrigger.classList.toggle('active', v !== 'all');
-          renderList();
-        }
-      });
-    });
+    /* ---- 筛选下拉 ---- */
+    document.addEventListener('dropdown:select', (e) => {
+      const { dropdown, value } = e.detail || {};
+      const filter = dropdown?.dataset?.filter;
+      if (!filter || value == null) return;
 
-    els.visibilityTrigger.addEventListener('click', () => {
-      openSheet({
-        header: '类型',
-        items: [
-          { value: 'all', label: '全部' },
-          { value: 'normal', label: '正常' },
-          { value: 'hidden', label: '隐藏' }
-        ],
-        current: state.visibilityFilter,
-        onSelect: (v) => {
-          state.visibilityFilter = v;
+      if (filter === 'version') {
+        state.versionFilter = value;
+        if (els.versionLabel) els.versionLabel.textContent = value === 'all' ? '全部版本' : value;
+      } else if (filter === 'visibility') {
+        state.visibilityFilter = value;
+        if (els.visibilityLabel) {
           els.visibilityLabel.textContent =
-            v === 'all' ? '全部' : v === 'normal' ? '正常' : '隐藏';
-          els.visibilityTrigger.classList.toggle('active', v !== 'all');
-          renderList();
+            value === 'all' ? '全部' : value === 'normal' ? '正常' : '隐藏';
         }
-      });
+      }
+
+      renderFilters();
+      renderList();
     });
 
-    els.btnRenumber.addEventListener('click', async () => {
+    /* ---- 重排 ID ---- */
+    els.btnRenumber?.addEventListener('click', async () => {
       if (!state.data) return toast('数据未加载', 'error');
       const sorted = allSortedEntries();
       const n = sorted.length;
@@ -951,7 +926,8 @@
       toast('已重排 ' + n + ' 条 id', 'success');
     });
 
-    els.btnReload.addEventListener('click', async () => {
+    /* ---- 重载 ---- */
+    els.btnReload?.addEventListener('click', async () => {
       if (state.dirty) {
         const ok = await confirmDialog({
           title: '放弃修改',
@@ -969,36 +945,37 @@
         const res = await fetch('../tales/data.js?t=' + Date.now(), { cache: 'no-store' });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const text = await res.text();
-        const data = parseDataJs(text);
-        state.data = data;
+        state.data = parseDataJs(text);
         state.selectedId = null;
         state.isNew = false;
         clearDirty();
         clearDraft();
+        renderFilters();
         renderList();
         renderForm();
-        toast('已重载 ' + data.entries.length + ' 条', 'success');
+        toast('已重载 ' + state.data.entries.length + ' 条', 'success');
       } catch (err) {
         toast('重载失败：' + err.message, 'error');
       }
     });
 
-    els.btnImport.addEventListener('click', () => els.fileInput.click());
-    els.fileInput.addEventListener('change', (ev) => {
+    /* ---- 导入 ---- */
+    els.btnImport?.addEventListener('click', () => els.fileInput?.click());
+    els.fileInput?.addEventListener('change', (ev) => {
       const file = ev.target.files?.[0];
       if (!file) return;
       const reader = new FileReader();
       reader.onload = () => {
         try {
-          const data = parseDataJs(reader.result);
-          state.data = data;
+          state.data = parseDataJs(reader.result);
           state.selectedId = null;
           state.isNew = false;
           clearDirty();
           saveDraft();
+          renderFilters();
           renderList();
           renderForm();
-          toast('已导入 ' + data.entries.length + ' 条', 'success');
+          toast('已导入 ' + state.data.entries.length + ' 条', 'success');
         } catch (err) {
           toast('导入失败：' + err.message, 'error');
         }
@@ -1007,7 +984,8 @@
       reader.readAsText(file);
     });
 
-    els.btnExport.addEventListener('click', async () => {
+    /* ---- 导出 ---- */
+    els.btnExport?.addEventListener('click', async () => {
       if (!state.data) return toast('数据未加载', 'error');
 
       const warnings = [];
@@ -1052,7 +1030,8 @@
       toast('已导出 data.js', 'success');
     });
 
-    els.edList.addEventListener('click', (e) => {
+    /* ---- 列表点选 ---- */
+    els.edList?.addEventListener('click', (e) => {
       const item = e.target.closest('.ed-list-item');
       if (!item) return;
       const id = parseInt(item.dataset.id, 10);
@@ -1067,7 +1046,8 @@
       }
     });
 
-    els.btnAdd.addEventListener('click', () => {
+    /* ---- 新增 ---- */
+    els.btnAdd?.addEventListener('click', () => {
       if (!state.data) return toast('数据未加载，请先「重载」或「导入」', 'error');
       const newId = state.data.entries.reduce((m, x) => Math.max(m, x.id || 0), 0) + 1;
       const entry = {
@@ -1109,31 +1089,54 @@
   /* ============================================================
    * 15. 启动
    * ============================================================ */
-  (function init() {
-    injectIcons(document);
-    bindHeaderEvents();
+  (async function init() {
+    try {
+      try {
+        await window.__bootPromise;
+      } catch (e) {
+        console.warn('[boot]', e);
+      }
 
-    const draft = loadDraft();
-    if (draft?.entries) {
-      state.data = draft;
-      state.data.versions ||= [];
-      state.data.meta ||= {};
-      renderList();
-      renderForm();
-      state.dirty = true;
-      els.dirtyDot.hidden = false;
-      toast('已恢复草稿（未导出）', 'success');
-    } else if (window.TRAVELERS_TALES?.entries) {
-      state.data = structuredClone(window.TRAVELERS_TALES);
-      state.data.versions ||= [];
-      state.data.meta ||= {};
-      renderList();
-      renderForm();
-    } else {
-      renderList();
-      renderForm();
+      if (typeof window.ICONS === 'undefined') {
+        throw new Error('图标库未加载（ui-icons.js），请刷新重试');
+      }
+
+      injectIcons(document);
+      bindEvents();
+
+      const draft = loadDraft();
+      if (draft?.entries) {
+        state.data = draft;
+        state.data.versions ||= [];
+        state.data.meta ||= {};
+        renderFilters();
+        renderList();
+        renderForm();
+        state.dirty = true;
+        if (els.dirtyDot) els.dirtyDot.hidden = false;
+        toast('已恢复草稿（未导出）', 'success');
+      } else if (window.TRAVELERS_TALES?.entries) {
+        state.data = structuredClone(window.TRAVELERS_TALES);
+        state.data.versions ||= [];
+        state.data.meta ||= {};
+        renderFilters();
+        renderList();
+        renderForm();
+      } else {
+        renderFilters();
+        renderList();
+        renderForm();
+      }
+
+      document.body.classList.add('ready');
+    } catch (err) {
+      console.error('[init]', err);
+      const bootEl = document.querySelector('.boot-loading');
+      if (bootEl) {
+        bootEl.style.whiteSpace = 'pre-wrap';
+        bootEl.textContent = '初始化失败：' + (err && err.message ? err.message : String(err)) +
+          '\n请刷新重试；若持续失败，请把这条信息反馈给维护者。';
+      }
     }
-
-    document.body.classList.add('ready');
   })();
 })();
