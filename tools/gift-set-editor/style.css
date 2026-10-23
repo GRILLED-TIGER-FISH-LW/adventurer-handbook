@@ -2,6 +2,13 @@
  * 尘歌壶赠礼套装编辑器 · style.css
  * 依赖：shared/css/theme.css
  * ------------------------------------------------------------
+ * v3 变更：
+ *  1. 【按钮收图标改用共享类】640px 下 .ed-header-actions .btn 的本地规则删除，
+ *     改由 shared/css/buttons.css 的 .btn-collapse 处理
+ *     （index.html 已给「重载 / 导入 / 导出」加 class="btn btn-collapse"）。
+ *  2. 【纯图标按钮统一】.ed-id-wrap 的上下移按钮删除本地 14px 覆盖
+ *     及冗余的 svg 100% 规则，跟随共享 .float-btn 的 --icon(18)。
+ * ------------------------------------------------------------
  * v2 变更（对齐主仓库设计系统）：
  *  1. 修掉 6 个不存在的变量：
  *     --ctl-h → --h-ctl / --radius-sm → --r-ctl / --radius-md → --r-panel
@@ -352,6 +359,8 @@ html[data-theme="dark"] .ed-theme-btn .icon-slot.ed-theme-moon { display: inline
 
 /* ============================================================
  * 6. id 输入 + 上下移按钮
+ *    上下移是纯图标按钮，图标尺寸由共享 .float-btn .icon-slot（--icon）提供，
+ *    不再本地覆盖成 --icon-sm。height 仍显式写，抵消父级 align-items:stretch。
  * ============================================================ */
 .ed-id-wrap {
   display: flex;
@@ -364,14 +373,8 @@ html[data-theme="dark"] .ed-theme-btn .icon-slot.ed-theme-moon { display: inline
   min-width: 0;
 }
 .ed-id-wrap .float-btn {
-  width: var(--h-ctl);
   height: var(--h-ctl);
 }
-.ed-id-wrap .float-btn .icon-slot {
-  width: var(--icon-sm);
-  height: var(--icon-sm);
-}
-.ed-id-wrap .float-btn .icon-slot svg { width: 100%; height: 100%; }
 .icon-flip-y { transform: scaleY(-1); }
 
 /* id 重复 / 非法 */
@@ -547,6 +550,7 @@ html[data-theme="dark"] .ed-theme-btn .icon-slot.ed-theme-moon { display: inline
 
 /* ============================================================
  * 10. 响应式
+ *     顶栏按钮「收成纯图标」由共享 .btn-collapse 处理（断点 640px）
  * ============================================================ */
 @media (max-width: 900px) {
   .ed-main { grid-template-columns: minmax(0, 1fr); }
@@ -578,11 +582,4 @@ html[data-theme="dark"] .ed-theme-btn .icon-slot.ed-theme-moon { display: inline
 @media (max-width: 640px) {
   .ed-header { padding: var(--gap-sm) var(--gap); }
   .ed-title { font-size: var(--fs-md); }
-
-  /* 顶栏按钮收成纯图标 */
-  .ed-header-actions .btn {
-    width: var(--h-ctl);
-    padding: 0;
-  }
-  .ed-header-actions .btn-text { display: none; }
 }
