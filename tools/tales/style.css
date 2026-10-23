@@ -4,22 +4,21 @@
  * 通用控件（搜索框 / 下拉 / 输入框 / 按钮 / 计数徽标 / 空态 / Toast / 弹窗）
  * 全部来自共享体系，本文件只写「这一页特有的结构」。
  * ------------------------------------------------------------
+ * v6 变更：
+ *  1. 【折叠对象修正】折叠按钮收起的是「旅闻列表」，不是筛选区。
+ *     顶栏三行（搜索 / 筛选 / UID+操作）全部常驻。
+ *     —— 原来收起筛选和 UID 行会把导出/导入一起藏掉，方向搞反了。
+ *  2. 状态类从 .app-header.is-collapsed 改为 body.is-list-collapsed，
+ *     这样按钮（在 header 内）和列表（在 main 内）能被同一个类控制。
  * v5 变更：
- *  1. 【顶栏跟滚】body 加 height: 100dvh + overflow: hidden，
- *     滚动容器下移到 .app-main —— 右侧滚动条只属于列表区，顶栏不再跟着走。
- *  2. 【顶栏实色】background 从 var(--glass) 改为 var(--bg-base)，
- *     与角色卡 / 视频封面的预览窗保持一致；同时去掉 position: sticky
- *     （外层不滚了，sticky 已无意义）。
- *  3. 【危险区常驻】.danger-zone 移出 .app-main，加 flex-shrink: 0，
- *     清空按钮固定在页面底部，不用再滚到底。
- *  4. 【可折叠】新增 .header-toggle，收起第 2、3 行（筛选 + UID/操作），
- *     折叠状态记在 localStorage，刷新后保持。
+ *  · body 锁死视口，滚动容器下移到 .app-main
+ *  · 顶栏改实色背景，去掉 position: sticky
+ *  · .danger-zone 移出滚动区，固定在页面底部
+ *  · 新增 .header-toggle
  * v4 变更：
- *  · 「清空记录」从顶栏移到页面最底部的 .danger-zone
- *  · .app-main 加 flex: 1
+ *  · 「清空记录」从顶栏移到 .danger-zone
  * v3 变更：
- *  · 完成度徽标从「操作行」移到「搜索行」右侧
- *  · 手机上隐藏「已完成」三字，只留 12/156
+ *  · 完成度徽标移到搜索行右侧；手机上隐藏「已完成」三字
  * ============================================================ */
 
 /* ============================================================
@@ -32,7 +31,6 @@ body {
 
 /* ============================================================
  * 1. 顶部栏（固定，不参与滚动）
- *    三行：搜索+完成度+折叠 / 筛选 / UID+操作
  * ============================================================ */
 .app-header {
   flex-shrink: 0;
@@ -62,7 +60,7 @@ body {
   flex-shrink: 0;
 }
 
-/* 折叠开关 */
+/* ---- 列表折叠开关 ---- */
 .header-toggle {
   display: inline-flex;
   align-items: center;
@@ -90,14 +88,13 @@ body {
   height: var(--icon-sm);
   flex-shrink: 0;
   transition: transform var(--dur) var(--ease);
-  transform: rotate(180deg);        /* 展开状态：箭头朝上 */
+  transform: rotate(180deg);        /* 列表展开中：箭头朝上（点击收起） */
 }
 .header-toggle .icon-slot svg { width: 100%; height: 100%; }
-.app-header.is-collapsed .header-toggle .icon-slot { transform: rotate(0deg); }
+body.is-list-collapsed .header-toggle .icon-slot { transform: rotate(0deg); }
 
-/* 收起时只留第 1 行 */
-.app-header.is-collapsed .row-filters,
-.app-header.is-collapsed .row-meta-actions { display: none; }
+/* 收起旅闻列表（顶栏与页尾危险区都保留） */
+body.is-list-collapsed .app-main > * { display: none; }
 
 /* 第 2 行：三个下拉并排等分 */
 .row-filters > .dropdown {
@@ -323,7 +320,6 @@ body {
 
 /* ============================================================
  * 5. 危险区（固定在页面底部，不随列表滚动）
- *    与尘歌壶赠礼套装一致：破坏性操作独立成块、常驻可见
  * ============================================================ */
 .danger-zone {
   flex-shrink: 0;
