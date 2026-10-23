@@ -2,19 +2,23 @@
  * 游逸旅闻编辑器 · style.css
  * 依赖：shared/css/theme.css
  * ------------------------------------------------------------
- * v2 变更（对齐主仓库设计系统）：
- *  1. 修掉不存在的变量：
- *     --ctl-h → --h-ctl / --radius-sm → --r-ctl / --ease-spring → --ease
- *     --danger-bg / --shadow-nav → 换成现有令牌 + color-mix
- *  2. 删除全部 !important（规范禁止）
- *  3. 删除本地重复组件，改用共享：
- *     搜索框 .search / 下拉 .dropdown / 联想 .combobox / 图标 .icon-slot
- *  4. 删除 .tab-sheet 一整套（筛选改用共享 dropdown）
- *  5. 删除 margin（.ed-form 的 0 auto、.ed-list-item 的 2px）
- *  6. 删除 -webkit-overflow-scrolling
- *  7. 删除 html/body 上与 theme.css 重复的声明
- *  8. 间距 / 圆角 / 字号 / 时长全部 token 化
- *  9. 「重排 ID」从顶栏移到列表底部，与「新增」并排
+ * v3 变更：
+ *  1. 【主题图标双显】.ed-theme-moon 的 display:none 特异性 (0,1,0)
+ *     被 shared buttons.css 的 .float-btn .icon-slot (0,2,0) 压掉，
+ *     导致太阳和月亮同时出现。提到 (0,3,0) 修复。
+ *  2. 【手机端字段宽度】.field-row 的共享单列断点是 640px，
+ *     而编辑器手机模式断点是 900px —— 640~900 之间 id/版本仍是两列，
+ *     与顶满的「角色名」不一致。本地在 900 以下整体单列。
+ *  3. .ed-list-item.active → .is-active（对齐状态类命名规范）
+ *  4. .ed-form-empty 的 height:100% 改 flex:1（父容器有 padding 时会溢出）
+ *  5. .ed-form-empty .empty-icon 补尺寸（不在 .empty-state 上下文，共享没给）
+ * ------------------------------------------------------------
+ * v2 变更：
+ *  · 修掉 --ctl-h / --radius-sm / --ease-spring / --danger-bg / --shadow-nav
+ *  · 删除全部 !important、margin、-webkit-overflow-scrolling
+ *  · 搜索 / 下拉 / combobox / 图标容器 → 共享组件
+ *  · 删除 .tab-sheet 一整套
+ *  · 全部 token 化
  * ============================================================ */
 
 /* ============================================================
@@ -55,7 +59,6 @@ body {
   white-space: nowrap;
 }
 
-/* 有未导出修改时闪烁的红点 */
 .ed-dirty-dot {
   width: 8px;
   height: 8px;
@@ -92,9 +95,11 @@ body {
   width: var(--icon);
   height: var(--icon);
 }
-.ed-theme-moon { display: none; }
-html[data-theme="dark"] .ed-theme-sun  { display: none; }
-html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
+
+/* 太阳 / 月亮切换：特异性必须压过 .float-btn .icon-slot (0,2,0) */
+.ed-theme-btn .icon-slot.ed-theme-moon { display: none; }
+html[data-theme="dark"] .ed-theme-btn .icon-slot.ed-theme-sun  { display: none; }
+html[data-theme="dark"] .ed-theme-btn .icon-slot.ed-theme-moon { display: inline-flex; }
 
 /* ============================================================
  * 2. 主布局（左列表 / 右表单）
@@ -166,7 +171,7 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
               border-color var(--dur) var(--ease);
 }
 .ed-list-item:hover { background: var(--bg-hover); }
-.ed-list-item.active {
+.ed-list-item.is-active {
   background: var(--accent-soft);
   border-color: var(--accent);
 }
@@ -258,18 +263,24 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
 }
 
 .ed-form-empty {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: var(--gap);
-  height: 100%;
   padding: 40px var(--gap-lg);
   text-align: center;
   font-size: var(--fs-sm);
   line-height: 1.7;
   color: var(--text-tertiary);
 }
+.ed-form-empty .empty-icon {
+  width: 44px;
+  height: 44px;
+  opacity: 0.4;
+}
+.ed-form-empty .empty-icon svg { width: 100%; height: 100%; }
 
 /* ---- 表单头部 ---- */
 .ed-form-heading {
@@ -328,6 +339,7 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
   display: flex;
   align-items: stretch;
   gap: var(--gap-xs);
+  width: 100%;
 }
 .ed-id-wrap input[type="text"] {
   flex: 1 1 auto;
@@ -404,6 +416,9 @@ html[data-theme="dark"] .ed-theme-moon { display: inline-flex; }
 
   .ed-form-pane { display: none; padding: var(--gap); }
   .ed-form-pane.mobile-visible { display: flex; }
+
+  /* 表单内所有两列字段在 900 以下统一单列（共享断点是 640，太窄） */
+  .ed-form .field-row { grid-template-columns: minmax(0, 1fr); }
 
   .ed-form-heading { gap: var(--gap-sm); padding-bottom: var(--gap-sm); }
   .ed-form-heading-avatar {
