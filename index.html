@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="light">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -8,19 +8,24 @@
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="apple-touch-icon" href="favicon.ico">
 
+<!-- ① 主题初始化（跨仓库同步加载，不能加 defer，否则首帧闪白） -->
+<script src="https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/css/theme-init.js"></script>
+
 <script>
 /* =========================================================================
- * 资源加载器 (全动态 + 强制时间戳防缓存 + 完美防死锁链)
+ * 资源加载器：跨仓库共享资源 + 本地样式，全部带时间戳
  * ========================================================================= */
-(async function () {
+(() => {
   const ts = Date.now();
   window.__pageLoadTs = ts;
   const withTs = (url) => url + (url.indexOf('?') >= 0 ? '&' : '?') + 't=' + ts;
 
   const loadStyle = (href) => new Promise((resolve, reject) => {
     const l = document.createElement('link');
-    l.rel = 'stylesheet'; l.href = withTs(href);
-    l.onload = resolve; l.onerror = () => reject(new Error('CSS加载失败：' + href));
+    l.rel = 'stylesheet';
+    l.href = withTs(href);
+    l.onload = resolve;
+    l.onerror = () => reject(new Error('CSS加载失败：' + href));
     const firstStyle = document.head.querySelector('style');
     if (firstStyle) document.head.insertBefore(l, firstStyle);
     else document.head.appendChild(l);
@@ -29,34 +34,49 @@
   const loadScript = (src) => new Promise((resolve, reject) => {
     const s = document.createElement('script');
     s.src = withTs(src);
-    s.onload = resolve; s.onerror = () => reject(new Error('JS加载失败：' + src));
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('JS加载失败：' + src));
     document.head.appendChild(s);
   });
 
-  // 核心改变：先并行加载依赖，等依赖就绪后，再去动态加载 app.js
   window.__bootPromise = Promise.all([
-    loadStyle('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/theme.css'),
-    loadStyle('style.css'),
-    loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/ui-icons.js'),
-    loadScript('icons.js') 
-  ]).then(() => {
-    // app.js 此时会被拉取，且一定带有时间戳，绝对不会走缓存
-    return loadScript('app.js');
+    loadStyle('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/css/theme.css'),
+    loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/ui-icons.js')
+  ]);
+
+  /* ② 加载失败兜底：任一资源 404 时给出可见提示，而不是永久白屏 */
+  window.__bootPromise.catch((e) => {
+    console.error('[Boot]', e);
+    const bootEl = document.querySelector('.boot-loading');
+    if (bootEl) {
+      bootEl.style.whiteSpace = 'pre-wrap';
+      bootEl.textContent = '载入失败：' + (e && e.message ? e.message : String(e)) +
+        '\n请刷新重试；若持续失败，请把这条信息反馈给维护者。';
+    }
   });
 })();
 </script>
 
 <style>
-  body { visibility: hidden; }
+  body { visibility: hidden; height: 100dvh; overflow: hidden; }
   body.ready { visibility: visible; }
   .boot-loading {
     position: fixed; inset: 0; z-index: 99999;
     display: flex; align-items: center; justify-content: center;
-    background: var(--bg-base, #F4F1EA); color: var(--text-tertiary, #A69E95);
-    font-size: 13px; font-family: var(--std-font, sans-serif);
+    background: var(--bg-base, #F4F1EA);
+    color: var(--text-tertiary, #A69E95);
+    font-size: 12px;
+    font-family: var(--std-font, system-ui, sans-serif);
     visibility: visible;
+    padding: 24px; text-align: center; line-height: 1.6;
   }
   body.ready .boot-loading { display: none; }
+
+  /* 首屏期间：侧边栏及其遮罩完全不参与渲染，避免加载中途露出来或播放滑出动画 */
+  body:not(.ready) .sidebar-drawer,
+  body:not(.ready) .sidebar-backdrop {
+    display: none !important;
+  }
 </style>
 </head>
 <body>
@@ -69,26 +89,308 @@
     <span class="nav-title-icon" id="navIcon"></span>
     <span class="nav-title-text" id="navText">提瓦特冒险之证</span>
   </div>
-  <button type="button" class="nav-btn" id="btnTheme" aria-label="切换主题"></button>
+  <button type="button" class="nav-btn" id="btnTheme" aria-label="切换主题">
+    <span class="theme-icon" data-theme-icon="sun"></span>
+    <span class="theme-icon" data-theme-icon="moon"></span>
+  </button>
 </header>
 
 <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 <aside class="sidebar-drawer" id="sidebarDrawer">
   <div class="sidebar-header">
     <h3>功能导航</h3>
-    <button type="button" class="nav-btn" id="btnClose" aria-label="关闭菜单"></button>
   </div>
   <nav class="sidebar-menu" id="sidebarMenu"></nav>
 </aside>
 
 <main class="home-view" id="homeView"></main>
 
-<main class="frame-container" id="frameContainer">
+<div class="frame-container" id="frameContainer">
   <div class="loading-mask" id="loadingMask">
     <div class="spinner"></div>
     <span>正在载入模块…</span>
   </div>
-</main>
+</div>
 
+<script>
+'use strict';
+
+/* =========================================================================
+ * 【模块 1】配置与 DOM
+ * ========================================================================= */
+const TOOLS = [
+  {
+    key: 'tales',
+    label: '游逸旅闻',
+    icon: 'handbook.tales',
+    iconBold: 'handbook.talesBold',
+    src: 'tools/tales/index.html'
+  },
+  {
+    key: 'gift-set',
+    label: '尘歌壶赠礼套装',
+    icon: 'handbook.giftSet',
+    iconBold: 'handbook.giftSetBold',
+    src: 'tools/gift-set/index.html'
+  }
+];
+
+const DOM = {
+  homeView: document.getElementById('homeView'),
+  frameContainer: document.getElementById('frameContainer'),
+  sidebarDrawer: document.getElementById('sidebarDrawer'),
+  sidebarBackdrop: document.getElementById('sidebarBackdrop'),
+  sidebarMenu: document.getElementById('sidebarMenu'),
+  loadingMask: document.getElementById('loadingMask'),
+  navIcon: document.getElementById('navIcon'),
+  navText: document.getElementById('navText'),
+  btnMenu: document.getElementById('btnMenu'),
+  btnTheme: document.getElementById('btnTheme')
+};
+
+const frameCache = new Map();
+let isHome = true;
+let activeTool = '';
+
+/* 按点号路径取图标（如 'handbook.tales'），取不到返回空串 */
+function ic(path) {
+  let node = window.ICONS;
+  for (const part of String(path).split('.')) {
+    if (!node) return '';
+    node = node[part];
+  }
+  return typeof node === 'string' ? node : '';
+}
+
+/* =========================================================================
+ * 【模块 2】主题：唯一来源是 theme-init.js 暴露的 Theme 模块
+ * ========================================================================= */
+function syncThemeToFrames() {
+  const theme = Theme.get();
+  frameCache.forEach(record => {
+    if (!record.loaded) return;
+    try {
+      const doc = record.iframe.contentDocument;
+      if (doc && doc.documentElement) doc.documentElement.setAttribute('data-theme', theme);
+    } catch (e) {}
+    try {
+      record.iframe.contentWindow?.postMessage({ type: 'theme', theme }, '*');
+    } catch (e) {}
+  });
+}
+
+document.addEventListener('theme:change', syncThemeToFrames);
+
+/* =========================================================================
+ * 【模块 3】侧边栏
+ * ========================================================================= */
+function openSidebar() {
+  DOM.sidebarDrawer.classList.add('is-open');
+  DOM.sidebarBackdrop.classList.add('is-active');
+}
+function closeSidebar() {
+  DOM.sidebarDrawer.classList.remove('is-open');
+  DOM.sidebarBackdrop.classList.remove('is-active');
+}
+
+function renderMenu() {
+  DOM.sidebarMenu.innerHTML = '';
+
+  const homeBtn = document.createElement('button');
+  homeBtn.type = 'button';
+  homeBtn.className = 'menu-main' + (isHome ? ' is-active' : '');
+  homeBtn.innerHTML =
+    `<span class="menu-main-icon">${ic(isHome ? 'nav.homeBold' : 'nav.home')}</span>` +
+    `<span class="menu-main-label">首页</span>`;
+  homeBtn.addEventListener('click', () => goHome());
+  DOM.sidebarMenu.appendChild(homeBtn);
+
+  TOOLS.forEach(tool => {
+    const isActive = !isHome && tool.key === activeTool;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'menu-main' + (isActive ? ' is-active' : '');
+    btn.innerHTML =
+      `<span class="menu-main-icon">${ic(isActive ? tool.iconBold : tool.icon)}</span>` +
+      `<span class="menu-main-label">${tool.label}</span>`;
+    btn.addEventListener('click', () => selectTool(tool.key));
+    DOM.sidebarMenu.appendChild(btn);
+  });
+}
+
+/* =========================================================================
+ * 【模块 4】首页 Bento
+ * ========================================================================= */
+function renderHome() {
+  DOM.homeView.innerHTML = '';
+  TOOLS.forEach(tool => {
+    const card = document.createElement('div');
+    card.className = 'dash-card';
+    card.innerHTML =
+      `<div class="dash-card-icon">${ic(tool.icon)}</div>` +
+      `<div>` +
+        `<div class="dash-card-title">${tool.label}</div>` +
+        (tool.src ? '' : '<div class="dash-card-sub">规划中</div>') +
+      `</div>`;
+    card.addEventListener('click', () => {
+      if (!tool.src) return;
+      selectTool(tool.key);
+    });
+    DOM.homeView.appendChild(card);
+  });
+}
+
+/* =========================================================================
+ * 【模块 5】iframe 管理
+ * ========================================================================= */
+function ensureFrame(tool) {
+  if (frameCache.has(tool.key)) return frameCache.get(tool.key);
+
+  const ts = window.__pageLoadTs || Date.now();
+  const src = tool.src + (tool.src.indexOf('?') >= 0 ? '&' : '?') + 't=' + ts;
+
+  const view = document.createElement('div');
+  view.className = 'frame-view';
+  view.dataset.key = tool.key;
+
+  const iframe = document.createElement('iframe');
+  iframe.title = tool.label;
+  iframe.setAttribute('loading', 'lazy');
+  iframe.src = src;
+
+  const record = { view, iframe, loaded: false };
+
+  iframe.addEventListener('load', () => {
+    record.loaded = true;
+    if (view.classList.contains('is-active')) DOM.loadingMask.classList.remove('is-visible');
+
+    /* 同源直写：同步生效，避免首帧闪主题 */
+    try {
+      const doc = iframe.contentDocument;
+      if (doc && doc.documentElement) doc.documentElement.setAttribute('data-theme', Theme.get());
+    } catch (e) {}
+
+    /* postMessage 兜底（跨域场景） */
+    try {
+      iframe.contentWindow?.postMessage({ type: 'theme', theme: Theme.get() }, '*');
+    } catch (e) {}
+  });
+
+  view.appendChild(iframe);
+  DOM.frameContainer.appendChild(view);
+  frameCache.set(tool.key, record);
+  return record;
+}
+
+/* =========================================================================
+ * 【模块 6】导航
+ * ========================================================================= */
+function goHome(pushHash = true) {
+  isHome = true;
+  activeTool = '';
+
+  DOM.frameContainer.classList.remove('is-active');
+  DOM.homeView.classList.remove('hidden');
+  DOM.loadingMask.classList.remove('is-visible');
+
+  DOM.navIcon.innerHTML = '';
+  DOM.navText.textContent = '提瓦特冒险之证';
+
+  renderMenu();
+  closeSidebar();
+
+  if (pushHash) {
+    try { history.replaceState(null, '', '#home'); } catch (e) {}
+  }
+}
+
+function selectTool(toolKey, opts = {}) {
+  const tool = TOOLS.find(t => t.key === toolKey);
+  if (!tool || !tool.src) return;
+
+  isHome = false;
+  activeTool = tool.key;
+
+  DOM.homeView.classList.add('hidden');
+  DOM.frameContainer.classList.add('is-active');
+
+  DOM.navIcon.innerHTML = ic(tool.iconBold);
+  DOM.navText.textContent = tool.label;
+
+  renderMenu();
+
+  const record = ensureFrame(tool);
+  frameCache.forEach(r => r.view.classList.toggle('is-active', r === record));
+  DOM.loadingMask.classList.toggle('is-visible', !record.loaded);
+
+  closeSidebar();
+
+  if (!opts.silent) {
+    try { history.replaceState(null, '', '#' + tool.key); } catch (e) {}
+  }
+}
+
+/* =========================================================================
+ * 【模块 7】启动
+ * ========================================================================= */
+(async function init() {
+  try {
+    try {
+      await window.__bootPromise;
+    } catch (e) {
+      console.warn('[boot]', e);
+    }
+
+    if (typeof Theme === 'undefined' || typeof window.ICONS === 'undefined') {
+      throw new Error('核心资源未加载（theme-init.js / ui-icons.js），请刷新重试');
+    }
+
+    /* 静态图标 */
+    DOM.btnMenu.innerHTML = ic('app.hamburger');
+    const sunEl = DOM.btnTheme.querySelector('[data-theme-icon="sun"]');
+    const moonEl = DOM.btnTheme.querySelector('[data-theme-icon="moon"]');
+    if (sunEl) sunEl.innerHTML = ic('app.sunBold');
+    if (moonEl) moonEl.innerHTML = ic('app.moonBold');
+
+    renderHome();
+
+    /* hash 深链：#tales / #gift-set */
+    const hashKey = (location.hash || '').replace(/^#/, '');
+    if (hashKey && TOOLS.some(t => t.key === hashKey)) {
+      selectTool(hashKey, { silent: true });
+    } else {
+      goHome(false);
+    }
+
+    /* 事件 */
+    DOM.btnMenu.addEventListener('click', openSidebar);
+    DOM.sidebarBackdrop.addEventListener('click', closeSidebar);
+    DOM.btnTheme.addEventListener('click', () => Theme.toggle());
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeSidebar();
+    });
+
+    window.addEventListener('hashchange', () => {
+      const key = (location.hash || '').replace(/^#/, '');
+      if (!key || key === 'home') {
+        if (!isHome) goHome(false);
+      } else if (TOOLS.some(t => t.key === key) && key !== activeTool) {
+        selectTool(key, { silent: true });
+      }
+    });
+
+    document.body.classList.add('ready');
+  } catch (err) {
+    console.error('[init]', err);
+    const bootEl = document.querySelector('.boot-loading');
+    if (bootEl) {
+      bootEl.style.whiteSpace = 'pre-wrap';
+      bootEl.textContent = '初始化失败：' + (err && err.message ? err.message : String(err)) +
+        '\n请刷新重试；若持续失败，请把这条信息反馈给维护者。';
+    }
+  }
+})();
+</script>
 </body>
 </html>
