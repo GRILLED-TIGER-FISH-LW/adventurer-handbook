@@ -41,15 +41,6 @@
   border-bottom: 1px solid var(--border-subtle);
 }
 
-.gs-uid {
-  flex-shrink: 0;
-  width: calc(var(--h-ctl) * 2);   /* 64px，只服务于导出文件名 */
-  height: var(--h-ctl);
-  padding: 0 var(--gap-sm);
-  font-size: var(--fs-sm);
-  text-align: center;
-}
-
 .gs-header-actions {
   display: flex;
   align-items: center;
