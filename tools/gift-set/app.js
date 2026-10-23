@@ -1,24 +1,24 @@
 /* ============================================================
  * 尘歌壶赠礼套装 · app.js
  * ------------------------------------------------------------
- * v2 变更（对齐主仓库设计系统 + 动线改造）：
- *  1. 【主题】改用 shared/css/theme-init.js 的 Theme（key = gi-theme），
- *     删除本地 applyTheme / THEME_KEY 一套；iframe 内隐藏主题按钮。
- *  2. 【类名】Toast / 弹窗 / 搜索清除 全部改用 .is-visible
- *     （原来用 .show，与共享 overlays.css 不匹配 → 弹窗和 Toast 根本弹不出来）
- *  3. 【下拉】删除手写 .gs-dropdown 状态机，改用共享 dropdown.js
- *     + dropdown:select 事件（HTML 里 .dropdown[data-filter] 区分三个筛选）
- *  4. 【D3】推荐套装卡片改为就地展开，展开状态用 expandedKeys 统一管理，
- *     与「全部套装」双向同步；不再强制跳转、不再清空筛选。
- *  5. 【D4】新增「全部展开 / 收起」按钮（作用于当前筛选结果）。
- *  6. 【D5】「未完成」筛选只保留 status === 'incomplete'，
- *     不再把「未拥有角色」的套装混进来。
- *  7. 【D6】点未拥有的角色 → Toast 提示去角色栏勾选。
- *  8. 【D9】「已达成」→「已送完」。
- *  9. 【健壮】importData 校验 completed 的 key 必须存在于状态数据中；
- *     init 全流程 try/catch，失败在遮罩上显示原因。
- * 10. 【清理】删除 FALLBACK_ICONS、scrollToSet、clearFilters、
- *     state.openDropdown、els.gsCharGridWrap、死代码 gsAllSection.hidden = false。
+ * v3 变更：
+ *  1. 「全部套装」按钮改为整块折叠（#btnAllToggle），
+ *     与「我的角色」「推荐套装」使用同一套 .gs-section.collapsed 机制。
+ *     删除上一版的「一键展开所有卡片」逻辑
+ *     （lastFilteredKeys / syncExpandAllBtn / expandedKeys 批量操作）。
+ *  2. 套装卡片的展开状态仍由 expandedKeys 统一管理，
+ *     推荐列表与全部列表依然双向同步（D3 保留）。
+ * ------------------------------------------------------------
+ * v2 变更：
+ *  1. 主题改用 theme-init.js 的 Theme（key = gi-theme）
+ *  2. Toast / 弹窗 / 搜索清除 全部改用 .is-visible
+ *  3. 筛选下拉改用共享 dropdown.js + dropdown:select
+ *  4. 推荐卡片就地展开（D3）
+ *  5. 「未完成」筛选只含 incomplete（D5）
+ *  6. 点未拥有角色 → Toast（D6）
+ *  7. 「已达成」→「已送完」（D9）
+ *  8. importData 校验 completed 的 key
+ *  9. init 全流程 try/catch
  * ============================================================ */
 
 (function () {
@@ -90,7 +90,7 @@
     gsRecommendList: $('gsRecommendList'),
 
     gsAllSection: $('gsAllSection'),
-    btnExpandAll: $('btnExpandAll'),
+    btnAllToggle: $('btnAllToggle'),
     gsSearch: $('gsSearch'),
     gsSearchClear: $('gsSearchClear'),
     gsRegionLabel: $('gsRegionLabel'),
@@ -134,7 +134,7 @@
   }
 
   /* ============================================================
-   * 4. Toast / 确认框（类名对齐共享 overlays.css）
+   * 4. Toast / 确认框
    * ============================================================ */
   function toast(message, type = '') {
     if (!els.toastContainer) return;
@@ -227,7 +227,7 @@
   const getOrder = (name) => CHAR_INDEX.byName.get(name)?.order ?? 9999;
 
   /* ============================================================
-   * 6. 头像渐变（走 icon-loader 烘焙）
+   * 6. 头像渐变
    * ============================================================ */
   const avatarGradientCache = new Map();
   const avatarGradientPending = new Map();
@@ -289,10 +289,8 @@
     statusFilter: 'all'
   };
 
-  /* 所有已展开套装的 key —— 推荐列表与全部列表共用，天然双向同步 */
+  /* 已展开的套装 key —— 推荐列表与全部列表共用，天然双向同步 */
   const expandedKeys = new Set();
-  /* 最近一次 renderAllSets 之后「当前可见」的套装 key，供「全部展开」使用 */
-  let lastFilteredKeys = [];
 
   function sanitizeOwnedList(list) {
     if (!Array.isArray(list)) return [];
@@ -576,7 +574,6 @@
     });
 
     filtered.sort((a, b) => (a.id ?? 0) - (b.id ?? 0));
-    lastFilteredKeys = filtered.map((s) => s.key);
 
     if (!state.sets.length) {
       els.gsSetList.innerHTML = '';
@@ -585,7 +582,6 @@
         '<span class="empty-icon" data-icon="ui.inbox"></span>' +
         '<span>套装数据未加载<br>请检查 data.js 是否存在</span>';
       injectIcons(els.gsSetEmpty);
-      syncExpandAllBtn();
       return;
     }
 
@@ -596,7 +592,6 @@
         '<span class="empty-icon" data-icon="ui.search"></span>' +
         '<span>没有匹配的套装</span>';
       injectIcons(els.gsSetEmpty);
-      syncExpandAllBtn();
       return;
     }
 
@@ -604,13 +599,6 @@
     els.gsSetList.innerHTML = filtered.map((s) => renderSetCardHtml(s)).join('');
     injectIcons(els.gsSetList);
     upgradeAvatars(els.gsSetList).catch(() => {});
-    syncExpandAllBtn();
-  }
-
-  function syncExpandAllBtn() {
-    if (!els.btnExpandAll) return;
-    const all = lastFilteredKeys.length > 0 && lastFilteredKeys.every((k) => expandedKeys.has(k));
-    els.btnExpandAll.classList.toggle('is-expanded', all);
   }
 
   function refreshDerivedSections() {
@@ -631,8 +619,6 @@
     document
       .querySelectorAll(`.gs-set-item[data-set-key="${CSS.escape(setKey)}"]`)
       .forEach((el) => el.classList.toggle('expanded', on));
-
-    syncExpandAllBtn();
   }
 
   function toggleSetChar(setKey, name) {
@@ -663,7 +649,7 @@
   }
 
   /* ============================================================
-   * 12. 筛选下拉（共享 dropdown.js 负责开关，这里只渲染选项 + 响应事件）
+   * 12. 筛选下拉（共享 dropdown.js 负责开关）
    * ============================================================ */
   function renderDropdownOptions(panelEl, items, current) {
     if (!panelEl) return;
@@ -759,7 +745,6 @@
       throw new Error('completed 格式错误');
     }
 
-    /* 只接受「确实存在于当前套装数据里」的 key，避免幽灵记录 */
     const validKeys = new Set(state.sets.map((s) => s.key));
 
     state.owned = sanitizeOwnedList(data.owned);
@@ -818,7 +803,6 @@
   /* ============================================================
    * 14. 事件绑定
    * ============================================================ */
-  /* 套装列表点击：推荐列表与全部列表共用同一套处理 */
   function onSetListClick(e) {
     const head = e.target.closest('.gs-set-head');
     if (head) {
@@ -847,11 +831,18 @@
   }
 
   function bindEvents() {
-    /* ---- 角色栏 ---- */
+    /* ---- 区块折叠（三处行为一致） ---- */
     els.btnCharToggle?.addEventListener('click', () => {
       els.gsCharSection.classList.toggle('collapsed');
     });
+    els.btnRecommendToggle?.addEventListener('click', () => {
+      els.gsRecommendSection.classList.toggle('collapsed');
+    });
+    els.btnAllToggle?.addEventListener('click', () => {
+      els.gsAllSection.classList.toggle('collapsed');
+    });
 
+    /* ---- 角色栏 ---- */
     let charSearchTimer = null;
     els.gsCharSearch?.addEventListener('input', () => {
       clearTimeout(charSearchTimer);
@@ -864,29 +855,11 @@
       toggleOwned(cell.dataset.char);
     });
 
-    /* ---- 推荐区折叠 ---- */
-    els.btnRecommendToggle?.addEventListener('click', () => {
-      els.gsRecommendSection.classList.toggle('collapsed');
-    });
-
     /* ---- 套装列表（推荐 + 全部） ---- */
     [els.gsRecommendList, els.gsSetList].forEach((list) => {
       if (!list) return;
       list.addEventListener('click', onSetListClick);
       list.addEventListener('keydown', onSetListKeydown);
-    });
-
-    /* ---- 全部展开 / 收起 ---- */
-    els.btnExpandAll?.addEventListener('click', () => {
-      const all = lastFilteredKeys.length > 0 && lastFilteredKeys.every((k) => expandedKeys.has(k));
-      if (all) lastFilteredKeys.forEach((k) => expandedKeys.delete(k));
-      else lastFilteredKeys.forEach((k) => expandedKeys.add(k));
-
-      document.querySelectorAll('.gs-set-item').forEach((el) => {
-        const k = el.dataset.setKey;
-        if (k) el.classList.toggle('expanded', expandedKeys.has(k));
-      });
-      syncExpandAllBtn();
     });
 
     /* ---- 搜索 ---- */
@@ -979,7 +952,7 @@
   }
 
   /* ============================================================
-   * 15. iframe 主题接收 + 图片加载失败兜底
+   * 15. iframe 主题接收 + 图片失败兜底
    * ============================================================ */
   window.addEventListener('message', (e) => {
     const data = e.data;
