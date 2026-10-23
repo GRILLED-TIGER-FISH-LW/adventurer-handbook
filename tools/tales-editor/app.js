@@ -1,19 +1,23 @@
 /* ============================================================
  * 游逸旅闻编辑器 · app.js
  * ------------------------------------------------------------
+ * v3 变更（相对 v2）：
+ *  1. 【图标】ui-icons.js 里已有 ui.reload / ui.reorder / ui.back / ui.file，
+ *     删除整段 FALLBACK_ICONS，resolveIcon 简化为纯层级查找。
+ *  2. 【命名】列表选中态 .active → .is-active。
+ *  3. 【健壮】头像 <img> 加事件委托兜底，加载失败自动移除
+ *     （v2 删掉了原来的内联 onerror 但没补上）。
+ * ------------------------------------------------------------
  * v2 变更（对齐 index.html v2 / style.css v2）：
- *  1. 【类名】Toast / 弹窗 / 搜索清除 → .is-visible（原来用 .show，
- *     与共享 overlays.css 不匹配，Toast 和确认框根本弹不出来）
- *  2. 【下拉】删除 tab-sheet 一整套（openSheet / els.sheet*），
- *     筛选改用共享 dropdown.js + dropdown:select
- *  3. 【联想】.ed-combobox* → 共享 .combobox* / .is-highlight
- *  4. 【图标】.ic → .icon-slot；空态图标 → .empty-icon
- *  5. 【主题】删除本地 applyTheme / THEME_KEY，改用 theme-init.js 的 Theme.toggle()
- *  6. 【表单】.ed-group / .ed-label → 共享 .field / .field-label / .field-row
- *  7. 【按钮】.btn-sm / .ios-btn-fill → .btn
- *  8. 【类名】.hidden-title → .is-biz-hidden；.ed-hint.warn → .ed-hint.is-warn
- *  9. 【健壮】init 改为 async + 等待 __bootPromise + 全流程 try/catch
- * 10. 「重排 ID」按钮位置在 HTML 里已移到列表底部，这里 ID 不变、逻辑不变
+ *  · Toast / 弹窗 / 搜索清除 → .is-visible
+ *  · 删除 tab-sheet 一整套，筛选改用共享 dropdown.js
+ *  · .ed-combobox* → 共享 .combobox*
+ *  · .ic → .icon-slot；空态图标 → .empty-icon
+ *  · 删除本地 applyTheme / THEME_KEY，改用 Theme.toggle()
+ *  · .ed-group / .ed-label → 共享 .field / .field-label / .field-row
+ *  · .btn-sm / .ios-btn-fill → .btn
+ *  · .hidden-title → .is-biz-hidden；.ed-hint.warn → .ed-hint.is-warn
+ *  · init 改为 async + 等待 __bootPromise + 全流程 try/catch
  * ============================================================ */
 
 (function () {
@@ -22,32 +26,16 @@
   const DRAFT_KEY = 'genshin_travelers_tales_editor_draft_v1';
 
   /* ============================================================
-   * 1. 兜底图标（ui-icons.js 中若缺失则用这些）
-   * ============================================================ */
-  const FALLBACK_ICONS = {
-    reload:
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="M224 48v48a8 8 0 0 1-8 8h-48a8 8 0 0 1 0-16h28.69l-14.63-14.63a79.56 79.56 0 0 0-56.13-23.43h-.45a79.52 79.52 0 0 0-55.89 22.77a8 8 0 0 1-11.18-11.44a96 96 0 0 1 135 .79L208 76.69V48a8 8 0 0 1 16 0m-37.59 135.29a80 80 0 0 1-112.47-.66L59.31 168H88a8 8 0 0 0 0-16H40a8 8 0 0 0-8 8v48a8 8 0 0 0 16 0v-28.69l14.63 14.63A95.43 95.43 0 0 0 130 222.06h.53a95.36 95.36 0 0 0 67.07-27.33a8 8 0 0 0-11.18-11.44Z"/></svg>',
-    reorder:
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="M237.66 178.34a8 8 0 0 1 0 11.32l-24 24a8 8 0 0 1-11.32-11.32L212.69 192h-11.75a72.12 72.12 0 0 1-58.59-30.15l-41.72-58.4A56.1 56.1 0 0 0 55.06 80H32a8 8 0 0 1 0-16h23.06a72.12 72.12 0 0 1 58.59 30.15l41.72 58.4A56.1 56.1 0 0 0 200.94 176h11.75l-10.35-10.34a8 8 0 0 1 11.32-11.32ZM143 107a8 8 0 0 0 11.16-1.86l1.2-1.67A56.1 56.1 0 0 1 200.94 80h11.75l-10.35 10.34a8 8 0 0 0 11.32 11.32l24-24a8 8 0 0 0 0-11.32l-24-24a8 8 0 0 0-11.32 11.32L212.69 64h-11.75a72.12 72.12 0 0 0-58.59 30.15l-1.2 1.67A8 8 0 0 0 143 107m-30 42a8 8 0 0 0-11.16 1.86l-1.2 1.67A56.1 56.1 0 0 1 55.06 176H32a8 8 0 0 0 0 16h23.06a72.12 72.12 0 0 0 58.59-30.15l1.2-1.67A8 8 0 0 0 113 149"/></svg>',
-    back:
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="M232 184a8 8 0 0 1-16 0a88 88 0 0 0-150.22-62.22L43.4 144H88a8 8 0 0 1 0 16H24a8 8 0 0 1-8-8V88a8 8 0 0 1 16 0v44.77l22.48-22.33A104 104 0 0 1 232 184"/></svg>',
-    file:
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="m213.66 82.34l-56-56A8 8 0 0 0 152 24H56a16 16 0 0 0-16 16v176a16 16 0 0 0 16 16h144a16 16 0 0 0 16-16V88a8 8 0 0 0-2.34-5.66M160 51.31L188.69 80H160ZM200 216H56V40h88v48a8 8 0 0 0 8 8h48z"/></svg>'
-  };
-
-  /* ============================================================
-   * 2. 工具
+   * 1. 工具
    * ============================================================ */
   function resolveIcon(key) {
-    if (window.ICONS) {
-      let cur = window.ICONS;
-      for (const p of String(key).split('.')) {
-        cur = cur?.[p];
-        if (!cur) break;
-      }
-      if (typeof cur === 'string') return cur;
+    let cur = window.ICONS;
+    if (!cur) return '';
+    for (const p of String(key).split('.')) {
+      cur = cur?.[p];
+      if (!cur) return '';
     }
-    return FALLBACK_ICONS[key] || '';
+    return typeof cur === 'string' ? cur : '';
   }
 
   function injectIcons(root = document) {
@@ -91,7 +79,7 @@
   };
 
   /* ============================================================
-   * 3. DOM 引用
+   * 2. DOM 引用
    * ============================================================ */
   const $ = (id) => document.getElementById(id);
   const els = {
@@ -120,7 +108,7 @@
   };
 
   /* ============================================================
-   * 4. Toast / 确认框（类名对齐共享 overlays.css）
+   * 3. Toast / 确认框
    * ============================================================ */
   function toast(message, type = '') {
     if (!els.toastContainer) return;
@@ -176,7 +164,7 @@
   }
 
   /* ============================================================
-   * 5. 头像缓存 / 角色排序
+   * 4. 头像缓存 / 角色排序
    * ============================================================ */
   function buildAvatarCache() {
     const cache = new Map();
@@ -230,7 +218,7 @@
   const avatarUrl = (name) => state.avatarCache.get(name) || '';
 
   /* ============================================================
-   * 6. 草稿持久化
+   * 5. 草稿持久化
    * ============================================================ */
   let draftTimer = null;
 
@@ -260,7 +248,7 @@
   }
 
   /* ============================================================
-   * 7. 数据解析 / 序列化
+   * 6. 数据解析 / 序列化
    * ============================================================ */
   function parseDataJs(text) {
     const prev = window.TRAVELERS_TALES;
@@ -353,7 +341,7 @@
   }
 
   /* ============================================================
-   * 8. 排序
+   * 7. 排序
    * ============================================================ */
   function getVersionIndex() {
     const m = new Map();
@@ -395,7 +383,7 @@
   }
 
   /* ============================================================
-   * 9. 渲染：列表
+   * 8. 渲染：列表
    * ============================================================ */
   function renderList() {
     if (!els.edList) return;
@@ -416,7 +404,7 @@
       const avatarInner = url
         ? '<img src="' + esc(url) + '" alt="" loading="lazy">' + esc(initial)
         : esc(initial);
-      const active = e.id === state.selectedId ? ' active' : '';
+      const active = e.id === state.selectedId ? ' is-active' : '';
       const hiddenCls = e.hidden ? ' is-biz-hidden' : '';
       return (
         '<div class="ed-list-item' + active + '" data-id="' + e.id + '">' +
@@ -431,7 +419,7 @@
   }
 
   /* ============================================================
-   * 10. 渲染：表单
+   * 9. 渲染：表单
    * ============================================================ */
   function renderForm() {
     if (!els.edFormPane) return;
@@ -439,7 +427,7 @@
     if (!state.data) {
       els.edFormPane.innerHTML =
         '<div class="ed-form-empty">' +
-          '<span class="empty-icon" data-icon="file"></span>' +
+          '<span class="empty-icon" data-icon="ui.file"></span>' +
           '<div>数据未加载<br>请点右上角「重载」或「导入」</div>' +
         '</div>';
       injectIcons(els.edFormPane);
@@ -476,7 +464,7 @@
       '<div class="ed-form">' +
 
         '<button type="button" class="btn ed-mobile-back" id="btnMobileBack">' +
-          '<span class="icon-slot" data-icon="back"></span>' +
+          '<span class="icon-slot" data-icon="ui.back"></span>' +
           '<span class="btn-text">返回列表</span>' +
         '</button>' +
 
@@ -568,7 +556,7 @@
   }
 
   /* ============================================================
-   * 11. 表单事件
+   * 10. 表单事件
    * ============================================================ */
   function bindFormEvents(entry) {
     els.edFormPane.querySelectorAll('[data-field]').forEach((input) => {
@@ -722,7 +710,7 @@
   }
 
   /* ============================================================
-   * 12. Combobox（共享 .combobox 结构）
+   * 11. Combobox（共享 .combobox 结构）
    * ============================================================ */
   function setupCombobox(box, opts) {
     if (!box) return;
@@ -827,7 +815,7 @@
   }
 
   /* ============================================================
-   * 13. 筛选下拉（共享 dropdown.js 负责开关，这里只渲染选项）
+   * 12. 筛选下拉
    * ============================================================ */
   function renderDropdownOptions(panelEl, items, current) {
     if (!panelEl) return;
@@ -854,15 +842,13 @@
   }
 
   /* ============================================================
-   * 14. 主流程事件
+   * 13. 主流程事件
    * ============================================================ */
   function bindEvents() {
-    /* ---- 主题 ---- */
     els.btnTheme?.addEventListener('click', () => {
       if (window.Theme?.toggle) window.Theme.toggle();
     });
 
-    /* ---- 搜索 ---- */
     let searchTimer = null;
     els.searchInput?.addEventListener('input', () => {
       els.searchClear?.classList.toggle('is-visible', els.searchInput.value.length > 0);
@@ -879,7 +865,6 @@
       renderList();
     });
 
-    /* ---- 筛选下拉 ---- */
     document.addEventListener('dropdown:select', (e) => {
       const { dropdown, value } = e.detail || {};
       const filter = dropdown?.dataset?.filter;
@@ -900,7 +885,6 @@
       renderList();
     });
 
-    /* ---- 重排 ID ---- */
     els.btnRenumber?.addEventListener('click', async () => {
       if (!state.data) return toast('数据未加载', 'error');
       const sorted = allSortedEntries();
@@ -926,7 +910,6 @@
       toast('已重排 ' + n + ' 条 id', 'success');
     });
 
-    /* ---- 重载 ---- */
     els.btnReload?.addEventListener('click', async () => {
       if (state.dirty) {
         const ok = await confirmDialog({
@@ -959,7 +942,6 @@
       }
     });
 
-    /* ---- 导入 ---- */
     els.btnImport?.addEventListener('click', () => els.fileInput?.click());
     els.fileInput?.addEventListener('change', (ev) => {
       const file = ev.target.files?.[0];
@@ -984,7 +966,6 @@
       reader.readAsText(file);
     });
 
-    /* ---- 导出 ---- */
     els.btnExport?.addEventListener('click', async () => {
       if (!state.data) return toast('数据未加载', 'error');
 
@@ -1030,7 +1011,6 @@
       toast('已导出 data.js', 'success');
     });
 
-    /* ---- 列表点选 ---- */
     els.edList?.addEventListener('click', (e) => {
       const item = e.target.closest('.ed-list-item');
       if (!item) return;
@@ -1046,7 +1026,6 @@
       }
     });
 
-    /* ---- 新增 ---- */
     els.btnAdd?.addEventListener('click', () => {
       if (!state.data) return toast('数据未加载，请先「重载」或「导入」', 'error');
       const newId = state.data.entries.reduce((m, x) => Math.max(m, x.id || 0), 0) + 1;
@@ -1085,6 +1064,16 @@
       }
     });
   }
+
+  /* ============================================================
+   * 14. 图片加载失败兜底（头像破图自动移除，只留首字占位）
+   * ============================================================ */
+  document.addEventListener('error', (e) => {
+    const img = e.target;
+    if (img.tagName !== 'IMG') return;
+    if (!img.closest('.ed-list-item-avatar, .ed-form-heading-avatar, .combobox-avatar')) return;
+    img.remove();
+  }, true);
 
   /* ============================================================
    * 15. 启动
