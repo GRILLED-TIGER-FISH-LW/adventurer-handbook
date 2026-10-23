@@ -44,7 +44,7 @@
     loadScript('https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/ui-icons.js')
   ]);
 
-  /* ② 加载失败兜底：任一资源 404 时给出可见提示，而不是永久白屏 */
+  /* ② 加载失败兜底 */
   window.__bootPromise.catch((e) => {
     console.error('[Boot]', e);
     const bootEl = document.querySelector('.boot-loading');
@@ -72,7 +72,7 @@
   }
   body.ready .boot-loading { display: none; }
 
-  /* 首屏期间：侧边栏及其遮罩完全不参与渲染，避免加载中途露出来或播放滑出动画 */
+  /* 首屏期间：侧边栏及其遮罩完全不参与渲染 */
   body:not(.ready) .sidebar-drawer,
   body:not(.ready) .sidebar-backdrop {
     display: none !important;
@@ -152,7 +152,7 @@ const frameCache = new Map();
 let isHome = true;
 let activeTool = '';
 
-/* 按点号路径取图标（如 'handbook.tales'），取不到返回空串 */
+/* 按点号路径取图标（如 'handbook.tales'） */
 function ic(path) {
   let node = window.ICONS;
   for (const part of String(path).split('.')) {
@@ -179,6 +179,7 @@ function syncThemeToFrames() {
   });
 }
 
+/* 兜底：系统主题变化 / 其他标签页切换时（theme:change 是异步派发的） */
 document.addEventListener('theme:change', syncThemeToFrames);
 
 /* =========================================================================
@@ -264,13 +265,11 @@ function ensureFrame(tool) {
     record.loaded = true;
     if (view.classList.contains('is-active')) DOM.loadingMask.classList.remove('is-visible');
 
-    /* 同源直写：同步生效，避免首帧闪主题 */
     try {
       const doc = iframe.contentDocument;
       if (doc && doc.documentElement) doc.documentElement.setAttribute('data-theme', Theme.get());
     } catch (e) {}
 
-    /* postMessage 兜底（跨域场景） */
     try {
       iframe.contentWindow?.postMessage({ type: 'theme', theme: Theme.get() }, '*');
     } catch (e) {}
@@ -345,7 +344,6 @@ function selectTool(toolKey, opts = {}) {
       throw new Error('核心资源未加载（theme-init.js / ui-icons.js），请刷新重试');
     }
 
-    /* 静态图标 */
     DOM.btnMenu.innerHTML = ic('app.hamburger');
     const sunEl = DOM.btnTheme.querySelector('[data-theme-icon="sun"]');
     const moonEl = DOM.btnTheme.querySelector('[data-theme-icon="moon"]');
@@ -354,7 +352,6 @@ function selectTool(toolKey, opts = {}) {
 
     renderHome();
 
-    /* hash 深链：#tales / #gift-set */
     const hashKey = (location.hash || '').replace(/^#/, '');
     if (hashKey && TOOLS.some(t => t.key === hashKey)) {
       selectTool(hashKey, { silent: true });
@@ -362,10 +359,14 @@ function selectTool(toolKey, opts = {}) {
       goHome(false);
     }
 
-    /* 事件 */
     DOM.btnMenu.addEventListener('click', openSidebar);
     DOM.sidebarBackdrop.addEventListener('click', closeSidebar);
-    DOM.btnTheme.addEventListener('click', () => Theme.toggle());
+
+    /* 关键：切主题时同步推给 iframe，避免子页面慢半拍 */
+    DOM.btnTheme.addEventListener('click', () => {
+      Theme.toggle();
+      syncThemeToFrames();
+    });
 
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') closeSidebar();
