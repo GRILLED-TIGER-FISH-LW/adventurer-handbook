@@ -1,22 +1,13 @@
 /* ============================================================
  * 原神 · 游逸旅闻 数据字典
- * 生成时间：2026-10-11
- * ============================================================
- * 说明：
- *   · 只记录「主角色」（角色列为空的条目，向上继承最近的非空角色）
- *   · hidden = 「隐藏（地图不显示）触发条件」列非空
- *   · 头像 URL 由 window.ICON_DICT 运行时匹配，本文件不含图片地址
- *   · trigger / prerequisite 字段不含「备注：」「前置：」前缀，也不含 <br>
- *   · 字典物理顺序：先按版本（versions 顺序），再按角色（icon-dict order 升序），最后按 id 升序
- *   · 主站/编辑器的显示顺序：先角色，后版本（动态排序）
- *   · 标点统一用中文全角
+ * 生成时间：2026-10-24
  * ============================================================ */
 
 window.TRAVELERS_TALES = {
   meta: {
     version: "7.1",
     total: 156,
-    updatedAt: "2026-10-11",
+    updatedAt: "2026-10-24",
     source: "原神 · 游逸旅闻汇总"
   },
 
@@ -120,30 +111,6 @@ window.TRAVELERS_TALES = {
       location: "蒙德-奔狼领", trigger: "", prerequisite: "",
       description: "在奔狼领，你遇见了快要晕倒的雷泽。原来他将诱饵当作了来自清泉镇的礼物，这才误食了药草。这啼笑皆非的误会波及的受害者，好像还有一人…" },
 
-    { id: 25, character: "达达利亚", version: "7.1", title: "购票", hidden: true,
-      location: "至冬-科洛列夫茨基剧院", trigger: "传送至「科洛列夫茨基剧院」锚点", prerequisite: "",
-      description: "在剧院门口，你遇见了很不幸没有为自己的弟弟妹妹买到票的达达利亚…" },
-
-    { id: 26, character: "达达利亚", version: "7.1", title: "有所收获", hidden: true,
-      location: "至冬-科洛列夫茨基剧院", trigger: "传送至「科洛列夫茨基剧院」锚点", prerequisite: "达达利亚·购票",
-      description: "在剧院门口，你遇见了正在聊天的阿蕾奇诺和达达利亚，看来，达达利亚还是为自己的弟弟妹妹拿到了票。" },
-
-    { id: 27, character: "达达利亚", version: "7.1", title: "归家", hidden: true,
-      location: "至冬-海屑镇", trigger: "传送至「海屑镇」铁道旁的锚点，转身前往站台处", prerequisite: "达达利亚·有所收获",
-      description: "在海屑镇，达达利亚正在清点给家里人带的礼物。" },
-
-    { id: 28, character: "达达利亚", version: "7.1", title: "约定", hidden: true,
-      location: "至冬-海屑镇", trigger: "传送至「海屑镇」上方的锚点，看到达达利亚和冬妮娅正在对话", prerequisite: "达达利亚·归家",
-      description: "在海屑镇，达达利亚正在和冬妮娅讨论着下次什么时候能回家陪陪家人…" },
-
-    { id: 29, character: "达达利亚", version: "7.1", title: "冬钓", hidden: true,
-      location: "至冬-海屑镇", trigger: "传送至「海屑镇」上方的锚点，向小地图西方向沿路走，上桥，走到接近平台尽头的位置", prerequisite: "达达利亚·归家",
-      description: "在海屑镇，达达利亚正准备出去冰钓…" },
-
-    { id: 30, character: "辛焱", version: "月之一", title: "新演出", hidden: false,
-      location: "挪德卡莱-伦波岛-那夏镇-旗舰酒馆", trigger: "", prerequisite: "",
-      description: "在那夏镇，你遇见了辛焱。她似乎在这里找到了新的灵感，或许，她之后会在那夏镇举办一场盛大的演出…？" },
-
     { id: 31, character: "钟离", version: "5.4", title: "茶", hidden: false,
       location: "璃月-璃月港", trigger: "", prerequisite: "",
       description: "在说书人刘苏的摊位旁，你刚巧遇见了打算品尝枫丹茶叶的钟离，在他的邀请下，你坐下来与他共品新茶，小谈了片刻。或许是钟离泡茶手法得当，枫丹的茶叶与璃月的泉水完美交融，味道十分出色。" },
@@ -168,14 +135,6 @@ window.TRAVELERS_TALES = {
       location: "蒙德-蒙德城", trigger: "", prerequisite: "",
       description: "在猫尾酒馆旁，你遇见了正在望风的罗莎莉亚。你应吟游诗人的邀请，加入了这场短暂的聚会，在美妙的碰杯声中度过了一段自由的时光。" },
 
-    { id: 37, character: "烟绯", version: "月之一", title: "学术所致", hidden: false,
-      location: "挪德卡莱-伦波岛-那夏镇", trigger: "", prerequisite: "",
-      description: "在挪德卡莱，你遇见了烟绯。这位律法咨询师似乎正在为了研究学术而取材。不过，她到底想在这片「无法之地」里取得何种材料？这种材料又能怎样帮助她研究律法问题呢？" },
-
-    { id: 38, character: "烟绯", version: "月之一", title: "噢，角…", hidden: false,
-      location: "挪德卡莱-希汐岛-霜月之坊", trigger: "", prerequisite: "",
-      description: "在希汐岛，你遇见了烟绯。她似乎已经将自己的仙人血脉之事告诉了菈乌玛，而菈乌玛也…似乎很平静地接受了这个事实，并且允许了烟绯去「霜月之子」的书库查阅资料…好吧，看来一切都很顺利。" },
-
     { id: 39, character: "枫原万叶", version: "5.4", title: "远望天地", hidden: false,
       location: "璃月-云来海", trigger: "", prerequisite: "",
       description: "归离原以南的山野，你遇见了抒发诗兴的万叶。偶遇故人自是一件趣事，人生何处不相逢？" },
@@ -188,18 +147,6 @@ window.TRAVELERS_TALES = {
       location: "璃月-天衡山", trigger: "需游戏内夜间出现", prerequisite: "",
       description: "天衡山以北，你遇见了夜晚练剑的万叶。天亮时，你们就要各自踏上旅程，但无论路途多么遥远，仍在同一片星空之下。" },
 
-    { id: 42, character: "早柚", version: "5.7", title: "长高的…方法？", hidden: false,
-      location: "稻妻-稻妻城", trigger: "", prerequisite: "鹿野院平藏·静待…",
-      description: "在你的「监督」下，多莉终于答应免费将药水提供给早柚先行体验。\n不过，这位商人永远不会做亏本的生意，或许…这一次的「优惠」也早就在她的预料之内了…？" },
-
-    { id: 43, character: "宵宫", version: "月之五", title: "长途旅行", hidden: false,
-      location: "挪德卡莱-伦波岛-那夏镇", trigger: "", prerequisite: "",
-      description: "在那夏镇，你意外遇见了前来旅行的宵宫，她似乎正准备去拜访爱诺，并定制一份礼物…" },
-
-    { id: 44, character: "宵宫", version: "月之五", title: "在童年", hidden: false,
-      location: "挪德卡莱-伦波岛-叮铃哐啷蛋卷工坊", trigger: "", prerequisite: "",
-      description: "在叮铃哐啷蛋卷工坊，你看见了已经和爱诺玩成一团的宵宫，还有宵宫委托爱诺制作的新玩具…但在那之前，还是容爱诺和宵宫姐姐先玩个痛快吧。" },
-
     { id: 45, character: "珊瑚宫心海", version: "5.4", title: "孤梦", hidden: false,
       location: "稻妻-海祇岛", trigger: "", prerequisite: "",
       description: "在鲜有人知的「海祇岛秘密基地」里，你遇见了熟睡的心海。桌上散落着各种文件，以及少女写满心事的日记。" },
@@ -207,14 +154,6 @@ window.TRAVELERS_TALES = {
     { id: 46, character: "珊瑚宫心海", version: "5.4", title: "团聚", hidden: false,
       location: "稻妻-珊瑚宫", trigger: "", prerequisite: "",
       description: "在海祇岛，故地重游仍有故人相伴。山长水阔，前路漫漫，有人在此遥寄一番思念。" },
-
-    { id: 47, character: "托马", version: "5.7", title: "培训考试", hidden: false,
-      location: "稻妻-稻妻城", trigger: "", prerequisite: "",
-      description: "社奉行组织的技能培训课与考试得到了许多人的认可，忙前忙后的托马即将迎来悠长假期…" },
-
-    { id: 48, character: "托马", version: "5.7", title: "悠长假期", hidden: false,
-      location: "蒙德-蒙德城-天使的馈赠", trigger: "", prerequisite: "",
-      description: "为了完成母亲的嘱托，久未归乡的托马回到了蒙德城。酒馆、街道还有热情的朋友，蒙德依然像他记忆中一样温暖。" },
 
     { id: 49, character: "云堇", version: "5.4", title: "他山之石", hidden: false,
       location: "璃月-璃月港", trigger: "", prerequisite: "",
@@ -228,62 +167,6 @@ window.TRAVELERS_TALES = {
       location: "璃月-璃月港", trigger: "", prerequisite: "",
       description: "在万民堂内，你遇见了独自看店的申鹤。旧友的到来让她感到欣喜，主动下厨烹饪你们喜欢的菜式。过程虽有插曲，但结果美味不减。" },
 
-    { id: 52, character: "八重神子", version: "5.7", title: "好运气", hidden: false,
-      location: "稻妻-鸣神大社", trigger: "", prerequisite: "",
-      description: "在八重神子的「帮助」下，你抽到了一根特殊的签。总之…还是好好收起来吧。\n说不定，真有神奇的力量…？" },
-
-    { id: 53, character: "神里绫人", version: "5.7", title: "事务", hidden: false,
-      location: "稻妻-稻妻城", trigger: "", prerequisite: "",
-      description: "在你的帮助下，神里绫人挑选好了布匹。按照他的说法，过几天这些布匹应该就会被送到「神里屋敷」里了…" },
-
-    { id: 54, character: "夜兰", version: "月之二", title: "所为所求", hidden: false,
-      location: "挪德卡莱-伦波岛-那夏镇", trigger: "", prerequisite: "魔神任务【空月之歌第四幕】「回望湮灭的月光」",
-      description: "在那夏镇，你遇见了夜兰。她似乎是为了向「秘闻馆」求购情报才远道而来。但听她的口气，似乎对「秘闻馆」的老板奈芙尔很是提防…" },
-
-    { id: 55, character: "久岐忍", version: "月之五", title: "请依法办", hidden: false,
-      location: "枫丹-枫丹廷", trigger: "", prerequisite: "",
-      description: "在枫丹，你遇见了正在处理事务的久岐忍，也听她说了一斗一行人所做之事，和目前所在之处。唔…果然还是依法办事比较好呢…" },
-
-    { id: 56, character: "鹿野院平藏", version: "5.7", title: "怪案", hidden: false,
-      location: "稻妻-稻妻城", trigger: "", prerequisite: "",
-      description: "在花见坂，你遇见了正在因为一桩「怪案」而苦恼的鹿野院平藏。据他说，犯罪者私自闯入居民家中，但却什么也没有偷。而且，所有被入室的民宅里都有一个共同点，那就是收藏着一本罪案小说：《应避忌的食人树》。以此为线索，鹿野院平藏有了一个初步的推理。以他的推理为基础，天领奉行已经外出巡查，准备去缉拿这位奇怪的罪犯。" },
-
-    { id: 57, character: "鹿野院平藏", version: "5.7", title: "真相", hidden: false,
-      location: "稻妻-稻妻城", trigger: "", prerequisite: "",
-      description: "犯下那桩「怪案」的犯人被缉拿归案。而这位犯人做下罪案的原因，则是因为自己无心将一份「表白信」夹在了一本旧书之中，当他意识到问题，并赶去店里想要拿回表白信时，却得知那本陈旧的《应避忌的食人树》已然被他人买走。六神无主之下，他决定按照书中描述的犯罪方法，将自己的那封信偷回来…\n至此，这桩案件已然结案。但侦破这桩案件的侦探，却显得有些无可奈何…" },
-
-    { id: 58, character: "鹿野院平藏", version: "5.7", title: "追缉", hidden: false,
-      location: "稻妻-稻妻城", trigger: "", prerequisite: "",
-      description: "又一桩案件找上了鹿野院平藏。这次的犯罪团伙似乎颇有经验和手段，鹿野院平藏一时半会居然找不到案件的突破口。\n或许，还需要静待其他机会…" },
-
-    { id: 59, character: "鹿野院平藏", version: "5.7", title: "静待…", hidden: false,
-      location: "稻妻-白狐之野", trigger: "最多重复做5次", prerequisite: "",
-      description: "鹿野院平藏似乎暂时没有找到案件的突破口。但是，线索一定存在于某个地方…" },
-
-    { id: 60, character: "鹿野院平藏", version: "5.7", title: "破案日", hidden: false,
-      location: "稻妻-白狐之野", trigger: "", prerequisite: "早柚·长高的…方法？",
-      description: "在多莉的「慷慨帮助」下，鹿野院平藏终于找到了贩卖违禁药物的元凶，并且将其绳之以法。\n但是，那位商人…似乎也已经拿到了自己的「报酬」。" },
-
-    { id: 61, character: "鹿野院平藏", version: "月之一", title: "他人之罪", hidden: false,
-      location: "挪德卡莱-伦波岛-那夏镇-旗舰酒馆", trigger: "", prerequisite: "",
-      description: "在那夏镇，你遇见了因查案而抵达挪德卡莱的鹿野院平藏，他所找到的向导正好是「秘闻馆」的雅珂达。不过，怎么感觉雅珂达和平藏聊天时，显得有些紧张…？" },
-
-    { id: 62, character: "柯莱", version: "5.7", title: "学习会", hidden: false,
-      location: "须弥-教令院-智慧宫", trigger: "", prerequisite: "",
-      description: "在提纳里的帮助下，柯莱站上讲台，主持了一场盛大的学习会。看来，她正在学习之路上稳步前行。" },
-
-    { id: 63, character: "赛诺", version: "5.7", title: "估量", hidden: false,
-      location: "须弥-二净甸", trigger: "", prerequisite: "",
-      description: "这一份有关于蘑菇的笑话，不知道会让赛诺在晚餐时喝多少蘑菇汤。" },
-
-    { id: 64, character: "赛诺", version: "5.7", title: "食物", hidden: false,
-      location: "须弥-二净甸", trigger: "", prerequisite: "",
-      description: "蘑菇虽然是「树食主义者」。但请不要为了验证这个说法，而去挑衅翠翎恐蕈。它可不是吃素的。" },
-
-    { id: 65, character: "赛诺", version: "5.7", title: "职责", hidden: false,
-      location: "须弥-寂静园", trigger: "", prerequisite: "",
-      description: "大风纪官，即将履行他的职责。\n昨日，今日，明日，每日皆如此。" },
-
     { id: 66, character: "瑶瑶", version: "5.4", title: "练枪", hidden: false,
       location: "璃月-璃月港", trigger: "", prerequisite: "",
       description: "在玉京台附近，你遇见了努力练枪的瑶瑶。她向师父告了假，计划着要和好友七七一起去轻策庄郊游…" },
@@ -291,86 +174,6 @@ window.TRAVELERS_TALES = {
     { id: 67, character: "瑶瑶", version: "5.4", title: "郊游", hidden: false,
       location: "璃月-碧水原", trigger: "", prerequisite: "",
       description: "在轻策庄郊外，你遇见了正在欣赏璃月风光的七七和瑶瑶。女孩们手牵着手，许下的约定由山和水和你见证。" },
-
-    { id: 68, character: "迪希雅", version: "5.7", title: "机关舞步", hidden: false,
-      location: "枫丹-枫丹廷", trigger: "", prerequisite: "",
-      description: "迪希雅正拍摄着科培琉司的舞步，预备着带回去给妮露和迪娜泽黛看看。据迪希雅说，如果需要的话，她也可以…跳男步？" },
-
-    { id: 69, character: "迪希雅", version: "5.7", title: "裙子", hidden: false,
-      location: "枫丹-枫丹廷", trigger: "", prerequisite: "",
-      description: "在千织的建议下，迪希雅决定为自己买一条新裙子。听起来，会是一条很漂亮的裙子。" },
-
-    { id: 70, character: "米卡", version: "月之一", title: "为信而来", hidden: false,
-      location: "挪德卡莱-伦波岛-那夏镇", trigger: "", prerequisite: "",
-      description: "在挪德卡莱，你遇见了米卡。他正准备把骑士团的信件送给法尔伽。不过，他到底是怎么带上这么多礼物的，难道这就是西风骑士的实力么？" },
-
-    { id: 71, character: "绮良良", version: "5.7", title: "热腾腾", hidden: false,
-      location: "璃月-璃月港", trigger: "", prerequisite: "",
-      description: "在桌子上用来洗菜的水不知道换了多少杯之后，绮良良终于吃饱了。\n…但下次，能不能把这道菜做成不辣的呢？" },
-
-    { id: 72, character: "绮良良", version: "5.7", title: "凉丝丝", hidden: false,
-      location: "璃月-璃月港", trigger: "", prerequisite: "",
-      description: "在重云的帮助下，绮良良总算是吃到了一份好吃的凉菜，同时，绮良良也答应重云，将他带去稻妻，并且把五百藏与荒泷一斗介绍给他认识。等重云收拾好行李后，他们就会出发。" },
-
-    { id: 73, character: "绮良良", version: "5.7", title: "我的快递！", hidden: false,
-      location: "稻妻-镇守之森", trigger: "", prerequisite: "",
-      description: "在镇守之森里，绮良良被五百藏拦住，陪着小妖狸们不停地玩着捉迷藏。虽然五百藏让另外一只小妖狸将快递送给了收件人…\n但是，却不知道快递送到收件人手里时，必须要「签收」才行。已然送到收件人手里的快递，又怎么才能签收呢…" },
-
-    { id: 74, character: "琳妮特", version: "5.7", title: "修理…？", hidden: false,
-      location: "枫丹-枫丹廷-灰河", trigger: "", prerequisite: "",
-      description: "琳妮特在灰河里帮助大家不断「修坏」着机器，被她碰过的机器，都安安静静地不再动弹了。或许，这也是一种…出色的能力？" },
-
-    { id: 75, character: "林尼", version: "5.7", title: "魔术", hidden: false,
-      location: "枫丹-枫丹动能工程科学研究院区", trigger: "", prerequisite: "",
-      description: "在枫丹科学院外，遇见了正打算去科学院做魔术交流的林尼。听起来，他对于那种「近景魔术」也很感兴趣。\n等等，他刚才是不是已经变过一次「近景魔术」了？" },
-
-    { id: 76, character: "林尼", version: "7.1", title: "表演场所", hidden: true,
-      location: "至冬-科洛列夫茨基剧院", trigger: "进入至冬「科洛列夫茨基剧院」", prerequisite: "",
-      description: "在剧院里，你遇见了正在讨论表演问题的林尼和琳妮特，他们好像正在讨论和魔术表演有关的问题…？" },
-
-    { id: 77, character: "菲米尼", version: "5.7", title: "故事", hidden: false,
-      location: "枫丹-塞洛海原", trigger: "", prerequisite: "",
-      description: "在水下，菲米尼对膨膨兽讲完了自己手上绘本的故事。\n希望，这个故事里的人和膨膨兽能有一个好结局。" },
-
-    { id: 78, character: "那维莱特", version: "5.7", title: "雨中", hidden: false,
-      location: "枫丹-伊黎耶林区", trigger: "", prerequisite: "",
-      description: "看来，淋雨只是那维莱特的「私人爱好」。" },
-
-    { id: 79, character: "那维莱特", version: "5.7", title: "礼物", hidden: false,
-      location: "枫丹-枫丹廷", trigger: "", prerequisite: "",
-      description: "在塞德娜的建议下，那维莱特继续采购着预备送给美露莘们的礼物——每一位美露莘都有份。" },
-
-    { id: 80, character: "那维莱特", version: "5.7", title: "拜访", hidden: false,
-      location: "枫丹-厄里那斯", trigger: "", prerequisite: "",
-      description: "每一位美露莘都有的礼物，来自那维莱特。\n…而「鱼鱼咏唱派」，则来自美露莘。" },
-
-    { id: 81, character: "莱欧斯利", version: "月之五", title: "珀有所得", hidden: false,
-      location: "枫丹-梅洛彼得堡", trigger: "", prerequisite: "",
-      description: "在梅洛彼得堡，你遇见了被莫名带入堡内的珀西芙，听莱欧斯利所说，似乎是因为珀西芙误入了探照灯范围，从而被尽职的守卫们带了进来…但从结果上来说，守卫们尽了职责，珀西芙吃了汐藻，莱欧斯利认识了新客人，那维莱特获得了新知识，可谓是可喜可贺。" },
-
-    { id: 82, character: "夏洛蒂", version: "5.7", title: "耐心", hidden: false,
-      location: "枫丹-枫丹廷", trigger: "", prerequisite: "",
-      description: "夏洛蒂小姐最终还是没有等来她的「采访对象」。但在她的采访簿上，并不存在「气馁」这个词。很快，她就要奔向下一个地点了…" },
-
-    { id: 83, character: "夏洛蒂", version: "5.7", title: "糟糕糟糕", hidden: false,
-      location: "枫丹-枫丹廷", trigger: "", prerequisite: "",
-      description: "再完美的计划，也总是会因为一点小疏忽而被破坏。夏洛蒂想要前往纳塔的企图被主编看穿，并被阻拦了下来。但是，她很快找到了下一个目的地——挪德卡莱。" },
-
-    { id: 84, character: "夏洛蒂", version: "5.7", title: "新目的地", hidden: false,
-      location: "枫丹-枫丹廷", trigger: "", prerequisite: "",
-      description: "说服了父母后，夏洛蒂终于获得了前往挪德卡莱的机会。或许在那片土地上，她会发现更多「有趣的故事」。" },
-
-    { id: 85, character: "夏洛蒂", version: "7.1", title: "新闻团队", hidden: false,
-      location: "至冬-至冬堡", trigger: "", prerequisite: "",
-      description: "在至冬堡，你遇见了夏洛蒂和爱拉尼。她们虽然因为各自不同的目的来此，但是，好像也有合作的可能…？" },
-
-    { id: 86, character: "夏沃蕾", version: "5.7", title: "再加把劲！", hidden: false,
-      location: "枫丹-枫丹廷", trigger: "", prerequisite: "",
-      description: "继续训练！别掉队了！\n在夏沃蕾的督促下，特巡队队员们继续展开着艰苦的训练…" },
-
-    { id: 87, character: "嘉明", version: "月之五", title: "好好味", hidden: false,
-      location: "璃月-碧水原", trigger: "", prerequisite: "",
-      description: "在璃月的郊外，你遇见了正在…呃，烹饪的嘉明，在他的招呼下，你确实是享用了一顿大餐…" },
 
     { id: 88, character: "闲云", version: "5.4", title: "弟子的礼物", hidden: false,
       location: "璃月-璃月港", trigger: "", prerequisite: "",
@@ -392,21 +195,123 @@ window.TRAVELERS_TALES = {
       location: "璃月-璃月港", trigger: "", prerequisite: "",
       description: "在闲云的屋宅外，闲云被上门致谢的群众团团围住，原来是申鹤打倒黑心旅团的义举惠及了不少街坊，作为家长表率的闲云正忙于回应，乐在其中。而在另一个安静的角落，申鹤也有要感谢的人…" },
 
-    { id: 93, character: "克洛琳德", version: "月之五", title: "桌上剧团", hidden: false,
-      location: "挪德卡莱-伦波岛-那夏镇-旗舰酒馆", trigger: "", prerequisite: "",
-      description: "在「旗舰」，你遇见了正在游玩「桌上剧团」的克洛琳德与娜维娅…还有雅珂达与叶洛亚，看来，大家确实玩得很开心…" },
 
-    { id: 94, character: "克洛琳德", version: "7.1", title: "桌上剧团", hidden: false,
-      location: "至冬-老庭院餐厅", trigger: "", prerequisite: "",
-      description: "在至冬堡，你遇见了正在主持桌上剧团的克洛琳德，当然了，还有娜维娅…和几位新朋友。" },
+    /* ==================== 5.7 ==================== */
+    { id: 42, character: "早柚", version: "5.7", title: "长高的…方法？", hidden: false,
+      location: "稻妻-稻妻城", trigger: "", prerequisite: "鹿野院平藏·静待…",
+      description: "在你的「监督」下，多莉终于答应免费将药水提供给早柚先行体验。\n不过，这位商人永远不会做亏本的生意，或许…这一次的「优惠」也早就在她的预料之内了…？" },
 
-    { id: 95, character: "艾梅莉埃", version: "月之五", title: "另有他用", hidden: false,
+    { id: 47, character: "托马", version: "5.7", title: "培训考试", hidden: false,
+      location: "稻妻-稻妻城", trigger: "", prerequisite: "",
+      description: "社奉行组织的技能培训课与考试得到了许多人的认可，忙前忙后的托马即将迎来悠长假期…" },
+
+    { id: 48, character: "托马", version: "5.7", title: "悠长假期", hidden: false,
+      location: "蒙德-蒙德城-天使的馈赠", trigger: "", prerequisite: "",
+      description: "为了完成母亲的嘱托，久未归乡的托马回到了蒙德城。酒馆、街道还有热情的朋友，蒙德依然像他记忆中一样温暖。" },
+
+    { id: 52, character: "八重神子", version: "5.7", title: "好运气", hidden: false,
+      location: "稻妻-鸣神大社", trigger: "", prerequisite: "",
+      description: "在八重神子的「帮助」下，你抽到了一根特殊的签。总之…还是好好收起来吧。\n说不定，真有神奇的力量…？" },
+
+    { id: 53, character: "神里绫人", version: "5.7", title: "事务", hidden: false,
+      location: "稻妻-稻妻城", trigger: "", prerequisite: "",
+      description: "在你的帮助下，神里绫人挑选好了布匹。按照他的说法，过几天这些布匹应该就会被送到「神里屋敷」里了…" },
+
+    { id: 56, character: "鹿野院平藏", version: "5.7", title: "怪案", hidden: false,
+      location: "稻妻-稻妻城", trigger: "", prerequisite: "",
+      description: "在花见坂，你遇见了正在因为一桩「怪案」而苦恼的鹿野院平藏。据他说，犯罪者私自闯入居民家中，但却什么也没有偷。而且，所有被入室的民宅里都有一个共同点，那就是收藏着一本罪案小说：《应避忌的食人树》。以此为线索，鹿野院平藏有了一个初步的推理。以他的推理为基础，天领奉行已经外出巡查，准备去缉拿这位奇怪的罪犯。" },
+
+    { id: 57, character: "鹿野院平藏", version: "5.7", title: "真相", hidden: false,
+      location: "稻妻-稻妻城", trigger: "", prerequisite: "",
+      description: "犯下那桩「怪案」的犯人被缉拿归案。而这位犯人做下罪案的原因，则是因为自己无心将一份「表白信」夹在了一本旧书之中，当他意识到问题，并赶去店里想要拿回表白信时，却得知那本陈旧的《应避忌的食人树》已然被他人买走。六神无主之下，他决定按照书中描述的犯罪方法，将自己的那封信偷回来…\n至此，这桩案件已然结案。但侦破这桩案件的侦探，却显得有些无可奈何…" },
+
+    { id: 58, character: "鹿野院平藏", version: "5.7", title: "追缉", hidden: false,
+      location: "稻妻-稻妻城", trigger: "", prerequisite: "",
+      description: "又一桩案件找上了鹿野院平藏。这次的犯罪团伙似乎颇有经验和手段，鹿野院平藏一时半会居然找不到案件的突破口。\n或许，还需要静待其他机会…" },
+
+    { id: 59, character: "鹿野院平藏", version: "5.7", title: "静待…", hidden: false,
+      location: "稻妻-白狐之野", trigger: "最多重复做5次", prerequisite: "",
+      description: "鹿野院平藏似乎暂时没有找到案件的突破口。但是，线索一定存在于某个地方…" },
+
+    { id: 60, character: "鹿野院平藏", version: "5.7", title: "破案日", hidden: false,
+      location: "稻妻-白狐之野", trigger: "", prerequisite: "早柚·长高的…方法？",
+      description: "在多莉的「慷慨帮助」下，鹿野院平藏终于找到了贩卖违禁药物的元凶，并且将其绳之以法。\n但是，那位商人…似乎也已经拿到了自己的「报酬」。" },
+
+    { id: 62, character: "柯莱", version: "5.7", title: "学习会", hidden: false,
+      location: "须弥-教令院-智慧宫", trigger: "", prerequisite: "",
+      description: "在提纳里的帮助下，柯莱站上讲台，主持了一场盛大的学习会。看来，她正在学习之路上稳步前行。" },
+
+    { id: 63, character: "赛诺", version: "5.7", title: "估量", hidden: false,
+      location: "须弥-二净甸", trigger: "", prerequisite: "",
+      description: "这一份有关于蘑菇的笑话，不知道会让赛诺在晚餐时喝多少蘑菇汤。" },
+
+    { id: 64, character: "赛诺", version: "5.7", title: "食物", hidden: false,
+      location: "须弥-二净甸", trigger: "", prerequisite: "",
+      description: "蘑菇虽然是「树食主义者」。但请不要为了验证这个说法，而去挑衅翠翎恐蕈。它可不是吃素的。" },
+
+    { id: 65, character: "赛诺", version: "5.7", title: "职责", hidden: false,
+      location: "须弥-寂静园", trigger: "", prerequisite: "",
+      description: "大风纪官，即将履行他的职责。\n昨日，今日，明日，每日皆如此。" },
+
+    { id: 68, character: "迪希雅", version: "5.7", title: "机关舞步", hidden: false,
+      location: "枫丹-枫丹廷", trigger: "", prerequisite: "",
+      description: "迪希雅正拍摄着科培琉司的舞步，预备着带回去给妮露和迪娜泽黛看看。据迪希雅说，如果需要的话，她也可以…跳男步？" },
+
+    { id: 69, character: "迪希雅", version: "5.7", title: "裙子", hidden: false,
+      location: "枫丹-枫丹廷", trigger: "", prerequisite: "",
+      description: "在千织的建议下，迪希雅决定为自己买一条新裙子。听起来，会是一条很漂亮的裙子。" },
+
+    { id: 71, character: "绮良良", version: "5.7", title: "热腾腾", hidden: false,
       location: "璃月-璃月港", trigger: "", prerequisite: "",
-      description: "在璃月港，你遇见了艾梅莉埃，她似乎为香菱和胡桃制作了一款新香水，而胡桃则眼珠一转，想出了一些新点子…" },
+      description: "在桌子上用来洗菜的水不知道换了多少杯之后，绮良良终于吃饱了。\n…但下次，能不能把这道菜做成不辣的呢？" },
 
-    { id: 96, character: "卡齐娜", version: "月之五", title: "第一步", hidden: false,
-      location: "纳塔-流泉之众", trigger: "", prerequisite: "",
-      description: "在纳塔，你遇见了正在帮玛拉妮看店的卡齐娜，而基尼奇则被玛拉妮拜托，在远处默默看着周围的动静，以防发生意外情况…最终，卡齐娜圆满地照顾好了店铺，向着自己的梦想迈出了第一步。" },
+    { id: 72, character: "绮良良", version: "5.7", title: "凉丝丝", hidden: false,
+      location: "璃月-璃月港", trigger: "", prerequisite: "",
+      description: "在重云的帮助下，绮良良总算是吃到了一份好吃的凉菜，同时，绮良良也答应重云，将他带去稻妻，并且把五百藏与荒泷一斗介绍给他认识。等重云收拾好行李后，他们就会出发。" },
+
+    { id: 73, character: "绮良良", version: "5.7", title: "我的快递！", hidden: false,
+      location: "稻妻-镇守之森", trigger: "", prerequisite: "",
+      description: "在镇守之森里，绮良良被五百藏拦住，陪着小妖狸们不停地玩着捉迷藏。虽然五百藏让另外一只小妖狸将快递送给了收件人…\n但是，却不知道快递送到收件人手里时，必须要「签收」才行。已然送到收件人手里的快递，又怎么才能签收呢…" },
+
+    { id: 74, character: "琳妮特", version: "5.7", title: "修理…？", hidden: false,
+      location: "枫丹-枫丹廷-灰河", trigger: "", prerequisite: "",
+      description: "琳妮特在灰河里帮助大家不断「修坏」着机器，被她碰过的机器，都安安静静地不再动弹了。或许，这也是一种…出色的能力？" },
+
+    { id: 75, character: "林尼", version: "5.7", title: "魔术", hidden: false,
+      location: "枫丹-枫丹动能工程科学研究院区", trigger: "", prerequisite: "",
+      description: "在枫丹科学院外，遇见了正打算去科学院做魔术交流的林尼。听起来，他对于那种「近景魔术」也很感兴趣。\n等等，他刚才是不是已经变过一次「近景魔术」了？" },
+
+    { id: 77, character: "菲米尼", version: "5.7", title: "故事", hidden: false,
+      location: "枫丹-塞洛海原", trigger: "", prerequisite: "",
+      description: "在水下，菲米尼对膨膨兽讲完了自己手上绘本的故事。\n希望，这个故事里的人和膨膨兽能有一个好结局。" },
+
+    { id: 78, character: "那维莱特", version: "5.7", title: "雨中", hidden: false,
+      location: "枫丹-伊黎耶林区", trigger: "", prerequisite: "",
+      description: "看来，淋雨只是那维莱特的「私人爱好」。" },
+
+    { id: 79, character: "那维莱特", version: "5.7", title: "礼物", hidden: false,
+      location: "枫丹-枫丹廷", trigger: "", prerequisite: "",
+      description: "在塞德娜的建议下，那维莱特继续采购着预备送给美露莘们的礼物——每一位美露莘都有份。" },
+
+    { id: 80, character: "那维莱特", version: "5.7", title: "拜访", hidden: false,
+      location: "枫丹-厄里那斯", trigger: "", prerequisite: "",
+      description: "每一位美露莘都有的礼物，来自那维莱特。\n…而「鱼鱼咏唱派」，则来自美露莘。" },
+
+    { id: 82, character: "夏洛蒂", version: "5.7", title: "耐心", hidden: false,
+      location: "枫丹-枫丹廷", trigger: "", prerequisite: "",
+      description: "夏洛蒂小姐最终还是没有等来她的「采访对象」。但在她的采访簿上，并不存在「气馁」这个词。很快，她就要奔向下一个地点了…" },
+
+    { id: 83, character: "夏洛蒂", version: "5.7", title: "糟糕糟糕", hidden: false,
+      location: "枫丹-枫丹廷", trigger: "", prerequisite: "",
+      description: "再完美的计划，也总是会因为一点小疏忽而被破坏。夏洛蒂想要前往纳塔的企图被主编看穿，并被阻拦了下来。但是，她很快找到了下一个目的地——挪德卡莱。" },
+
+    { id: 84, character: "夏洛蒂", version: "5.7", title: "新目的地", hidden: false,
+      location: "枫丹-枫丹廷", trigger: "", prerequisite: "",
+      description: "说服了父母后，夏洛蒂终于获得了前往挪德卡莱的机会。或许在那片土地上，她会发现更多「有趣的故事」。" },
+
+    { id: 86, character: "夏沃蕾", version: "5.7", title: "再加把劲！", hidden: false,
+      location: "枫丹-枫丹廷", trigger: "", prerequisite: "",
+      description: "继续训练！别掉队了！\n在夏沃蕾的督促下，特巡队队员们继续展开着艰苦的训练…" },
 
     { id: 97, character: "基尼奇", version: "5.7", title: "委托", hidden: true,
       location: "纳塔-冒险家协会", trigger: "与纳塔「冒险家协会」的凯瑟琳对话", prerequisite: "",
@@ -432,9 +337,27 @@ window.TRAVELERS_TALES = {
       location: "纳塔-合成台", trigger: "与纳塔「合成台」交互", prerequisite: "",
       description: "为了治疗小龙们的厌食症，伊法来到这里想要制作一些药物带回去。\n这次，可不能让咔库库偷吃了。\n「继续吃！哥们！」" },
 
-    { id: 103, character: "塔利雅", version: "月之六", title: "告解日", hidden: false,
-      location: "蒙德-蒙德城", trigger: "", prerequisite: "魔神任务【空月之歌第八幕】「真实之月」",
-      description: "塔利雅的「告解」结束了，但那位聆听他告解的「枢机卿」，却依然若有所思…" },
+
+    /* ==================== 月之一 ==================== */
+    { id: 30, character: "辛焱", version: "月之一", title: "新演出", hidden: false,
+      location: "挪德卡莱-伦波岛-那夏镇-旗舰酒馆", trigger: "", prerequisite: "",
+      description: "在那夏镇，你遇见了辛焱。她似乎在这里找到了新的灵感，或许，她之后会在那夏镇举办一场盛大的演出…？" },
+
+    { id: 37, character: "烟绯", version: "月之一", title: "学术所致", hidden: false,
+      location: "挪德卡莱-伦波岛-那夏镇", trigger: "", prerequisite: "",
+      description: "在挪德卡莱，你遇见了烟绯。这位律法咨询师似乎正在为了研究学术而取材。不过，她到底想在这片「无法之地」里取得何种材料？这种材料又能怎样帮助她研究律法问题呢？" },
+
+    { id: 38, character: "烟绯", version: "月之一", title: "噢，角…", hidden: false,
+      location: "挪德卡莱-希汐岛-霜月之坊", trigger: "", prerequisite: "",
+      description: "在希汐岛，你遇见了烟绯。她似乎已经将自己的仙人血脉之事告诉了菈乌玛，而菈乌玛也…似乎很平静地接受了这个事实，并且允许了烟绯去「霜月之子」的书库查阅资料…好吧，看来一切都很顺利。" },
+
+    { id: 61, character: "鹿野院平藏", version: "月之一", title: "他人之罪", hidden: false,
+      location: "挪德卡莱-伦波岛-那夏镇-旗舰酒馆", trigger: "", prerequisite: "",
+      description: "在那夏镇，你遇见了因查案而抵达挪德卡莱的鹿野院平藏，他所找到的向导正好是「秘闻馆」的雅珂达。不过，怎么感觉雅珂达和平藏聊天时，显得有些紧张…？" },
+
+    { id: 70, character: "米卡", version: "月之一", title: "为信而来", hidden: false,
+      location: "挪德卡莱-伦波岛-那夏镇", trigger: "", prerequisite: "",
+      description: "在挪德卡莱，你遇见了米卡。他正准备把骑士团的信件送给法尔伽。不过，他到底是怎么带上这么多礼物的，难道这就是西风骑士的实力么？" },
 
     { id: 104, character: "丝柯克", version: "月之一", title: "日常所需", hidden: false,
       location: "挪德卡莱-伦波岛-那夏镇", trigger: "", prerequisite: "",
@@ -528,9 +451,45 @@ window.TRAVELERS_TALES = {
       location: "挪德卡莱-帕哈岛-圣遗物副本「霜凝的机枢」", trigger: "挪德卡莱圣遗物副本「霜凝的机枢」中消耗至少20树脂后退出", prerequisite: "",
       description: "在郊外，你遇见了正在寻找猫的雅珂达。她似乎被那一只乱跑的猫耍得团团转。无论如何，祝你好运，雅珂达。" },
 
-    { id: 127, character: "雅珂达", version: "7.1", title: "盗贼末路", hidden: false,
-      location: "至冬-至冬堡", trigger: "", prerequisite: "拥有角色雅珂达，完成「秘闻馆」情报交易·雅珂达个人任务后，有概率触发",
-      description: "在至冬堡，你遇见了雅珂达。她似乎追寻着有关「海钩帮」的新线索，一路到达了至冬堡…" },
+
+    /* ==================== 月之二 ==================== */
+    { id: 54, character: "夜兰", version: "月之二", title: "所为所求", hidden: false,
+      location: "挪德卡莱-伦波岛-那夏镇", trigger: "", prerequisite: "魔神任务【空月之歌第四幕】「回望湮灭的月光」",
+      description: "在那夏镇，你遇见了夜兰。她似乎是为了向「秘闻馆」求购情报才远道而来。但听她的口气，似乎对「秘闻馆」的老板奈芙尔很是提防…" },
+
+
+    /* ==================== 月之五 ==================== */
+    { id: 43, character: "宵宫", version: "月之五", title: "长途旅行", hidden: false,
+      location: "挪德卡莱-伦波岛-那夏镇", trigger: "", prerequisite: "",
+      description: "在那夏镇，你意外遇见了前来旅行的宵宫，她似乎正准备去拜访爱诺，并定制一份礼物…" },
+
+    { id: 44, character: "宵宫", version: "月之五", title: "在童年", hidden: false,
+      location: "挪德卡莱-伦波岛-叮铃哐啷蛋卷工坊", trigger: "", prerequisite: "",
+      description: "在叮铃哐啷蛋卷工坊，你看见了已经和爱诺玩成一团的宵宫，还有宵宫委托爱诺制作的新玩具…但在那之前，还是容爱诺和宵宫姐姐先玩个痛快吧。" },
+
+    { id: 55, character: "久岐忍", version: "月之五", title: "请依法办", hidden: false,
+      location: "枫丹-枫丹廷", trigger: "", prerequisite: "",
+      description: "在枫丹，你遇见了正在处理事务的久岐忍，也听她说了一斗一行人所做之事，和目前所在之处。唔…果然还是依法办事比较好呢…" },
+
+    { id: 81, character: "莱欧斯利", version: "月之五", title: "珀有所得", hidden: false,
+      location: "枫丹-梅洛彼得堡", trigger: "", prerequisite: "",
+      description: "在梅洛彼得堡，你遇见了被莫名带入堡内的珀西芙，听莱欧斯利所说，似乎是因为珀西芙误入了探照灯范围，从而被尽职的守卫们带了进来…但从结果上来说，守卫们尽了职责，珀西芙吃了汐藻，莱欧斯利认识了新客人，那维莱特获得了新知识，可谓是可喜可贺。" },
+
+    { id: 87, character: "嘉明", version: "月之五", title: "好好味", hidden: false,
+      location: "璃月-碧水原", trigger: "", prerequisite: "",
+      description: "在璃月的郊外，你遇见了正在…呃，烹饪的嘉明，在他的招呼下，你确实是享用了一顿大餐…" },
+
+    { id: 93, character: "克洛琳德", version: "月之五", title: "桌上剧团", hidden: false,
+      location: "挪德卡莱-伦波岛-那夏镇-旗舰酒馆", trigger: "", prerequisite: "",
+      description: "在「旗舰」，你遇见了正在游玩「桌上剧团」的克洛琳德与娜维娅…还有雅珂达与叶洛亚，看来，大家确实玩得很开心…" },
+
+    { id: 95, character: "艾梅莉埃", version: "月之五", title: "另有他用", hidden: false,
+      location: "璃月-璃月港", trigger: "", prerequisite: "",
+      description: "在璃月港，你遇见了艾梅莉埃，她似乎为香菱和胡桃制作了一款新香水，而胡桃则眼珠一转，想出了一些新点子…" },
+
+    { id: 96, character: "卡齐娜", version: "月之五", title: "第一步", hidden: false,
+      location: "纳塔-流泉之众", trigger: "", prerequisite: "",
+      description: "在纳塔，你遇见了正在帮玛拉妮看店的卡齐娜，而基尼奇则被玛拉妮拜托，在远处默默看着周围的动静，以防发生意外情况…最终，卡齐娜圆满地照顾好了店铺，向着自己的梦想迈出了第一步。" },
 
     { id: 128, character: "杜林", version: "月之五", title: "学习时间", hidden: true,
       location: "挪德卡莱-伦波岛-那夏镇-合成台", trigger: "与挪德卡莱「合成台」交互", prerequisite: "",
@@ -580,13 +539,57 @@ window.TRAVELERS_TALES = {
       location: "挪德卡莱-聚所共建·西风戍垒", trigger: "与「西风戍垒」内的指挥沙盘桌对话", prerequisite: "诺艾尔·进步法",
       description: "在西风戍垒，你遇见了正在给米卡发令的法尔伽。在如此之多的命令里，或许最重要的是…最后那一条？" },
 
+    { id: 141, character: "尼可", version: "月之五", title: "灵感来！", hidden: false,
+      location: "挪德卡莱-聚所共建·西风戍垒", trigger: "", prerequisite: "",
+      description: "在挪德卡莱的西风骑士团驻地，你遇见了正准备刺杀法尔伽的尼可，大惊过后，才知道尼可只是在寻找下一本小说的灵感，最后，尼可还是放弃了对法尔伽进行实体（或者非实体）的攻击，转而研究起了另一份灵感…" },
+
+
+    /* ==================== 月之六 ==================== */
+    { id: 103, character: "塔利雅", version: "月之六", title: "告解日", hidden: false,
+      location: "蒙德-蒙德城", trigger: "", prerequisite: "魔神任务【空月之歌第八幕】「真实之月」",
+      description: "塔利雅的「告解」结束了，但那位聆听他告解的「枢机卿」，却依然若有所思…" },
+
     { id: 140, character: "法尔伽", version: "月之六", title: "劳碌之故", hidden: true,
       location: "蒙德-蒙德城", trigger: "与蒙德「冒险家协会」的凯瑟琳对话", prerequisite: "塔利雅·告解日",
       description: "你在蒙德城冒险家协会前遇见了法尔伽与西蒙·佩奇，他们似乎正在谈论着什么…" },
 
-    { id: 141, character: "尼可", version: "月之五", title: "灵感来！", hidden: false,
-      location: "挪德卡莱-聚所共建·西风戍垒", trigger: "", prerequisite: "",
-      description: "在挪德卡莱的西风骑士团驻地，你遇见了正准备刺杀法尔伽的尼可，大惊过后，才知道尼可只是在寻找下一本小说的灵感，最后，尼可还是放弃了对法尔伽进行实体（或者非实体）的攻击，转而研究起了另一份灵感…" },
+
+    /* ==================== 7.1 ==================== */
+    { id: 25, character: "达达利亚", version: "7.1", title: "购票", hidden: true,
+      location: "至冬-科洛列夫茨基剧院", trigger: "传送至「科洛列夫茨基剧院」锚点", prerequisite: "",
+      description: "在剧院门口，你遇见了很不幸没有为自己的弟弟妹妹买到票的达达利亚…" },
+
+    { id: 26, character: "达达利亚", version: "7.1", title: "有所收获", hidden: true,
+      location: "至冬-科洛列夫茨基剧院", trigger: "传送至「科洛列夫茨基剧院」锚点", prerequisite: "达达利亚·购票",
+      description: "在剧院门口，你遇见了正在聊天的阿蕾奇诺和达达利亚，看来，达达利亚还是为自己的弟弟妹妹拿到了票。" },
+
+    { id: 27, character: "达达利亚", version: "7.1", title: "归家", hidden: true,
+      location: "至冬-海屑镇", trigger: "传送至「海屑镇」铁道旁的锚点，转身前往站台处", prerequisite: "达达利亚·有所收获",
+      description: "在海屑镇，达达利亚正在清点给家里人带的礼物。" },
+
+    { id: 28, character: "达达利亚", version: "7.1", title: "冬钓", hidden: true,
+      location: "至冬-海屑镇", trigger: "传送至「海屑镇」上方的锚点，向小地图西方向沿路走，上桥，走到接近平台尽头的位置", prerequisite: "达达利亚·归家",
+      description: "在海屑镇，达达利亚正准备出去冰钓…" },
+
+    { id: 29, character: "达达利亚", version: "7.1", title: "约定", hidden: true,
+      location: "至冬-海屑镇", trigger: "传送至「海屑镇」上方的锚点，看到达达利亚和冬妮娅正在对话", prerequisite: "达达利亚·归家",
+      description: "在海屑镇，达达利亚正在和冬妮娅讨论着下次什么时候能回家陪陪家人…" },
+
+    { id: 76, character: "林尼", version: "7.1", title: "表演场所", hidden: true,
+      location: "至冬-科洛列夫茨基剧院", trigger: "进入至冬「科洛列夫茨基剧院」", prerequisite: "",
+      description: "在剧院里，你遇见了正在讨论表演问题的林尼和琳妮特，他们好像正在讨论和魔术表演有关的问题…？" },
+
+    { id: 85, character: "夏洛蒂", version: "7.1", title: "新闻团队", hidden: false,
+      location: "至冬-至冬堡", trigger: "", prerequisite: "",
+      description: "在至冬堡，你遇见了夏洛蒂和爱拉尼。她们虽然因为各自不同的目的来此，但是，好像也有合作的可能…？" },
+
+    { id: 94, character: "克洛琳德", version: "7.1", title: "桌上剧团", hidden: false,
+      location: "至冬-老庭院餐厅", trigger: "", prerequisite: "",
+      description: "在至冬堡，你遇见了正在主持桌上剧团的克洛琳德，当然了，还有娜维娅…和几位新朋友。" },
+
+    { id: 127, character: "雅珂达", version: "7.1", title: "盗贼末路", hidden: false,
+      location: "至冬-至冬堡", trigger: "", prerequisite: "拥有角色雅珂达，完成「秘闻馆」情报交易·雅珂达个人任务后，有概率触发",
+      description: "在至冬堡，你遇见了雅珂达。她似乎追寻着有关「海钩帮」的新线索，一路到达了至冬堡…" },
 
     { id: 142, character: "桑多涅", version: "7.1", title: "委托", hidden: true,
       location: "至冬-冒险家协会", trigger: "与至冬「冒险家协会」的凯瑟琳对话，桑多涅在队伍中时不会触发", prerequisite: "",
