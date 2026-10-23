@@ -40,7 +40,6 @@
     await loadScript('app.js');
   })();
 
-  /* ② 加载失败兜底：任一核心资源 404 时给出可见提示，而不是永久白屏 */
   window.__bootPromise.catch((e) => {
     console.error('[Boot]', e);
     const bootEl = document.querySelector('.boot-loading');
@@ -80,7 +79,7 @@
   </div>
   <div class="ed-header-actions">
     <button type="button" class="btn" id="btnReload" title="重载线上数据">
-      <span class="icon-slot" data-icon="reload"></span>
+      <span class="icon-slot" data-icon="ui.reload"></span>
       <span class="btn-text">重载</span>
     </button>
     <button type="button" class="btn" id="btnImport" title="导入本地 data.js">
@@ -140,7 +139,7 @@
         <span class="btn-text">新增</span>
       </button>
       <button type="button" class="btn" id="btnRenumber" title="按当前显示顺序重排所有 ID">
-        <span class="icon-slot" data-icon="reorder"></span>
+        <span class="icon-slot" data-icon="ui.reorder"></span>
         <span class="btn-text">重排 ID</span>
       </button>
     </div>
