@@ -4,35 +4,43 @@
  * 通用控件（搜索框 / 下拉 / 输入框 / 按钮 / 计数徽标 / 空态 / Toast / 弹窗）
  * 全部来自共享体系，本文件只写「这一页特有的结构」。
  * ------------------------------------------------------------
+ * v5 变更：
+ *  1. 【顶栏跟滚】body 加 height: 100dvh + overflow: hidden，
+ *     滚动容器下移到 .app-main —— 右侧滚动条只属于列表区，顶栏不再跟着走。
+ *  2. 【顶栏实色】background 从 var(--glass) 改为 var(--bg-base)，
+ *     与角色卡 / 视频封面的预览窗保持一致；同时去掉 position: sticky
+ *     （外层不滚了，sticky 已无意义）。
+ *  3. 【危险区常驻】.danger-zone 移出 .app-main，加 flex-shrink: 0，
+ *     清空按钮固定在页面底部，不用再滚到底。
+ *  4. 【可折叠】新增 .header-toggle，收起第 2、3 行（筛选 + UID/操作），
+ *     折叠状态记在 localStorage，刷新后保持。
  * v4 变更：
- *  1. 「清空记录」从顶栏移到页面最底部的 .danger-zone，
- *     与尘歌壶赠礼套装保持一致 —— 破坏性操作不和日常操作挨着。
- *  2. .app-main 加 flex: 1，让危险区在内容不足一屏时也能贴住底部。
+ *  · 「清空记录」从顶栏移到页面最底部的 .danger-zone
+ *  · .app-main 加 flex: 1
  * v3 变更：
- *  · 完成度徽标从「操作行」移到「搜索行」右侧，利用空白、理顺动线
+ *  · 完成度徽标从「操作行」移到「搜索行」右侧
  *  · 手机上隐藏「已完成」三字，只留 12/156
  * ============================================================ */
 
 /* ============================================================
- * 0. 页面外壳
+ * 0. 页面外壳（锁死视口，滚动只发生在 .app-main 内部）
  * ============================================================ */
 body {
-  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
 }
 
 /* ============================================================
- * 1. 顶部栏（吸顶）
- *    三行：搜索+完成度 / 筛选 / UID+操作
+ * 1. 顶部栏（固定，不参与滚动）
+ *    三行：搜索+完成度+折叠 / 筛选 / UID+操作
  * ============================================================ */
 .app-header {
-  position: sticky;
-  top: 0;
-  z-index: var(--z-sticky);
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   gap: var(--gap);
   padding: var(--gap) var(--gap-lg) var(--gap-lg);
-  background: var(--glass);
+  background: var(--bg-base);
   border-bottom: 1px solid var(--border-subtle);
 }
 
@@ -43,7 +51,7 @@ body {
   width: 100%;
 }
 
-/* 第 1 行：搜索（占满）+ 完成度徽标（不收缩） */
+/* 第 1 行：搜索（占满）+ 完成度徽标 + 折叠开关 */
 .row-search {
   justify-content: space-between;
 }
@@ -53,6 +61,43 @@ body {
 .row-search > .count-badge {
   flex-shrink: 0;
 }
+
+/* 折叠开关 */
+.header-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--h-ctl);
+  height: var(--h-ctl);
+  padding: 0;
+  flex-shrink: 0;
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-ctl);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color var(--dur) var(--ease), background-color var(--dur) var(--ease);
+}
+.header-toggle:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
+}
+.header-toggle .icon-slot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  flex-shrink: 0;
+  transition: transform var(--dur) var(--ease);
+  transform: rotate(180deg);        /* 展开状态：箭头朝上 */
+}
+.header-toggle .icon-slot svg { width: 100%; height: 100%; }
+.app-header.is-collapsed .header-toggle .icon-slot { transform: rotate(0deg); }
+
+/* 收起时只留第 1 行 */
+.app-header.is-collapsed .row-filters,
+.app-header.is-collapsed .row-meta-actions { display: none; }
 
 /* 第 2 行：三个下拉并排等分 */
 .row-filters > .dropdown {
@@ -93,14 +138,17 @@ body {
 }
 
 /* ============================================================
- * 2. 列表区
+ * 2. 列表区（唯一的滚动容器）
  * ============================================================ */
 .app-main {
-  flex: 1;                     /* 撑满剩余高度，让页尾危险区贴底 */
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   width: 100%;
   max-width: 920px;
   align-self: center;
-  padding: var(--gap) var(--gap-lg) calc(var(--gap-lg) + env(safe-area-inset-bottom));
+  padding: var(--gap) var(--gap-lg) var(--gap-lg);
 }
 
 .list-host {
@@ -274,17 +322,17 @@ body {
 }
 
 /* ============================================================
- * 5. 危险区（页尾）
- *    与尘歌壶赠礼套装一致：破坏性操作独立成块，远离日常操作
+ * 5. 危险区（固定在页面底部，不随列表滚动）
+ *    与尘歌壶赠礼套装一致：破坏性操作独立成块、常驻可见
  * ============================================================ */
 .danger-zone {
+  flex-shrink: 0;
   display: flex;
   justify-content: center;
   width: 100%;
-  max-width: 920px;
-  align-self: center;
-  padding: var(--gap-lg);
-  padding-bottom: calc(var(--gap-lg) + env(safe-area-inset-bottom));
+  padding: var(--gap) var(--gap-lg);
+  padding-bottom: calc(var(--gap) + env(safe-area-inset-bottom));
+  background: var(--bg-base);
   border-top: 1px solid var(--border-subtle);
 }
 
