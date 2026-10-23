@@ -2,20 +2,29 @@
  * 尘歌壶赠礼套装 · style.css
  * 依赖：shared/css/theme.css
  * ------------------------------------------------------------
+ * v3 变更：
+ *  1. 【.gs-toggle-btn 里的图标】原来 .icon-slot 没有任何宽高定义
+ *     —— 共享 CSS 的 .icon-slot 尺寸只在 .dropdown-trigger 上下文生效，
+ *        .btn / .float-btn 由 buttons.css 单独给。
+ *        补上 width/height = var(--icon-sm) 并让 svg 撑满。
+ *  2. 删除 .gs-expand-all 两条规则 —— 「全部套装」按钮改为整块折叠，
+ *     与另两个区块使用同一套 .gs-section.collapsed 机制。
+ *  3. 【底部空白】.gs-main 的 padding-bottom 从
+ *     calc(var(--dock-space) + …)（= 88px，给底部 dock 留位）
+ *     改为 var(--gap-lg) —— 本页没有 dock，那 88px 是纯空白。
+ * ------------------------------------------------------------
  * v2 变更（对齐主仓库设计系统）：
  *  1. 修掉 4 个已不存在的变量：
  *     --radius-sm → --r-ctl / --radius-md → --r-panel
  *     --radius-pill → --r-pill / --ease-spring → --ease
- *     （原来圆角全是 0、过渡全部失效）
  *  2. --danger-border → var(--danger, #e5484d)
  *  3. 删除全部 !important（规范禁止）
- *  4. 搜索框 / 筛选下拉 / 计数徽标 / 空态 / Toast / 弹窗
- *     全部改用共享组件，删除本地重复实现
+ *  4. 搜索框 / 筛选下拉 / 计数徽标 / 空态 / Toast / 弹窗 → 共享组件
  *  5. 删除 -webkit-overflow-scrolling（iOS 13+ 已默认）
  *  6. 删除 html/body 上与 theme.css 重复的声明
  *  7. 删除 margin: 0 -12px，改为纯 padding
  *  8. 间距 / 圆角 / 字号 / 时长全部 token 化
- *  9. 角色格与套装内角色格合并同一套规则（原本几乎完全重复）
+ *  9. 角色格与套装内角色格合并同一套规则
  * ============================================================ */
 
 /* ============================================================
@@ -56,6 +65,8 @@
   width: var(--icon);
   height: var(--icon);
 }
+.gs-theme-btn .icon-slot svg { width: 100%; height: 100%; }
+
 .gs-theme-moon { display: none; }
 html[data-theme="dark"] .gs-theme-sun { display: none; }
 html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
@@ -71,7 +82,7 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
   gap: var(--gap-lg);
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: var(--gap) var(--gap-lg) calc(var(--dock-space) + env(safe-area-inset-bottom));
+  padding: var(--gap) var(--gap-lg) var(--gap-lg);
 }
 .gs-main > * { flex-shrink: 0; }
 
@@ -132,21 +143,22 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
   background: var(--bg-hover);
   border-color: var(--border-strong);
 }
+
+/* 图标容器：共享 CSS 只给 .dropdown-trigger 上下文里的 .icon-slot 定了尺寸，
+   本按钮自己写的类不在其中，必须补上宽高，否则 SVG 会撑成默认大小 */
 .gs-toggle-btn .icon-slot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  flex-shrink: 0;
   transition: transform var(--dur) var(--ease);
   transform: rotate(180deg);
 }
+.gs-toggle-btn .icon-slot svg { width: 100%; height: 100%; }
+
 .gs-section.collapsed .gs-toggle-btn .icon-slot { transform: rotate(0deg); }
-
-/* 「全部展开」是独立开关，不跟随 .gs-section.collapsed */
-.gs-expand-all .icon-slot { transform: rotate(0deg); }
-.gs-expand-all.is-expanded .icon-slot { transform: rotate(180deg); }
-
-/* 图标容器内的 svg 撑满（共享 .icon-slot 只定义容器尺寸） */
-.gs-header .icon-slot svg,
-.gs-toggle-btn .icon-slot svg,
-.btn .icon-slot svg,
-.float-btn .icon-slot svg { width: 100%; height: 100%; }
 
 /* ============================================================
  * 4. 角色栏
@@ -452,14 +464,13 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
  * ============================================================ */
 @media (max-width: 480px) {
   .gs-header { padding: var(--gap-sm) var(--gap); }
-  .gs-main { padding: var(--gap) var(--gap) calc(var(--dock-space) + env(safe-area-inset-bottom)); }
+  .gs-main { padding: var(--gap) var(--gap) var(--gap); }
   .gs-section-head { padding: var(--gap) var(--gap); }
   .gs-section-body { padding: 0 var(--gap) var(--gap); }
   .gs-set-head { padding: var(--gap) var(--gap); }
   .gs-set-body { padding: var(--gap-sm) var(--gap) var(--gap); }
   .gs-char-grid-wrap { max-height: 300px; }
 
-  /* 顶栏按钮收成纯图标 */
   .gs-header-actions .btn {
     width: var(--h-ctl);
     padding: 0;
@@ -468,7 +479,7 @@ html[data-theme="dark"] .gs-theme-moon { display: inline-flex; }
 }
 
 /* ============================================================
- * 11. 局部滚动条（track 留白让 thumb 不贴圆角）
+ * 11. 局部滚动条
  * ============================================================ */
 .gs-char-grid-wrap::-webkit-scrollbar { width: 6px; }
 .gs-char-grid-wrap::-webkit-scrollbar-track {
