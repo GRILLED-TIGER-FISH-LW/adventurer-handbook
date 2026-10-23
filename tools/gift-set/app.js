@@ -1,24 +1,28 @@
 /* ============================================================
  * 尘歌壶赠礼套装 · app.js
  * ------------------------------------------------------------
+ * v4 变更：
+ *  · 删除主题切换按钮（#btnTheme）及全部配套代码：
+ *    IS_IFRAME 常量、els.btnTheme、init 里的隐藏逻辑、bindEvents 里的点击绑定。
+ *    本工具始终作为 adventurer-handbook 的 iframe 子页面使用，
+ *    主题由父页面统一控制。
+ *  · 保留 window message 监听（父页面推送主题时同步 data-theme）。
+ * ------------------------------------------------------------
  * v3 变更：
- *  1. 「全部套装」按钮改为整块折叠（#btnAllToggle），
- *     与「我的角色」「推荐套装」使用同一套 .gs-section.collapsed 机制。
- *     删除上一版的「一键展开所有卡片」逻辑
- *     （lastFilteredKeys / syncExpandAllBtn / expandedKeys 批量操作）。
- *  2. 套装卡片的展开状态仍由 expandedKeys 统一管理，
- *     推荐列表与全部列表依然双向同步（D3 保留）。
+ *  · 「全部套装」按钮改为整块折叠（#btnAllToggle），
+ *    删除上一版的「一键展开所有卡片」逻辑
+ *  · 套装卡片展开状态仍由 expandedKeys 统一管理
  * ------------------------------------------------------------
  * v2 变更：
- *  1. 主题改用 theme-init.js 的 Theme（key = gi-theme）
- *  2. Toast / 弹窗 / 搜索清除 全部改用 .is-visible
- *  3. 筛选下拉改用共享 dropdown.js + dropdown:select
- *  4. 推荐卡片就地展开（D3）
- *  5. 「未完成」筛选只含 incomplete（D5）
- *  6. 点未拥有角色 → Toast（D6）
- *  7. 「已达成」→「已送完」（D9）
- *  8. importData 校验 completed 的 key
- *  9. init 全流程 try/catch
+ *  · 主题改用 theme-init.js 的 Theme（key = gi-theme）
+ *  · Toast / 弹窗 / 搜索清除 全部改用 .is-visible
+ *  · 筛选下拉改用共享 dropdown.js + dropdown:select
+ *  · 推荐卡片就地展开（D3）
+ *  · 「未完成」筛选只含 incomplete（D5）
+ *  · 点未拥有角色 → Toast（D6）
+ *  · 「已达成」→「已送完」（D9）
+ *  · importData 校验 completed 的 key
+ *  · init 全流程 try/catch
  * ============================================================ */
 
 (function () {
@@ -36,10 +40,6 @@
     { value: 'achieved', label: '已送完' },
     { value: 'incomplete', label: '未完成' }
   ];
-
-  const IS_IFRAME = (function () {
-    try { return window.parent !== window; } catch (e) { return false; }
-  })();
 
   /* ============================================================
    * 1. 工具
@@ -75,7 +75,6 @@
     btnImport: $('btnImport'),
     btnExport: $('btnExport'),
     btnReset: $('btnReset'),
-    btnTheme: $('btnTheme'),
     fileInput: $('fileInput'),
     toastContainer: $('toastContainer'),
 
@@ -943,16 +942,10 @@
     });
 
     els.btnReset?.addEventListener('click', resetAll);
-
-    if (!IS_IFRAME) {
-      els.btnTheme?.addEventListener('click', () => {
-        if (window.Theme?.toggle) window.Theme.toggle();
-      });
-    }
   }
 
   /* ============================================================
-   * 15. iframe 主题接收 + 图片失败兜底
+   * 15. 父页面主题推送 + 图片失败兜底
    * ============================================================ */
   window.addEventListener('message', (e) => {
     const data = e.data;
@@ -991,11 +984,6 @@
 
       if (typeof window.ICONS === 'undefined') {
         throw new Error('图标库未加载（ui-icons.js），请刷新重试');
-      }
-
-      if (IS_IFRAME) {
-        document.body.classList.add('in-iframe');
-        if (els.btnTheme) els.btnTheme.hidden = true;
       }
 
       const data = window.HOMEWORLD_GIFT_SETS;
