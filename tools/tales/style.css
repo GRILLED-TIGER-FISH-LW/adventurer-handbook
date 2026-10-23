@@ -4,6 +4,10 @@
  * 通用控件（搜索框 / 下拉 / 输入框 / 按钮 / 计数徽标 / 空态 / Toast / 弹窗）
  * 全部来自共享体系，本文件只写「这一页特有的结构」。
  * ------------------------------------------------------------
+ * v9 变更：
+ *  1. 【按钮收图标改用共享类】删除 640px 下 .meta-right .btn 的三行本地规则，
+ *     改由 shared/css/buttons.css 的 .btn-collapse 统一处理
+ *     （index.html 已加 class="btn btn-collapse"）。此后新页面只加类、不写 CSS。
  * v8 变更：
  *  1. 【移动端图标按钮对齐】窄屏下「导出 / 导入」收成纯图标时，
  *     图标从 --icon-sm(14) 提到 --icon(18)；.header-toggle 同步提升。
@@ -347,6 +351,7 @@ body.is-list-collapsed .empty-state { display: none; }
 
 /* ============================================================
  * 6. 窄屏适配
+ *    按钮「收成纯图标」由共享 .btn-collapse 处理，本文件不再重复
  * ============================================================ */
 @media (max-width: 640px) {
   .app-header {
@@ -372,19 +377,5 @@ body.is-list-collapsed .empty-state { display: none; }
   .tale-avatar {
     width: 36px;
     height: 36px;
-  }
-
-  /* 操作按钮收成纯图标 */
-  .meta-right .btn {
-    width: var(--h-ctl);
-    padding: 0;
-  }
-  .meta-right .btn-text {
-    display: none;
-  }
-  /* 文字隐藏后按图标按钮档渲染：14px → 18px，与 .btn-icon 同档 */
-  .meta-right .btn .icon-slot {
-    width: var(--icon);
-    height: var(--icon);
   }
 }
