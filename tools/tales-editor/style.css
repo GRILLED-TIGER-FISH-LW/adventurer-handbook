@@ -2,15 +2,19 @@
  * 游逸旅闻编辑器 · style.css
  * 依赖：shared/css/theme.css
  * ------------------------------------------------------------
+ * v6 变更：
+ *  1. 【按钮收图标改用共享类】删除 640px 下 .ed-header-actions .btn 的本地规则，
+ *     改由 shared/css/buttons.css 的 .btn-collapse 统一处理
+ *     （index.html 已给「重载 / 导入 / 导出」加 class="btn btn-collapse"）。
+ *     .ed-list-footer 的「新增 / 重排 ID」手机端占满整行，保留文字不收图标。
+ * ------------------------------------------------------------
  * v5 变更：
  *  1. 【移动端图标按钮对齐】640px 下 .ed-header-actions .btn 收成纯图标时，
- *     图标从 --icon-sm(14) 提到 --icon(18)，与 .btn-icon 同档。
- *     修正前 14/32 = 44%，修正后 18/32 = 56%。
+ *     图标从 --icon-sm(14) 提到 --icon(18)。
  *  2. 【纯图标按钮统一】.ed-id-wrap 的上下移按钮删除本地 14px 覆盖
  *     及冗余的 svg 100% 规则，跟随共享 .float-btn 的 --icon(18)。
  *     带文字的按钮（.ed-mobile-back / .ed-list-footer / .ed-actions）
  *     仍为 --icon-sm(14)，不受影响。
- *     （与 tools/tales/style.css v8 为同一原则）
  * ------------------------------------------------------------
  * v4 变更：
  *  1. .ed-checkbox-wrap 补 width: 100%
@@ -457,16 +461,4 @@ html[data-theme="dark"] .ed-theme-btn .icon-slot.ed-theme-moon { display: inline
 @media (max-width: 640px) {
   .ed-header { padding: var(--gap-sm) var(--gap); }
   .ed-title { font-size: var(--fs-md); }
-
-  /* 顶栏按钮收成纯图标 */
-  .ed-header-actions .btn {
-    width: var(--h-ctl);
-    padding: 0;
-  }
-  .ed-header-actions .btn-text { display: none; }
-  /* 文字隐藏后按图标按钮档渲染：14px → 18px，与 .btn-icon 同档 */
-  .ed-header-actions .btn .icon-slot {
-    width: var(--icon);
-    height: var(--icon);
-  }
 }
