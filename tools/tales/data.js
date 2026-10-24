@@ -1,13 +1,13 @@
 /* ============================================================
  * 原神 · 游逸旅闻 数据字典
- * 生成时间：2026-10-24
+ * 生成时间：2026-10-25
  * ============================================================ */
 
 window.TRAVELERS_TALES = {
   meta: {
     version: "7.1",
     total: 156,
-    updatedAt: "2026-10-24",
+    updatedAt: "2026-10-25",
     source: "原神 · 游逸旅闻汇总"
   },
 
@@ -635,13 +635,13 @@ window.TRAVELERS_TALES = {
       location: "至冬-圣遗物副本「逆悬的冰河」", trigger: "至冬圣遗物副本「逆悬的冰河」中消耗至少20树脂后退出", prerequisite: "",
       description: "正打算休息的薇斯纳，似乎又要因为某事而奔忙起来了…" },
 
-    { id: 153, character: "沃雅妮莎", version: "7.1", title: "票务问题", hidden: false,
-      location: "至冬-科洛列夫茨基剧院", trigger: "", prerequisite: "",
-      description: "在至冬堡，你遇见了正在琢磨票贩子广告的沃雅妮莎，她似乎…有一些新想法。" },
-
-    { id: 154, character: "沃雅妮莎", version: "7.1", title: "我都要了！", hidden: false,
+    { id: 153, character: "沃雅妮莎", version: "7.1", title: "我都要了！", hidden: false,
       location: "至冬-商店", trigger: "", prerequisite: "",
       description: "在至冬堡，你遇见了正在购物的沃雅妮莎，她正在以收获日落果的气势购买着各种东西…" },
+
+    { id: 154, character: "沃雅妮莎", version: "7.1", title: "票务问题", hidden: false,
+      location: "至冬-科洛列夫茨基剧院", trigger: "", prerequisite: "",
+      description: "在至冬堡，你遇见了正在琢磨票贩子广告的沃雅妮莎，她似乎…有一些新想法。" },
 
     { id: 155, character: "沃雅妮莎", version: "7.1", title: "聆听我声", hidden: false,
       location: "至冬-科洛列夫茨基剧院", trigger: "", prerequisite: "沃雅妮莎·票务问题",
