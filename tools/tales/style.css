@@ -146,8 +146,6 @@ body {
   border-radius: var(--r-panel);
   cursor: pointer;
   user-select: none;
-  transition: border-color var(--dur) var(--ease),
-              background-color var(--dur) var(--ease);
 }
 .tale-card:hover { border-color: var(--border-default); }
 
