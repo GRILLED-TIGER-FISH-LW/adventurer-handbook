@@ -125,7 +125,6 @@ body {
   background: var(--bg-surface);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: border-color var(--dur) var(--ease), background-color var(--dur) var(--ease);
 }
 .gs-toggle-btn:hover {
   background: var(--bg-hover);
