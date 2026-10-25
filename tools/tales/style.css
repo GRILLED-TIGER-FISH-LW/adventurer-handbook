@@ -4,26 +4,28 @@
  * 通用控件（搜索框 / 下拉 / 输入框 / 按钮 / 计数徽标 / 空态 / Toast / 弹窗）
  * 全部来自共享体系，本文件只写「这一页特有的结构」。
  * ------------------------------------------------------------
+ * v10 变更：
+ *  1. 【清空按钮固定底部】.danger-zone 从 .app-main 内部移到 body 末尾，
+ *     改为 flex-shrink:0 的固定底栏，与尘歌壶一致；分隔线由 ::before 改为
+ *     border-top，重置按钮永远可见，不需要滚到底。
+ *  2. 【删除列表折叠功能】移除 .header-toggle、body.is-list-collapsed
+ *     及相关的折叠脚本；列表始终展开。
+ *  3. .app-main 底部内边距补回来（原由 .danger-zone 承担）。
  * v9 变更：
- *  1. 【按钮收图标改用共享类】删除 640px 下 .meta-right .btn 的三行本地规则，
- *     改由 shared/css/buttons.css 的 .btn-collapse 统一处理
- *     （index.html 已加 class="btn btn-collapse"）。此后新页面只加类、不写 CSS。
+ *  1. 【按钮收图标改用共享类】640px 下 .meta-right .btn 的本地规则删除，
+ *     改由 shared/css/buttons.css 的 .btn-collapse 处理。
  * v8 变更：
  *  1. 【移动端图标按钮对齐】窄屏下「导出 / 导入」收成纯图标时，
- *     图标从 --icon-sm(14) 提到 --icon(18)；.header-toggle 同步提升。
- *     修正前 14/32 = 44%，修正后 18/32 = 56%，与 .btn-icon 同档。
+ *     图标从 --icon-sm(14) 提到 --icon(18)。
  * v7 变更：
  *  1. 【危险区回归内容流】.danger-zone 从「固定底部通栏工具栏」
- *     改回页面内容末尾的居中区块 —— 不再有一条悬浮的独立色带。
- *  2. 【折叠只收列表】body.is-list-collapsed 只隐藏 .list-host / .empty-state，
- *     .danger-zone 保留。收起列表后清空按钮自然顶到顶栏下方，不用滚。
- *  3. 分隔线改用 ::before 定位，线上方留出 var(--gap-lg) 间距（不用 margin）。
+ *     改回页面内容末尾的居中区块。
+ *  2. 【折叠只收列表】body.is-list-collapsed 只隐藏 .list-host / .empty-state。
  * v6 变更：
  *  · 折叠对象从筛选区改为旅闻列表；顶栏三行全部常驻
  * v5 变更：
  *  · body 锁死视口，滚动容器下移到 .app-main
  *  · 顶栏改实色背景，去掉 position: sticky
- *  · 新增 .header-toggle
  * v4 变更：
  *  · 「清空记录」从顶栏移到 .danger-zone
  * v3 变更：
@@ -58,7 +60,7 @@ body {
   width: 100%;
 }
 
-/* 第 1 行：搜索（占满）+ 完成度徽标 + 折叠开关 */
+/* 第 1 行：搜索（占满）+ 完成度徽标 */
 .row-search {
   justify-content: space-between;
 }
@@ -68,43 +70,6 @@ body {
 .row-search > .count-badge {
   flex-shrink: 0;
 }
-
-/* ---- 列表折叠开关 ---- */
-.header-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--h-ctl);
-  height: var(--h-ctl);
-  padding: 0;
-  flex-shrink: 0;
-  border: 1px solid var(--border-default);
-  border-radius: var(--r-ctl);
-  background: var(--bg-surface);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: border-color var(--dur) var(--ease), background-color var(--dur) var(--ease);
-}
-.header-toggle:hover {
-  background: var(--bg-hover);
-  border-color: var(--border-strong);
-}
-.header-toggle .icon-slot {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--icon);
-  height: var(--icon);
-  flex-shrink: 0;
-  transition: transform var(--dur) var(--ease);
-  transform: rotate(180deg);        /* 列表展开中：箭头朝上（点击收起） */
-}
-.header-toggle .icon-slot svg { width: 100%; height: 100%; }
-body.is-list-collapsed .header-toggle .icon-slot { transform: rotate(0deg); }
-
-/* 收起时只藏列表，危险区保留 */
-body.is-list-collapsed .list-host,
-body.is-list-collapsed .empty-state { display: none; }
 
 /* 第 2 行：三个下拉并排等分 */
 .row-filters > .dropdown {
@@ -155,7 +120,7 @@ body.is-list-collapsed .empty-state { display: none; }
   width: 100%;
   max-width: 920px;
   align-self: center;
-  padding: var(--gap) var(--gap-lg) 0;
+  padding: var(--gap) var(--gap-lg) var(--gap-lg);
 }
 
 .list-host {
@@ -329,24 +294,17 @@ body.is-list-collapsed .empty-state { display: none; }
 }
 
 /* ============================================================
- * 5. 危险区（页面内容末尾，随列表滚动）
- *    分隔线用 ::before 定位，线上方留 var(--gap-lg) 间距，不靠 margin
+ * 5. 危险区（固定在页面底部，不随列表滚动）
  * ============================================================ */
 .danger-zone {
-  position: relative;
+  flex-shrink: 0;
   display: flex;
   justify-content: center;
-  padding-top: calc(var(--gap-lg) * 2);
-  padding-bottom: calc(var(--gap-lg) + env(safe-area-inset-bottom));
-}
-.danger-zone::before {
-  content: "";
-  position: absolute;
-  top: var(--gap-lg);
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: var(--border-subtle);
+  width: 100%;
+  padding: var(--gap) var(--gap-lg);
+  padding-bottom: calc(var(--gap) + env(safe-area-inset-bottom));
+  background: var(--bg-base);
+  border-top: 1px solid var(--border-subtle);
 }
 
 /* ============================================================
@@ -358,11 +316,10 @@ body.is-list-collapsed .empty-state { display: none; }
     padding: var(--gap);
   }
   .app-main {
-    padding: var(--gap) var(--gap) 0;
+    padding: var(--gap) var(--gap);
   }
   .danger-zone {
-    padding-top: calc(var(--gap-lg) * 1.5);
-    padding-bottom: calc(var(--gap) + env(safe-area-inset-bottom));
+    padding-inline: var(--gap);
   }
 
   /* 完成度只显示 12/156，省宽度 */
