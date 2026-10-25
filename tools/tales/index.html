@@ -73,7 +73,7 @@
 
 <header class="app-header" id="appHeader">
 
-  <!-- 1. 搜索 + 完成度 + 列表折叠开关 -->
+  <!-- 1. 搜索 + 完成度 -->
   <div class="header-row row-search">
     <div class="search">
       <span class="search-icon" data-icon="ui.search"></span>
@@ -88,10 +88,6 @@
       <span class="counter-sep">/</span>
       <span class="counter-total" id="counterTotal">156</span>
     </div>
-    <button type="button" class="header-toggle" id="btnHeaderToggle"
-            aria-label="收起/展开旅闻列表" aria-expanded="true">
-      <span class="icon-slot" data-icon="ui.chevronDown"></span>
-    </button>
   </div>
 
   <!-- 2. 三个筛选下拉 -->
@@ -152,40 +148,17 @@
     <span class="empty-icon" data-icon="ui.search"></span>
     <p>没有找到匹配的旅闻</p>
   </div>
-
-  <!-- 危险区：页面内容末尾，跟着列表一起滚 -->
-  <div class="danger-zone">
-    <button type="button" class="btn btn-danger" id="btnClear" title="清空全部记录">
-      <span class="icon-slot" data-icon="ui.trash"></span>
-      <span class="btn-text">清空全部记录</span>
-    </button>
-  </div>
 </main>
 
+<!-- 危险区：固定在页面底部，不随列表滚动 -->
+<div class="danger-zone">
+  <button type="button" class="btn btn-danger" id="btnClear" title="清空全部记录">
+    <span class="icon-slot" data-icon="ui.trash"></span>
+    <span class="btn-text">清空全部记录</span>
+  </button>
+</div>
+
 <input type="file" id="importFile" accept=".json,application/json" hidden>
-
-<!-- 旅闻列表折叠（不侵入 app.js，状态记在 localStorage） -->
-<script>
-(() => {
-  const KEY = 'tales_list_collapsed';
-  const btn = document.getElementById('btnHeaderToggle');
-  const main = document.querySelector('.app-main');
-  if (!btn || !main) return;
-
-  const apply = (collapsed) => {
-    document.body.classList.toggle('is-list-collapsed', collapsed);
-    btn.setAttribute('aria-expanded', String(!collapsed));
-  };
-
-  try { apply(localStorage.getItem(KEY) === '1'); } catch {}
-
-  btn.addEventListener('click', () => {
-    const collapsed = !document.body.classList.contains('is-list-collapsed');
-    apply(collapsed);
-    try { localStorage.setItem(KEY, collapsed ? '1' : '0'); } catch {}
-  });
-})();
-</script>
 
 </body>
 </html>
