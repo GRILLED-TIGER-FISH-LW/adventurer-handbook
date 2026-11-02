@@ -77,7 +77,6 @@ const getOrder = (name) => charByName.get(name)?.order ?? 9999
 const sanitizeOwned = (list) =>
   Array.isArray(list) ? list.filter((x) => typeof x === 'string' && !EXCLUDED.has(x)) : []
 
-/* 每个套装的派生数据只算一次，模板直接查表 */
 const cardMap = computed(() => {
   const ownedSet = new Set(owned.value)
   const map = new Map()
@@ -507,7 +506,7 @@ onMounted(async () => {
                 @click="toggleOwned(name)"
               >
                 <span
-                  class="relative grid size-8 place-items-center overflow-hidden rounded-full bg-sunken text-[10px] font-semibold text-muted"
+                  class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-sunken text-[10px] font-semibold text-muted"
                 >
                   <span aria-hidden="true">{{ name.charAt(0) }}</span>
                   <img
@@ -609,7 +608,7 @@ onMounted(async () => {
                     @click="toggleSetChar(s, name)"
                   >
                     <span
-                      class="relative grid size-7 place-items-center overflow-hidden rounded-full bg-sunken text-[10px] font-semibold text-muted"
+                      class="relative grid size-7 place-items-center overflow-hidden rounded-ctl bg-sunken text-[10px] font-semibold text-muted"
                     >
                       <span aria-hidden="true">{{ name.charAt(0) }}</span>
                       <img
@@ -758,7 +757,7 @@ onMounted(async () => {
                     @click="toggleSetChar(s, name)"
                   >
                     <span
-                      class="relative grid size-7 place-items-center overflow-hidden rounded-full bg-sunken text-[10px] font-semibold text-muted"
+                      class="relative grid size-7 place-items-center overflow-hidden rounded-ctl bg-sunken text-[10px] font-semibold text-muted"
                     >
                       <span aria-hidden="true">{{ name.charAt(0) }}</span>
                       <img
