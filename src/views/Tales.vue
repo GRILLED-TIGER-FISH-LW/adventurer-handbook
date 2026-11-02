@@ -21,7 +21,6 @@ const loading = ref(true)
 const errorMsg = ref('')
 const total = ref(0)
 
-/* 用 ref 保证 filtered 能追踪到数据就绪 */
 const display = ref([])
 const versions = ref([])
 const meta = ref({})
@@ -103,7 +102,6 @@ const visibilityOptions = [
   { value: 'hidden', label: '隐藏' },
 ]
 
-/* 一次算出卡片需要的全部派生数据，模板里不再重复调用函数 */
 const rows = computed(() => {
   const kw = search.value.trim().toLowerCase()
   const out = []
@@ -411,7 +409,6 @@ onMounted(async () => {
           @keydown.enter.prevent="toggle(row)"
           @keydown.space.prevent="toggle(row)"
         >
-          <!-- 头像：首字常驻，图片盖在上面；图片失败就露出首字 -->
           <div
             class="relative grid size-10 shrink-0 place-items-center overflow-hidden rounded-ctl bg-sunken text-sm font-semibold text-muted"
           >
@@ -429,7 +426,7 @@ onMounted(async () => {
           <div class="flex min-w-0 items-center gap-1.5">
             <span class="shrink-0 text-sm font-medium text-ink">{{ row.e.character }}</span>
             <span
-              class="shrink-0 rounded bg-sunken px-1 text-[10px] leading-4 text-muted tabular-nums"
+              class="shrink-0 rounded bg-accent-soft px-1 text-[10px] font-medium leading-4 text-accent-strong tabular-nums"
             >
               {{ row.e.version }}
             </span>
@@ -453,25 +450,18 @@ onMounted(async () => {
             <Icon name="ui.check" size="sm" />
           </span>
 
-          <!-- 元信息：浅底块 + 标签淡色 + 值正文色，与描述形成层级 -->
-          <div
-            v-if="row.metas.length"
-            class="col-span-3 grid gap-0.5 rounded-ctl bg-sunken/60 px-2 py-1"
-          >
+          <div v-if="row.metas.length" class="col-span-3 grid gap-0.5">
             <div
               v-for="m in row.metas"
               :key="m.id"
-              class="flex min-w-0 items-baseline gap-1.5 pl-[52px] text-xs"
+              class="flex min-w-0 items-baseline gap-1.5 text-xs"
             >
-              <span class="shrink-0 text-faint">{{ m.label }}</span>
-              <span class="min-w-0 text-body">{{ m.value }}</span>
+              <span class="shrink-0 text-muted">{{ m.label }}</span>
+              <span class="min-w-0 text-gold">{{ m.value }}</span>
             </div>
           </div>
 
-          <div
-            v-if="row.desc"
-            class="col-span-3 pl-[52px] text-xs leading-relaxed text-muted"
-          >
+          <div v-if="row.desc" class="col-span-3 text-xs leading-relaxed text-muted">
             {{ row.desc }}
           </div>
         </article>
