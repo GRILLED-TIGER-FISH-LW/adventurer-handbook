@@ -203,7 +203,7 @@ function itemClass(i, value) {
       ref="panel"
       role="listbox"
       :style="panelStyle"
-      class="z-[50] overflow-y-auto rounded-panel border border-line-3 bg-surface p-1 shadow-float"
+      class="z-[60] overflow-y-auto rounded-panel border border-line-3 bg-surface p-1 shadow-float"
     >
       <li v-if="!options.length" class="px-2.5 py-1.5 text-xs text-muted" role="presentation">
         没有可选项
