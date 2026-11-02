@@ -4,8 +4,8 @@ import { ICONS } from '../icons/index.js'
 
 const props = defineProps({
   name: { type: String, required: true },
-  /* 默认实心。找不到 xxxBold 时自动回落到线框版 */
-  bold: { type: Boolean, default: true },
+  /* 默认线框版；箭头类图标由调用方显式传 bold */
+  bold: { type: Boolean, default: false },
   /* sm 16 / md 20 / lg 24 */
   size: { type: String, default: 'md' },
   /* 有 label 就是有意义图像，会被读屏念；没 label 自动 aria-hidden */
