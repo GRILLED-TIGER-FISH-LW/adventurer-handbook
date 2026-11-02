@@ -18,19 +18,16 @@ const ICON_DICT_URL =
 const EXCLUDED = new Set(['旅行者'])
 const toast = useToast()
 
-/* ---------- 数据 ---------- */
 const loading = ref(true)
 const errorMsg = ref('')
 let config = null
 const sets = ref([])
 const regions = ref([])
 
-/* ---------- 角色字典 ---------- */
 const charByName = reactive(new Map())
 const charAvatar = reactive(new Map())
 const charDescNames = ref([])
 
-/* ---------- 状态 ---------- */
 const owned = ref([])
 const completed = ref({})
 const uid = ref('')
@@ -41,7 +38,6 @@ const regionFilter = ref('all')
 const typeFilter = ref('all')
 const statusFilter = ref('all')
 
-/* 展开态：推荐列表与全部列表共用同一个 Set，天然双向同步 */
 const expandedKeys = reactive(new Set())
 
 const charCollapsed = ref(false)
@@ -51,7 +47,6 @@ const allCollapsed = ref(false)
 const resetOpen = ref(false)
 const fileInput = ref(null)
 
-/* ---------- 常量 ---------- */
 const STATUS_OPTIONS = [
   { value: 'all', label: '全部状态' },
   { value: 'done', label: '已完成' },
@@ -70,7 +65,6 @@ const typeOptions = [
   { value: 'exterior', label: '室外' },
 ]
 
-/* ---------- 工具 ---------- */
 const pad2 = (n) => String(n).padStart(2, '0')
 const todayStr = () => {
   const d = new Date()
@@ -96,7 +90,6 @@ function setCharsSorted(set) {
     .sort((a, b) => getOrder(a) - getOrder(b))
 }
 
-/* ---------- 完成判定（原版逐行照搬） ---------- */
 function progressOf(set) {
   const ownedSet = new Set(owned.value)
   const done = completed.value[set.key] || []
@@ -119,7 +112,6 @@ function progressOf(set) {
   }
 }
 
-/* ---------- 推荐 ---------- */
 const recommendations = computed(() => {
   const ownedSet = new Set(owned.value)
   if (!ownedSet.size) return []
@@ -152,7 +144,6 @@ const recommendations = computed(() => {
   return candidates.slice(0, 5).map((c) => c.set)
 })
 
-/* ---------- 全部套装筛选 ---------- */
 const filteredSets = computed(() => {
   const kw = search.value.trim().toLowerCase()
   const out = sets.value.filter((s) => {
@@ -175,7 +166,6 @@ const visibleCharNames = computed(() => {
   return charDescNames.value.filter((n) => !q || n.toLowerCase().includes(q))
 })
 
-/* ---------- 持久化 ---------- */
 function loadStored() {
   try {
     const o = localStorage.getItem(KEY_OWNED)
@@ -222,7 +212,6 @@ function saveUid() {
   } catch {}
 }
 
-/* ---------- 操作 ---------- */
 function toggleOwned(name) {
   if (!name || EXCLUDED.has(name)) return
   const i = owned.value.indexOf(name)
@@ -265,7 +254,6 @@ function onUidInput(val) {
   saveUid()
 }
 
-/* ---------- 导入 / 导出 / 重置 ---------- */
 function exportArchive() {
   if (!owned.value.length && !Object.keys(completed.value).length) {
     toast.error('还没有可导出的记录')
@@ -339,7 +327,6 @@ function importData(text) {
   saveCompleted()
   saveUid()
 
-  /* 原版行为：导入后重置全部筛选 */
   search.value = ''
   regionFilter.value = 'all'
   typeFilter.value = 'all'
@@ -385,7 +372,6 @@ function doReset() {
   toast.success('已重置')
 }
 
-/* ---------- 启动 ---------- */
 onMounted(async () => {
   try {
     const data = await loadGiftSetData()
@@ -428,18 +414,18 @@ onMounted(async () => {
 
 <template>
   <div class="grid h-full grid-rows-[auto_minmax(0,1fr)_auto]">
-    <!-- ---------- 顶栏 ---------- -->
-    <header class="flex items-center gap-2 border-b border-line bg-canvas p-3">
-      <Field
-        :model-value="uid"
-        label="UID"
-        placeholder="选填"
-        class="w-32 shrink-0"
-        inputmode="numeric"
-        maxlength="15"
-        @update:model-value="onUidInput"
-      />
-      <div class="flex flex-1 justify-end gap-2">
+    <header class="flex items-center gap-2 border-b border-line bg-canvas p-2">
+      <div class="w-24 shrink-0">
+        <Field
+          :model-value="uid"
+          aria-label="UID"
+          placeholder="UID"
+          inputmode="numeric"
+          maxlength="15"
+          @update:model-value="onUidInput"
+        />
+      </div>
+      <div class="flex flex-1 justify-end gap-1.5">
         <Btn size="sm" @click="exportArchive">
           <template #icon><Icon name="ui.export" size="sm" /></template>
           导出
@@ -458,9 +444,8 @@ onMounted(async () => {
       />
     </header>
 
-    <!-- ---------- 内容 ---------- -->
     <div class="min-h-0 overflow-y-auto">
-      <div v-if="loading" class="p-4 text-sm text-muted">正在加载套装数据…</div>
+      <div v-if="loading" class="p-3 text-sm text-muted">正在加载套装数据…</div>
 
       <div v-else-if="errorMsg" class="grid justify-items-center gap-3 p-8 text-center">
         <p class="text-sm font-semibold text-danger">数据加载失败</p>
@@ -469,39 +454,40 @@ onMounted(async () => {
       </div>
 
       <template v-else>
-        <!-- ===== 我的角色 ===== -->
+        <!-- 我的角色 -->
         <section class="border-b border-line">
           <button
             type="button"
-            class="flex w-full items-center gap-2 px-3 py-2 text-left"
+            class="flex w-full items-center gap-2 px-2 py-1.5 text-left"
             :aria-expanded="!charCollapsed"
             @click="charCollapsed = !charCollapsed"
           >
             <span class="text-sm font-semibold text-ink">我的角色</span>
             <span class="text-xs text-muted">{{ owned.length }}</span>
             <Icon
-              name="ui.chevron-down"
+              name="ui.chevronDown"
+              bold
               size="sm"
               class="ml-auto text-muted transition-transform duration-150 ease-spring"
               :class="charCollapsed && '-rotate-90'"
             />
           </button>
 
-          <div v-if="!charCollapsed" class="grid gap-2 px-3 pb-3">
+          <div v-if="!charCollapsed" class="grid gap-1.5 px-2 pb-2">
             <input
               v-model="charSearch"
               type="text"
-              class="h-9 w-full min-w-0 rounded-ctl border border-line-2 bg-surface px-3 text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent-soft"
+              class="h-8 w-full min-w-0 rounded-ctl border border-line-2 bg-surface px-2.5 text-xs text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent-soft"
               placeholder="搜索角色"
               autocomplete="off"
             />
 
-            <div class="grid grid-cols-[repeat(auto-fill,minmax(52px,1fr))] gap-2">
+            <div class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-1.5">
               <button
                 v-for="name in visibleCharNames"
                 :key="name"
                 type="button"
-                class="grid justify-items-center gap-1 rounded-ctl border p-1"
+                class="grid justify-items-center gap-0.5 rounded-ctl border p-1"
                 :class="
                   owned.includes(name)
                     ? 'border-accent bg-accent-soft'
@@ -512,7 +498,7 @@ onMounted(async () => {
                 @click="toggleOwned(name)"
               >
                 <span
-                  class="grid size-9 place-items-center overflow-hidden rounded-full bg-sunken text-xs font-semibold text-muted"
+                  class="grid size-8 place-items-center overflow-hidden rounded-full bg-sunken text-[10px] font-semibold text-muted"
                 >
                   <img
                     v-if="charAvatar.get(name)"
@@ -530,25 +516,26 @@ onMounted(async () => {
           </div>
         </section>
 
-        <!-- ===== 推荐套装 ===== -->
+        <!-- 推荐套装 -->
         <section v-if="recommendations.length" class="border-b border-line">
           <button
             type="button"
-            class="flex w-full items-center gap-2 px-3 py-2 text-left"
+            class="flex w-full items-center gap-2 px-2 py-1.5 text-left"
             :aria-expanded="!recommendCollapsed"
             @click="recommendCollapsed = !recommendCollapsed"
           >
             <span class="text-sm font-semibold text-ink">推荐套装</span>
             <span class="text-xs text-muted">前 {{ recommendations.length }}</span>
             <Icon
-              name="ui.chevron-down"
+              name="ui.chevronDown"
+              bold
               size="sm"
               class="ml-auto text-muted transition-transform duration-150 ease-spring"
               :class="recommendCollapsed && '-rotate-90'"
             />
           </button>
 
-          <div v-if="!recommendCollapsed" class="grid gap-2 px-3 pb-3">
+          <div v-if="!recommendCollapsed" class="grid gap-1.5 px-2 pb-2">
             <article
               v-for="s in recommendations"
               :key="`r-${s.key}`"
@@ -556,12 +543,12 @@ onMounted(async () => {
             >
               <button
                 type="button"
-                class="flex w-full items-center gap-2 p-2 text-left"
+                class="flex w-full items-center gap-2 p-1.5 text-left"
                 :aria-expanded="expandedKeys.has(s.key)"
                 @click="toggleExpand(s.key)"
               >
                 <span
-                  class="h-10 shrink-0 overflow-hidden rounded-ctl bg-sunken"
+                  class="h-9 shrink-0 overflow-hidden rounded-ctl bg-sunken"
                   style="aspect-ratio: 2 / 1"
                 >
                   <img
@@ -576,16 +563,25 @@ onMounted(async () => {
                   <span class="truncate text-sm font-medium text-ink">{{ s.name }}</span>
                   <span class="text-xs text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</span>
                 </span>
-                <span class="shrink-0 rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent-strong">
+                <span
+                  class="shrink-0 rounded-full bg-accent-soft px-1.5 py-0.5 text-[10px] text-accent-strong"
+                >
                   推荐
                 </span>
                 <span class="shrink-0 text-xs tabular-nums text-muted">
                   {{ progressOf(s).text }}
                 </span>
+                <Icon
+                  name="ui.chevronDown"
+                  bold
+                  size="sm"
+                  class="shrink-0 text-muted transition-transform duration-150 ease-spring"
+                  :class="expandedKeys.has(s.key) && 'rotate-180'"
+                />
               </button>
 
-              <div v-if="expandedKeys.has(s.key)" class="grid gap-2 border-t border-line p-2">
-                <div class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-1.5">
+              <div v-if="expandedKeys.has(s.key)" class="grid gap-1.5 border-t border-line p-1.5">
+                <div class="grid grid-cols-[repeat(auto-fill,minmax(44px,1fr))] gap-1">
                   <button
                     v-for="name in setCharsSorted(s)"
                     :key="`${s.key}-${name}`"
@@ -603,7 +599,7 @@ onMounted(async () => {
                     @click="toggleSetChar(s, name)"
                   >
                     <span
-                      class="grid size-8 place-items-center overflow-hidden rounded-full bg-sunken text-[10px] font-semibold text-muted"
+                      class="grid size-7 place-items-center overflow-hidden rounded-full bg-sunken text-[10px] font-semibold text-muted"
                     >
                       <img
                         v-if="charAvatar.get(name)"
@@ -625,42 +621,43 @@ onMounted(async () => {
           </div>
         </section>
 
-        <!-- ===== 全部套装 ===== -->
+        <!-- 全部套装 -->
         <section>
           <button
             type="button"
-            class="flex w-full items-center gap-2 px-3 py-2 text-left"
+            class="flex w-full items-center gap-2 px-2 py-1.5 text-left"
             :aria-expanded="!allCollapsed"
             @click="allCollapsed = !allCollapsed"
           >
             <span class="text-sm font-semibold text-ink">全部套装</span>
             <span class="text-xs text-muted">{{ filteredSets.length }} / {{ sets.length }}</span>
             <Icon
-              name="ui.chevron-down"
+              name="ui.chevronDown"
+              bold
               size="sm"
               class="ml-auto text-muted transition-transform duration-150 ease-spring"
               :class="allCollapsed && '-rotate-90'"
             />
           </button>
 
-          <div v-if="!allCollapsed" class="grid gap-2 px-3 pb-3">
+          <div v-if="!allCollapsed" class="grid gap-1.5 px-2 pb-2">
             <div class="relative flex items-center">
               <Icon
                 name="ui.search"
                 size="sm"
-                class="pointer-events-none absolute left-3 text-muted"
+                class="pointer-events-none absolute left-2.5 text-muted"
               />
               <input
                 v-model="search"
                 type="text"
-                class="h-10 w-full min-w-0 rounded-ctl border border-line-2 bg-surface pl-9 pr-9 text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent-soft"
+                class="h-9 w-full min-w-0 rounded-ctl border border-line-2 bg-surface pl-8 pr-8 text-xs text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent-soft"
                 placeholder="搜索套装名 / 角色名"
                 autocomplete="off"
               />
               <button
                 v-if="search"
                 type="button"
-                class="absolute right-2 grid size-7 place-items-center rounded-full text-muted hover:bg-hover"
+                class="absolute right-1.5 grid size-6 place-items-center rounded-full text-muted hover:bg-hover"
                 aria-label="清除搜索"
                 @click="search = ''"
               >
@@ -668,7 +665,7 @@ onMounted(async () => {
               </button>
             </div>
 
-            <div class="grid grid-cols-1 gap-2 sm:grid-cols-3">
+            <div class="grid grid-cols-3 gap-1.5">
               <Dropdown v-model="regionFilter" :options="regionOptions" label="地区" />
               <Dropdown v-model="typeFilter" :options="typeOptions" label="类型" />
               <Dropdown v-model="statusFilter" :options="STATUS_OPTIONS" label="状态" />
@@ -692,12 +689,12 @@ onMounted(async () => {
             >
               <button
                 type="button"
-                class="flex w-full items-center gap-2 p-2 text-left"
+                class="flex w-full items-center gap-2 p-1.5 text-left"
                 :aria-expanded="expandedKeys.has(s.key)"
                 @click="toggleExpand(s.key)"
               >
                 <span
-                  class="h-10 shrink-0 overflow-hidden rounded-ctl bg-sunken"
+                  class="h-9 shrink-0 overflow-hidden rounded-ctl bg-sunken"
                   style="aspect-ratio: 2 / 1"
                 >
                   <img
@@ -719,21 +716,19 @@ onMounted(async () => {
                   {{ progressOf(s).text }}
                 </span>
                 <Icon
-                  name="ui.chevron-down"
+                  name="ui.chevronDown"
+                  bold
                   size="sm"
                   class="shrink-0 text-muted transition-transform duration-150 ease-spring"
                   :class="expandedKeys.has(s.key) && 'rotate-180'"
                 />
               </button>
 
-              <div v-if="expandedKeys.has(s.key)" class="grid gap-2 border-t border-line p-2">
-                <div
-                  v-if="!setCharsSorted(s).length"
-                  class="p-2 text-xs text-muted"
-                >
+              <div v-if="expandedKeys.has(s.key)" class="grid gap-1.5 border-t border-line p-1.5">
+                <div v-if="!setCharsSorted(s).length" class="p-1.5 text-xs text-muted">
                   无偏好角色数据
                 </div>
-                <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-1.5">
+                <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(44px,1fr))] gap-1">
                   <button
                     v-for="name in setCharsSorted(s)"
                     :key="`${s.key}-${name}`"
@@ -751,7 +746,7 @@ onMounted(async () => {
                     @click="toggleSetChar(s, name)"
                   >
                     <span
-                      class="grid size-8 place-items-center overflow-hidden rounded-full bg-sunken text-[10px] font-semibold text-muted"
+                      class="grid size-7 place-items-center overflow-hidden rounded-full bg-sunken text-[10px] font-semibold text-muted"
                     >
                       <img
                         v-if="charAvatar.get(name)"
@@ -775,9 +770,8 @@ onMounted(async () => {
       </template>
     </div>
 
-    <!-- ---------- 底部固定危险区 ---------- -->
-    <div class="border-t border-line bg-canvas p-3">
-      <Btn variant="danger" class="w-full" @click="resetOpen = true">
+    <div class="border-t border-line bg-canvas p-2">
+      <Btn variant="danger" class="w-full" size="sm" @click="resetOpen = true">
         <template #icon><Icon name="ui.trash" size="sm" /></template>
         重置全部数据
       </Btn>
