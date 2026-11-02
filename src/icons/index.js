@@ -1,7 +1,9 @@
 /* =========================================================================
- * 图标字典 · 取自 genshin-guide/shared/ui-icons.js（Fluent UI System Icons）
- * 只存 <svg> 内部标记，外壳由 Icon.vue 统一输出 24×24 / fill=currentColor
- * key 规则：xxx = 线框，xxxBold = 实心
+ * 图标字典 · Fluent UI System Icons（取自 genshin-guide/shared/ui-icons.js）
+ * 版本: fluent-fill-v2
+ * 覆盖旧版时请确认这一行存在 —— 旧版是自绘描边（零面积路径会被 fill 吞掉）
+ * 只存 <svg> 内部标记，外壳由 Icon.vue 输出
+ * key：xxx = 线框，xxxBold = 实心
  * ========================================================================= */
 
 export const ICONS = {
