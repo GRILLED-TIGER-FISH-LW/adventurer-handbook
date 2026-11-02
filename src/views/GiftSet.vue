@@ -463,7 +463,6 @@ onMounted(async () => {
       </div>
 
       <template v-else>
-        <!-- 我的角色 -->
         <section class="border-b border-line">
           <button
             type="button"
@@ -506,7 +505,7 @@ onMounted(async () => {
                 @click="toggleOwned(name)"
               >
                 <span
-                  class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-sunken text-[10px] font-semibold text-muted"
+                  class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
                 >
                   <span aria-hidden="true">{{ name.charAt(0) }}</span>
                   <img
@@ -524,7 +523,6 @@ onMounted(async () => {
           </div>
         </section>
 
-        <!-- 推荐套装 -->
         <section v-if="recommendations.length" class="border-b border-line">
           <button
             type="button"
@@ -555,7 +553,7 @@ onMounted(async () => {
                 @click="toggleExpand(s.key)"
               >
                 <span
-                  class="relative h-9 shrink-0 overflow-hidden rounded-ctl bg-sunken"
+                  class="relative h-9 shrink-0 overflow-hidden rounded-ctl bg-thumb"
                   style="aspect-ratio: 2 / 1"
                 >
                   <img
@@ -608,7 +606,7 @@ onMounted(async () => {
                     @click="toggleSetChar(s, name)"
                   >
                     <span
-                      class="relative grid size-7 place-items-center overflow-hidden rounded-ctl bg-sunken text-[10px] font-semibold text-muted"
+                      class="relative grid size-7 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
                     >
                       <span aria-hidden="true">{{ name.charAt(0) }}</span>
                       <img
@@ -630,7 +628,6 @@ onMounted(async () => {
           </div>
         </section>
 
-        <!-- 全部套装 -->
         <section>
           <button
             type="button"
@@ -699,7 +696,7 @@ onMounted(async () => {
                 @click="toggleExpand(s.key)"
               >
                 <span
-                  class="h-9 shrink-0 overflow-hidden rounded-ctl bg-sunken"
+                  class="h-9 shrink-0 overflow-hidden rounded-ctl bg-thumb"
                   style="aspect-ratio: 2 / 1"
                 >
                   <img
@@ -757,7 +754,7 @@ onMounted(async () => {
                     @click="toggleSetChar(s, name)"
                   >
                     <span
-                      class="relative grid size-7 place-items-center overflow-hidden rounded-ctl bg-sunken text-[10px] font-semibold text-muted"
+                      class="relative grid size-7 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
                     >
                       <span aria-hidden="true">{{ name.charAt(0) }}</span>
                       <img
