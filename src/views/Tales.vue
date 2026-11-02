@@ -19,10 +19,13 @@ const toast = useToast()
 
 const loading = ref(true)
 const errorMsg = ref('')
-let entries = []
-let meta = {}
 const total = ref(0)
-let display = []
+
+/* 用 ref 保证 filtered 能追踪到数据就绪 */
+const display = ref([])
+const versions = ref([])
+const meta = ref({})
+let entries = []
 let orderMap = new Map()
 let versionIndex = new Map()
 const avatarCache = new Map()
@@ -44,12 +47,14 @@ function buildAvatarCache(dict) {
   for (const key in dict.characters) {
     const item = dict.characters[key]
     if (!item?.name) continue
-    const url = item.url
-      ? item.url
-      : key.endsWith('.webp')
-        ? cfg.prefix + key
-        : cfg.prefix + key + cfg.ext
-    avatarCache.set(item.name, url)
+    avatarCache.set(
+      item.name,
+      item.url
+        ? item.url
+        : key.endsWith('.webp')
+          ? cfg.prefix + key
+          : cfg.prefix + key + cfg.ext,
+    )
   }
 }
 
@@ -83,11 +88,10 @@ function saveDone() {
   } catch {}
 }
 
-const versionOptions = computed(() => {
-  const items = [{ value: 'all', label: '全部版本' }]
-  ;(meta.versions || []).forEach((v) => items.push({ value: v, label: v }))
-  return items
-})
+const versionOptions = computed(() => [
+  { value: 'all', label: '全部版本' },
+  ...versions.value.map((v) => ({ value: v, label: v })),
+])
 const statusOptions = [
   { value: 'all', label: '全部状态' },
   { value: 'done', label: '已完成' },
@@ -99,41 +103,52 @@ const visibilityOptions = [
   { value: 'hidden', label: '隐藏' },
 ]
 
-const filtered = computed(() => {
+/* 一次算出卡片需要的全部派生数据，模板里不再重复调用函数 */
+const rows = computed(() => {
   const kw = search.value.trim().toLowerCase()
-  return display.filter((e) => {
-    if (version.value !== 'all' && e.version !== version.value) return false
-    const k = entryKey(e)
-    const isDone = done.has(k)
-    if (status.value === 'done' && !isDone) return false
-    if (status.value === 'undone' && isDone) return false
-    if (visibility.value === 'normal' && e.hidden) return false
-    if (visibility.value === 'hidden' && !e.hidden) return false
+  const out = []
+
+  for (const e of display.value) {
+    if (version.value !== 'all' && e.version !== version.value) continue
+
+    const key = entryKey(e)
+    const isDone = done.has(key)
+
+    if (status.value === 'done' && !isDone) continue
+    if (status.value === 'undone' && isDone) continue
+    if (visibility.value === 'normal' && e.hidden) continue
+    if (visibility.value === 'hidden' && !e.hidden) continue
     if (
       kw &&
       !(e.character || '').toLowerCase().includes(kw) &&
       !(e.title || '').toLowerCase().includes(kw)
     )
-      return false
-    return true
-  })
+      continue
+
+    const metas = []
+    if (e.location && e.location.trim())
+      metas.push({ id: 'loc', label: '地点', value: cleanText(e.location) })
+    if (e.trigger && e.trigger.trim())
+      metas.push({ id: 'trig', label: '触发条件', value: cleanText(e.trigger) })
+    if (e.prerequisite && e.prerequisite.trim())
+      metas.push({ id: 'prereq', label: '前置旅闻', value: cleanText(e.prerequisite) })
+
+    out.push({
+      e,
+      key,
+      isDone,
+      metas,
+      avatar: avatarCache.get(e.character) || '',
+      initial: (e.character || '?').charAt(0),
+      desc: e.description && e.description.trim() ? e.description : '',
+    })
+  }
+  return out
 })
 
-function metaRows(e) {
-  const rows = []
-  if (e.location && e.location.trim())
-    rows.push({ id: 'loc', label: '地点', value: cleanText(e.location) })
-  if (e.trigger && e.trigger.trim())
-    rows.push({ id: 'trig', label: '触发条件', value: cleanText(e.trigger) })
-  if (e.prerequisite && e.prerequisite.trim())
-    rows.push({ id: 'prereq', label: '前置旅闻', value: cleanText(e.prerequisite) })
-  return rows
-}
-
-function toggle(e) {
-  const k = entryKey(e)
-  if (done.has(k)) done.delete(k)
-  else done.add(k)
+function toggle(row) {
+  if (row.isDone) done.delete(row.key)
+  else done.add(row.key)
   saveDone()
 }
 
@@ -144,7 +159,7 @@ function exportArchive() {
   ).padStart(2, '0')}`
   const payload = {
     schema: 'genshin-travelers-tales',
-    version: meta.version || '',
+    version: meta.value.version || '',
     exportedAt: ymd,
     total: total.value,
     completed: [...done].sort(),
@@ -245,12 +260,14 @@ onMounted(async () => {
     if (!data || !Array.isArray(data.entries)) throw new Error('data.js 内容无效')
 
     entries = data.entries
-    meta = data.meta || {}
-    total.value = meta.total || entries.length
+    meta.value = data.meta || {}
+    versions.value = Array.isArray(data.versions) ? data.versions : []
+    total.value = meta.value.total || entries.length
 
     orderMap = buildOrderMap(dict)
-    ;(meta.versions || []).forEach((v, i) => versionIndex.set(v, i))
-    display = entries.slice().sort((a, b) => {
+    versions.value.forEach((v, i) => versionIndex.set(v, i))
+
+    display.value = entries.slice().sort((a, b) => {
       const oa = orderMap.has(a.character) ? orderMap.get(a.character) : 9999
       const ob = orderMap.has(b.character) ? orderMap.get(b.character) : 9999
       if (oa !== ob) return oa - ob
@@ -291,7 +308,6 @@ onMounted(async () => {
 <template>
   <div class="grid h-full grid-rows-[auto_minmax(0,1fr)_auto]">
     <header class="grid gap-1.5 border-b border-line bg-canvas p-2">
-      <!-- 行 1：搜索 + 计数 -->
       <div class="flex items-center gap-2">
         <div class="relative flex min-w-0 flex-1 items-center">
           <Icon
@@ -328,14 +344,12 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- 行 2：三个下拉，一行三格 -->
       <div class="grid grid-cols-3 gap-1.5">
         <Dropdown v-model="version" :options="versionOptions" label="版本" />
         <Dropdown v-model="status" :options="statusOptions" label="状态" />
         <Dropdown v-model="visibility" :options="visibilityOptions" label="类型" />
       </div>
 
-      <!-- 行 3：UID + 导出导入 -->
       <div class="flex items-center gap-2">
         <div class="w-24 shrink-0">
           <Field
@@ -376,61 +390,61 @@ onMounted(async () => {
         <Btn size="sm" @click="() => location.reload()">重新加载</Btn>
       </div>
 
-      <div
-        v-else-if="filtered.length === 0"
-        class="grid justify-items-center gap-3 p-8 text-center"
-      >
+      <div v-else-if="!rows.length" class="grid justify-items-center gap-3 p-8 text-center">
         <Icon name="ui.inbox" size="lg" class="text-faint" />
         <p class="text-sm text-muted">没有找到匹配的旅闻</p>
       </div>
 
       <div v-else class="grid gap-1.5">
         <article
-          v-for="e in filtered"
-          :key="entryKey(e)"
+          v-for="row in rows"
+          :key="row.key"
           role="checkbox"
-          :aria-checked="done.has(entryKey(e))"
-          :aria-label="`${e.character} ${e.version} ${e.title}`"
+          :aria-checked="row.isDone"
+          :aria-label="`${row.e.character} ${row.e.version} ${row.e.title}`"
           tabindex="0"
           class="grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2.5 gap-y-1 rounded-panel border p-2.5"
           :class="
-            done.has(entryKey(e))
-              ? 'border-line-3 bg-sunken/60'
-              : 'border-line bg-surface hover:bg-hover'
+            row.isDone ? 'border-line-3 bg-sunken/60' : 'border-line bg-surface hover:bg-hover'
           "
-          @click="toggle(e)"
-          @keydown.enter.prevent="toggle(e)"
-          @keydown.space.prevent="toggle(e)"
+          @click="toggle(row)"
+          @keydown.enter.prevent="toggle(row)"
+          @keydown.space.prevent="toggle(row)"
         >
+          <!-- 头像：首字常驻，图片盖在上面；图片失败就露出首字 -->
           <div
-            class="grid size-10 shrink-0 place-items-center overflow-hidden rounded-ctl bg-sunken text-sm font-semibold text-muted"
+            class="relative grid size-10 shrink-0 place-items-center overflow-hidden rounded-ctl bg-sunken text-sm font-semibold text-muted"
           >
+            <span aria-hidden="true">{{ row.initial }}</span>
             <img
-              v-if="avatarCache.get(e.character)"
-              :src="avatarCache.get(e.character)"
+              v-if="row.avatar"
+              :src="row.avatar"
               alt=""
               loading="lazy"
-              class="size-full object-cover"
+              class="absolute inset-0 size-full object-cover"
               @error="(ev) => ev.target.remove()"
             />
-            <span v-else>{{ (e.character || '?').charAt(0) }}</span>
           </div>
 
-          <div class="flex min-w-0 items-baseline gap-1.5">
-            <span class="shrink-0 text-sm font-medium text-ink">{{ e.character }}</span>
-            <span class="shrink-0 text-xs text-muted">{{ e.version }}</span>
+          <div class="flex min-w-0 items-center gap-1.5">
+            <span class="shrink-0 text-sm font-medium text-ink">{{ row.e.character }}</span>
+            <span
+              class="shrink-0 rounded bg-sunken px-1 text-[10px] leading-4 text-muted tabular-nums"
+            >
+              {{ row.e.version }}
+            </span>
             <span
               class="min-w-0 truncate text-sm"
-              :class="e.hidden ? 'text-faint' : 'text-body'"
+              :class="row.e.hidden ? 'text-danger' : 'text-body'"
             >
-              {{ e.title }}
+              {{ row.e.title }}
             </span>
           </div>
 
           <span
             class="grid size-5 shrink-0 place-items-center rounded-ctl border"
             :class="
-              done.has(entryKey(e))
+              row.isDone
                 ? 'border-accent-solid bg-accent-solid text-on-accent'
                 : 'border-line-2 bg-surface text-transparent'
             "
@@ -439,20 +453,26 @@ onMounted(async () => {
             <Icon name="ui.check" size="sm" />
           </span>
 
+          <!-- 元信息：浅底块 + 标签淡色 + 值正文色，与描述形成层级 -->
           <div
-            v-for="row in metaRows(e)"
-            :key="row.id"
-            class="col-span-3 flex min-w-0 items-baseline gap-1.5 pl-[52px] text-xs"
+            v-if="row.metas.length"
+            class="col-span-3 grid gap-0.5 rounded-ctl bg-sunken/60 px-2 py-1"
           >
-            <span class="shrink-0 text-faint">{{ row.label }}</span>
-            <span class="min-w-0 text-muted">{{ row.value }}</span>
+            <div
+              v-for="m in row.metas"
+              :key="m.id"
+              class="flex min-w-0 items-baseline gap-1.5 pl-[52px] text-xs"
+            >
+              <span class="shrink-0 text-faint">{{ m.label }}</span>
+              <span class="min-w-0 text-body">{{ m.value }}</span>
+            </div>
           </div>
 
           <div
-            v-if="e.description && e.description.trim()"
+            v-if="row.desc"
             class="col-span-3 pl-[52px] text-xs leading-relaxed text-muted"
           >
-            {{ e.description }}
+            {{ row.desc }}
           </div>
         </article>
       </div>
