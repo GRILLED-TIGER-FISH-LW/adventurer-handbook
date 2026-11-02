@@ -7,22 +7,23 @@ const tools = router.options.routes.filter((r) => r.meta?.label)
 </script>
 
 <template>
-  <div class="grid content-start gap-3 p-4 sm:grid-cols-2 lg:grid-cols-3">
+  <div class="grid grid-cols-2 content-start gap-2 p-3 sm:grid-cols-3 lg:grid-cols-4">
     <RouterLink
       v-for="t in tools"
       :key="t.path"
       :to="t.path"
-      class="grid gap-3 rounded-panel border border-line bg-surface p-4 hover:bg-hover"
+      class="grid content-start gap-2 rounded-panel border border-line bg-surface p-3 hover:bg-hover"
     >
       <span
-        class="grid size-9 place-items-center rounded-ctl bg-accent-soft text-accent-strong"
+        class="grid size-8 place-items-center rounded-ctl bg-accent-soft text-accent-strong"
         aria-hidden="true"
       >
         <Icon :name="t.meta.icon" size="sm" />
       </span>
-      <span class="grid gap-1">
-        <span class="text-sm font-semibold text-ink">{{ t.meta.label }}</span>
-        <span class="text-xs text-muted">{{ t.meta.desc }}</span>
+
+      <span class="grid min-w-0 gap-0.5">
+        <span class="truncate text-sm font-semibold text-ink">{{ t.meta.label }}</span>
+        <span class="line-clamp-2 text-xs leading-snug text-muted">{{ t.meta.desc }}</span>
       </span>
     </RouterLink>
   </div>
