@@ -2,14 +2,15 @@ const cache = new Map()
 
 /**
  * 从 public/ 加载「挂全局变量」的数据脚本，同一 src 只请求一次。
- * 注意：BASE_URL 形如 '/adventurer-handbook/'，是相对路径，
- * 不能当 new URL() 的第二参数（会抛 Invalid base URL），只能字符串拼接。
+ * · 绝对 URL（http/https 开头）原样使用
+ * · 相对路径拼 BASE_URL（形如 /adventurer-handbook/）
+ * · 失败不写入缓存，允许下次重试
  */
 export function loadGlobalScript(src, globalName) {
   if (window[globalName]) return Promise.resolve(window[globalName])
   if (cache.has(src)) return cache.get(src)
 
-  const url = import.meta.env.BASE_URL + src
+  const url = /^https?:\/\//i.test(src) ? src : import.meta.env.BASE_URL + src
 
   const task = new Promise((resolve, reject) => {
     const el = document.createElement('script')
@@ -18,12 +19,16 @@ export function loadGlobalScript(src, globalName) {
     el.onload = () => {
       const value = window[globalName]
       if (value === undefined) {
+        cache.delete(src)
         reject(new Error(`${globalName} 未定义，检查 ${src}`))
         return
       }
       resolve(value)
     }
-    el.onerror = () => reject(new Error(`加载失败：${url}`))
+    el.onerror = () => {
+      cache.delete(src)
+      reject(new Error(`加载失败：${url}`))
+    }
     document.head.appendChild(el)
   })
 
