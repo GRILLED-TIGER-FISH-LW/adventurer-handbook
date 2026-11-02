@@ -1,7 +1,4 @@
 @import "tailwindcss";
 
-/*
- * P0 占位。P1 会在这里追加：
- *   @import "./tokens.css";
- *   @import "./base.css";
- */
+@import "./tokens.css";
+@import "./base.css";
