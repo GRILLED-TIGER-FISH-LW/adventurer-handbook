@@ -12,8 +12,7 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" href="/favicon.ico" />
 
-    <!-- 首帧前定主题，防闪白。必须同步、必须在 CSS 之前。
-         与 src/composables/useTheme.js 共用 window.__THEME_KEY，改 key 只改这一行 -->
+    <!-- 首帧前定主题，防闪白。同步、必须在样式之前 -->
     <script>
       window.__THEME_KEY = "adventurer-handbook-theme";
       (function () {
@@ -27,6 +26,82 @@
         document.documentElement.dataset.theme = dark ? "dark" : "light";
         var m = document.querySelector('meta[name="theme-color"]');
         if (m) m.setAttribute("content", dark ? "#181715" : "#f5f0e8");
+      })();
+    </script>
+
+    <!-- 版本错配守卫：新部署后旧 HTML 引用的 JS 已不存在时，自动带时间戳重载一次 -->
+    <script>
+      (function () {
+        var FLAG = "ah-recover-at";
+        var app = document.getElementById("app");
+
+        function lastTry() {
+          try {
+            return Number(sessionStorage.getItem(FLAG)) || 0;
+          } catch (e) {
+            return 0;
+          }
+        }
+
+        function isBlank() {
+          var el = document.getElementById("app");
+          return el && el.children.length === 0 && !el.dataset.fatal;
+        }
+
+        function note(msg) {
+          var el = document.getElementById("app");
+          if (!el || el.dataset.fatal) return;
+          el.dataset.fatal = "1";
+          var pre = document.createElement("pre");
+          pre.style.cssText =
+            "position:fixed;inset:0;z-index:99999;margin:0;padding:16px;overflow:auto;" +
+            "background:#181715;color:#f5f0e8;font:12px/1.7 ui-monospace,monospace;" +
+            "white-space:pre-wrap;word-break:break-word";
+          pre.textContent = msg;
+          el.appendChild(pre);
+        }
+
+        function recover() {
+          if (!isBlank()) return;
+          var since = Date.now() - lastTry();
+          /* 30 秒内只自动重试一次，避免死循环 */
+          if (since < 30000) {
+            note(
+              [
+                "页面未能加载。",
+                "",
+                "这通常是刚发布新版本后的缓存错配，GitHub Pages 的 HTML 缓存约 10 分钟。",
+                "",
+                "请任选一种：",
+                "1. 等 5 到 10 分钟后重新打开",
+                "2. 在网址后面加 ?t=1 再打开，例如：",
+                "   …/adventurer-handbook/?t=1",
+                "",
+                "如果长时间一直这样，请截图本页反馈。",
+              ].join("\n"),
+            );
+            return;
+          }
+
+          try {
+            sessionStorage.setItem(FLAG, String(Date.now()));
+          } catch (e) {}
+
+          var base = location.href.split("#")[0].split("?")[0];
+          location.replace(base + "?t=" + Date.now() + location.hash);
+        }
+
+        /* 模块脚本加载失败 */
+        window.addEventListener(
+          "error",
+          function (e) {
+            if (e.target && e.target.tagName === "SCRIPT") recover();
+          },
+          true,
+        );
+
+        /* 4 秒还没渲染出内容 */
+        setTimeout(recover, 4000);
       })();
     </script>
   </head>
