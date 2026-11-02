@@ -2,13 +2,14 @@ const cache = new Map()
 
 /**
  * 从 public/ 加载「挂全局变量」的数据脚本，同一 src 只请求一次。
- * 例：loadGlobalScript('data/tales.js', 'TRAVELERS_TALES')
+ * 注意：BASE_URL 形如 '/adventurer-handbook/'，是相对路径，
+ * 不能当 new URL() 的第二参数（会抛 Invalid base URL），只能字符串拼接。
  */
 export function loadGlobalScript(src, globalName) {
   if (window[globalName]) return Promise.resolve(window[globalName])
   if (cache.has(src)) return cache.get(src)
 
-  const url = new URL(src, import.meta.env.BASE_URL).href
+  const url = import.meta.env.BASE_URL + src
 
   const task = new Promise((resolve, reject) => {
     const el = document.createElement('script')
