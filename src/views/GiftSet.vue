@@ -20,9 +20,9 @@ const toast = useToast()
 
 const loading = ref(true)
 const errorMsg = ref('')
-let config = null
 const sets = ref([])
 const regions = ref([])
+let imageConfig = null
 
 const charByName = reactive(new Map())
 const charAvatar = reactive(new Map())
@@ -77,40 +77,46 @@ const getOrder = (name) => charByName.get(name)?.order ?? 9999
 const sanitizeOwned = (list) =>
   Array.isArray(list) ? list.filter((x) => typeof x === 'string' && !EXCLUDED.has(x)) : []
 
-function setImageUrl(set) {
-  if (!set?.key || !config) return ''
-  return config.prefix + set.key + config.ext
-}
-
-function setCharsSorted(set) {
-  const chars = Array.isArray(set.preferredCharacters) ? set.preferredCharacters : []
-  return chars
-    .filter((c) => !EXCLUDED.has(c))
-    .slice()
-    .sort((a, b) => getOrder(a) - getOrder(b))
-}
-
-function progressOf(set) {
+/* 每个套装的派生数据只算一次，模板直接查表 */
+const cardMap = computed(() => {
   const ownedSet = new Set(owned.value)
-  const done = completed.value[set.key] || []
-  const chars = setCharsSorted(set)
+  const map = new Map()
 
-  const ownedChars = chars.filter((c) => ownedSet.has(c))
-  if (!ownedChars.length) return { status: 'unowned', text: '未拥有角色', completed: false }
+  for (const set of sets.value) {
+    const chars = (Array.isArray(set.preferredCharacters) ? set.preferredCharacters : [])
+      .filter((c) => !EXCLUDED.has(c))
+      .slice()
+      .sort((a, b) => getOrder(a) - getOrder(b))
 
-  const doneOwned = ownedChars.filter((c) => done.includes(c))
-  const allOwnedDone = doneOwned.length === ownedChars.length
+    const doneArr = completed.value[set.key] || []
+    const ownedChars = chars.filter((c) => ownedSet.has(c))
+    let progress
 
-  if (allOwnedDone && ownedChars.length === chars.length)
-    return { status: 'done', text: '已完成', completed: true }
-  if (allOwnedDone) return { status: 'achieved', text: '已送完', completed: true }
+    if (!ownedChars.length) {
+      progress = { status: 'unowned', text: '未拥有角色', completed: false }
+    } else {
+      const doneOwned = ownedChars.filter((c) => doneArr.includes(c))
+      const allDone = doneOwned.length === ownedChars.length
+      if (allDone && ownedChars.length === chars.length)
+        progress = { status: 'done', text: '已完成', completed: true }
+      else if (allDone) progress = { status: 'achieved', text: '已送完', completed: true }
+      else
+        progress = {
+          status: 'incomplete',
+          text: `${doneOwned.length} / ${ownedChars.length}`,
+          completed: false,
+        }
+    }
 
-  return {
-    status: 'incomplete',
-    text: `${doneOwned.length} / ${ownedChars.length}`,
-    completed: false,
+    map.set(set.key, {
+      chars,
+      progress,
+      done: doneArr,
+      thumb: set.key && imageConfig ? imageConfig.prefix + set.key + imageConfig.ext : '',
+    })
   }
-}
+  return map
+})
 
 const recommendations = computed(() => {
   const ownedSet = new Set(owned.value)
@@ -118,20 +124,19 @@ const recommendations = computed(() => {
 
   const candidates = []
   for (const set of sets.value) {
-    const chars = setCharsSorted(set)
-    if (!chars.length) continue
+    const info = cardMap.value.get(set.key)
+    if (!info || !info.chars.length) continue
 
-    const ownedInSet = chars.filter((c) => ownedSet.has(c))
+    const ownedInSet = info.chars.filter((c) => ownedSet.has(c))
     if (!ownedInSet.length) continue
 
-    const doneInSet = completed.value[set.key] || []
-    const pending = ownedInSet.filter((c) => !doneInSet.includes(c))
+    const pending = ownedInSet.filter((c) => !info.done.includes(c))
     if (!pending.length) continue
 
     candidates.push({
       set,
       pendingCount: pending.length,
-      ratio: ownedInSet.length / chars.length,
+      ratio: ownedInSet.length / info.chars.length,
     })
   }
 
@@ -146,18 +151,24 @@ const recommendations = computed(() => {
 
 const filteredSets = computed(() => {
   const kw = search.value.trim().toLowerCase()
-  const out = sets.value.filter((s) => {
-    if (regionFilter.value !== 'all' && s.region !== regionFilter.value) return false
-    if (typeFilter.value !== 'all' && s.type !== typeFilter.value) return false
-    if (statusFilter.value !== 'all' && progressOf(s).status !== statusFilter.value) return false
+  const out = []
+
+  for (const s of sets.value) {
+    if (regionFilter.value !== 'all' && s.region !== regionFilter.value) continue
+    if (typeFilter.value !== 'all' && s.type !== typeFilter.value) continue
+
+    const info = cardMap.value.get(s.key)
+    if (statusFilter.value !== 'all' && info?.progress.status !== statusFilter.value) continue
+
     if (kw) {
       const chars = s.preferredCharacters || []
       const hitName = (s.name || '').toLowerCase().includes(kw)
       const hitChar = chars.some((c) => c.toLowerCase().includes(kw))
-      if (!hitName && !hitChar) return false
+      if (!hitName && !hitChar) continue
     }
-    return true
-  })
+    out.push(s)
+  }
+
   return out.sort((a, b) => (a.id ?? 0) - (b.id ?? 0))
 })
 
@@ -377,7 +388,7 @@ onMounted(async () => {
     const data = await loadGiftSetData()
     const dict = await loadGlobalScript(ICON_DICT_URL, 'ICON_DICT').catch(() => null)
 
-    config = data?.config?.image || null
+    imageConfig = data?.config?.image || null
     sets.value = Array.isArray(data?.sets) ? data.sets.slice() : []
     regions.value = Array.isArray(data?.regions) ? data.regions.slice() : []
 
@@ -390,9 +401,8 @@ onMounted(async () => {
 
         let url = ''
         if (item.url) url = item.url
-        else if (cfg) {
+        else if (cfg)
           url = /\.(webp|png|jpe?g)$/i.test(key) ? cfg.prefix + key : cfg.prefix + key + cfg.ext
-        }
         if (url) charAvatar.set(item.name, url)
       }
       tmp.forEach((v, k) => charByName.set(k, v))
@@ -465,11 +475,10 @@ onMounted(async () => {
             <span class="text-sm font-semibold text-ink">我的角色</span>
             <span class="text-xs text-muted">{{ owned.length }}</span>
             <Icon
-              name="ui.chevronDown"
+              :name="charCollapsed ? 'ui.chevronDown' : 'ui.chevronUp'"
               bold
               size="sm"
-              class="ml-auto text-muted transition-transform duration-150 ease-spring"
-              :class="charCollapsed && '-rotate-90'"
+              class="ml-auto text-muted"
             />
           </button>
 
@@ -498,17 +507,17 @@ onMounted(async () => {
                 @click="toggleOwned(name)"
               >
                 <span
-                  class="grid size-8 place-items-center overflow-hidden rounded-full bg-sunken text-[10px] font-semibold text-muted"
+                  class="relative grid size-8 place-items-center overflow-hidden rounded-full bg-sunken text-[10px] font-semibold text-muted"
                 >
+                  <span aria-hidden="true">{{ name.charAt(0) }}</span>
                   <img
                     v-if="charAvatar.get(name)"
                     :src="charAvatar.get(name)"
                     alt=""
                     loading="lazy"
-                    class="size-full object-cover"
+                    class="absolute inset-0 size-full object-cover"
                     @error="(ev) => ev.target.remove()"
                   />
-                  <span v-else>{{ name.charAt(0) }}</span>
                 </span>
                 <span class="w-full truncate text-center text-[10px] text-muted">{{ name }}</span>
               </button>
@@ -527,11 +536,10 @@ onMounted(async () => {
             <span class="text-sm font-semibold text-ink">推荐套装</span>
             <span class="text-xs text-muted">前 {{ recommendations.length }}</span>
             <Icon
-              name="ui.chevronDown"
+              :name="recommendCollapsed ? 'ui.chevronDown' : 'ui.chevronUp'"
               bold
               size="sm"
-              class="ml-auto text-muted transition-transform duration-150 ease-spring"
-              :class="recommendCollapsed && '-rotate-90'"
+              class="ml-auto text-muted"
             />
           </button>
 
@@ -548,68 +556,70 @@ onMounted(async () => {
                 @click="toggleExpand(s.key)"
               >
                 <span
-                  class="h-9 shrink-0 overflow-hidden rounded-ctl bg-sunken"
+                  class="relative h-9 shrink-0 overflow-hidden rounded-ctl bg-sunken"
                   style="aspect-ratio: 2 / 1"
                 >
                   <img
-                    v-if="setImageUrl(s)"
-                    :src="setImageUrl(s)"
+                    v-if="cardMap.get(s.key)?.thumb"
+                    :src="cardMap.get(s.key).thumb"
                     alt=""
                     loading="lazy"
                     class="size-full object-contain"
                   />
+                  <span
+                    class="absolute left-0 top-0 rounded-br-ctl bg-accent-solid px-1 text-[10px] leading-4 text-on-accent"
+                  >
+                    推荐
+                  </span>
                 </span>
+
                 <span class="grid min-w-0 flex-1 gap-0.5">
                   <span class="truncate text-sm font-medium text-ink">{{ s.name }}</span>
                   <span class="text-xs text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</span>
                 </span>
-                <span
-                  class="shrink-0 rounded-full bg-accent-soft px-1.5 py-0.5 text-[10px] text-accent-strong"
-                >
-                  推荐
-                </span>
+
                 <span class="shrink-0 text-xs tabular-nums text-muted">
-                  {{ progressOf(s).text }}
+                  {{ cardMap.get(s.key)?.progress.text }}
                 </span>
+
                 <Icon
-                  name="ui.chevronDown"
+                  :name="expandedKeys.has(s.key) ? 'ui.chevronUp' : 'ui.chevronDown'"
                   bold
                   size="sm"
-                  class="shrink-0 text-muted transition-transform duration-150 ease-spring"
-                  :class="expandedKeys.has(s.key) && 'rotate-180'"
+                  class="shrink-0 text-muted"
                 />
               </button>
 
               <div v-if="expandedKeys.has(s.key)" class="grid gap-1.5 border-t border-line p-1.5">
                 <div class="grid grid-cols-[repeat(auto-fill,minmax(44px,1fr))] gap-1">
                   <button
-                    v-for="name in setCharsSorted(s)"
+                    v-for="name in cardMap.get(s.key)?.chars || []"
                     :key="`${s.key}-${name}`"
                     type="button"
                     class="grid justify-items-center gap-0.5 rounded-ctl border p-1"
                     :class="
                       !owned.includes(name)
                         ? 'border-line bg-surface opacity-50'
-                        : (completed[s.key] || []).includes(name)
+                        : (cardMap.get(s.key)?.done || []).includes(name)
                           ? 'border-accent bg-accent-soft'
                           : 'border-line-2 bg-surface'
                     "
-                    :aria-pressed="(completed[s.key] || []).includes(name)"
+                    :aria-pressed="(cardMap.get(s.key)?.done || []).includes(name)"
                     :title="name"
                     @click="toggleSetChar(s, name)"
                   >
                     <span
-                      class="grid size-7 place-items-center overflow-hidden rounded-full bg-sunken text-[10px] font-semibold text-muted"
+                      class="relative grid size-7 place-items-center overflow-hidden rounded-full bg-sunken text-[10px] font-semibold text-muted"
                     >
+                      <span aria-hidden="true">{{ name.charAt(0) }}</span>
                       <img
                         v-if="charAvatar.get(name)"
                         :src="charAvatar.get(name)"
                         alt=""
                         loading="lazy"
-                        class="size-full object-cover"
+                        class="absolute inset-0 size-full object-cover"
                         @error="(ev) => ev.target.remove()"
                       />
-                      <span v-else>{{ name.charAt(0) }}</span>
                     </span>
                     <span class="w-full truncate text-center text-[10px] text-muted">
                       {{ name }}
@@ -632,11 +642,10 @@ onMounted(async () => {
             <span class="text-sm font-semibold text-ink">全部套装</span>
             <span class="text-xs text-muted">{{ filteredSets.length }} / {{ sets.length }}</span>
             <Icon
-              name="ui.chevronDown"
+              :name="allCollapsed ? 'ui.chevronDown' : 'ui.chevronUp'"
               bold
               size="sm"
-              class="ml-auto text-muted transition-transform duration-150 ease-spring"
-              :class="allCollapsed && '-rotate-90'"
+              class="ml-auto text-muted"
             />
           </button>
 
@@ -671,10 +680,7 @@ onMounted(async () => {
               <Dropdown v-model="statusFilter" :options="STATUS_OPTIONS" label="状态" />
             </div>
 
-            <div
-              v-if="!filteredSets.length"
-              class="grid justify-items-center gap-3 p-8 text-center"
-            >
+            <div v-if="!filteredSets.length" class="grid justify-items-center gap-3 p-8 text-center">
               <Icon name="ui.inbox" size="lg" class="text-faint" />
               <p class="text-sm text-muted">
                 {{ sets.length ? '没有匹配的套装' : '套装数据未加载，请检查 data.js' }}
@@ -685,7 +691,7 @@ onMounted(async () => {
               v-for="s in filteredSets"
               :key="s.key"
               class="rounded-panel border bg-surface"
-              :class="progressOf(s).completed ? 'border-accent' : 'border-line'"
+              :class="cardMap.get(s.key)?.progress.completed ? 'border-accent' : 'border-line'"
             >
               <button
                 type="button"
@@ -698,65 +704,71 @@ onMounted(async () => {
                   style="aspect-ratio: 2 / 1"
                 >
                   <img
-                    v-if="setImageUrl(s)"
-                    :src="setImageUrl(s)"
+                    v-if="cardMap.get(s.key)?.thumb"
+                    :src="cardMap.get(s.key).thumb"
                     alt=""
                     loading="lazy"
                     class="size-full object-contain"
                   />
                 </span>
+
                 <span class="grid min-w-0 flex-1 gap-0.5">
-                  <span class="truncate text-sm font-medium text-ink">{{ s.name || '(未命名)' }}</span>
+                  <span class="truncate text-sm font-medium text-ink">
+                    {{ s.name || '(未命名)' }}
+                  </span>
                   <span class="text-xs text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</span>
                 </span>
+
                 <span
                   class="shrink-0 text-xs tabular-nums"
-                  :class="progressOf(s).completed ? 'text-accent-strong' : 'text-muted'"
+                  :class="
+                    cardMap.get(s.key)?.progress.completed ? 'text-accent-strong' : 'text-muted'
+                  "
                 >
-                  {{ progressOf(s).text }}
+                  {{ cardMap.get(s.key)?.progress.text }}
                 </span>
+
                 <Icon
-                  name="ui.chevronDown"
+                  :name="expandedKeys.has(s.key) ? 'ui.chevronUp' : 'ui.chevronDown'"
                   bold
                   size="sm"
-                  class="shrink-0 text-muted transition-transform duration-150 ease-spring"
-                  :class="expandedKeys.has(s.key) && 'rotate-180'"
+                  class="shrink-0 text-muted"
                 />
               </button>
 
               <div v-if="expandedKeys.has(s.key)" class="grid gap-1.5 border-t border-line p-1.5">
-                <div v-if="!setCharsSorted(s).length" class="p-1.5 text-xs text-muted">
+                <div v-if="!cardMap.get(s.key)?.chars.length" class="p-1.5 text-xs text-muted">
                   无偏好角色数据
                 </div>
                 <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(44px,1fr))] gap-1">
                   <button
-                    v-for="name in setCharsSorted(s)"
+                    v-for="name in cardMap.get(s.key).chars"
                     :key="`${s.key}-${name}`"
                     type="button"
                     class="grid justify-items-center gap-0.5 rounded-ctl border p-1"
                     :class="
                       !owned.includes(name)
                         ? 'border-line bg-surface opacity-50'
-                        : (completed[s.key] || []).includes(name)
+                        : cardMap.get(s.key).done.includes(name)
                           ? 'border-accent bg-accent-soft'
                           : 'border-line-2 bg-surface'
                     "
-                    :aria-pressed="(completed[s.key] || []).includes(name)"
+                    :aria-pressed="cardMap.get(s.key).done.includes(name)"
                     :title="name"
                     @click="toggleSetChar(s, name)"
                   >
                     <span
-                      class="grid size-7 place-items-center overflow-hidden rounded-full bg-sunken text-[10px] font-semibold text-muted"
+                      class="relative grid size-7 place-items-center overflow-hidden rounded-full bg-sunken text-[10px] font-semibold text-muted"
                     >
+                      <span aria-hidden="true">{{ name.charAt(0) }}</span>
                       <img
                         v-if="charAvatar.get(name)"
                         :src="charAvatar.get(name)"
                         alt=""
                         loading="lazy"
-                        class="size-full object-cover"
+                        class="absolute inset-0 size-full object-cover"
                         @error="(ev) => ev.target.remove()"
                       />
-                      <span v-else>{{ name.charAt(0) }}</span>
                     </span>
                     <span class="w-full truncate text-center text-[10px] text-muted">
                       {{ name }}
