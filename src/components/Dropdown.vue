@@ -1,9 +1,11 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, ref, useId, watch } from 'vue'
+import Icon from './Icon.vue'
 
 const props = defineProps({
   /* [{ value: '蒙德', label: '蒙德' }, ...] */
   options: { type: Array, default: () => [] },
+  /* 仅用于无障碍（aria-label），不再渲染成可见文字 —— 工具栏高度紧张 */
   label: { type: String, default: '' },
   placeholder: { type: String, default: '请选择' },
   disabled: { type: Boolean, default: false },
@@ -37,7 +39,6 @@ function position() {
   const spaceBelow = window.innerHeight - r.bottom - GAP - 8
   const spaceAbove = r.top - GAP - 8
   const openUp = spaceBelow < 160 && spaceAbove > spaceBelow
-
   const maxHeight = Math.min(320, Math.max(96, openUp ? spaceAbove : spaceBelow))
 
   panelStyle.value = {
@@ -107,7 +108,7 @@ function onKeydown(e) {
     return
   }
   if (k === 'Tab') {
-    close(false) // 让 Tab 自然往下走，不抢焦点
+    close(false)
     return
   }
   if (k === 'ArrowDown') {
@@ -135,7 +136,6 @@ function onDocDown(e) {
   close(false)
 }
 
-/* ---------- 监听挂载 ---------- */
 function bind() {
   document.addEventListener('mousedown', onDocDown, true)
   window.addEventListener('scroll', onViewportChange, { passive: true, capture: true })
@@ -149,23 +149,19 @@ function unbind() {
 
 watch(isOpen, (v) => (v ? bind() : unbind()))
 
-/* 高亮项滚进可视区 */
 watch(activeIndex, async () => {
   if (!isOpen.value || activeIndex.value < 0) return
   await nextTick()
-  document
-    .getElementById(optionId(activeIndex.value))
-    ?.scrollIntoView({ block: 'nearest' })
+  document.getElementById(optionId(activeIndex.value))?.scrollIntoView({ block: 'nearest' })
 })
 
 onBeforeUnmount(unbind)
 
-/* ---------- 样式 ---------- */
 function itemClass(i, value) {
   const selected = value === model.value
   const active = i === activeIndex.value
   return [
-    'cursor-pointer rounded-ctl px-3 py-2 text-sm',
+    'cursor-pointer rounded-ctl px-2.5 py-1.5 text-xs',
     selected ? 'font-medium text-accent-strong' : 'text-ink',
     active ? 'bg-hover' : selected ? 'bg-accent-soft' : '',
   ]
@@ -173,67 +169,58 @@ function itemClass(i, value) {
 </script>
 
 <template>
-  <div class="grid gap-1.5">
-    <span v-if="label" class="text-xs font-medium text-muted">{{ label }}</span>
-
-    <button
-      ref="trigger"
-      type="button"
-      class="flex h-10 w-full min-w-0 items-center gap-2 rounded-ctl border border-line-2 bg-surface px-3 text-sm text-ink hover:border-line-3 focus:outline-none focus:ring-2 focus:ring-accent-soft disabled:pointer-events-none disabled:opacity-50"
-      :disabled="disabled"
-      :aria-expanded="isOpen"
-      aria-haspopup="listbox"
-      :aria-controls="isOpen ? listId : undefined"
-      :aria-activedescendant="activeId"
-      :aria-label="triggerLabel"
-      @click="toggle"
-      @keydown="onKeydown"
-    >
-      <span
-        class="min-w-0 flex-1 truncate text-left"
-        :class="currentLabel ? 'text-ink' : 'text-muted'"
-      >
-        {{ currentLabel || placeholder }}
-      </span>
-      <span
-        class="grid size-4 shrink-0 place-items-center text-muted transition-transform duration-150 ease-spring"
+  <button
+    ref="trigger"
+    type="button"
+    class="flex h-9 w-full min-w-0 items-center gap-1.5 rounded-ctl border border-line-2 bg-surface px-2.5 text-xs text-ink hover:border-line-3 focus:outline-none focus:ring-2 focus:ring-accent-soft disabled:pointer-events-none disabled:opacity-50"
+    :disabled="disabled"
+    :aria-expanded="isOpen"
+    aria-haspopup="listbox"
+    :aria-controls="isOpen ? listId : undefined"
+    :aria-activedescendant="activeId"
+    :aria-label="triggerLabel"
+    @click="toggle"
+    @keydown="onKeydown"
+  >
+    <span class="min-w-0 flex-1 truncate text-left" :class="currentLabel ? 'text-ink' : 'text-muted'">
+      {{ currentLabel || placeholder }}
+    </span>
+    <span class="grid size-4 shrink-0 place-items-center text-muted">
+      <Icon
+        name="ui.chevronDown"
+        bold
+        size="sm"
+        class="transition-transform duration-150 ease-spring"
         :class="isOpen && 'rotate-180'"
-        aria-hidden="true"
-      >
-        ▾
-      </span>
-    </button>
+      />
+    </span>
+  </button>
 
-    <Teleport to="body">
-      <ul
-        v-if="isOpen"
-        :id="listId"
-        ref="panel"
-        role="listbox"
-        :style="panelStyle"
-        class="z-[50] overflow-y-auto rounded-panel border border-line-3 bg-surface p-1 shadow-float"
-      >
-        <li
-          v-if="!options.length"
-          class="px-3 py-2 text-xs text-muted"
-          role="presentation"
-        >
-          没有可选项
-        </li>
+  <Teleport to="body">
+    <ul
+      v-if="isOpen"
+      :id="listId"
+      ref="panel"
+      role="listbox"
+      :style="panelStyle"
+      class="z-[50] overflow-y-auto rounded-panel border border-line-3 bg-surface p-1 shadow-float"
+    >
+      <li v-if="!options.length" class="px-2.5 py-1.5 text-xs text-muted" role="presentation">
+        没有可选项
+      </li>
 
-        <li
-          v-for="(opt, i) in options"
-          :id="optionId(i)"
-          :key="opt.value"
-          role="option"
-          :aria-selected="opt.value === model"
-          :class="itemClass(i, opt.value)"
-          @mouseenter="activeIndex = i"
-          @click="choose(i)"
-        >
-          {{ opt.label }}
-        </li>
-      </ul>
-    </Teleport>
-  </div>
+      <li
+        v-for="(opt, i) in options"
+        :id="optionId(i)"
+        :key="opt.value"
+        role="option"
+        :aria-selected="opt.value === model"
+        :class="itemClass(i, opt.value)"
+        @mouseenter="activeIndex = i"
+        @click="choose(i)"
+      >
+        {{ opt.label }}
+      </li>
+    </ul>
+  </Teleport>
 </template>
