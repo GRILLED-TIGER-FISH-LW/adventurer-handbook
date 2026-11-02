@@ -11,6 +11,8 @@
   --color-surface-2: #f7f3ec;
   --color-sunken: #e8e0d2;
   --color-hover: #efe9de;
+  /* 图像/缩略图底：透明 PNG 的衬底，深色下要比卡片亮 */
+  --color-thumb: #e8e0d2;
 
   /* ---------- 描边 ---------- */
   --color-line: #ebe6df;
@@ -58,6 +60,7 @@
   --color-surface-2: #252320;
   --color-sunken: #121110;
   --color-hover: #2b2825;
+  --color-thumb: #322d27;
 
   --color-line: #26231f;
   --color-line-2: #302c27;
