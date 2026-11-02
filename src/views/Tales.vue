@@ -410,7 +410,7 @@ onMounted(async () => {
           @keydown.space.prevent="toggle(row)"
         >
           <div
-            class="relative grid size-10 shrink-0 place-items-center overflow-hidden rounded-ctl bg-sunken text-sm font-semibold text-muted"
+            class="relative grid size-10 shrink-0 place-items-center overflow-hidden rounded-ctl bg-thumb text-sm font-semibold text-muted"
           >
             <span aria-hidden="true">{{ row.initial }}</span>
             <img
