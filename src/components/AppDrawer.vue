@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onBeforeUnmount, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import Icon from './Icon.vue'
 
 const open = defineModel({ type: Boolean, default: false })
 
@@ -8,10 +9,10 @@ const route = useRoute()
 const router = useRouter()
 
 const items = computed(() => [
-  { path: '/', label: '首页' },
+  { path: '/', label: '首页', icon: 'nav.home' },
   ...router.options.routes
     .filter((r) => r.meta?.label)
-    .map((r) => ({ path: r.path, label: r.meta.label })),
+    .map((r) => ({ path: r.path, label: r.meta.label, icon: r.meta.icon })),
 ])
 
 const isActive = (path) => route.path === path
@@ -20,7 +21,6 @@ function close() {
   open.value = false
 }
 
-/* 换页后自动收起 */
 watch(() => route.fullPath, close)
 
 const appRoot = document.getElementById('app')
@@ -39,6 +39,11 @@ onBeforeUnmount(() => {
   document.removeEventListener('keydown', onKey)
   if (appRoot) appRoot.inert = false
 })
+
+function go(path) {
+  router.push(path)
+  close()
+}
 </script>
 
 <template>
@@ -64,19 +69,22 @@ onBeforeUnmount(() => {
             v-for="item in items"
             :key="item.path"
             type="button"
-            class="flex h-11 items-center rounded-ctl px-3 text-left text-sm"
+            class="flex h-11 items-center gap-2.5 rounded-ctl px-3 text-left text-sm"
             :class="
               isActive(item.path)
                 ? 'bg-surface font-semibold text-ink'
                 : 'text-body hover:bg-hover'
             "
             :aria-current="isActive(item.path) ? 'page' : undefined"
-            @click="
-              router.push(item.path);
-              close()
-            "
+            @click="go(item.path)"
           >
-            {{ item.label }}
+            <span
+              class="grid size-5 shrink-0 place-items-center"
+              :class="isActive(item.path) ? 'text-accent-strong' : 'text-muted'"
+            >
+              <Icon :name="item.icon" size="sm" />
+            </span>
+            <span class="min-w-0 truncate">{{ item.label }}</span>
           </button>
         </nav>
       </aside>
