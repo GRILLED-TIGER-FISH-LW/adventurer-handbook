@@ -8,7 +8,6 @@ import Icon from '../components/Icon.vue'
 import { useToast } from '../composables/useToast.js'
 import { loadGlobalScript, loadTalesData } from '../composables/useData.js'
 
-/* 与旧版完全一致的存储键 —— 用户现有记录不丢 */
 const STORAGE_KEY = 'genshin_travelers_tales_completed_v2'
 const LEGACY_KEY = 'genshin_travelers_tales_completed_v1'
 const UID_KEY = 'genshin_travelers_tales_uid_v1'
@@ -18,18 +17,16 @@ const ICON_DICT_URL =
 
 const toast = useToast()
 
-/* ---------- 只读数据 ---------- */
 const loading = ref(true)
 const errorMsg = ref('')
 let entries = []
 let meta = {}
-let total = ref(0)
+const total = ref(0)
 let display = []
 let orderMap = new Map()
 let versionIndex = new Map()
 const avatarCache = new Map()
 
-/* ---------- 交互状态 ---------- */
 const search = ref('')
 const version = ref('all')
 const status = ref('all')
@@ -38,7 +35,6 @@ const uid = ref('')
 const done = reactive(new Set())
 const clearOpen = ref(false)
 
-/* ---------- 工具 ---------- */
 const entryKey = (e) => `${e.character || ''}·${e.version || ''}·${e.title || ''}`
 const cleanText = (s) => String(s ?? '').replace(/<br\s*\/?>/gi, ' ').replace(/\s+/g, ' ').trim()
 
@@ -68,7 +64,6 @@ function buildOrderMap(dict) {
   return m
 }
 
-/* ---------- 持久化 ---------- */
 function loadDone() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
@@ -85,12 +80,9 @@ function loadDone() {
 function saveDone() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify([...done]))
-  } catch {
-    /* 隐私模式写入失败，忽略 */
-  }
+  } catch {}
 }
 
-/* ---------- 下拉选项 ---------- */
 const versionOptions = computed(() => {
   const items = [{ value: 'all', label: '全部版本' }]
   ;(meta.versions || []).forEach((v) => items.push({ value: v, label: v }))
@@ -107,7 +99,6 @@ const visibilityOptions = [
   { value: 'hidden', label: '隐藏' },
 ]
 
-/* ---------- 筛选 ---------- */
 const filtered = computed(() => {
   const kw = search.value.trim().toLowerCase()
   return display.filter((e) => {
@@ -128,7 +119,6 @@ const filtered = computed(() => {
   })
 })
 
-/* ---------- 卡片附加行 ---------- */
 function metaRows(e) {
   const rows = []
   if (e.location && e.location.trim())
@@ -140,7 +130,6 @@ function metaRows(e) {
   return rows
 }
 
-/* ---------- 操作 ---------- */
 function toggle(e) {
   const k = entryKey(e)
   if (done.has(k)) done.delete(k)
@@ -188,7 +177,6 @@ function onImportFile(ev) {
       const json = JSON.parse(reader.result)
       const list = Array.isArray(json) ? json : json.completed || []
 
-      /* id → 三段式 key；两段式 → 所有同名条目 */
       const idToKey = new Map()
       const twoPart = new Map()
       entries.forEach((e) => {
@@ -236,25 +224,19 @@ function doClear() {
   try {
     localStorage.removeItem(STORAGE_KEY)
     localStorage.removeItem(LEGACY_KEY)
-  } catch {
-    /* 忽略 */
-  }
+  } catch {}
   toast.success('已清空完成记录')
 }
 
-/* UID 只留数字 */
 function onUidInput(val) {
   const cleaned = val.replace(/\D/g, '')
   uid.value = cleaned
   try {
     if (cleaned) localStorage.setItem(UID_KEY, cleaned)
     else localStorage.removeItem(UID_KEY)
-  } catch {
-    /* 忽略 */
-  }
+  } catch {}
 }
 
-/* ---------- 启动 ---------- */
 onMounted(async () => {
   try {
     const data = await loadTalesData()
@@ -282,7 +264,6 @@ onMounted(async () => {
 
     loadDone().forEach((k) => done.add(k))
 
-    /* 清掉数据里已不存在的记录 */
     const valid = new Set(entries.map(entryKey))
     let dirty = false
     ;[...done].forEach((k) => {
@@ -309,19 +290,19 @@ onMounted(async () => {
 
 <template>
   <div class="grid h-full grid-rows-[auto_minmax(0,1fr)_auto]">
-    <!-- ---------- 顶栏：三行常驻 ---------- -->
-    <header class="grid gap-2 border-b border-line bg-canvas p-3">
+    <header class="grid gap-1.5 border-b border-line bg-canvas p-2">
+      <!-- 行 1：搜索 + 计数 -->
       <div class="flex items-center gap-2">
         <div class="relative flex min-w-0 flex-1 items-center">
           <Icon
             name="ui.search"
             size="sm"
-            class="pointer-events-none absolute left-3 text-muted"
+            class="pointer-events-none absolute left-2.5 text-muted"
           />
           <input
             v-model="search"
             type="text"
-            class="h-10 w-full min-w-0 rounded-ctl border border-line-2 bg-surface pl-9 pr-9 text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent-soft"
+            class="h-9 w-full min-w-0 rounded-ctl border border-line-2 bg-surface pl-8 pr-8 text-xs text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent-soft"
             placeholder="搜索角色名 / 旅闻名"
             autocomplete="off"
             spellcheck="false"
@@ -329,7 +310,7 @@ onMounted(async () => {
           <button
             v-if="search"
             type="button"
-            class="absolute right-2 grid size-7 place-items-center rounded-full text-muted hover:bg-hover"
+            class="absolute right-1.5 grid size-6 place-items-center rounded-full text-muted hover:bg-hover"
             aria-label="清除搜索"
             @click="search = ''"
           >
@@ -347,23 +328,26 @@ onMounted(async () => {
         </div>
       </div>
 
-      <div class="grid grid-cols-1 gap-2 sm:grid-cols-3">
+      <!-- 行 2：三个下拉，一行三格 -->
+      <div class="grid grid-cols-3 gap-1.5">
         <Dropdown v-model="version" :options="versionOptions" label="版本" />
         <Dropdown v-model="status" :options="statusOptions" label="状态" />
         <Dropdown v-model="visibility" :options="visibilityOptions" label="类型" />
       </div>
 
+      <!-- 行 3：UID + 导出导入 -->
       <div class="flex items-center gap-2">
-        <Field
-          :model-value="uid"
-          label="UID"
-          placeholder="选填"
-          class="w-28 shrink-0"
-          inputmode="numeric"
-          maxlength="15"
-          @update:model-value="onUidInput"
-        />
-        <div class="flex flex-1 justify-end gap-2">
+        <div class="w-24 shrink-0">
+          <Field
+            :model-value="uid"
+            aria-label="UID"
+            placeholder="UID"
+            inputmode="numeric"
+            maxlength="15"
+            @update:model-value="onUidInput"
+          />
+        </div>
+        <div class="flex flex-1 justify-end gap-1.5">
           <Btn size="sm" @click="exportArchive">
             <template #icon><Icon name="ui.export" size="sm" /></template>
             导出
@@ -383,11 +367,8 @@ onMounted(async () => {
       </div>
     </header>
 
-    <!-- ---------- 列表 ---------- -->
-    <div class="min-h-0 overflow-y-auto p-3">
-      <div v-if="loading" class="grid gap-2 p-4 text-sm text-muted">
-        <p>正在加载旅闻数据…</p>
-      </div>
+    <div class="min-h-0 overflow-y-auto p-2">
+      <div v-if="loading" class="p-4 text-sm text-muted">正在加载旅闻数据…</div>
 
       <div v-else-if="errorMsg" class="grid justify-items-center gap-3 p-8 text-center">
         <p class="text-sm font-semibold text-danger">数据加载失败</p>
@@ -403,7 +384,7 @@ onMounted(async () => {
         <p class="text-sm text-muted">没有找到匹配的旅闻</p>
       </div>
 
-      <div v-else class="grid gap-2">
+      <div v-else class="grid gap-1.5">
         <article
           v-for="e in filtered"
           :key="entryKey(e)"
@@ -411,7 +392,7 @@ onMounted(async () => {
           :aria-checked="done.has(entryKey(e))"
           :aria-label="`${e.character} ${e.version} ${e.title}`"
           tabindex="0"
-          class="grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5 rounded-panel border p-3"
+          class="grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2.5 gap-y-1 rounded-panel border p-2.5"
           :class="
             done.has(entryKey(e))
               ? 'border-line-3 bg-sunken/60'
@@ -447,7 +428,7 @@ onMounted(async () => {
           </div>
 
           <span
-            class="grid size-6 shrink-0 place-items-center rounded-ctl border"
+            class="grid size-5 shrink-0 place-items-center rounded-ctl border"
             :class="
               done.has(entryKey(e))
                 ? 'border-accent-solid bg-accent-solid text-on-accent'
@@ -461,7 +442,7 @@ onMounted(async () => {
           <div
             v-for="row in metaRows(e)"
             :key="row.id"
-            class="col-span-3 flex min-w-0 items-baseline gap-1.5 pl-13 text-xs"
+            class="col-span-3 flex min-w-0 items-baseline gap-1.5 pl-[52px] text-xs"
           >
             <span class="shrink-0 text-faint">{{ row.label }}</span>
             <span class="min-w-0 text-muted">{{ row.value }}</span>
@@ -469,7 +450,7 @@ onMounted(async () => {
 
           <div
             v-if="e.description && e.description.trim()"
-            class="col-span-3 pl-13 text-xs leading-relaxed text-muted"
+            class="col-span-3 pl-[52px] text-xs leading-relaxed text-muted"
           >
             {{ e.description }}
           </div>
@@ -477,9 +458,8 @@ onMounted(async () => {
       </div>
     </div>
 
-    <!-- ---------- 底部固定危险区 ---------- -->
-    <div class="border-t border-line bg-canvas p-3">
-      <Btn variant="danger" class="w-full" @click="confirmClear">
+    <div class="border-t border-line bg-canvas p-2">
+      <Btn variant="danger" class="w-full" size="sm" @click="confirmClear">
         <template #icon><Icon name="ui.trash" size="sm" /></template>
         清空全部记录
       </Btn>
@@ -488,7 +468,7 @@ onMounted(async () => {
     <Modal
       v-model="clearOpen"
       title="清空完成记录"
-      :message="`确定清空所有完成标记吗？共 ${done.size} 条。\n\n建议先「导出存档」备份进度，清空后无法恢复。`"
+      :message="`确定清空所有完成标记吗？共 ${done.size} 条。建议先导出存档备份进度，清空后无法恢复。`"
       confirm-text="确认清空"
       danger
       persistent
