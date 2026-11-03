@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import Btn from '../components/Btn.vue'
+import Dropdown from '../components/Dropdown.vue'
 import Field from '../components/Field.vue'
 import Combobox from '../components/Combobox.vue'
 import Modal from '../components/Modal.vue'
@@ -570,14 +571,15 @@ onBeforeUnmount(() => {
             <input
               v-model="search"
               type="text"
-              class="h-9 w-full min-w-0 rounded-ctl border border-line-2 bg-surface pl-8 pr-8 text-xs text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent-soft"
+              class="h-9 w-full min-w-0 rounded-ctl border border-line-2 bg-surface pl-8 pr-8 text-xs text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
               placeholder="搜索角色名 / 旅闻名"
               autocomplete="off"
+              spellcheck="false"
             />
             <button
               v-if="search"
               type="button"
-              class="absolute right-1.5 grid size-6 place-items-center rounded-full text-muted hover:bg-hover"
+              class="absolute right-1.5 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
               aria-label="清除搜索"
               @click="search = ''"
             >
@@ -601,7 +603,7 @@ onBeforeUnmount(() => {
             v-for="e in filteredEntries"
             :key="e.id"
             type="button"
-            class="flex w-full items-center gap-2 rounded-ctl border p-1.5 text-left"
+            class="flex w-full items-center gap-2 rounded-ctl border p-1.5 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
             :class="
               e.id === selectedId
                 ? 'border-accent bg-accent-soft'
@@ -709,8 +711,12 @@ onBeforeUnmount(() => {
                   inputmode="numeric"
                   autocomplete="off"
                   aria-label="id"
-                  class="h-10 w-full min-w-0 rounded-ctl border bg-surface px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-accent-soft"
-                  :class="idInvalid ? 'border-danger' : 'border-line-2'"
+                  class="h-10 w-full min-w-0 rounded-ctl border bg-surface px-3 text-sm text-ink focus-visible:outline-2 focus-visible:outline-offset-1"
+                  :class="
+                    idInvalid
+                      ? 'border-danger focus-visible:outline-danger'
+                      : 'border-line-2 focus-visible:outline-accent'
+                  "
                   @input="commitId"
                 />
                 <Btn class="shrink-0" @click="moveEntry(-1)">
@@ -779,7 +785,7 @@ onBeforeUnmount(() => {
               <input
                 v-model="entry.hidden"
                 type="checkbox"
-                class="size-4 shrink-0"
+                class="size-4 shrink-0 accent-accent focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
                 @change="markDirty"
               />
               <span class="text-xs text-ink">标记为隐藏旅闻（主界面红色）</span>
