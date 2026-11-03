@@ -315,7 +315,7 @@ onMounted(async () => {
           <input
             v-model="search"
             type="text"
-            class="h-9 w-full min-w-0 rounded-ctl border border-line-2 bg-surface pl-8 pr-8 text-xs text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent-soft"
+            class="h-9 w-full min-w-0 rounded-ctl border border-line-2 bg-surface pl-8 pr-8 text-xs text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
             placeholder="搜索角色名 / 旅闻名"
             autocomplete="off"
             spellcheck="false"
@@ -356,7 +356,7 @@ onMounted(async () => {
           inputmode="numeric"
           maxlength="15"
           spellcheck="false"
-          class="h-9 w-24 shrink-0 rounded-ctl border border-line-2 bg-surface px-2.5 text-center text-xs text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent-soft"
+          class="h-9 w-24 shrink-0 rounded-ctl border border-line-2 bg-surface px-2.5 text-center text-xs text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
           @input="onUidInput($event.target.value)"
         />
         <div class="flex flex-1 justify-end gap-1.5">
