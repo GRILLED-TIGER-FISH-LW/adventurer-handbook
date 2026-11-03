@@ -1,7 +1,6 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
 import Btn from '../components/Btn.vue'
-import Field from '../components/Field.vue'
 import Dropdown from '../components/Dropdown.vue'
 import Modal from '../components/Modal.vue'
 import Icon from '../components/Icon.vue'
@@ -424,16 +423,17 @@ onMounted(async () => {
 <template>
   <div class="grid h-full grid-rows-[auto_minmax(0,1fr)_auto]">
     <header class="flex items-center gap-2 border-b border-line bg-canvas p-2">
-      <div class="w-24 shrink-0">
-        <Field
-          :model-value="uid"
-          aria-label="UID"
-          placeholder="UID"
-          inputmode="numeric"
-          maxlength="15"
-          @update:model-value="onUidInput"
-        />
-      </div>
+      <input
+        :value="uid"
+        type="text"
+        aria-label="UID"
+        placeholder="UID"
+        inputmode="numeric"
+        maxlength="15"
+        spellcheck="false"
+        class="h-9 w-24 shrink-0 rounded-ctl border border-line-2 bg-surface px-2.5 text-center text-xs text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent-soft"
+        @input="onUidInput($event.target.value)"
+      />
       <div class="flex flex-1 justify-end gap-1.5">
         <Btn size="sm" @click="exportArchive">
           <template #icon><Icon name="ui.export" size="sm" /></template>
@@ -484,9 +484,10 @@ onMounted(async () => {
             <input
               v-model="charSearch"
               type="text"
-              class="h-8 w-full min-w-0 rounded-ctl border border-line-2 bg-surface px-2.5 text-xs text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent-soft"
+              class="h-9 w-full min-w-0 rounded-ctl border border-line-2 bg-surface px-2.5 text-xs text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent-soft"
               placeholder="搜索角色"
               autocomplete="off"
+              spellcheck="false"
             />
 
             <div class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-1.5">
@@ -498,7 +499,7 @@ onMounted(async () => {
                 :class="
                   owned.includes(name)
                     ? 'border-accent bg-accent-soft'
-                    : 'border-line bg-surface opacity-60'
+                    : 'border-line bg-surface opacity-50'
                 "
                 :aria-pressed="owned.includes(name)"
                 :title="name"
@@ -588,7 +589,7 @@ onMounted(async () => {
               </button>
 
               <div v-if="expandedKeys.has(s.key)" class="grid gap-1.5 border-t border-line p-1.5">
-                <div class="grid grid-cols-[repeat(auto-fill,minmax(44px,1fr))] gap-1">
+                <div class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-1.5">
                   <button
                     v-for="name in cardMap.get(s.key)?.chars || []"
                     :key="`${s.key}-${name}`"
@@ -606,7 +607,7 @@ onMounted(async () => {
                     @click="toggleSetChar(s, name)"
                   >
                     <span
-                      class="relative grid size-7 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
+                      class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
                     >
                       <span aria-hidden="true">{{ name.charAt(0) }}</span>
                       <img
@@ -658,6 +659,7 @@ onMounted(async () => {
                 class="h-9 w-full min-w-0 rounded-ctl border border-line-2 bg-surface pl-8 pr-8 text-xs text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent-soft"
                 placeholder="搜索套装名 / 角色名"
                 autocomplete="off"
+                spellcheck="false"
               />
               <button
                 v-if="search"
@@ -740,7 +742,7 @@ onMounted(async () => {
                 <div v-if="!cardMap.get(s.key)?.chars.length" class="p-1.5 text-xs text-muted">
                   无偏好角色数据
                 </div>
-                <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(44px,1fr))] gap-1">
+                <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-1.5">
                   <button
                     v-for="name in cardMap.get(s.key).chars"
                     :key="`${s.key}-${name}`"
@@ -758,7 +760,7 @@ onMounted(async () => {
                     @click="toggleSetChar(s, name)"
                   >
                     <span
-                      class="relative grid size-7 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
+                      class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
                     >
                       <span aria-hidden="true">{{ name.charAt(0) }}</span>
                       <img
