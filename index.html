@@ -29,11 +29,11 @@
       })();
     </script>
 
-    <!-- 版本错配守卫：新部署后旧 HTML 引用的 JS 已不存在时，自动带时间戳重载一次 -->
+    <!-- 加载守卫：脚本没起来时自动带时间戳重载一次，并把实际路径打出来 -->
     <script>
       (function () {
         var FLAG = "ah-recover-at";
-        var app = document.getElementById("app");
+        var failed = [];
 
         function lastTry() {
           try {
@@ -48,38 +48,50 @@
           return el && el.children.length === 0 && !el.dataset.fatal;
         }
 
-        function note(msg) {
+        function note() {
           var el = document.getElementById("app");
           if (!el || el.dataset.fatal) return;
           el.dataset.fatal = "1";
+
+          var scripts = [];
+          for (var i = 0; i < document.scripts.length; i++) {
+            scripts.push("  " + (document.scripts[i].src || "(内联)"));
+          }
+
+          var lines = [
+            "页面未能加载。",
+            "",
+            "当前地址：",
+            "  " + location.href,
+            "",
+            "这个 HTML 引用的脚本：",
+          ]
+            .concat(scripts)
+            .concat([
+              "",
+              "加载失败的脚本：",
+              failed.length ? "  " + failed.join("\n  ") : "  （没有捕获到失败事件）",
+              "",
+              "如果你的脚本路径里没有 /adventurer-handbook/，说明打包的 base 配错了。",
+              "如果路径正确但仍然失败，说明文件没有真正部署上去。",
+              "",
+              "请截图本页反馈。",
+            ]);
+
           var pre = document.createElement("pre");
           pre.style.cssText =
             "position:fixed;inset:0;z-index:99999;margin:0;padding:16px;overflow:auto;" +
             "background:#181715;color:#f5f0e8;font:12px/1.7 ui-monospace,monospace;" +
             "white-space:pre-wrap;word-break:break-word";
-          pre.textContent = msg;
+          pre.textContent = lines.join("\n");
           el.appendChild(pre);
         }
 
         function recover() {
           if (!isBlank()) return;
-          var since = Date.now() - lastTry();
-          /* 30 秒内只自动重试一次，避免死循环 */
-          if (since < 30000) {
-            note(
-              [
-                "页面未能加载。",
-                "",
-                "这通常是刚发布新版本后的缓存错配，GitHub Pages 的 HTML 缓存约 10 分钟。",
-                "",
-                "请任选一种：",
-                "1. 等 5 到 10 分钟后重新打开",
-                "2. 在网址后面加 ?t=1 再打开，例如：",
-                "   …/adventurer-handbook/?t=1",
-                "",
-                "如果长时间一直这样，请截图本页反馈。",
-              ].join("\n"),
-            );
+
+          if (Date.now() - lastTry() < 30000) {
+            note();
             return;
           }
 
@@ -91,16 +103,17 @@
           location.replace(base + "?t=" + Date.now() + location.hash);
         }
 
-        /* 模块脚本加载失败 */
         window.addEventListener(
           "error",
           function (e) {
-            if (e.target && e.target.tagName === "SCRIPT") recover();
+            if (e.target && e.target.tagName === "SCRIPT") {
+              failed.push(e.target.src || "(内联)");
+              recover();
+            }
           },
           true,
         );
 
-        /* 4 秒还没渲染出内容 */
         setTimeout(recover, 4000);
       })();
     </script>
