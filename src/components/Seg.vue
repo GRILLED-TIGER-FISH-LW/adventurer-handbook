@@ -14,12 +14,12 @@ const model = defineModel({ type: String, default: '' })
 const uid = useId()
 const groupName = computed(() => `seg-${uid}`)
 
-/* 外层 40px（移动）/ 36px（桌面），与 Btn、Field 同一条密度线 */
+/* 内层 32px + 外层 p-1×2 = 40px 恒定，与表单里的 Field 同高 */
 const itemClass = computed(() => [
   'grid place-items-center rounded-ctl px-3',
   'text-xs font-medium text-muted',
   'transition-shadow duration-150 ease-spring',
-  'h-8 sm:h-7',
+  'h-8',
   'peer-checked:bg-surface peer-checked:text-ink peer-checked:shadow-panel',
   'peer-focus-visible:outline-2 peer-focus-visible:outline-offset-1 peer-focus-visible:outline-accent',
   'peer-disabled:opacity-50',
