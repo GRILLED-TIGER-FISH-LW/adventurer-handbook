@@ -14,14 +14,14 @@ const model = defineModel({ type: String, default: '' })
 const uid = useId()
 const groupName = computed(() => `seg-${uid}`)
 
-/* 40px（移动）/ 36px（桌面），与 Btn、Field 同一条密度线 */
+/* 外层 40px（移动）/ 36px（桌面），与 Btn、Field 同一条密度线 */
 const itemClass = computed(() => [
   'grid place-items-center rounded-ctl px-3',
   'text-xs font-medium text-muted',
   'transition-shadow duration-150 ease-spring',
   'h-8 sm:h-7',
   'peer-checked:bg-surface peer-checked:text-ink peer-checked:shadow-panel',
-  'peer-focus-visible:ring-2 peer-focus-visible:ring-accent',
+  'peer-focus-visible:outline-2 peer-focus-visible:outline-offset-1 peer-focus-visible:outline-accent',
   'peer-disabled:opacity-50',
   props.full ? 'min-w-0 flex-1' : 'shrink-0',
 ])
