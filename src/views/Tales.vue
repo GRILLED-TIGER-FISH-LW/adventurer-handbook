@@ -1,7 +1,6 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
 import Btn from '../components/Btn.vue'
-import Field from '../components/Field.vue'
 import Dropdown from '../components/Dropdown.vue'
 import Modal from '../components/Modal.vue'
 import Icon from '../components/Icon.vue'
@@ -242,7 +241,7 @@ function doClear() {
 }
 
 function onUidInput(val) {
-  const cleaned = val.replace(/\D/g, '')
+  const cleaned = val.replace(/\D/g, '').slice(0, 15)
   uid.value = cleaned
   try {
     if (cleaned) localStorage.setItem(UID_KEY, cleaned)
@@ -349,16 +348,17 @@ onMounted(async () => {
       </div>
 
       <div class="flex items-center gap-2">
-        <div class="w-24 shrink-0">
-          <Field
-            :model-value="uid"
-            aria-label="UID"
-            placeholder="UID"
-            inputmode="numeric"
-            maxlength="15"
-            @update:model-value="onUidInput"
-          />
-        </div>
+        <input
+          :value="uid"
+          type="text"
+          aria-label="UID"
+          placeholder="UID"
+          inputmode="numeric"
+          maxlength="15"
+          spellcheck="false"
+          class="h-9 w-24 shrink-0 rounded-ctl border border-line-2 bg-surface px-2.5 text-center text-xs text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent-soft"
+          @input="onUidInput($event.target.value)"
+        />
         <div class="flex flex-1 justify-end gap-1.5">
           <Btn size="sm" @click="exportArchive">
             <template #icon><Icon name="ui.export" size="sm" /></template>
@@ -380,7 +380,7 @@ onMounted(async () => {
     </header>
 
     <div class="min-h-0 overflow-y-auto p-2">
-      <div v-if="loading" class="p-4 text-sm text-muted">正在加载旅闻数据…</div>
+      <div v-if="loading" class="p-3 text-sm text-muted">正在加载旅闻数据…</div>
 
       <div v-else-if="errorMsg" class="grid justify-items-center gap-3 p-8 text-center">
         <p class="text-sm font-semibold text-danger">数据加载失败</p>
@@ -401,7 +401,7 @@ onMounted(async () => {
           :aria-checked="row.isDone"
           :aria-label="`${row.e.character} ${row.e.version} ${row.e.title}`"
           tabindex="0"
-          class="grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2.5 gap-y-1 rounded-panel border p-2.5"
+          class="grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2.5 gap-y-1 rounded-panel border p-2.5 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
           :class="
             row.isDone
               ? 'border-line-3 bg-sunken/50 opacity-70'
