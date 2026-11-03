@@ -10,7 +10,17 @@
 
 [开始使用](#start) · [游逸旅闻](#tales) · [赠礼套装](#giftset) · [数据保存](#save) · [常见问题](#faq) · [项目结构](#structure)
 
-</div>
+---
+
+## 📑 页面导航
+
+| 功能 | 打开 |
+|---|---|
+| 首页 | [打开](https://grilled-tiger-fish-lw.github.io/adventurer-handbook/) |
+| 游逸旅闻 · 查询旅闻与记录完成进度 | [打开](https://grilled-tiger-fish-lw.github.io/adventurer-handbook/#/tales) |
+| 尘歌壶赠礼套装 · 查询套装与记录送出进度 | [打开](https://grilled-tiger-fish-lw.github.io/adventurer-handbook/#/gift-set) |
+| 游逸旅闻编辑器 · 维护旅闻数据（内部用） | [打开](https://grilled-tiger-fish-lw.github.io/adventurer-handbook/#/tales-editor) |
+| 尘歌壶赠礼套装编辑器 · 维护套装数据（内部用） | [打开](https://grilled-tiger-fish-lw.github.io/adventurer-handbook/#/gift-set-editor) |
 
 ---
 
