@@ -217,18 +217,13 @@ const idInvalid = computed(() => {
 
 const sortedChars = computed(() => {
   const list = entry.value?.preferredCharacters || []
-  return list
-    .slice()
-    .sort((a, b) => (orderMap.get(a) ?? 9999) - (orderMap.get(b) ?? 9999))
+  return list.slice().sort((a, b) => (orderMap.get(a) ?? 9999) - (orderMap.get(b) ?? 9999))
 })
 
 const charSuggestions = computed(() => {
   const chosen = entry.value?.preferredCharacters || []
   return charList.value.filter((n) => !chosen.includes(n))
 })
-
-const urlValue = computed(() => (entry.value ? setImageUrl(entry.value) : ''))
-const keyHint = computed(() => (entry.value?.key ? `key: ${entry.value.key}` : ''))
 
 const previewSub = computed(() => {
   const e = entry.value
@@ -508,8 +503,7 @@ function startExport() {
     if (!s.name) list.push(`id ${s.id} 缺少名称`)
     if (!s.region) list.push(`id ${s.id} 缺少地区`)
     else if (!regionSet.has(s.region)) list.push(`id ${s.id} 地区「${s.region}」不在地区列表中`)
-    if (s.type !== 'exterior' && s.type !== 'interior')
-      list.push(`id ${s.id} 类型不是室内/室外`)
+    if (s.type !== 'exterior' && s.type !== 'interior') list.push(`id ${s.id} 类型不是室内/室外`)
   }
   warnings.value = list
   if (list.length) exportOpen.value = true
@@ -618,7 +612,7 @@ function recognizeUrl() {
   tryApplyUrl(v)
 }
 
-/* ---------- 偏好角色 chips ---------- */
+/* ---------- 偏好角色 ---------- */
 const hasSeparator = (q) => CHAR_SPLIT_TEST.test(q || '')
 
 function removeChar(name) {
@@ -688,13 +682,14 @@ watch(charQuery, (v) => {
 })
 
 function onCharEnter() {
-  if (hasSeparator(charQuery.value)) commitChars(true)
-  else if (charQuery.value.trim()) {
-    const name = charQuery.value.trim()
-    if (name && charKeySet.has(name)) {
-      addChar(name)
-      charQuery.value = ''
-    }
+  if (hasSeparator(charQuery.value)) {
+    commitChars(true)
+    return
+  }
+  const name = charQuery.value.trim()
+  if (name && charKeySet.has(name)) {
+    addChar(name)
+    charQuery.value = ''
   }
 }
 
@@ -1019,28 +1014,38 @@ onBeforeUnmount(() => {
               @update:model-value="markDirty"
             />
 
+            <!-- 室内 / 室外：只占内容宽度 -->
             <div class="grid gap-1.5">
               <span class="text-xs font-medium text-muted">室内 / 室外</span>
-              <Seg v-model="entry.type" :options="typeOptions" @update:model-value="markDirty" />
+              <Seg
+                v-model="entry.type"
+                :options="typeOptions"
+                class="justify-self-start"
+                @update:model-value="markDirty"
+              />
             </div>
 
             <!-- 偏好角色 -->
             <div class="grid gap-1.5">
               <span class="text-xs font-medium text-muted">
-                偏好角色 · 支持逗号 / 空格 / 顿号批量输入；显示按 order 升序
+                偏好角色 · 支持逗号 / 空格 / 顿号批量输入，点格子可移除
               </span>
 
               <div
                 v-if="sortedChars.length"
-                class="flex flex-wrap items-center gap-1.5 rounded-ctl border border-line-2 bg-sunken p-1.5"
+                class="grid grid-cols-[repeat(auto-fill,minmax(46px,1fr))] gap-1.5 rounded-ctl border border-line-2 bg-sunken p-1.5"
               >
-                <span
+                <button
                   v-for="name in sortedChars"
                   :key="name"
-                  class="flex h-8 items-center gap-1.5 rounded-full border border-line bg-surface pr-1.5 pl-1"
+                  type="button"
+                  class="grid cursor-pointer justify-items-center gap-0.5 rounded-ctl border border-line bg-surface p-1 hover:border-danger"
+                  :title="`移除 ${name}`"
+                  :aria-label="`移除 ${name}`"
+                  @click="removeChar(name)"
                 >
                   <span
-                    class="relative grid size-6 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
+                    class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
                   >
                     <span aria-hidden="true">{{ name.charAt(0) }}</span>
                     <img
@@ -1052,16 +1057,10 @@ onBeforeUnmount(() => {
                       @error="onImgError"
                     />
                   </span>
-                  <span class="max-w-24 truncate text-xs text-ink">{{ name }}</span>
-                  <button
-                    type="button"
-                    class="grid size-5 place-items-center rounded-full text-muted hover:bg-hover"
-                    :aria-label="`移除 ${name}`"
-                    @click="removeChar(name)"
-                  >
-                    <Icon name="ui.close" size="sm" />
-                  </button>
-                </span>
+                  <span class="w-full truncate text-center text-[10px] text-muted">
+                    {{ name }}
+                  </span>
+                </button>
               </div>
 
               <Combobox
