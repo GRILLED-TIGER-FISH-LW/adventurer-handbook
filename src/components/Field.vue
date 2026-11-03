@@ -34,18 +34,18 @@ const len = computed(() => (model.value ?? '').length)
 const isNumber = computed(() => props.type === 'number')
 
 /* 输入框比按钮高一档：40px vs 36px（桌面），移动端两者都 40px。
-   焦点用 box-shadow 环（可过渡），边框变色瞬时 —— 不做颜色过渡 */
+   焦点环用 outline（全站统一），错误态换成红色；边框变色瞬时 —— 不做颜色过渡 */
 const fieldClass = computed(() => [
   'w-full min-w-0 rounded-ctl border bg-surface px-3 text-sm text-ink',
   'placeholder:text-muted',
-  'transition-shadow duration-150 ease-spring',
+  'transition-colors duration-150 ease-spring',
   'hover:border-line-3',
-  'focus:outline-none focus:ring-2',
+  'focus-visible:outline-2 focus-visible:outline-offset-1',
   'disabled:pointer-events-none disabled:opacity-50 disabled:bg-sunken',
   'readonly:bg-sunken',
   props.error
-    ? 'border-danger focus:border-danger focus:ring-danger-soft'
-    : 'border-line-2 focus:border-accent focus:ring-accent-soft',
+    ? 'border-danger focus-visible:outline-danger'
+    : 'border-line-2 focus-visible:border-accent focus-visible:outline-accent',
   isTextarea.value ? 'resize-none py-2 leading-relaxed' : 'h-10',
   isNumber.value
     ? '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none'
