@@ -686,8 +686,12 @@ onMounted(async () => {
             <article
               v-for="s in filteredSets"
               :key="s.key"
-              class="rounded-panel border bg-surface"
-              :class="cardMap.get(s.key)?.progress.completed ? 'border-accent' : 'border-line'"
+              class="rounded-panel border"
+              :class="
+                cardMap.get(s.key)?.progress.completed
+                  ? 'border-accent bg-sunken/50 opacity-70'
+                  : 'border-line bg-surface'
+              "
             >
               <button
                 type="button"
