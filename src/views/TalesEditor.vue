@@ -25,6 +25,7 @@ const search = ref('')
 const versionFilter = ref('all')
 const visibilityFilter = ref('all')
 const dirty = ref(false)
+/* 窄屏当前显示哪一栏：'list' | 'form' */
 const mobilePane = ref('list')
 
 const idInput = ref('')
@@ -78,18 +79,20 @@ function versionIndexOf() {
   return m
 }
 
+function compareBy(a, b, vi) {
+  const oa = orderMap.get(a.character) ?? 9999
+  const ob = orderMap.get(b.character) ?? 9999
+  if (oa !== ob) return oa - ob
+  const va = vi.get(a.version) ?? 9999
+  const vb = vi.get(b.version) ?? 9999
+  if (va !== vb) return va - vb
+  return (a.id ?? 0) - (b.id ?? 0)
+}
+
 const sortedAll = computed(() => {
   if (!data.value) return []
   const vi = versionIndexOf()
-  return data.value.entries.slice().sort((a, b) => {
-    const oa = orderMap.get(a.character) ?? 9999
-    const ob = orderMap.get(b.character) ?? 9999
-    if (oa !== ob) return oa - ob
-    const va = vi.get(a.version) ?? 9999
-    const vb = vi.get(b.version) ?? 9999
-    if (va !== vb) return va - vb
-    return (a.id ?? 0) - (b.id ?? 0)
-  })
+  return data.value.entries.slice().sort((a, b) => compareBy(a, b, vi))
 })
 
 const filteredEntries = computed(() => {
@@ -107,15 +110,7 @@ const filteredEntries = computed(() => {
       }
       return true
     })
-    .sort((a, b) => {
-      const oa = orderMap.get(a.character) ?? 9999
-      const ob = orderMap.get(b.character) ?? 9999
-      if (oa !== ob) return oa - ob
-      const va = vi.get(a.version) ?? 9999
-      const vb = vi.get(b.version) ?? 9999
-      if (va !== vb) return va - vb
-      return (a.id ?? 0) - (b.id ?? 0)
-    })
+    .sort((a, b) => compareBy(a, b, vi))
 })
 
 const entry = computed(() => {
@@ -195,7 +190,7 @@ function parseDataJs(text) {
 }
 
 function serializeData(d) {
-  /* 用副本，避免「导出」顺手改动草稿内容 */
+  /* 用副本，避免「导出」顺手改动草稿 */
   const versions = d.versions.slice()
   const versionSet = new Set(versions)
   for (const e of d.entries) {
@@ -289,9 +284,11 @@ function applyData(d) {
   data.value = d
   data.value.versions ||= []
   data.value.meta ||= {}
+  /* 选中项失效就清空，并把窄屏切回列表，避免停在空表单 */
   if (selectedId.value != null && !d.entries.some((x) => x.id === selectedId.value)) {
     selectedId.value = null
     isNew.value = false
+    mobilePane.value = 'list'
   }
 }
 
@@ -300,6 +297,10 @@ async function fetchOnline() {
   const res = await fetch(url, { cache: 'no-store' })
   if (!res.ok) throw new Error('HTTP ' + res.status)
   return parseDataJs(await res.text())
+}
+
+function backToList() {
+  mobilePane.value = 'list'
 }
 
 /* ---------- 操作 ---------- */
@@ -384,6 +385,7 @@ async function doReload() {
     applyData(await fetchOnline())
     selectedId.value = null
     isNew.value = false
+    mobilePane.value = 'list'
     clearDirty()
     clearDraft()
     toast.success(`已重载 ${entryCount.value} 条`)
@@ -401,6 +403,7 @@ function onImportFile(ev) {
       applyData(parseDataJs(reader.result))
       selectedId.value = null
       isNew.value = false
+      mobilePane.value = 'list'
       clearDirty()
       saveDraft()
       toast.success(`已导入 ${entryCount.value} 条`)
@@ -451,7 +454,7 @@ function runExport() {
   toast.success('已导出 data.js')
 }
 
-/* 输入新版本自动并入列表，不用手动选 */
+/* 输入新版本自动并入列表 */
 function onVersionInput() {
   const v = entry.value?.version
   if (v && data.value && !data.value.versions.includes(v)) data.value.versions.push(v)
@@ -484,9 +487,7 @@ onMounted(async () => {
         }
         if (url) avatarMap.set(item.name, url)
       }
-      charList.value = tmp
-        .sort((a, b) => a.order - b.order)
-        .map((x) => x.name)
+      charList.value = tmp.sort((a, b) => a.order - b.order).map((x) => x.name)
     }
 
     const draft = loadDraft()
@@ -498,7 +499,7 @@ onMounted(async () => {
       try {
         applyData(await fetchOnline())
       } catch (err) {
-        toast.error('数据加载失败：' + err.message + '，可用「导入」')
+        toast.error(`数据加载失败：${err.message}，可用「导入」`)
       }
     }
 
@@ -517,7 +518,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="grid h-full grid-rows-[auto_minmax(0,1fr)]">
+  <div class="grid h-full grid-rows-[auto_minmax(0,1fr)_auto]">
     <!-- 工具条 -->
     <div class="flex items-center gap-2 border-b border-line bg-canvas p-2">
       <span
@@ -530,7 +531,7 @@ onBeforeUnmount(() => {
         {{ data ? `${entryCount} 条` : '数据未加载' }}
       </span>
 
-      <div class="flex min-w-0 flex-1"></div>
+      <div class="min-w-0 flex-1"></div>
 
       <Btn size="sm" @click="reloadOpen = true">
         <template #icon><Icon name="ui.reload" size="sm" /></template>
@@ -556,8 +557,8 @@ onBeforeUnmount(() => {
     <main class="grid min-h-0 grid-cols-1 min-[900px]:grid-cols-[20rem_minmax(0,1fr)]">
       <!-- 左：列表 -->
       <aside
-        class="flex min-h-0 flex-col border-line bg-surface-2 min-[900px]:border-r"
-        :class="mobilePane === 'form' ? 'hidden min-[900px]:flex' : 'flex'"
+        class="flex min-h-0 flex-col bg-surface-2"
+        :class="[mobilePane === 'form' ? 'hidden min-[900px]:flex' : 'flex', 'border-line min-[900px]:border-r']"
       >
         <div class="grid shrink-0 gap-1.5 border-b border-line p-2">
           <div class="relative flex items-center">
@@ -590,15 +591,17 @@ onBeforeUnmount(() => {
           </div>
         </div>
 
-        <div class="min-h-0 flex-1 overflow-y-auto p-1.5">
+        <div class="grid min-h-0 flex-1 content-start gap-1 overflow-y-auto p-1.5">
           <p v-if="!data" class="p-3 text-xs text-muted">数据未加载，点「重载」或「导入」</p>
-          <p v-else-if="!filteredEntries.length" class="p-3 text-xs text-muted">没有匹配的条目</p>
+          <p v-else-if="!filteredEntries.length" class="p-3 text-xs text-muted">
+            没有匹配的条目
+          </p>
 
           <button
             v-for="e in filteredEntries"
             :key="e.id"
             type="button"
-            class="mb-0 flex w-full items-center gap-2 rounded-ctl border p-1.5 text-left"
+            class="flex w-full items-center gap-2 rounded-ctl border p-1.5 text-left"
             :class="
               e.id === selectedId
                 ? 'border-accent bg-accent-soft'
@@ -650,50 +653,56 @@ onBeforeUnmount(() => {
         class="min-h-0 overflow-y-auto p-3"
         :class="mobilePane === 'list' ? 'hidden min-[900px]:block' : 'block'"
       >
-        <p v-if="loading" class="text-sm text-muted">正在载入…</p>
-
-        <div v-else-if="!data" class="grid justify-items-center gap-3 p-8 text-center">
-          <Icon name="ui.file" size="lg" class="text-faint" />
-          <p class="text-sm text-muted">数据未加载，请点右上角「重载」或「导入」</p>
-        </div>
-
-        <p v-else-if="!entry" class="text-sm text-muted">
-          从左侧选择条目开始编辑，或点「新增」
-        </p>
-
-        <div v-else class="grid gap-3">
-          <Btn size="sm" class="justify-self-start min-[900px]:hidden" @click="mobilePane = 'list'">
+        <div class="grid gap-3">
+          <!-- 返回按钮常驻，任何状态都能回列表 -->
+          <Btn
+            v-if="mobilePane === 'form'"
+            size="sm"
+            class="justify-self-start min-[900px]:hidden"
+            @click="backToList"
+          >
             <template #icon><Icon name="ui.back" size="sm" /></template>
             返回列表
           </Btn>
 
-          <!-- 标题区 -->
-          <div class="flex items-center gap-2 border-b border-line pb-2">
-            <span
-              class="relative grid size-10 shrink-0 place-items-center overflow-hidden rounded-ctl bg-thumb text-sm font-semibold text-muted"
-            >
-              <span aria-hidden="true">{{ (entry.character || '?').charAt(0) }}</span>
-              <img
-                v-if="avatarUrl(entry.character)"
-                :src="avatarUrl(entry.character)"
-                alt=""
-                class="absolute inset-0 size-full object-cover"
-                @error="(ev) => ev.target.remove()"
-              />
-            </span>
-            <span class="grid min-w-0 flex-1">
-              <span class="truncate text-sm font-semibold text-ink">
-                {{ entry.character || '(未命名角色)' }} · {{ entry.title || '(无标题)' }}
-              </span>
-              <span class="text-xs text-muted">{{ headingSub }}</span>
-            </span>
+          <p v-if="loading" class="text-sm text-muted">正在载入…</p>
+
+          <div v-else-if="!data" class="grid justify-items-center gap-3 p-8 text-center">
+            <Icon name="ui.file" size="lg" class="text-faint" />
+            <p class="text-sm text-muted">数据未加载，请点右上角「重载」或「导入」</p>
           </div>
 
-          <!-- id + 版本 -->
-          <div class="grid grid-cols-1 gap-3 min-[600px]:grid-cols-2">
+          <p v-else-if="!entry" class="text-sm text-muted">
+            从列表选择条目开始编辑，或点「新增」
+          </p>
+
+          <template v-else>
+            <!-- 标题区 -->
+            <div class="flex items-center gap-2 border-b border-line pb-2">
+              <span
+                class="relative grid size-10 shrink-0 place-items-center overflow-hidden rounded-ctl bg-thumb text-sm font-semibold text-muted"
+              >
+                <span aria-hidden="true">{{ (entry.character || '?').charAt(0) }}</span>
+                <img
+                  v-if="avatarUrl(entry.character)"
+                  :src="avatarUrl(entry.character)"
+                  alt=""
+                  class="absolute inset-0 size-full object-cover"
+                  @error="(ev) => ev.target.remove()"
+                />
+              </span>
+              <span class="grid min-w-0 flex-1">
+                <span class="truncate text-sm font-semibold text-ink">
+                  {{ entry.character || '(未命名角色)' }} · {{ entry.title || '(无标题)' }}
+                </span>
+                <span class="text-xs text-muted">{{ headingSub }}</span>
+              </span>
+            </div>
+
+            <!-- id -->
             <div class="grid gap-1.5">
               <span class="text-xs font-medium text-muted">id · 可手动改，需唯一</span>
-              <div class="flex items-center gap-1">
+              <div class="flex items-center gap-1.5">
                 <input
                   v-model="idInput"
                   type="text"
@@ -704,15 +713,18 @@ onBeforeUnmount(() => {
                   :class="idInvalid ? 'border-danger' : 'border-line-2'"
                   @input="commitId"
                 />
-                <Btn square aria-label="id 上移" @click="moveEntry(-1)">
+                <Btn class="shrink-0" @click="moveEntry(-1)">
                   <template #icon><Icon name="ui.arrowUp" size="sm" /></template>
+                  上移
                 </Btn>
-                <Btn square aria-label="id 下移" @click="moveEntry(1)">
+                <Btn class="shrink-0" @click="moveEntry(1)">
                   <template #icon><Icon name="ui.arrowDown" size="sm" /></template>
+                  下移
                 </Btn>
               </div>
             </div>
 
+            <!-- 版本 -->
             <div class="grid gap-1.5">
               <span class="text-xs font-medium text-muted">版本 · 输入新值会自动加入列表</span>
               <Combobox
@@ -723,92 +735,96 @@ onBeforeUnmount(() => {
                 @update:model-value="onVersionInput"
               />
             </div>
-          </div>
 
-          <!-- 角色 -->
-          <div class="grid gap-1.5">
-            <span class="text-xs font-medium text-muted">角色名 · 从字典联想，可自定义</span>
-            <Combobox
-              v-model="entry.character"
-              :items="charList"
-              aria-label="角色名"
-              placeholder="输入角色名"
+            <!-- 角色 -->
+            <div class="grid gap-1.5">
+              <span class="text-xs font-medium text-muted">角色名 · 从字典联想，可自定义</span>
+              <Combobox
+                v-model="entry.character"
+                :items="charList"
+                aria-label="角色名"
+                placeholder="输入角色名"
+                @update:model-value="markDirty"
+              >
+                <template #prefix>
+                  <span
+                    class="pointer-events-none absolute left-1.5 grid size-7 place-items-center overflow-hidden rounded-ctl border border-line bg-surface text-[10px] font-semibold text-muted"
+                  >
+                    <span aria-hidden="true">{{ (entry.character || '?').charAt(0) }}</span>
+                    <img
+                      v-if="avatarUrl(entry.character)"
+                      :src="avatarUrl(entry.character)"
+                      alt=""
+                      class="absolute inset-0 size-full object-cover"
+                      @error="(ev) => ev.target.remove()"
+                    />
+                  </span>
+                </template>
+              </Combobox>
+              <p v-if="showCharWarn" class="text-xs text-danger">
+                字典中无此角色，主界面将显示首字占位
+              </p>
+            </div>
+
+            <Field
+              v-model="entry.title"
+              label="旅闻名"
+              placeholder="旅闻标题"
               @update:model-value="markDirty"
-            >
-              <template #prefix>
-                <span
-                  class="pointer-events-none absolute left-1.5 grid size-7 place-items-center overflow-hidden rounded-ctl border border-line bg-surface text-[10px] font-semibold text-muted"
-                >
-                  <span aria-hidden="true">{{ (entry.character || '?').charAt(0) }}</span>
-                  <img
-                    v-if="avatarUrl(entry.character)"
-                    :src="avatarUrl(entry.character)"
-                    alt=""
-                    class="absolute inset-0 size-full object-cover"
-                    @error="(ev) => ev.target.remove()"
-                  />
-                </span>
-              </template>
-            </Combobox>
-            <p v-if="showCharWarn" class="text-xs text-danger">
-              字典中无此角色，主界面将显示首字占位
-            </p>
-          </div>
-
-          <Field
-            v-model="entry.title"
-            label="旅闻名"
-            placeholder="旅闻标题"
-            @update:model-value="markDirty"
-          />
-
-          <label
-            class="flex h-10 w-fit cursor-pointer items-center gap-2 rounded-ctl border border-line-2 bg-sunken px-3"
-          >
-            <input
-              v-model="entry.hidden"
-              type="checkbox"
-              class="size-4 shrink-0"
-              @change="markDirty"
             />
-            <span class="text-xs text-ink">标记为隐藏旅闻（主界面红色）</span>
-          </label>
 
-          <Field
-            v-model="entry.location"
-            label="地点"
-            placeholder="如 蒙德-晨曦酒庄"
-            @update:model-value="markDirty"
-          />
+            <label
+              class="flex h-10 w-fit cursor-pointer items-center gap-2 rounded-ctl border border-line-2 bg-sunken px-3"
+            >
+              <input
+                v-model="entry.hidden"
+                type="checkbox"
+                class="size-4 shrink-0"
+                @change="markDirty"
+              />
+              <span class="text-xs text-ink">标记为隐藏旅闻（主界面红色）</span>
+            </label>
 
-          <Field
-            v-model="entry.trigger"
-            label="触发条件"
-            placeholder="留空则不显示"
-            @update:model-value="markDirty"
-          />
+            <Field
+              v-model="entry.location"
+              label="地点"
+              placeholder="如 蒙德-晨曦酒庄"
+              @update:model-value="markDirty"
+            />
 
-          <Field
-            v-model="entry.prerequisite"
-            label="前置旅闻 · 只填旅闻名"
-            placeholder="留空则不显示"
-            @update:model-value="markDirty"
-          />
+            <Field
+              v-model="entry.trigger"
+              label="触发条件"
+              placeholder="留空则不显示"
+              @update:model-value="markDirty"
+            />
 
-          <Field
-            v-model="entry.description"
-            type="textarea"
-            label="描述 · 支持换行"
-            :rows="6"
-            @update:model-value="markDirty"
-          />
+            <Field
+              v-model="entry.prerequisite"
+              label="前置旅闻 · 只填旅闻名"
+              placeholder="留空则不显示"
+              @update:model-value="markDirty"
+            />
 
-          <div class="flex justify-end border-t border-line pt-3">
-            <Btn variant="danger" @click="deleteOpen = true">删除此条</Btn>
-          </div>
+            <Field
+              v-model="entry.description"
+              type="textarea"
+              label="描述 · 支持换行"
+              :rows="6"
+              @update:model-value="markDirty"
+            />
+          </template>
         </div>
       </section>
     </main>
+
+    <!-- 底部固定危险区 -->
+    <div v-if="entry" class="border-t border-line bg-canvas p-2">
+      <Btn variant="danger" class="w-full" @click="deleteOpen = true">
+        <template #icon><Icon name="ui.trash" size="sm" /></template>
+        删除此条
+      </Btn>
+    </div>
 
     <!-- 确认：重载 -->
     <Modal
