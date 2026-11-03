@@ -27,6 +27,12 @@ const routes = [
     component: () => import('./views/TalesEditor.vue'),
     meta: { title: '游逸旅闻编辑器', icon: 'handbook.tales', internal: true },
   },
+  {
+    path: '/gift-set-editor',
+    name: 'giftSetEditor',
+    component: () => import('./views/GiftSetEditor.vue'),
+    meta: { title: '尘歌壶赠礼套装编辑器', icon: 'handbook.giftSet', internal: true },
+  },
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]
 
