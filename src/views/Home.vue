@@ -12,7 +12,7 @@ const tools = router.options.routes.filter((r) => r.meta?.label)
       v-for="t in tools"
       :key="t.path"
       :to="t.path"
-      class="grid content-start gap-2 rounded-panel border border-line bg-surface p-3 hover:bg-hover"
+      class="grid content-start gap-2 rounded-panel border border-line bg-surface p-3 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
     >
       <span
         class="grid size-8 place-items-center rounded-ctl bg-accent-soft text-accent-strong"
