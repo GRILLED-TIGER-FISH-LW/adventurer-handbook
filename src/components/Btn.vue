@@ -11,7 +11,7 @@ const props = defineProps({
     default: 'secondary',
     validator: (v) => ['primary', 'secondary', 'ghost', 'danger'].includes(v),
   },
-  /* md 标准按钮 / sm 紧凑按钮（列表行、卡片角） */
+  /* md 标准按钮 / sm 紧凑按钮（工具栏、列表行、卡片角） */
   size: {
     type: String,
     default: 'md',
@@ -23,10 +23,11 @@ const props = defineProps({
   loading: { type: Boolean, default: false },
 })
 
+/* md 窄屏 40px（配表单/弹窗），宽屏 36px；sm 恒定 36px（配工具栏的输入框/下拉） */
 const MD = 'h-10 px-4 text-sm gap-2 sm:h-9'
-const SM = 'h-9 px-3 text-xs gap-1.5 sm:h-8'
+const SM = 'h-9 px-3 text-xs gap-1.5'
 const MD_SQ = 'size-10 p-0 gap-0 sm:size-9'
-const SM_SQ = 'size-9 p-0 gap-0 sm:size-8'
+const SM_SQ = 'size-9 p-0 gap-0'
 
 const VARIANTS = {
   primary: 'bg-accent-solid text-on-accent hover:bg-accent-hover',
@@ -41,6 +42,7 @@ const rootClass = computed(() => [
   'relative inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-ctl',
   'font-medium select-none',
   'transition-transform duration-100 ease-spring active:scale-[0.98]',
+  'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent',
   'disabled:pointer-events-none disabled:opacity-50',
   VARIANTS[props.variant],
   props.square ? (props.size === 'sm' ? SM_SQ : MD_SQ) : props.size === 'sm' ? SM : MD,
