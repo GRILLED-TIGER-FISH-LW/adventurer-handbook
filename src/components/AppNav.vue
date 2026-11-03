@@ -22,7 +22,7 @@ const themeLabel = computed(() =>
     <button
       v-if="showMenu"
       type="button"
-      class="grid size-9 shrink-0 place-items-center rounded-ctl border border-line-2 bg-surface text-ink"
+      class="grid size-9 shrink-0 place-items-center rounded-ctl border border-line-2 bg-surface text-ink hover:border-line-3 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
       aria-label="打开菜单"
       @click="$emit('open-menu')"
     >
@@ -41,7 +41,7 @@ const themeLabel = computed(() =>
 
     <button
       type="button"
-      class="grid size-9 shrink-0 place-items-center rounded-ctl border border-line-2 bg-surface text-ink"
+      class="grid size-9 shrink-0 place-items-center rounded-ctl border border-line-2 bg-surface text-ink hover:border-line-3 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
       :aria-label="themeLabel"
       @click="toggleTheme"
     >
