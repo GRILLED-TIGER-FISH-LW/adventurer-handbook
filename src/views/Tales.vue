@@ -323,7 +323,7 @@ onMounted(async () => {
           <button
             v-if="search"
             type="button"
-            class="absolute right-1.5 grid size-6 place-items-center rounded-full text-muted hover:bg-hover"
+            class="absolute right-1.5 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
             aria-label="清除搜索"
             @click="search = ''"
           >
