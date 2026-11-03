@@ -123,7 +123,7 @@ function labelOf(it) {
         :placeholder="placeholder || undefined"
         autocomplete="off"
         spellcheck="false"
-        class="h-10 w-full min-w-0 rounded-ctl border border-line-2 bg-surface px-3 text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent-soft"
+        class="h-10 w-full min-w-0 rounded-ctl border border-line-2 bg-surface px-3 text-sm text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
         :class="$slots.prefix && 'pl-11'"
         @focus="onFocus"
         @input="onInput"
