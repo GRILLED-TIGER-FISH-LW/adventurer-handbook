@@ -116,6 +116,13 @@ https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-dict.
 - **导出 / 序列化必须只读**：用数据副本，不改动编辑中的对象。
 - 表单输入**输入即生效**，不要「必须选中某项才落值」，否则界面显示值与真实值会不一致。
 
+### 焦点样式（全站统一，只有一种）
+所有可聚焦控件一律：`focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent`
+- 唯一例外：容器会裁剪 outline 的（如 `Tabs` 的 `overflow-x-auto`）用 `focus-visible:-outline-offset-2` 画成内描边
+- 错误态换色：`focus-visible:outline-danger`（配 `border-danger`）
+- 程序化聚焦的对话框容器（`Modal` 面板、`AppDrawer` 抽屉）用 `focus:outline-none`，故意不画环
+- 不再使用 `focus:ring-*` / `ring-accent-soft`（12% 透明环在实心底上看不见）
+
 ---
 
 ## 五、诊断套路
