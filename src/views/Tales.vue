@@ -403,7 +403,9 @@ onMounted(async () => {
           tabindex="0"
           class="grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2.5 gap-y-1 rounded-panel border p-2.5"
           :class="
-            row.isDone ? 'border-line-3 bg-sunken/60' : 'border-line bg-surface hover:bg-hover'
+            row.isDone
+              ? 'border-line-3 bg-sunken/50 opacity-70'
+              : 'border-line bg-surface hover:bg-hover'
           "
           @click="toggle(row)"
           @keydown.enter.prevent="toggle(row)"
