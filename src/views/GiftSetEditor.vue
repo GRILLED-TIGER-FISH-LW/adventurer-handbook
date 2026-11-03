@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import Btn from '../components/Btn.vue'
+import Dropdown from '../components/Dropdown.vue'
 import Field from '../components/Field.vue'
 import Seg from '../components/Seg.vue'
 import Combobox from '../components/Combobox.vue'
@@ -816,14 +817,15 @@ onBeforeUnmount(() => {
             <input
               v-model="search"
               type="text"
-              class="h-9 w-full min-w-0 rounded-ctl border border-line-2 bg-surface pl-8 pr-8 text-xs text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent-soft"
+              class="h-9 w-full min-w-0 rounded-ctl border border-line-2 bg-surface pl-8 pr-8 text-xs text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
               placeholder="搜索套装名 / 偏好角色"
               autocomplete="off"
+              spellcheck="false"
             />
             <button
               v-if="search"
               type="button"
-              class="absolute right-1.5 grid size-6 place-items-center rounded-full text-muted hover:bg-hover"
+              class="absolute right-1.5 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
               aria-label="清除搜索"
               @click="search = ''"
             >
@@ -847,7 +849,7 @@ onBeforeUnmount(() => {
             v-for="s in sortedSets"
             :key="s.id"
             type="button"
-            class="flex w-full items-center gap-2 rounded-ctl border p-1.5 text-left"
+            class="flex w-full items-center gap-2 rounded-ctl border p-1.5 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
             :class="
               s.id === selectedId
                 ? 'border-accent bg-accent-soft'
@@ -953,8 +955,12 @@ onBeforeUnmount(() => {
                   inputmode="numeric"
                   autocomplete="off"
                   aria-label="id"
-                  class="h-10 w-full min-w-0 rounded-ctl border bg-surface px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-accent-soft"
-                  :class="idInvalid ? 'border-danger' : 'border-line-2'"
+                  class="h-10 w-full min-w-0 rounded-ctl border bg-surface px-3 text-sm text-ink focus-visible:outline-2 focus-visible:outline-offset-1"
+                  :class="
+                    idInvalid
+                      ? 'border-danger focus-visible:outline-danger'
+                      : 'border-line-2 focus-visible:outline-accent'
+                  "
                   @input="commitId"
                 />
                 <Btn class="shrink-0" @click="moveSet(-1)">
@@ -995,8 +1001,12 @@ onBeforeUnmount(() => {
                   autocomplete="off"
                   spellcheck="false"
                   aria-label="套装图 URL"
-                  class="h-10 w-full min-w-0 rounded-ctl border bg-surface px-3 text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent-soft"
-                  :class="urlInvalid ? 'border-danger' : 'border-line-2'"
+                  class="h-10 w-full min-w-0 rounded-ctl border bg-surface px-3 text-sm text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1"
+                  :class="
+                    urlInvalid
+                      ? 'border-danger focus-visible:outline-danger'
+                      : 'border-line-2 focus-visible:outline-accent'
+                  "
                   @blur="onUrlBlur"
                   @keydown="onUrlKeydown"
                 />
@@ -1033,13 +1043,13 @@ onBeforeUnmount(() => {
 
               <div
                 v-if="sortedChars.length"
-                class="grid grid-cols-[repeat(auto-fill,minmax(46px,1fr))] gap-1.5 rounded-ctl border border-line-2 bg-sunken p-1.5"
+                class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-1.5 rounded-ctl border border-line-2 bg-sunken p-1.5"
               >
                 <button
                   v-for="name in sortedChars"
                   :key="name"
                   type="button"
-                  class="grid cursor-pointer justify-items-center gap-0.5 rounded-ctl border border-line bg-surface p-1 hover:border-danger"
+                  class="grid cursor-pointer justify-items-center gap-0.5 rounded-ctl border border-line bg-surface p-1 hover:border-danger focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
                   :title="`移除 ${name}`"
                   :aria-label="`移除 ${name}`"
                   @click="removeChar(name)"
