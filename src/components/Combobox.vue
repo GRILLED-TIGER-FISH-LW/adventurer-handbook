@@ -1,6 +1,5 @@
 <script setup>
 import { computed, nextTick, ref, useId } from 'vue'
-import Icon from './Icon.vue'
 
 const props = defineProps({
   modelValue: { type: String, default: '' },
@@ -9,6 +8,12 @@ const props = defineProps({
   ariaLabel: { type: String, default: '' },
   /* 单项最大显示数 */
   max: { type: Number, default: 40 },
+  /* 允许「当前输入的文字」成为一个可选项 */
+  allowCustom: { type: Boolean, default: false },
+  /* 自定义项的显示文案，如 v => '＋ 新增地区：' + v */
+  customLabel: { type: Function, default: null },
+  /* 返回 true 时不展开建议（例如输入里有分隔符，正在批量粘贴） */
+  suppressWhen: { type: Function, default: null },
 })
 
 const emit = defineEmits(['update:modelValue', 'select'])
@@ -21,17 +26,26 @@ const inputEl = ref(null)
 const open = ref(false)
 const highlight = ref(0)
 
+const suppressed = computed(() => Boolean(props.suppressWhen?.(props.modelValue)))
+
 const options = computed(() => {
   const q = props.modelValue.trim().toLowerCase()
   const matched = (q ? props.items.filter((x) => x.toLowerCase().includes(q)) : props.items).slice(
     0,
     props.max,
   )
-  return matched.map((v) => ({ value: v, isNew: false }))
+  const out = matched.map((v) => ({ value: v, isNew: false }))
+  const raw = props.modelValue.trim()
+  if (props.allowCustom && raw && !props.items.includes(raw)) {
+    out.push({ value: raw, isNew: true })
+  }
+  return out
 })
 
+const showPopup = computed(() => open.value && !suppressed.value)
+
 const activeId = computed(() =>
-  open.value && options.value.length ? optId(highlight.value) : undefined,
+  showPopup.value && options.value.length ? optId(highlight.value) : undefined,
 )
 
 function onFocus() {
@@ -49,13 +63,13 @@ function onKeydown(e) {
   const n = options.value.length
   if (e.key === 'ArrowDown') {
     e.preventDefault()
-    if (!open.value) open.value = true
+    if (!showPopup.value) open.value = true
     else highlight.value = n ? Math.min(highlight.value + 1, n - 1) : 0
   } else if (e.key === 'ArrowUp') {
     e.preventDefault()
     highlight.value = n ? Math.max(highlight.value - 1, 0) : 0
   } else if (e.key === 'Enter') {
-    if (!open.value || !n) return
+    if (!showPopup.value || !n) return
     e.preventDefault()
     choose(highlight.value)
   } else if (e.key === 'Escape') {
@@ -86,6 +100,10 @@ function onOptionDown(e, i) {
   e.preventDefault()
   choose(i)
 }
+
+function labelOf(it) {
+  return it.isNew && props.customLabel ? props.customLabel(it.value) : it.value
+}
 </script>
 
 <template>
@@ -97,8 +115,8 @@ function onOptionDown(e, i) {
         type="text"
         role="combobox"
         aria-autocomplete="list"
-        :aria-expanded="open"
-        :aria-controls="open ? listId : undefined"
+        :aria-expanded="showPopup"
+        :aria-controls="showPopup ? listId : undefined"
         :aria-activedescendant="activeId"
         :aria-label="ariaLabel || undefined"
         :value="modelValue"
@@ -115,7 +133,7 @@ function onOptionDown(e, i) {
     </div>
 
     <ul
-      v-if="open"
+      v-if="showPopup"
       :id="listId"
       role="listbox"
       class="absolute inset-x-0 top-[calc(100%+4px)] z-30 max-h-60 overflow-y-auto rounded-panel border border-line-2 bg-surface p-1 shadow-float"
@@ -131,13 +149,13 @@ function onOptionDown(e, i) {
         :aria-selected="it.value === modelValue"
         class="cursor-pointer truncate rounded-ctl px-2 py-1.5 text-sm"
         :class="[
-          it.value === modelValue ? 'font-medium text-accent-strong' : 'text-ink',
+          it.isNew ? 'text-accent-strong' : it.value === modelValue ? 'text-accent-strong' : 'text-ink',
           i === highlight ? 'bg-hover' : it.value === modelValue ? 'bg-accent-soft' : '',
         ]"
         @mouseenter="highlight = i"
         @pointerdown="onOptionDown($event, i)"
       >
-        {{ it.value }}
+        {{ labelOf(it) }}
       </li>
     </ul>
   </div>
