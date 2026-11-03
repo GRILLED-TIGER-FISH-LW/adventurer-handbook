@@ -1,4 +1,5 @@
 <script setup>
+import Icon from './Icon.vue'
 import { useToast } from '../composables/useToast.js'
 
 const { toasts, remove } = useToast()
@@ -40,11 +41,11 @@ const FRAME = {
 
           <button
             type="button"
-            class="grid size-6 shrink-0 place-items-center rounded-ctl text-muted hover:bg-hover"
+            class="grid size-6 shrink-0 place-items-center rounded-ctl text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
             aria-label="关闭通知"
             @click="remove(t.id)"
           >
-            <span aria-hidden="true">×</span>
+            <Icon name="ui.close" size="sm" />
           </button>
         </div>
       </TransitionGroup>
