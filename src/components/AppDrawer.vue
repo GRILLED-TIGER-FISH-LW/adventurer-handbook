@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Icon from './Icon.vue'
 
@@ -24,16 +24,51 @@ function close() {
 watch(() => route.fullPath, close)
 
 const appRoot = document.getElementById('app')
+const panel = ref(null)
+let lastFocused = null
 
-watch(open, (v) => {
-  if (appRoot) appRoot.inert = v
-  if (v) document.addEventListener('keydown', onKey)
-  else document.removeEventListener('keydown', onKey)
-})
+const FOCUSABLE =
+  'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'
 
+/* Esc 关闭；Tab 在抽屉内循环（与 Modal 同一套规则） */
 function onKey(e) {
-  if (e.key === 'Escape') close()
+  if (e.key === 'Escape') {
+    close()
+    return
+  }
+  if (e.key !== 'Tab') return
+
+  const nodes = panel.value?.querySelectorAll(FOCUSABLE)
+  if (!nodes?.length) {
+    e.preventDefault()
+    return
+  }
+  const first = nodes[0]
+  const last = nodes[nodes.length - 1]
+  const active = document.activeElement
+
+  if (e.shiftKey && (active === first || active === panel.value)) {
+    e.preventDefault()
+    last.focus()
+  } else if (!e.shiftKey && active === last) {
+    e.preventDefault()
+    first.focus()
+  }
 }
+
+watch(open, async (v) => {
+  if (appRoot) appRoot.inert = v
+  if (v) {
+    lastFocused = document.activeElement
+    document.addEventListener('keydown', onKey)
+    await nextTick()
+    panel.value?.focus()
+  } else {
+    document.removeEventListener('keydown', onKey)
+    lastFocused?.focus?.()
+    lastFocused = null
+  }
+})
 
 onBeforeUnmount(() => {
   document.removeEventListener('keydown', onKey)
@@ -55,10 +90,12 @@ function go(path) {
     <Transition name="drp">
       <aside
         v-if="open"
+        ref="panel"
         role="dialog"
         aria-modal="true"
         aria-label="功能导航"
-        class="fixed inset-y-0 left-0 z-[100] flex w-64 max-w-[85vw] flex-col border-r border-line bg-canvas"
+        tabindex="-1"
+        class="fixed inset-y-0 left-0 z-[100] flex w-64 max-w-[85vw] flex-col border-r border-line bg-canvas focus:outline-none"
       >
         <div class="flex h-14 shrink-0 items-center border-b border-line px-4">
           <h2 class="text-sm font-semibold text-ink">功能导航</h2>
@@ -69,7 +106,7 @@ function go(path) {
             v-for="item in items"
             :key="item.path"
             type="button"
-            class="flex h-11 items-center gap-2.5 rounded-ctl px-3 text-left text-sm"
+            class="flex h-11 items-center gap-2.5 rounded-ctl px-3 text-left text-sm focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
             :class="
               isActive(item.path)
                 ? 'bg-surface font-semibold text-ink'
