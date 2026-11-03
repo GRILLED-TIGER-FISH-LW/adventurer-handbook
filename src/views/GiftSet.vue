@@ -431,7 +431,7 @@ onMounted(async () => {
         inputmode="numeric"
         maxlength="15"
         spellcheck="false"
-        class="h-9 w-24 shrink-0 rounded-ctl border border-line-2 bg-surface px-2.5 text-center text-xs text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent-soft"
+        class="h-9 w-24 shrink-0 rounded-ctl border border-line-2 bg-surface px-2.5 text-center text-xs text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
         @input="onUidInput($event.target.value)"
       />
       <div class="flex flex-1 justify-end gap-1.5">
@@ -466,7 +466,7 @@ onMounted(async () => {
         <section class="border-b border-line">
           <button
             type="button"
-            class="flex w-full items-center gap-2 px-2 py-1.5 text-left"
+            class="flex w-full items-center gap-2 px-2 py-1.5 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
             :aria-expanded="!charCollapsed"
             @click="charCollapsed = !charCollapsed"
           >
@@ -484,7 +484,7 @@ onMounted(async () => {
             <input
               v-model="charSearch"
               type="text"
-              class="h-9 w-full min-w-0 rounded-ctl border border-line-2 bg-surface px-2.5 text-xs text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent-soft"
+              class="h-9 w-full min-w-0 rounded-ctl border border-line-2 bg-surface px-2.5 text-xs text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
               placeholder="搜索角色"
               autocomplete="off"
               spellcheck="false"
@@ -495,7 +495,7 @@ onMounted(async () => {
                 v-for="name in visibleCharNames"
                 :key="name"
                 type="button"
-                class="grid justify-items-center gap-0.5 rounded-ctl border p-1"
+                class="grid justify-items-center gap-0.5 rounded-ctl border p-1 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
                 :class="
                   owned.includes(name)
                     ? 'border-accent bg-accent-soft'
@@ -527,7 +527,7 @@ onMounted(async () => {
         <section v-if="recommendations.length" class="border-b border-line">
           <button
             type="button"
-            class="flex w-full items-center gap-2 px-2 py-1.5 text-left"
+            class="flex w-full items-center gap-2 px-2 py-1.5 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
             :aria-expanded="!recommendCollapsed"
             @click="recommendCollapsed = !recommendCollapsed"
           >
@@ -549,7 +549,7 @@ onMounted(async () => {
             >
               <button
                 type="button"
-                class="flex w-full items-center gap-2 p-1.5 text-left"
+                class="flex w-full items-center gap-2 p-1.5 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
                 :aria-expanded="expandedKeys.has(s.key)"
                 @click="toggleExpand(s.key)"
               >
@@ -594,7 +594,7 @@ onMounted(async () => {
                     v-for="name in cardMap.get(s.key)?.chars || []"
                     :key="`${s.key}-${name}`"
                     type="button"
-                    class="grid justify-items-center gap-0.5 rounded-ctl border p-1"
+                    class="grid justify-items-center gap-0.5 rounded-ctl border p-1 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
                     :class="
                       !owned.includes(name)
                         ? 'border-line bg-surface opacity-50'
@@ -632,7 +632,7 @@ onMounted(async () => {
         <section>
           <button
             type="button"
-            class="flex w-full items-center gap-2 px-2 py-1.5 text-left"
+            class="flex w-full items-center gap-2 px-2 py-1.5 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
             :aria-expanded="!allCollapsed"
             @click="allCollapsed = !allCollapsed"
           >
@@ -656,7 +656,7 @@ onMounted(async () => {
               <input
                 v-model="search"
                 type="text"
-                class="h-9 w-full min-w-0 rounded-ctl border border-line-2 bg-surface pl-8 pr-8 text-xs text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent-soft"
+                class="h-9 w-full min-w-0 rounded-ctl border border-line-2 bg-surface pl-8 pr-8 text-xs text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
                 placeholder="搜索套装名 / 角色名"
                 autocomplete="off"
                 spellcheck="false"
@@ -664,7 +664,7 @@ onMounted(async () => {
               <button
                 v-if="search"
                 type="button"
-                class="absolute right-1.5 grid size-6 place-items-center rounded-full text-muted hover:bg-hover"
+                class="absolute right-1.5 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
                 aria-label="清除搜索"
                 @click="search = ''"
               >
@@ -697,7 +697,7 @@ onMounted(async () => {
             >
               <button
                 type="button"
-                class="flex w-full items-center gap-2 p-1.5 text-left"
+                class="flex w-full items-center gap-2 p-1.5 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
                 :aria-expanded="expandedKeys.has(s.key)"
                 @click="toggleExpand(s.key)"
               >
@@ -747,7 +747,7 @@ onMounted(async () => {
                     v-for="name in cardMap.get(s.key).chars"
                     :key="`${s.key}-${name}`"
                     type="button"
-                    class="grid justify-items-center gap-0.5 rounded-ctl border p-1"
+                    class="grid justify-items-center gap-0.5 rounded-ctl border p-1 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
                     :class="
                       !owned.includes(name)
                         ? 'border-line bg-surface opacity-50'
