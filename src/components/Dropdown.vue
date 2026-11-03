@@ -172,7 +172,7 @@ function itemClass(i, value) {
   <button
     ref="trigger"
     type="button"
-    class="flex h-9 w-full min-w-0 items-center gap-1.5 rounded-ctl border border-line-2 bg-surface px-2.5 text-xs text-ink hover:border-line-3 focus:outline-none focus:ring-2 focus:ring-accent-soft disabled:pointer-events-none disabled:opacity-50"
+    class="flex h-9 w-full min-w-0 items-center gap-1.5 rounded-ctl border border-line-2 bg-surface px-2.5 text-xs text-ink hover:border-line-3 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent disabled:pointer-events-none disabled:opacity-50"
     :disabled="disabled"
     :aria-expanded="isOpen"
     aria-haspopup="listbox"
