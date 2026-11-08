@@ -13,6 +13,7 @@ import '../icons/editor-icons.js'
 
 const DRAFT_KEY = 'genshin_homeworld_gift_sets_editor_draft_v1'
 const DATA_URL = 'data/gift-set.js'
+const FILE_NAME = DATA_URL.split('/').pop()
 const IMAGE_DICT_URL =
   'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
 
@@ -517,7 +518,7 @@ function runExport() {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = 'data.js'
+  a.download = FILE_NAME
   document.body.appendChild(a)
   a.click()
   a.remove()
@@ -525,7 +526,7 @@ function runExport() {
 
   clearDirty()
   clearDraft()
-  toast.success('已导出 data.js')
+  toast.success(`已导出 ${FILE_NAME}`)
 }
 
 /* ---------- URL 识别 ---------- */
@@ -1106,7 +1107,7 @@ onBeforeUnmount(() => {
       :message="
         dirty
           ? '当前有未导出的修改，重载会丢弃这些改动。'
-          : '将从线上重新拉取 data.js，覆盖当前编辑内容。'
+          : `将从线上重新拉取 ${FILE_NAME}，覆盖当前编辑内容。`
       "
       confirm-text="重载"
       :danger="dirty"
