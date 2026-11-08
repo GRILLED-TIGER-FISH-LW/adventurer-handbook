@@ -1,0 +1,311 @@
+name: Reorg
+
+# 常驻工具：这份工作流通用，以后接着用 —— 换掉 env 里那四段清单 → 提交 → Run workflow。
+#   跑法：Actions 里选 Reorg → Run workflow（清单名会变成分支名 reorg-<名字>）
+#   → 它在 reorg-<清单名> 分支上做完、跑一次 npm run build → 你去 compare 页面合并。
+#   任一步失败都不会推分支、不会动 main；只推 reorg-<名字> 分支。
+#
+# 清单格式
+#   ① MOVES    一行一条：旧路径 -> 新路径
+#   ② EDITS    一条一个块：### 文件路径 + <<<< 原文 >>>> + <<<< 新文 >>>>
+#   ③ DELETES  一行一个路径（文件或目录都行）
+#   ④ CHECKS   一行一条命令，非 0 即中止（失败会打印该命令的输出）
+#   经验：EDITS 里的文件名要写「搬完之后的路径」（工序 MOVES → EDITS → DELETES → CHECKS）；
+#         自检要查「实际行为」，别查名字 —— 新文注释里顺手写个被检查的字符串会把自己卡住（栽过）。
+#   主仓库那份同款：genshin-guide/.github/workflows/reorg.yml（机身一样，只有清单不同）。
+#
+# 这一批（export-name）：编辑器导出文件名 + AGENTS 措辞。
+#   · 两个编辑器的 DATA_URL 下面加一行 FILE_NAME（= 从 DATA_URL 里取文件名），
+#     导出与提示都改用它 —— 导出直接叫 tales.js / gift-set.js，不用再手动重命名
+#   · README 里「把导出的文件重命名成 tales.js」那句说明跟着改（docs 那批刚写的）
+#   · CHANGELOG 把这件事并进今天的 11-08 条目
+#   · AGENTS 里「批量机械改动」那段改成「这份工作流常驻」
+#   · 前置：docs 那批必须已经合并（三处原文取自它）
+
+on:
+  workflow_dispatch:
+    inputs:
+      batch:
+        description: 清单名（会建 reorg-<名字> 分支）
+        required: true
+        default: export-name
+
+permissions:
+  contents: write
+
+env:
+  # ---------- ① 搬文件 ----------
+  MOVES: |
+    # 这批不搬文件
+
+  # ---------- ② 替换 ----------
+  EDITS: |
+    ### src/views/TalesEditor.vue
+    <<<<
+    const DATA_URL = 'data/tales.js'
+    >>>>
+    <<<<
+    const DATA_URL = 'data/tales.js'
+    const FILE_NAME = DATA_URL.split('/').pop()
+    >>>>
+
+    ### src/views/TalesEditor.vue
+    <<<<
+      a.download = 'data.js'
+    >>>>
+    <<<<
+      a.download = FILE_NAME
+    >>>>
+
+    ### src/views/TalesEditor.vue
+    <<<<
+      toast.success('已导出 data.js')
+    >>>>
+    <<<<
+      toast.success(`已导出 ${FILE_NAME}`)
+    >>>>
+
+    ### src/views/TalesEditor.vue
+    <<<<
+              : '将从线上重新拉取 data.js，覆盖当前编辑内容。'
+    >>>>
+    <<<<
+              : `将从线上重新拉取 ${FILE_NAME}，覆盖当前编辑内容。`
+    >>>>
+
+    ### src/views/GiftSetEditor.vue
+    <<<<
+    const DATA_URL = 'data/gift-set.js'
+    >>>>
+    <<<<
+    const DATA_URL = 'data/gift-set.js'
+    const FILE_NAME = DATA_URL.split('/').pop()
+    >>>>
+
+    ### src/views/GiftSetEditor.vue
+    <<<<
+      a.download = 'data.js'
+    >>>>
+    <<<<
+      a.download = FILE_NAME
+    >>>>
+
+    ### src/views/GiftSetEditor.vue
+    <<<<
+      toast.success('已导出 data.js')
+    >>>>
+    <<<<
+      toast.success(`已导出 ${FILE_NAME}`)
+    >>>>
+
+    ### src/views/GiftSetEditor.vue
+    <<<<
+              : '将从线上重新拉取 data.js，覆盖当前编辑内容。'
+    >>>>
+    <<<<
+              : `将从线上重新拉取 ${FILE_NAME}，覆盖当前编辑内容。`
+    >>>>
+
+    ### README.md
+    <<<<
+    两个编辑器改完要「导出 `data.js`」→ 把导出的文件重命名成 `tales.js`（或 `gift-set.js`）覆盖 `public/data/` 下的同名文件 → 提交，等 Actions 部署完（一两分钟）再刷新。
+    >>>>
+    <<<<
+    两个编辑器改完点「导出」→ 导出得到的文件名**已经就是** `tales.js` / `gift-set.js`，直接覆盖 `public/data/` 下的同名文件 → 提交，等 Actions 部署完（一两分钟）再刷新。
+    >>>>
+
+    ### CHANGELOG.md
+    <<<<
+    ### 2026-11-08 · 跟随主仓库字典改名，README 补全
+
+    - **起因**：两件事。① 主仓库把跨仓库那份字典改了名（`icon-dict.js` → `image-dict.js`、全局 `ICON_DICT` → `IMAGE_DICT`）—— 四个页面按绝对 URL 读它，不跟着改就全都取不到角色图。② README 的「数据保存」一节断在半张表格上，目录里承诺的「常见问题」「项目结构」两节根本不存在。
+    - **经过**：四个页面（旅闻 / 套装 + 两个编辑器）的 URL 常量与 `loadGlobalScript` 的全局名同批改掉，顺手清掉还写着旧名的几处注释与数据文件说明；改动用一份照抄主仓库的清单式临时 Action 完成（`DELETES` 里写了它自己，合并后自动消失）。README 补全「数据保存 / 导出与导入 / 游戏数据从哪来 / 常见问题 / 项目结构 / 致谢」，AGENTS 补「三份文档怎么分工」与「批量机械改动」两段，并把跨仓库依赖那节对齐新名字。
+    - **结果**：跨仓库依赖两边名字一致，四个页面图标恢复；README 从目录到致谢一路自洽（六个锚点都能点）；以后这边挪文件、全站替换、删文件有现成套路。
+    >>>>
+    <<<<
+    ### 2026-11-08 · 字典改名跟随 · 文档补全 · 编辑器导出文件名修正
+
+    - **起因**：三件事。① 主仓库把跨仓库那份字典改了名（`icon-dict.js` → `image-dict.js`、全局 `ICON_DICT` → `IMAGE_DICT`）—— 四个页面按绝对 URL 读它，不跟着改就全都取不到角色图。② README 的「数据保存」一节断在半张表格上，目录里承诺的「常见问题」「项目结构」两节根本不存在。③ 两个编辑器导出的文件写死叫 `data.js`，每次都得手动重命名成 `tales.js` / `gift-set.js` 才敢覆盖。
+    - **经过**：四个页面（旅闻 / 套装 + 两个编辑器）的 URL 常量与 `loadGlobalScript` 的全局名同批改掉，顺手清掉还写着旧名的几处注释与数据文件说明；两个编辑器改成按 `DATA_URL` 取名（`FILE_NAME`），导出直接就是 `tales.js` / `gift-set.js`，「重载线上数据」提示里的文件名跟着变；改动用一份照抄主仓库的清单式临时 Action 完成（`DELETES` 里写了它自己，合并后自动消失）。README 补全「数据保存 / 导出与导入 / 游戏数据从哪来 / 常见问题 / 项目结构 / 致谢」，AGENTS 补「三份文档怎么分工」与「批量机械改动」两段，并把跨仓库依赖那节对齐新名字。
+    - **结果**：跨仓库依赖两边名字一致，四个页面图标恢复，编辑器导出即落地（少一步手动重命名）；README 从目录到致谢一路自洽（六个锚点都能点）；以后这边挪文件、全站替换、删文件有现成套路。
+    >>>>
+
+    ### AGENTS.md
+    <<<<
+    ### 批量机械改动（临时 Action）
+
+    挪文件、全站同一个字符串替换、删几个文件，**不要一个个文件去改** —— 照抄主仓库的 `.github/workflows/reorg.yml`（清单式：`MOVES` / `EDITS` / `DELETES` / `CHECKS` 四段写在文件顶部 `env` 里），在本仓库默认分支上建出来、直接 Run workflow（从 `main` 跑，清单名会变成分支名 `reorg-<名字>`）。
+
+    - 工序固定：`MOVES` → `EDITS` → `DELETES` → `CHECKS` → 构建 → 才提交推送；**只推 `reorg-<名字>` 分支，永远不碰 main**；找不到原文、自检没过、构建失败都不推。
+    - `EDITS` 里的文件名要写**搬完之后的路径**；`CHECKS` 查「实际行为」而不是名字 —— 新文注释里顺手写个被检查的字符串，会把自己卡住（栽过）。
+    - 验收：`https://github.com/GRILLED-TIGER-FISH-LW/adventurer-handbook/compare/main...reorg-<名字>` → 开 PR → Merge → 删分支。手机上看不到分支横幅，直接用这条链接。
+    - 只适合机械改动；要重写的东西（搬页面、改交互）不适用。
+    - 用完就删（2026-11 那次改名就是这么干完顺手自删的），下次要用再抄一份。
+    >>>>
+    <<<<
+    ### 批量机械改动（清单式 Action）
+
+    挪文件、全站同一个字符串替换、删几个文件，**不要一个个文件去改** —— 用本仓库的 `.github/workflows/reorg.yml`（和主仓库那份同一套；清单式：`MOVES` / `EDITS` / `DELETES` / `CHECKS` 四段写在文件顶部 `env` 里）。**这份常驻**：换清单 → 提交 → 直接 Run workflow（从 `main` 跑，清单名会变成分支名 `reorg-<名字>`）。
+
+    - 工序固定：`MOVES` → `EDITS` → `DELETES` → `CHECKS` → 构建 → 才提交推送；**只推 `reorg-<名字>` 分支，永远不碰 main**；找不到原文、自检没过、构建失败都不推。
+    - `EDITS` 里的文件名要写**搬完之后的路径**；`CHECKS` 查「实际行为」而不是名字 —— 新文注释里顺手写个被检查的字符串，会把自己卡住（栽过）。
+    - 验收：`https://github.com/GRILLED-TIGER-FISH-LW/adventurer-handbook/compare/main...reorg-<名字>` → 开 PR → Merge → 删分支。手机上看不到分支横幅，直接用这条链接。
+    - 只适合机械改动；要重写的东西（搬页面、改交互）不适用。
+    - 清单名随便取（同名会覆盖旧分支），合并后把分支删掉；工作流本身留着，下次接着用。
+    >>>>
+
+  # ---------- ③ 删文件 / 目录 ----------
+  DELETES: |
+    # 这批没有要删的文件
+
+  # ---------- ④ 自检 ----------
+  CHECKS: |
+    ! grep -n 'data\.js' src/views/TalesEditor.vue src/views/GiftSetEditor.vue
+    grep -qF "const FILE_NAME = DATA_URL.split('/').pop()" src/views/TalesEditor.vue
+    grep -qF "const FILE_NAME = DATA_URL.split('/').pop()" src/views/GiftSetEditor.vue
+    grep -qF 'a.download = FILE_NAME' src/views/TalesEditor.vue
+    grep -qF 'a.download = FILE_NAME' src/views/GiftSetEditor.vue
+    grep -qF '已导出 ${FILE_NAME}' src/views/TalesEditor.vue
+    grep -qF '已导出 ${FILE_NAME}' src/views/GiftSetEditor.vue
+    ! grep -n '重命名成' README.md
+    grep -qF '## 📌 备注与致谢' README.md
+    ! grep -n '^| *$' README.md
+    test "$(tail -n 1 README.md)" = '</div>'
+    for a in start tales giftset save faq structure; do grep -q "id=\"$a\"" README.md || { echo 缺锚点-$a; exit 1; }; done
+    ! grep -n 'icon-dict\.js\|icon-loader\.js\|ICON_DICT\|gi-icons' README.md AGENTS.md
+    grep -qF '这份常驻' AGENTS.md
+    ! grep -n '用完就删' AGENTS.md
+    grep -qF '批量机械改动（清单式 Action）' AGENTS.md
+    grep -qF '读它的地方有 4 个' AGENTS.md
+    grep -qF '2026-11-08 · 字典改名跟随' CHANGELOG.md
+    grep -qF '导出直接就是 `tales.js` / `gift-set.js`' CHANGELOG.md
+    grep -qF '### 2026-11-04 · 技术栈迁移完成' CHANGELOG.md
+    node -e 'const s=require("fs").readFileSync("src/views/TalesEditor.vue","utf8");const m=s.match(/const DATA_URL = (.*)\nconst FILE_NAME = (.*)\n/);if(!m)throw new Error("没挨着");const DATA_URL=eval(m[1]),n=eval(m[2]);if(n!=="tales.js")throw new Error("导出名="+n);console.log("TalesEditor -> "+n)'
+    node -e 'const s=require("fs").readFileSync("src/views/GiftSetEditor.vue","utf8");const m=s.match(/const DATA_URL = (.*)\nconst FILE_NAME = (.*)\n/);if(!m)throw new Error("没挨着");const DATA_URL=eval(m[1]),n=eval(m[2]);if(n!=="gift-set.js")throw new Error("导出名="+n);console.log("GiftSetEditor -> "+n)'
+
+jobs:
+  reorg:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 按清单区改
+        run: |
+          python3 - <<'PY'
+          import os, re, subprocess, sys
+          from pathlib import Path
+
+          def pick(text):
+              return [l.strip() for l in text.split('\n') if l.strip() and not l.strip().startswith('#')]
+
+          def split_records(text):
+              # 只在「标记区外」的行首 ### 才当新块的开始 —— 原文 / 新文里出现
+              # 行首 ###（比如要改文档里的小标题）不会被切错。
+              out, cur, inside = [], None, False
+              for line in text.split('\n'):
+                  s = line.strip()
+                  guarded = inside or s in ('<<<<', '>>>>')
+                  if s == '<<<<':
+                      inside = True
+                  elif s == '>>>>':
+                      inside = False
+                  if not guarded and line.startswith('###'):
+                      if cur is not None:
+                          out.append('\n'.join(cur))
+                      cur = [line[3:].strip()]
+                  else:
+                      if cur is None:
+                          if not line.strip():
+                              continue
+                          cur = []
+                      cur.append(line)
+              if cur:
+                  out.append('\n'.join(cur))
+              return out
+
+          def blocks(text):
+              out, cur, inside = [], None, False
+              for line in text.split('\n'):
+                  s = line.strip()
+                  if s == '<<<<':
+                      inside, cur = True, []
+                      continue
+                  if s == '>>>>':
+                      inside = False
+                      out.append('\n'.join(cur))
+                      cur = None
+                      continue
+                  if inside:
+                      cur.append(line)
+              return out
+
+          def die(msg):
+              print('中止：' + msg)
+              sys.exit(1)
+
+          # ① 搬
+          for entry in pick(os.environ.get('MOVES', '')):
+              from_, sep, to = entry.partition(' -> ')
+              if not sep:
+                  die('MOVES 这行没有 -> ：' + entry)
+              subprocess.run(['git', 'mv', from_, to], check=True)
+              print('mv %s -> %s' % (from_, to))
+
+          # ② 替换
+          edits = os.environ.get('EDITS', '')
+          records = split_records(edits)
+          if edits.strip() and not records:
+              die('EDITS 里没有 ### 头')
+          for rec in records:
+              lines = rec.split('\n')
+              path = lines[0].strip()
+              got = blocks('\n'.join(lines[1:]))
+              if len(got) != 2:
+                  die('%s：应有原文/新文两段 <<<< … >>>>，实际 %d 段' % (path, len(got)))
+              src, dst = got
+              p = Path(path)
+              if not p.is_file():
+                  die('缺文件：' + path)
+              text = p.read_text(encoding='utf-8')
+              if src not in text:
+                  die('没找到原文：' + path)
+              p.write_text(text.replace(src, dst), encoding='utf-8')
+              print('改了 ' + path)
+
+          # ③ 删
+          for path in pick(os.environ.get('DELETES', '')):
+              subprocess.run(['git', 'rm', '-r', '-q', '--ignore-unmatch', path], check=True)
+              print('rm ' + path)
+
+          # ④ 自检：失败时把命令输出也打出来
+          for check in pick(os.environ.get('CHECKS', '')):
+              print('check: ' + check)
+              r = subprocess.run(['bash', '-c', check], capture_output=True, text=True)
+              if r.returncode != 0:
+                  print(r.stdout, r.stderr)
+                  die('自检没过：' + check)
+              print('  ok')
+
+          subprocess.run(['git', 'add', '-A'], check=True)
+          if subprocess.run(['git', 'diff', '--cached', '--quiet']).returncode == 0:
+              die('清单没有产生任何改动')
+          print(subprocess.run(['git', 'status', '--short'], capture_output=True, text=True).stdout)
+          PY
+
+      - name: 构建验证
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+
+      - name: 推到分支
+        run: |
+          set -euo pipefail
+          B="${{ inputs.batch }}"
+          git config user.name "reorg-bot"
+          git config user.email "reorg-bot@users.noreply.github.com"
+          git commit -m "reorg: $B"
+          git push -f origin "HEAD:refs/heads/reorg-$B"
