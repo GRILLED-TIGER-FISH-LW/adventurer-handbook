@@ -1,0 +1,345 @@
+name: Reorg
+
+# 一次性的机械改动机器人（和主仓库那份同一个，清单区就在下面 env 里）。
+#   用法：Actions 里选 Reorg → Run workflow（清单名用默认的即可）
+#   → 它在 reorg-<清单名> 分支上做完、跑一次 npm run build → 你去 compare 页面合并。
+#   任一步失败都不会推分支、不会动 main。
+#
+# 清单格式
+#   ① MOVES    一行一条：旧路径 -> 新路径
+#   ② EDITS    一条一个块：### 文件路径 + <<<< 原文 >>>> + <<<< 新文 >>>>
+#   ③ DELETES  一行一个路径（这份清单里就一条：它自己）
+#   ④ CHECKS   一行一条命令，非 0 即中止
+#
+# 这一批（docs）：三份文档。
+#   · README.md 的「数据保存」断在半张表格上、后面两节缺失 → 从那张表格起整段接上
+#   · CHANGELOG.md 在 11 月那栏最上面加一条（11-08）
+#   · AGENTS.md 补「三份文档怎么分工」「批量机械改动」两段 + 跨仓库依赖补那 4 个文件在哪
+#   · 本文件用完即弃：DELETES 里写了它自己，合并进 main 之后这个工作流就没了
+#   · 下次还要用，去 genshin-guide 的 AGENTS.md 第六节 / 它的 .github/workflows/reorg.yml 抄一份
+
+on:
+  workflow_dispatch:
+    inputs:
+      batch:
+        description: 清单名（会建 reorg-<名字> 分支）
+        required: true
+        default: docs
+
+permissions:
+  contents: write
+
+env:
+  # ---------- ① 搬文件 ----------
+  MOVES: |
+    # 这批不搬文件
+
+  # ---------- ② 替换 ----------
+  EDITS: |
+    ### README.md
+    <<<<
+    | 内容 | 存储位置 |
+    |---|---|
+    | 
+    >>>>
+    <<<<
+    | 内容 | 存储位置 |
+    |---|---|
+    | 游逸旅闻 · 完成记录 | 浏览器本地存储（`genshin_travelers_tales_completed_v2`） |
+    | 游逸旅闻 · UID | 浏览器本地存储（`genshin_travelers_tales_uid_v1`） |
+    | 赠礼套装 · 我拥有的角色 | 浏览器本地存储（`genshin_homeworld_gift_sets_owned_v1`） |
+    | 赠礼套装 · 送出记录 | 浏览器本地存储（`genshin_homeworld_gift_sets_completed_v1`） |
+    | 赠礼套装 · UID | 浏览器本地存储（`genshin_homeworld_gift_sets_uid_v1`） |
+    | 两个编辑器的草稿 | 浏览器本地存储（`…_editor_draft_v1`） |
+    | 深浅色选择 | 浏览器本地存储（`adventurer-handbook-theme`） |
+
+    **用无痕模式、清浏览器数据、换设备，记录都会没。** 唯一的安全网是导出存档 —— 攒了进度就顺手导一份。
+
+    ### 导出与导入
+
+    两个查询页的工具栏右侧都有**导出 / 导入**：
+
+    | 动作 | 结果 |
+    |---|---|
+    | 导出 | 下载一个 JSON，文件名带 UID 和日期（如 `游逸旅闻存档记录-100000000-20261108.json`） |
+    | 导入 | 选一个之前导出的 JSON |
+
+    - 导出的是**你的进度**（做过的旅闻 / 勾选的角色 + 送出记录 + UID），不是游戏数据。
+    - **导入是覆盖**：当前进度会被文件里的内容整体替换，不是合并 —— 同机想留旧进度就先导一份再导新的。
+    - 游逸旅闻读得下**老格式**存档（早期版本导出的文件也能导入）；格式不对会明确报错，不会写坏进度。
+    - 两个工具各管一份存档，互不相通。
+    - 换手机：旧设备导出 → 新设备打开站点 → 导入。
+
+    > ⚠️ 页尾的「清空全部记录」/「重置全部数据」**立即生效、不可撤销**（有二次确认），动手前先导出。
+
+    ### 游戏数据从哪来
+
+    - **旅闻 / 套装数据**在仓库里：`public/data/tales.js`、`public/data/gift-set.js`，由两个编辑器维护（见[常见问题](#faq)）。
+    - **角色头像 / 名片 / 立绘**来自主仓库 [genshin-guide](https://grilled-tiger-fish-lw.github.io/genshin-guide/) 的**图片字典**，运行时才去取；取不到只是没图，页面照常能用。
+
+    ---
+
+    <a id="faq" name="faq"></a>
+    ## ❓ 常见问题
+
+    **记录会被上传吗？**
+    不会。没有服务端，全部在你这台设备的浏览器里（见[数据保存](#save)）。
+
+    **换手机 / 换浏览器，进度还在吗？**
+    不在。先在旧设备**导出存档**，再到新设备**导入**。
+
+    **清空浏览器数据、用无痕模式之后进度没了？**
+    本地存储跟着清空，找不回来 —— 只能靠之前导出的 JSON 恢复。
+
+    **改了数据（旅闻 / 套装），站点上没变？**
+    两个编辑器改完要「导出 `data.js`」→ 把导出的文件重命名成 `tales.js`（或 `gift-set.js`）覆盖 `public/data/` 下的同名文件 → 提交，等 Actions 部署完（一两分钟）再刷新。
+
+    **编辑器上写着「尚未导出」是什么意思？**
+    你的改动只在草稿里，还没导出成文件。草稿自动存在本机，关掉页面再回来还在；**导出成功才算落地**。
+
+    **首页卡片 / 角色格子上没图？**
+    图来自主仓库的图片字典。取不到时页面不会报错，只是图空着（名字、进度都正常）—— 多半是网络或主仓库正在部署，刷新一下；一直空就是那边的事。
+
+    **「隐藏」是什么意思？**
+    游戏里不显示的隐藏成就。旅闻卡片标题是红色，用「类型 → 隐藏」能单独挑出来。
+
+    **为什么每次打开颜色不一样？**
+    首次跟随系统主题，之后按你手动选的记住。
+
+    ---
+
+    <a id="structure" name="structure"></a>
+    ## 🗂️ 项目结构
+
+        adventurer-handbook/
+        ├── index.html                    入口（主题预置 + 加载守卫）
+        ├── src/
+        │   ├── components/               可复用控件（按钮 / 输入 / 抽屉 / 弹窗 / 页签…）
+        │   ├── composables/              主题 / 通知队列 / 数据加载
+        │   ├── icons/                    UI 图标（内联 SVG）
+        │   ├── styles/                   设计令牌 + 全局基线
+        │   └── views/                    页面（首页 / 旅闻 / 套装 / 两个编辑器）
+        ├── public/
+        │   └── data/                     游戏数据（tales.js / gift-set.js，运行时加载）
+        └── .github/workflows/            构建检查 + 部署
+
+    > 想改代码的话，先看 [AGENTS.md](./AGENTS.md)（协作流程、实现约定、诊断套路）和 [CHANGELOG](./CHANGELOG.md)（里程碑）。
+
+    ---
+
+    ## 📌 备注与致谢
+
+    - **中文名 / 头像查询**：[Project Amber](https://gi.yatta.moe)
+    - **UI 图标**：[Fluent UI System Icons](https://yesicon.app/zh-Hans/fluent)
+    - **图片字典 / 设计令牌**：与 [genshin-guide](https://grilled-tiger-fish-lw.github.io/genshin-guide/) 共用同一套
+
+    ---
+
+    <div align="center">
+      <p>个人自用，随意参考。</p>
+    </div>
+    >>>>
+
+    ### CHANGELOG.md
+    <<<<
+    ## 2026 年 11 月
+
+    ### 2026-11-04 · 技术栈迁移完成
+    >>>>
+    <<<<
+    ## 2026 年 11 月
+
+    ### 2026-11-08 · 跟随主仓库字典改名，README 补全
+
+    - **起因**：两件事。① 主仓库把跨仓库那份字典改了名（`icon-dict.js` → `image-dict.js`、全局 `ICON_DICT` → `IMAGE_DICT`）—— 四个页面按绝对 URL 读它，不跟着改就全都取不到角色图。② README 的「数据保存」一节断在半张表格上，目录里承诺的「常见问题」「项目结构」两节根本不存在。
+    - **经过**：四个页面（旅闻 / 套装 + 两个编辑器）的 URL 常量与 `loadGlobalScript` 的全局名同批改掉，顺手清掉还写着旧名的几处注释与数据文件说明；改动用一份照抄主仓库的清单式临时 Action 完成（`DELETES` 里写了它自己，合并后自动消失）。README 补全「数据保存 / 导出与导入 / 游戏数据从哪来 / 常见问题 / 项目结构 / 致谢」，AGENTS 补「三份文档怎么分工」与「批量机械改动」两段，并把跨仓库依赖那节对齐新名字。
+    - **结果**：跨仓库依赖两边名字一致，四个页面图标恢复；README 从目录到致谢一路自洽（六个锚点都能点）；以后这边挪文件、全站替换、删文件有现成套路。
+
+    ### 2026-11-04 · 技术栈迁移完成
+    >>>>
+
+    ### AGENTS.md
+    <<<<
+    **不要再引入**主仓库的 `theme.css` / `ui-icons.js` / `dropdown.js` / `image-loader.js`。
+    >>>>
+    <<<<
+    **不要再引入**主仓库的 `theme.css` / `ui-icons.js` / `dropdown.js` / `image-loader.js`。
+    **读它的地方有 4 个**：`src/views/{GiftSet,GiftSetEditor,Tales,TalesEditor}.vue`，
+    每个文件两处（URL 常量 + `loadGlobalScript` 的全局名），都带 `.catch(() => null)` —— 断了只是没图标、不白屏。
+    **主仓库 2026-11 给字典改过名**（现在叫 `image-dict.js`、全局 `IMAGE_DICT`，见它自己的 CHANGELOG）；
+    跟着改的就是这 8 处；那边以后再动，这边要一起改。
+    >>>>
+
+    ### AGENTS.md
+    <<<<
+    | 2 处以上，或涉及一个块 | **直接给全文** |
+    >>>>
+    <<<<
+    | 2 处以上，或涉及一个块 | **直接给全文** |
+
+    ### 三份文档怎么分工
+
+    | 文件 | 给谁看 |
+    |---|---|
+    | `README.md` | 使用者：怎么用、数据存哪、常见问题 |
+    | `CHANGELOG.md` | 里程碑（起因 → 经过 → 结果，当前月份按天一条） |
+    | `AGENTS.md` | 本文件：AI 的维护手册（流程 / 约定 / 诊断） |
+
+    ### 批量机械改动（临时 Action）
+
+    挪文件、全站同一个字符串替换、删几个文件，**不要一个个文件去改** —— 照抄主仓库的 `.github/workflows/reorg.yml`（清单式：`MOVES` / `EDITS` / `DELETES` / `CHECKS` 四段写在文件顶部 `env` 里），在本仓库默认分支上建出来、直接 Run workflow（从 `main` 跑，清单名会变成分支名 `reorg-<名字>`）。
+
+    - 工序固定：`MOVES` → `EDITS` → `DELETES` → `CHECKS` → 构建 → 才提交推送；**只推 `reorg-<名字>` 分支，永远不碰 main**；找不到原文、自检没过、构建失败都不推。
+    - `EDITS` 里的文件名要写**搬完之后的路径**；`CHECKS` 查「实际行为」而不是名字 —— 新文注释里顺手写个被检查的字符串，会把自己卡住（栽过）。
+    - 验收：`https://github.com/GRILLED-TIGER-FISH-LW/adventurer-handbook/compare/main...reorg-<名字>` → 开 PR → Merge → 删分支。手机上看不到分支横幅，直接用这条链接。
+    - 只适合机械改动；要重写的东西（搬页面、改交互）不适用。
+    - 用完就删（2026-11 那次改名就是这么干完顺手自删的），下次要用再抄一份。
+    >>>>
+
+  # ---------- ③ 删文件 / 目录 ----------
+  DELETES: |
+    .github/workflows/reorg.yml
+
+  # ---------- ④ 自检 ----------
+  CHECKS: |
+    grep -qF '## 📌 备注与致谢' README.md
+    grep -qF 'adventurer-handbook-theme' README.md
+    grep -qF '游逸旅闻存档记录-100000000-20261108.json' README.md
+    grep -qF '导入是覆盖' README.md
+    grep -qF '读它的地方有 4 个' AGENTS.md
+    grep -qF '批量机械改动（临时 Action）' AGENTS.md
+    grep -qF '三份文档怎么分工' AGENTS.md
+    grep -qF '2026-11-08 · 跟随主仓库字典改名，README 补全' CHANGELOG.md
+    grep -qF '### 2026-11-04 · 技术栈迁移完成' CHANGELOG.md
+    ! grep -n '^| *$' README.md
+    ! grep -n 'icon-dict\.js\|icon-loader\.js\|ICON_DICT\|gi-icons' README.md AGENTS.md
+    test "$(tail -n 1 README.md)" = '</div>'
+    for a in start tales giftset save faq structure; do grep -q "id=\"$a\"" README.md || { echo "缺锚点 $a"; exit 1; }; done
+    test ! -e .github/workflows/reorg.yml
+
+jobs:
+  reorg:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 按清单区改
+        run: |
+          python3 - <<'PY'
+          import os, re, subprocess, sys
+          from pathlib import Path
+
+          def pick(text):
+              return [l.strip() for l in text.split('\n') if l.strip() and not l.strip().startswith('#')]
+
+          def split_records(text):
+              # 只在「标记区外」的行首 ### 才当新块的开始 —— 原文 / 新文里出现
+              # 行首 ###（比如要改文档里的小标题）不会被切错。
+              out, cur, inside = [], None, False
+              for line in text.split('\n'):
+                  s = line.strip()
+                  guarded = inside or s in ('<<<<', '>>>>')
+                  if s == '<<<<':
+                      inside = True
+                  elif s == '>>>>':
+                      inside = False
+                  if not guarded and line.startswith('###'):
+                      if cur is not None:
+                          out.append('\n'.join(cur))
+                      cur = [line[3:].strip()]
+                  else:
+                      if cur is None:
+                          if not line.strip():
+                              continue
+                          cur = []
+                      cur.append(line)
+              if cur:
+                  out.append('\n'.join(cur))
+              return out
+
+          def blocks(text):
+              out, cur, inside = [], None, False
+              for line in text.split('\n'):
+                  s = line.strip()
+                  if s == '<<<<':
+                      inside, cur = True, []
+                      continue
+                  if s == '>>>>':
+                      inside = False
+                      out.append('\n'.join(cur))
+                      cur = None
+                      continue
+                  if inside:
+                      cur.append(line)
+              return out
+
+          def die(msg):
+              print('中止：' + msg)
+              sys.exit(1)
+
+          # ① 搬
+          for entry in pick(os.environ.get('MOVES', '')):
+              from_, sep, to = entry.partition(' -> ')
+              if not sep:
+                  die('MOVES 这行没有 -> ：' + entry)
+              subprocess.run(['git', 'mv', from_, to], check=True)
+              print('mv %s -> %s' % (from_, to))
+
+          # ② 替换
+          edits = os.environ.get('EDITS', '')
+          records = split_records(edits)
+          if edits.strip() and not records:
+              die('EDITS 里没有 ### 头')
+          for rec in records:
+              lines = rec.split('\n')
+              path = lines[0].strip()
+              got = blocks('\n'.join(lines[1:]))
+              if len(got) != 2:
+                  die('%s：应有原文/新文两段 <<<< … >>>>，实际 %d 段' % (path, len(got)))
+              src, dst = got
+              p = Path(path)
+              if not p.is_file():
+                  die('缺文件：' + path)
+              text = p.read_text(encoding='utf-8')
+              if src not in text:
+                  die('没找到原文：' + path)
+              p.write_text(text.replace(src, dst), encoding='utf-8')
+              print('改了 ' + path)
+
+          # ③ 删
+          for path in pick(os.environ.get('DELETES', '')):
+              subprocess.run(['git', 'rm', '-r', '-q', '--ignore-unmatch', path], check=True)
+              print('rm ' + path)
+
+          # ④ 自检：失败时把命令输出也打出来
+          for check in pick(os.environ.get('CHECKS', '')):
+              print('check: ' + check)
+              r = subprocess.run(['bash', '-c', check], capture_output=True, text=True)
+              if r.returncode != 0:
+                  print(r.stdout, r.stderr)
+                  die('自检没过：' + check)
+              print('  ok')
+
+          subprocess.run(['git', 'add', '-A'], check=True)
+          if subprocess.run(['git', 'diff', '--cached', '--quiet']).returncode == 0:
+              die('清单没有产生任何改动')
+          print(subprocess.run(['git', 'status', '--short'], capture_output=True, text=True).stdout)
+          PY
+
+      - name: 构建验证
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+
+      - name: 推到分支
+        run: |
+          set -euo pipefail
+          B="${{ inputs.batch }}"
+          git config user.name "reorg-bot"
+          git config user.email "reorg-bot@users.noreply.github.com"
+          git commit -m "reorg: $B"
+          git push -f origin "HEAD:refs/heads/reorg-$B"
