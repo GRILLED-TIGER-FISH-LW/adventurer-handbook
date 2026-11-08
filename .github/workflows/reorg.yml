@@ -1,0 +1,299 @@
+name: Reorg
+
+# 一次性的机械改动机器人（和主仓库那份同一个，清单区就在下面 env 里）。
+#   用法：Actions 里选 Reorg → Run workflow（清单名用默认的即可）
+#   → 它在 reorg-<清单名> 分支上做完、跑一次 npm run build → 你去 compare 页面合并。
+#   任一步失败都不会推分支、不会动 main。
+#
+# 清单格式
+#   ① MOVES    一行一条：旧路径 -> 新路径
+#   ② EDITS    一条一个块：### 文件路径 + <<<< 原文 >>>> + <<<< 新文 >>>>
+#   ③ DELETES  一行一个路径（这份清单里就一条：它自己）
+#   ④ CHECKS   一行一条命令，非 0 即中止
+#
+# 这一批（image-dict）：主仓库把字典改名了（icon-dict.js → image-dict.js、
+#   全局 window.ICON_DICT → window.IMAGE_DICT），本仓库那 4 个页面按绝对 URL 读它，
+#   必须跟着改，否则图标全没了。
+#   · 顺序：**先跑主仓库那批并合并部署**，再跑这批（最后一条自检会去抓主仓库的文件，抓不到就中止）
+#   · 本文件用完即弃：DELETES 里写了它自己，合并进 main 之后这个工作流就没了
+#   · 下次还要用，去 genshin-guide 的 AGENTS.md 第六节 / 它的 .github/workflows/reorg.yml 抄一份
+
+on:
+  workflow_dispatch:
+    inputs:
+      batch:
+        description: 清单名（会建 reorg-<名字> 分支）
+        required: true
+        default: image-dict
+
+permissions:
+  contents: write
+
+env:
+  # ---------- ① 搬文件 ----------
+  MOVES: |
+    # 这批不搬文件
+
+  # ---------- ② 替换 ----------
+  EDITS: |
+    ### src/views/GiftSet.vue
+    <<<<
+    const ICON_DICT_URL =
+      'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-dict.js'
+    >>>>
+    <<<<
+    const IMAGE_DICT_URL =
+      'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
+    >>>>
+
+    ### src/views/GiftSet.vue
+    <<<<
+        const dict = await loadGlobalScript(ICON_DICT_URL, 'ICON_DICT').catch(() => null)
+    >>>>
+    <<<<
+        const dict = await loadGlobalScript(IMAGE_DICT_URL, 'IMAGE_DICT').catch(() => null)
+    >>>>
+
+    ### src/views/GiftSetEditor.vue
+    <<<<
+    const ICON_DICT_URL =
+      'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-dict.js'
+    >>>>
+    <<<<
+    const IMAGE_DICT_URL =
+      'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
+    >>>>
+
+    ### src/views/GiftSetEditor.vue
+    <<<<
+        const dict = await loadGlobalScript(ICON_DICT_URL, 'ICON_DICT').catch(() => null)
+    >>>>
+    <<<<
+        const dict = await loadGlobalScript(IMAGE_DICT_URL, 'IMAGE_DICT').catch(() => null)
+    >>>>
+
+    ### src/views/Tales.vue
+    <<<<
+    const ICON_DICT_URL =
+      'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-dict.js'
+    >>>>
+    <<<<
+    const IMAGE_DICT_URL =
+      'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
+    >>>>
+
+    ### src/views/Tales.vue
+    <<<<
+        const dict = await loadGlobalScript(ICON_DICT_URL, 'ICON_DICT').catch(() => null)
+    >>>>
+    <<<<
+        const dict = await loadGlobalScript(IMAGE_DICT_URL, 'IMAGE_DICT').catch(() => null)
+    >>>>
+
+    ### src/views/TalesEditor.vue
+    <<<<
+    const ICON_DICT_URL =
+      'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-dict.js'
+    >>>>
+    <<<<
+    const IMAGE_DICT_URL =
+      'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
+    >>>>
+
+    ### src/views/TalesEditor.vue
+    <<<<
+        const dict = await loadGlobalScript(ICON_DICT_URL, 'ICON_DICT').catch(() => null)
+    >>>>
+    <<<<
+        const dict = await loadGlobalScript(IMAGE_DICT_URL, 'IMAGE_DICT').catch(() => null)
+    >>>>
+
+    ### src/views/GiftSetEditor.vue
+    <<<<
+      lines.push(' * · preferredCharacters 存角色中文名，按 icon-dict order 升序')
+    >>>>
+    <<<<
+      lines.push(' * · preferredCharacters 存角色中文名，按图片字典 order 升序')
+    >>>>
+
+    ### public/data/gift-set.js
+    <<<<
+     * · preferredCharacters 存角色中文名，按 icon-dict order 升序
+    >>>>
+    <<<<
+     * · preferredCharacters 存角色中文名，按图片字典 order 升序
+    >>>>
+
+    ### src/icons/index.js
+    <<<<
+     * 图标字典 · Fluent UI System Icons（取自 genshin-guide/shared/ui-icons.js）
+    >>>>
+    <<<<
+     * UI 图标 · Fluent UI System Icons（取自 genshin-guide/shared/ui-icons.js）
+    >>>>
+
+    ### AGENTS.md
+    <<<<
+        ├── icons/             图标字典
+    >>>>
+    <<<<
+        ├── icons/             UI 图标（Fluent）
+    >>>>
+
+    ### AGENTS.md
+    <<<<
+    https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-dict.js
+    >>>>
+    <<<<
+    https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js
+    >>>>
+
+    ### AGENTS.md
+    <<<<
+    角色头像字典（几 MB，不适合本地化）。**不要再引入**主仓库的 `theme.css` / `ui-icons.js` / `dropdown.js` / `icon-loader.js`。
+    >>>>
+    <<<<
+    图片字典（头像 / 名片 / 立绘，约 75KB，跨仓库共用所以不本地化）。读它用 `loadGlobalScript(URL, 'IMAGE_DICT')`，拿到的是整个字典对象（`dict.characters[代号].name` 这样取）。**不要再引入**主仓库的 `theme.css` / `ui-icons.js` / `dropdown.js` / `image-loader.js`。
+    >>>>
+
+  # ---------- ③ 删文件 / 目录 ----------
+  DELETES: |
+    .github/workflows/reorg.yml
+
+  # ---------- ④ 自检 ----------
+  CHECKS: |
+    ! grep -rn 'ICON_DICT\|ICON_LIB\|icon-dict\|icon-loader\|gi-icons' src public AGENTS.md
+    grep -q 'shared/image-dict.js' src/views/GiftSet.vue
+    grep -q 'shared/image-dict.js' src/views/TalesEditor.vue
+    test "$(grep -rc IMAGE_DICT_URL src/views/GiftSet.vue src/views/GiftSetEditor.vue src/views/Tales.vue src/views/TalesEditor.vue | awk -F: '{s+=$2} END {print s}')" = 8
+    test "$(grep -rc "IMAGE_DICT'" src/views/GiftSet.vue src/views/GiftSetEditor.vue src/views/Tales.vue src/views/TalesEditor.vue | awk -F: '{s+=$2} END {print s}')" = 4
+    test ! -e .github/workflows/reorg.yml
+    node --check src/icons/index.js && node --check public/data/gift-set.js
+    grep -qF "lines.push(' * · preferredCharacters 存角色中文名，按图片字典 order 升序')" src/views/GiftSetEditor.vue
+    curl -sf -o /dev/null https://raw.githubusercontent.com/GRILLED-TIGER-FISH-LW/genshin-guide/main/public/shared/image-dict.js
+
+jobs:
+  reorg:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 按清单区改
+        run: |
+          python3 - <<'PY'
+          import os, re, subprocess, sys
+          from pathlib import Path
+
+          def pick(text):
+              return [l.strip() for l in text.split('\n') if l.strip() and not l.strip().startswith('#')]
+
+          def split_records(text):
+              # 只在「标记区外」的行首 ### 才当新块的开始（原文 / 新文里出现 ### 也不会切错）
+              out, cur, inside = [], None, False
+              for line in text.split('\n'):
+                  s = line.strip()
+                  guarded = inside or s in ('<<<<', '>>>>')
+                  if s == '<<<<':
+                      inside = True
+                  elif s == '>>>>':
+                      inside = False
+                  if not guarded and line.startswith('###'):
+                      if cur is not None:
+                          out.append('\n'.join(cur))
+                      cur = [line[3:].strip()]
+                  else:
+                      if cur is None:
+                          if not line.strip():
+                              continue
+                          cur = []
+                      cur.append(line)
+              if cur:
+                  out.append('\n'.join(cur))
+              return out
+
+          def blocks(text):
+              out, cur, inside = [], None, False
+              for line in text.split('\n'):
+                  s = line.strip()
+                  if s == '<<<<':
+                      inside, cur = True, []
+                      continue
+                  if s == '>>>>':
+                      inside = False
+                      out.append('\n'.join(cur))
+                      cur = None
+                      continue
+                  if inside:
+                      cur.append(line)
+              return out
+
+          def die(msg):
+              print('中止：' + msg)
+              sys.exit(1)
+
+          # ① 搬
+          for entry in pick(os.environ.get('MOVES', '')):
+              from_, sep, to = entry.partition(' -> ')
+              if not sep:
+                  die('MOVES 这行没有 -> ：' + entry)
+              subprocess.run(['git', 'mv', from_, to], check=True)
+              print('mv %s -> %s' % (from_, to))
+
+          # ② 替换
+          edits = os.environ.get('EDITS', '')
+          records = split_records(edits)
+          if edits.strip() and not records:
+              die('EDITS 里没有 ### 头')
+          for rec in records:
+              lines = rec.split('\n')
+              path = lines[0].strip()
+              got = blocks('\n'.join(lines[1:]))
+              if len(got) != 2:
+                  die('%s：应有原文/新文两段 <<<< … >>>>，实际 %d 段' % (path, len(got)))
+              src, dst = got
+              p = Path(path)
+              if not p.is_file():
+                  die('缺文件：' + path)
+              text = p.read_text(encoding='utf-8')
+              if src not in text:
+                  die('没找到原文：' + path)
+              p.write_text(text.replace(src, dst), encoding='utf-8')
+              print('改了 ' + path)
+
+          # ③ 删
+          for path in pick(os.environ.get('DELETES', '')):
+              subprocess.run(['git', 'rm', '-r', '-q', '--ignore-unmatch', path], check=True)
+              print('rm ' + path)
+
+          # ④ 自检：失败时把命令输出也打出来
+          for check in pick(os.environ.get('CHECKS', '')):
+              print('check: ' + check)
+              r = subprocess.run(['bash', '-c', check], capture_output=True, text=True)
+              if r.returncode != 0:
+                  print(r.stdout, r.stderr)
+                  die('自检没过：' + check)
+              print('  ok')
+
+          subprocess.run(['git', 'add', '-A'], check=True)
+          if subprocess.run(['git', 'diff', '--cached', '--quiet']).returncode == 0:
+              die('清单没有产生任何改动')
+          print(subprocess.run(['git', 'status', '--short'], capture_output=True, text=True).stdout)
+          PY
+
+      - name: 构建验证
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+
+      - name: 推到分支
+        run: |
+          set -euo pipefail
+          B="${{ inputs.batch }}"
+          git config user.name "reorg-bot"
+          git config user.email "reorg-bot@users.noreply.github.com"
+          git commit -m "reorg: $B"
+          git push -f origin "HEAD:refs/heads/reorg-$B"
