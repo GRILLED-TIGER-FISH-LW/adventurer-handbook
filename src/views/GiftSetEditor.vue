@@ -719,7 +719,7 @@ onMounted(async () => {
       const cfg = dict.config?.characters
       const tmp = []
       for (const [key, item] of Object.entries(dict.characters)) {
-        if (!item?.name) continue
+        if (!item?.name || item.order === 1) continue
         const order = item.order ?? 9999
         tmp.push({ name: item.name, order })
         charKeySet.add(item.name)
