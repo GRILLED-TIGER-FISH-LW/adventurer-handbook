@@ -12,8 +12,8 @@ import '../icons/editor-icons.js'
 
 const DRAFT_KEY = 'genshin_travelers_tales_editor_draft_v1'
 const DATA_URL = 'data/tales.js'
-const ICON_DICT_URL =
-  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-dict.js'
+const IMAGE_DICT_URL =
+  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
 
 const toast = useToast()
 
@@ -471,7 +471,7 @@ function onBeforeUnload(e) {
 /* ---------- 启动 ---------- */
 onMounted(async () => {
   try {
-    const dict = await loadGlobalScript(ICON_DICT_URL, 'ICON_DICT').catch(() => null)
+    const dict = await loadGlobalScript(IMAGE_DICT_URL, 'IMAGE_DICT').catch(() => null)
 
     if (dict?.characters) {
       const cfg = dict.config?.characters

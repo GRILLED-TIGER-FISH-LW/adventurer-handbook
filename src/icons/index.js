@@ -1,5 +1,5 @@
 /* =========================================================================
- * 图标字典 · Fluent UI System Icons（取自 genshin-guide/shared/ui-icons.js）
+ * UI 图标 · Fluent UI System Icons（取自 genshin-guide/shared/ui-icons.js）
  * 版本: fluent-fill-v2
  * 覆盖旧版时请确认这一行存在 —— 旧版是自绘描边（零面积路径会被 fill 吞掉）
  * 只存 <svg> 内部标记，外壳由 Icon.vue 输出

@@ -11,8 +11,8 @@ const KEY_OWNED = 'genshin_homeworld_gift_sets_owned_v1'
 const KEY_COMPLETED = 'genshin_homeworld_gift_sets_completed_v1'
 const KEY_UID = 'genshin_homeworld_gift_sets_uid_v1'
 
-const ICON_DICT_URL =
-  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-dict.js'
+const IMAGE_DICT_URL =
+  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
 
 const EXCLUDED = new Set(['旅行者'])
 const toast = useToast()
@@ -384,7 +384,7 @@ function doReset() {
 onMounted(async () => {
   try {
     const data = await loadGiftSetData()
-    const dict = await loadGlobalScript(ICON_DICT_URL, 'ICON_DICT').catch(() => null)
+    const dict = await loadGlobalScript(IMAGE_DICT_URL, 'IMAGE_DICT').catch(() => null)
 
     imageConfig = data?.config?.image || null
     sets.value = Array.isArray(data?.sets) ? data.sets.slice() : []

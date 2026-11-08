@@ -48,7 +48,7 @@
 └── src/
     ├── components/        可复用控件
     ├── composables/       主题 / 通知队列 / 数据加载
-    ├── icons/             图标字典
+    ├── icons/             UI 图标（Fluent）
     ├── styles/            设计令牌 + 全局基线
     └── views/             页面
 ```
@@ -70,10 +70,10 @@
 **只剩 1 个**：
 
 ```
-https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-dict.js
+https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js
 ```
 
-角色头像字典（几 MB，不适合本地化）。**不要再引入**主仓库的 `theme.css` / `ui-icons.js` / `dropdown.js` / `icon-loader.js`。
+图片字典（头像 / 名片 / 立绘，约 75KB，跨仓库共用所以不本地化）。读它用 `loadGlobalScript(URL, 'IMAGE_DICT')`，拿到的是整个字典对象（`dict.characters[代号].name` 这样取）。**不要再引入**主仓库的 `theme.css` / `ui-icons.js` / `dropdown.js` / `image-loader.js`。
 
 ---
 

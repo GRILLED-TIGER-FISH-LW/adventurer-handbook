@@ -13,8 +13,8 @@ import '../icons/editor-icons.js'
 
 const DRAFT_KEY = 'genshin_homeworld_gift_sets_editor_draft_v1'
 const DATA_URL = 'data/gift-set.js'
-const ICON_DICT_URL =
-  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-dict.js'
+const IMAGE_DICT_URL =
+  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
 
 /* 批量输入分隔符：空格 / 全角逗号 / 半角逗号 / 顿号 / 分号 */
 const CHAR_SPLIT_RE = /[\s，,、;；]+/
@@ -310,7 +310,7 @@ function serializeData(d) {
   lines.push(' * · key 不含扩展名')
   lines.push(' *   图片 URL = config.image.prefix + key + config.image.ext')
   lines.push(' * · type: "exterior"（室外）| "interior"（室内）')
-  lines.push(' * · preferredCharacters 存角色中文名，按 icon-dict order 升序')
+  lines.push(' * · preferredCharacters 存角色中文名，按图片字典 order 升序')
   lines.push(' * · sets 按 id 升序排列')
   lines.push(' * ============================================================ */')
   lines.push('')
@@ -712,7 +712,7 @@ function onBeforeUnload(e) {
 /* ---------- 启动 ---------- */
 onMounted(async () => {
   try {
-    const dict = await loadGlobalScript(ICON_DICT_URL, 'ICON_DICT').catch(() => null)
+    const dict = await loadGlobalScript(IMAGE_DICT_URL, 'IMAGE_DICT').catch(() => null)
 
     if (dict?.characters) {
       const cfg = dict.config?.characters
