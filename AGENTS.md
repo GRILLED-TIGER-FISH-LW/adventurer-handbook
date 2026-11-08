@@ -36,6 +36,24 @@
 | 1 处、1 行以内 | 说清**哪个文件** + 给出**完整一整行** + 注明共几处 |
 | 2 处以上，或涉及一个块 | **直接给全文** |
 
+### 三份文档怎么分工
+
+| 文件 | 给谁看 |
+|---|---|
+| `README.md` | 使用者：怎么用、数据存哪、常见问题 |
+| `CHANGELOG.md` | 里程碑（起因 → 经过 → 结果，当前月份按天一条） |
+| `AGENTS.md` | 本文件：AI 的维护手册（流程 / 约定 / 诊断） |
+
+### 批量机械改动（临时 Action）
+
+挪文件、全站同一个字符串替换、删几个文件，**不要一个个文件去改** —— 照抄主仓库的 `.github/workflows/reorg.yml`（清单式：`MOVES` / `EDITS` / `DELETES` / `CHECKS` 四段写在文件顶部 `env` 里），在本仓库默认分支上建出来、直接 Run workflow（从 `main` 跑，清单名会变成分支名 `reorg-<名字>`）。
+
+- 工序固定：`MOVES` → `EDITS` → `DELETES` → `CHECKS` → 构建 → 才提交推送；**只推 `reorg-<名字>` 分支，永远不碰 main**；找不到原文、自检没过、构建失败都不推。
+- `EDITS` 里的文件名要写**搬完之后的路径**；`CHECKS` 查「实际行为」而不是名字 —— 新文注释里顺手写个被检查的字符串，会把自己卡住（栽过）。
+- 验收：`https://github.com/GRILLED-TIGER-FISH-LW/adventurer-handbook/compare/main...reorg-<名字>` → 开 PR → Merge → 删分支。手机上看不到分支横幅，直接用这条链接。
+- 只适合机械改动；要重写的东西（搬页面、改交互）不适用。
+- 用完就删（2026-11 那次改名就是这么干完顺手自删的），下次要用再抄一份。
+
 ---
 
 ## 三、当前架构
@@ -74,6 +92,10 @@ https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js
 ```
 
 图片字典（头像 / 名片 / 立绘，约 75KB，跨仓库共用所以不本地化）。读它用 `loadGlobalScript(URL, 'IMAGE_DICT')`，拿到的是整个字典对象（`dict.characters[代号].name` 这样取）。**不要再引入**主仓库的 `theme.css` / `ui-icons.js` / `dropdown.js` / `image-loader.js`。
+**读它的地方有 4 个**：`src/views/{GiftSet,GiftSetEditor,Tales,TalesEditor}.vue`，
+每个文件两处（URL 常量 + `loadGlobalScript` 的全局名），都带 `.catch(() => null)` —— 断了只是没图标、不白屏。
+**主仓库 2026-11 给字典改过名**（现在叫 `image-dict.js`、全局 `IMAGE_DICT`，见它自己的 CHANGELOG）；
+跟着改的就是这 8 处；那边以后再动，这边要一起改。
 
 ---
 
