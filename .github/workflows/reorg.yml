@@ -20,12 +20,14 @@ name: Reorg
 #   ④ CHECKS   一行一条命令，非 0 即中止（失败会打印该命令的输出）
 #   经验：自检要查「实际读取」，别查名字 —— 新文注释里顺手写个文件名就会把自己卡住（栽过一次）。
 #
-# 这一批（danger-buttons）：把剩下几处删除按钮补齐红描边（AGENTS 第四节那条规矩）。
-#   · 图片字典三处 `variant="danger"` 没带 `border-danger/30`（贴在卡片上等于没底）→ 抽 `DEL` 常量用上
-#   · 视频封面「浮动图片」行内那个删除按钮还是 secondary + 只染图标 → 改成 danger + 红描边 + 图标走 currentColor
-#   · AGENTS：机器人那段补一句新的中止条件（原文在同一文件里出现两次以上也中止）
-#   · CHANGELOG：并进 11-08 那条
-#   · 不动 public/tools/ 的三个 iframe 老页面（等它们搬进 SPA 时一并改）
+# 这一批（no-traveler）：四个页面读字典时不要「旅行者一家」。
+#   · 字典里 Traveler 与 旅行者·冰 都是 order: 1（普通角色从 2 起）—— 一律不进这四个页面
+#   · 5 处枚举 dict.characters 的循环各加一行「item.order === 1 跳过」
+#     （GiftSet 1 处、GiftSetEditor 1 处、Tales 2 处、TalesEditor 1 处）
+#   · 赠礼套装页那条只认名字的 EXCLUDED 从 Set(['旅行者']) 改成 /^旅行者/：
+#     字典已经不读了，但存档里可能还留着旧的「旅行者·冰」，靠它滤掉
+#   · 主仓库的一图流要用这些条目，所以过滤留在这四个页面里，别搬进字典或加载器
+#   · AGENTS 的「跨仓库依赖」补一段这个约定；CHANGELOG 并进 11-08 那条
 
 on:
   workflow_dispatch:
@@ -33,7 +35,7 @@ on:
       batch:
         description: 清单名（会建 reorg-<名字> 分支）
         required: true
-        default: danger-buttons
+        default: no-traveler
 
 permissions:
   contents: write
@@ -45,102 +47,133 @@ env:
 
   # ---------- ② 替换 ----------
   EDITS: |
-    ### src/views/ImageDict.vue
+    ### src/views/GiftSet.vue
     <<<<
-     * ------------------------------------------------------------------------- */
-
-    const {
-      loading,
+    const EXCLUDED = new Set(['旅行者'])
     >>>>
     <<<<
-     * ------------------------------------------------------------------------- */
-
-    /* 删除按钮的红描边：danger 的浅底贴在卡片上只有 1.02:1，靠这 1px 红线区分（见 AGENTS.md 第四节） */
-    const DEL = 'border border-danger/30'
-
-    const {
-      loading,
+    /* 旅行者一家（本体 + 冰 / 火 / 雷 …各元素变体）不进这个页面。
+       字典里 order === 1 的就是它们（见下方枚举 dict.characters 那行），
+       这里按名字前缀兜底 —— 存档里可能还留着旧的「旅行者·冰」，得一并滤掉。 */
+    const EXCLUDED = /^旅行者/
     >>>>
 
-    ### src/views/ImageDict.vue
+    ### src/views/GiftSet.vue
     <<<<
-                  <Btn size="sm" variant="danger" square aria-label="删除" @click="removeRow(row)">
+    Array.isArray(list) ? list.filter((x) => typeof x === 'string' && !EXCLUDED.has(x)) : []
     >>>>
     <<<<
-                  <Btn size="sm" variant="danger" square :class="DEL" aria-label="删除" @click="removeRow(row)">
-    >>>>
-
-    ### src/views/ImageDict.vue
-    <<<<
-                <Btn size="sm" variant="danger" @click="removeRow(activeRow)">
-    >>>>
-    <<<<
-                <Btn size="sm" variant="danger" :class="DEL" @click="removeRow(activeRow)">
+    Array.isArray(list) ? list.filter((x) => typeof x === 'string' && !EXCLUDED.test(x)) : []
     >>>>
 
-    ### src/views/ImageDict.vue
+    ### src/views/GiftSet.vue
     <<<<
-          <Btn size="sm" variant="danger" :disabled="!sorted.length" @click="confirmOpen = true">
+    .filter((c) => !EXCLUDED.has(c))
     >>>>
     <<<<
-          <Btn size="sm" variant="danger" :class="DEL" :disabled="!sorted.length" @click="confirmOpen = true">
+    .filter((c) => !EXCLUDED.test(c))
     >>>>
 
-    ### src/views/VideoCover.vue
+    ### src/views/GiftSet.vue
     <<<<
-                    <Btn
-                      variant="secondary"
-                      size="sm"
-                      square
-                      aria-label="删除"
-                      @click="s.floatImg.splice(i, 1)"
-                    >
-                      <template #icon><Icon name="ui.trash" class="text-danger" /></template>
-                    </Btn>
+    if (!name || EXCLUDED.has(name)) return
     >>>>
     <<<<
-                    <Btn
-                      variant="danger"
-                      size="sm"
-                      square
-                      class="border border-danger/30"
-                      aria-label="删除"
-                      @click="s.floatImg.splice(i, 1)"
-                    >
-                      <template #icon><Icon name="ui.trash" /></template>
-                    </Btn>
+    if (!name || EXCLUDED.test(name)) return
+    >>>>
+
+    ### src/views/GiftSet.vue
+    <<<<
+    if (!set?.key || !name || EXCLUDED.has(name)) return
+    >>>>
+    <<<<
+    if (!set?.key || !name || EXCLUDED.test(name)) return
+    >>>>
+
+    ### src/views/GiftSet.vue
+    <<<<
+    if (!item?.name || EXCLUDED.has(item.name)) continue
+    >>>>
+    <<<<
+    if (!item?.name || item.order === 1) continue
+    >>>>
+
+    ### src/views/GiftSetEditor.vue
+    <<<<
+        if (!item?.name) continue
+    >>>>
+    <<<<
+        if (!item?.name || item.order === 1) continue
+    >>>>
+
+    ### src/views/Tales.vue
+    <<<<
+    if (!item?.name) continue
+    >>>>
+    <<<<
+    if (!item?.name || item.order === 1) continue
+    >>>>
+
+    ### src/views/Tales.vue
+    <<<<
+    if (item?.name) m.set(item.name, typeof item.order === 'number' ? item.order : 9999)
+    >>>>
+    <<<<
+    if (item?.name && item.order !== 1) m.set(item.name, typeof item.order === 'number' ? item.order : 9999)
+    >>>>
+
+    ### src/views/TalesEditor.vue
+    <<<<
+        if (!item?.name) continue
+    >>>>
+    <<<<
+        if (!item?.name || item.order === 1) continue
     >>>>
 
     ### AGENTS.md
     <<<<
-    - **危险色在小尺寸图标按钮上「看不见」**：`danger` 的底色 `#f8e9e7` 与卡片底 `#faf9f5` 对比只有 1.02:1，所以删除按钮一律补一条 `border border-danger/30`（旧版也是靠那 1px 红线区分）。一图流表单里这是 `DEL` 常量；预览框右上角那种悬浮按钮一律用 `Btn` 的 `float-danger` 档（自带这条红边），三个工具别再各写各的。
+    **读它的地方有 4 个**：`src/views/{GiftSet,GiftSetEditor,Tales,TalesEditor}.vue`，
+    每个文件两处（URL 常量 + `loadGlobalScript` 的全局名），都带 `.catch(() => null)` —— 断了只是没图标、不白屏。
     >>>>
     <<<<
-    - **危险色在小尺寸图标按钮上「看不见」**：`danger` 的底色 `#f8e9e7` 与卡片底 `#faf9f5` 对比只有 1.02:1，所以删除按钮一律补一条 `border border-danger/30`（旧版也是靠那 1px 红线区分）。同一页出现两次以上就抽个 `DEL = 'border border-danger/30'` 常量（一图流、图片字典都这么写），只出现一次就直接写进 class（视频封面的浮动图片行）；预览框右上角那种悬浮按钮一律用 `Btn` 的 `float-danger` 档（自带这条红边），三个工具别再各写各的。
-    >>>>
-
-    ### AGENTS.md
-    <<<<
-    - **铁律**：只推 `reorg-<名字>` 分支，**永远不碰 main**；任一步失败都不推；替换找不到原文就中止；自检失败就中止。
-    >>>>
-    <<<<
-    - **铁律**：只推 `reorg-<名字>` 分支，**永远不碰 main**；任一步失败都不推；替换找不到原文就中止；**原文在同一文件里出现不止一次也中止**（否则 `str.replace` 会顺手改掉别处）；自检失败就中止。
-    >>>>
-
-    ### AGENTS.md
-    <<<<
-    - `Btn.vue` 的 `lg` / `float` / `float-danger` 档位记得同步到 `adventurer-handbook`（那边连 `float` 都还没有）；`tokens.css` 新加的 `--color-preview` 也要同步 —— 这两个文件都要求两仓库逐字节相同。
-    >>>>
-    <<<<
-    - `adventurer-handbook` 的 `Btn.vue` 还缺 `lg` / `float` / `float-danger` 三档 —— 那边现在没有预览框、也没有底部悬浮主操作，用不到；等哪页真用上再同步。`tokens.css` 要求两仓库逐字节相同，改动一律两边同时改（`--color-preview` 与同步日期已于 2026-11-08 对齐）。
+    **读它的地方有 4 个**：`src/views/{GiftSet,GiftSetEditor,Tales,TalesEditor}.vue`，
+    每个文件两处（URL 常量 + `loadGlobalScript` 的全局名），都带 `.catch(() => null)` —— 断了只是没图标、不白屏。
+    **旅行者一家不进这四个页面**：字典里 `order === 1` 的就是它们（`Traveler` 与 `旅行者·冰` 都是 1，普通角色从 2 起），
+    所以 5 处枚举 `dict.characters` 的循环里都有一行 `item.order === 1` 跳过（GiftSet 1 处、GiftSetEditor 1 处、Tales 2 处、TalesEditor 1 处）；
+    赠礼套装页另有一条只认名字的兜底 `EXCLUDED = /^旅行者/`，用来滤掉存档里遗留的旧数据。
+    **主仓库的一图流要用这些条目，所以过滤只留在这四个页面里，别搬进字典或加载器。**
     >>>>
 
     ### CHANGELOG.md
     <<<<
-    预览框那块裸 hex 深底也收进令牌 `--color-preview`（不随主题变）。
+    ### 2026-11-08 · 字典改名跟随 · 文档补全 · 编辑器导出文件名修正
     >>>>
     <<<<
-    预览框那块裸 hex 深底也收进令牌 `--color-preview`（不随主题变）；表单里剩下那几处删除按钮（视频封面的浮动图片行、图片字典三处）也补齐了 `border-danger/30` —— 全站删除按钮现在只剩两种写法：表单里 `danger` + 红描边，浮在图上 `float-danger`。
+    ### 2026-11-08 · 字典改名跟随 · 文档补全 · 编辑器导出文件名修正 · 四个页面不再读旅行者
+    >>>>
+
+    ### CHANGELOG.md
+    <<<<
+    - **起因**：三件事。
+    >>>>
+    <<<<
+    - **起因**：四件事。
+    >>>>
+
+    ### CHANGELOG.md
+    <<<<
+    每次都得手动重命名成 `tales.js` / `gift-set.js` 才敢覆盖。
+    >>>>
+    <<<<
+    每次都得手动重命名成 `tales.js` / `gift-set.js` 才敢覆盖。④ 四个页面把字典里的「旅行者一家」也当普通角色读了出来（`Traveler` 与 `旅行者·冰` 在字典里都是 `order: 1`），角色列表、统计与筛选里都不该有它。
+    >>>>
+
+    ### CHANGELOG.md
+    <<<<
+    并把跨仓库依赖那节对齐新名字。
+    >>>>
+    <<<<
+    并把跨仓库依赖那节对齐新名字；同日还把这四个页面读字典的 5 处枚举各加了一条「`order === 1` 跳过」（字典里就是旅行者本体与各元素变体），赠礼套装页那条只认名字的 `EXCLUDED` 从 `Set(['旅行者'])` 改成 `/^旅行者/`，存档里遗留的 `旅行者·冰` 一并滤掉。
     >>>>
 
   # ---------- ③ 删文件 / 目录 ----------
@@ -149,17 +182,18 @@ env:
 
   # ---------- ④ 自检 ----------
   CHECKS: |
-    test "$(grep -c 'const DEL' src/views/ImageDict.vue)" = 1
-    test "$(grep -c ':class="DEL"' src/views/ImageDict.vue)" = 3
-    test "$(grep -c 'variant="danger"' src/views/ImageDict.vue)" = 3
-    grep -q 'class="border border-danger/30"' src/views/VideoCover.vue
-    ! grep -q 'ui.trash" class="text-danger"' src/views/VideoCover.vue
-    grep -q '原文在同一文件里出现不止一次也中止' AGENTS.md
-    grep -q '只出现一次就直接写进 class' AGENTS.md
-    grep -q '那边现在没有预览框、也没有底部悬浮主操作' AGENTS.md
-    grep -q 'border-danger/30' CHANGELOG.md
-    grep -q 'variant="float-danger"' src/views/CharacterGuide.vue
-    test -f src/styles/tokens.css
+    test "$(grep -c 'item.order === 1) continue' src/views/GiftSet.vue)" = 1
+    test "$(grep -c 'order === 1' src/views/GiftSetEditor.vue)" = 1
+    test "$(grep -c -e 'order === 1' -e 'order !== 1' src/views/Tales.vue)" = 2
+    test "$(grep -c 'order === 1' src/views/TalesEditor.vue)" = 1
+    ! grep -q 'EXCLUDED.has' src/views/GiftSet.vue
+    test "$(grep -c 'EXCLUDED.test' src/views/GiftSet.vue)" = 4
+    grep -qF 'const EXCLUDED = /^旅行者/' src/views/GiftSet.vue
+    grep -q 'order === 1' AGENTS.md
+    grep -q '别搬进字典或加载器' AGENTS.md
+    grep -q 'order: 1' CHANGELOG.md
+    grep -q 'if (!item?.name || item.order === 1) continue' src/views/Tales.vue
+    grep -q 'if (item?.name && item.order !== 1) m.set' src/views/Tales.vue
 
 jobs:
   reorg:
