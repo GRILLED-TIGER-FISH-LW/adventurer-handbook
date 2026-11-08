@@ -1,26 +1,31 @@
 name: Reorg
 
-# 常驻工具：这份工作流通用，以后接着用 —— 换掉 env 里那四段清单 → 提交 → Run workflow。
-#   跑法：Actions 里选 Reorg → Run workflow（清单名会变成分支名 reorg-<名字>）
+# 机械改动 + 大删除的通用机器人（清单区就在下面 env 里）。
+#   改清单 → Actions 里选 Reorg → Run workflow（清单名用默认的即可）
 #   → 它在 reorg-<清单名> 分支上做完、跑一次 npm run build → 你去 compare 页面合并。
-#   任一步失败都不会推分支、不会动 main；只推 reorg-<名字> 分支。
+#   任一步失败都不会推分支、不会动 main。
+#   这份工作流常驻：跑完只推分支，自己不会消失，下次换掉 env 里那四段清单接着用。
 #
 # 清单格式
 #   ① MOVES    一行一条：旧路径 -> 新路径
-#   ② EDITS    一条一个块：### 文件路径 + <<<< 原文 >>>> + <<<< 新文 >>>>
+#   ② EDITS    一条一个块，格式固定四段：
+#                 ### 文件路径
+#                 <<<<
+#                 原文（可多行，逐字查找；找不到就中止；同一文件里要唯一，多处就分几个块写）
+#                 >>>>
+#                 <<<<
+#                 新文
+#                 >>>>
 #   ③ DELETES  一行一个路径（文件或目录都行）
 #   ④ CHECKS   一行一条命令，非 0 即中止（失败会打印该命令的输出）
-#   经验：EDITS 里的文件名要写「搬完之后的路径」（工序 MOVES → EDITS → DELETES → CHECKS）；
-#         自检要查「实际行为」，别查名字 —— 新文注释里顺手写个被检查的字符串会把自己卡住（栽过）。
-#   主仓库那份同款：genshin-guide/.github/workflows/reorg.yml（机身一样，只有清单不同）。
+#   经验：自检要查「实际读取」，别查名字 —— 新文注释里顺手写个文件名就会把自己卡住（栽过一次）。
 #
-# 这一批（export-name）：编辑器导出文件名 + AGENTS 措辞。
-#   · 两个编辑器的 DATA_URL 下面加一行 FILE_NAME（= 从 DATA_URL 里取文件名），
-#     导出与提示都改用它 —— 导出直接叫 tales.js / gift-set.js，不用再手动重命名
-#   · README 里「把导出的文件重命名成 tales.js」那句说明跟着改（docs 那批刚写的）
-#   · CHANGELOG 把这件事并进今天的 11-08 条目
-#   · AGENTS 里「批量机械改动」那段改成「这份工作流常驻」
-#   · 前置：docs 那批必须已经合并（三处原文取自它）
+# 这一批（danger-buttons）：把剩下几处删除按钮补齐红描边（AGENTS 第四节那条规矩）。
+#   · 图片字典三处 `variant="danger"` 没带 `border-danger/30`（贴在卡片上等于没底）→ 抽 `DEL` 常量用上
+#   · 视频封面「浮动图片」行内那个删除按钮还是 secondary + 只染图标 → 改成 danger + 红描边 + 图标走 currentColor
+#   · AGENTS：机器人那段补一句新的中止条件（原文在同一文件里出现两次以上也中止）
+#   · CHANGELOG：并进 11-08 那条
+#   · 不动 public/tools/ 的三个 iframe 老页面（等它们搬进 SPA 时一并改）
 
 on:
   workflow_dispatch:
@@ -28,7 +33,7 @@ on:
       batch:
         description: 清单名（会建 reorg-<名字> 分支）
         required: true
-        default: export-name
+        default: danger-buttons
 
 permissions:
   contents: write
@@ -36,122 +41,106 @@ permissions:
 env:
   # ---------- ① 搬文件 ----------
   MOVES: |
-    # 这批不搬文件
+    # 这批没有要搬的文件
 
   # ---------- ② 替换 ----------
   EDITS: |
-    ### src/views/TalesEditor.vue
+    ### src/views/ImageDict.vue
     <<<<
-    const DATA_URL = 'data/tales.js'
+     * ------------------------------------------------------------------------- */
+
+    const {
+      loading,
     >>>>
     <<<<
-    const DATA_URL = 'data/tales.js'
-    const FILE_NAME = DATA_URL.split('/').pop()
+     * ------------------------------------------------------------------------- */
+
+    /* 删除按钮的红描边：danger 的浅底贴在卡片上只有 1.02:1，靠这 1px 红线区分（见 AGENTS.md 第四节） */
+    const DEL = 'border border-danger/30'
+
+    const {
+      loading,
     >>>>
 
-    ### src/views/TalesEditor.vue
+    ### src/views/ImageDict.vue
     <<<<
-      a.download = 'data.js'
+                  <Btn size="sm" variant="danger" square aria-label="删除" @click="removeRow(row)">
     >>>>
     <<<<
-      a.download = FILE_NAME
-    >>>>
-
-    ### src/views/TalesEditor.vue
-    <<<<
-      toast.success('已导出 data.js')
-    >>>>
-    <<<<
-      toast.success(`已导出 ${FILE_NAME}`)
+                  <Btn size="sm" variant="danger" square :class="DEL" aria-label="删除" @click="removeRow(row)">
     >>>>
 
-    ### src/views/TalesEditor.vue
+    ### src/views/ImageDict.vue
     <<<<
-              : '将从线上重新拉取 data.js，覆盖当前编辑内容。'
+                <Btn size="sm" variant="danger" @click="removeRow(activeRow)">
     >>>>
     <<<<
-              : `将从线上重新拉取 ${FILE_NAME}，覆盖当前编辑内容。`
-    >>>>
-
-    ### src/views/GiftSetEditor.vue
-    <<<<
-    const DATA_URL = 'data/gift-set.js'
-    >>>>
-    <<<<
-    const DATA_URL = 'data/gift-set.js'
-    const FILE_NAME = DATA_URL.split('/').pop()
+                <Btn size="sm" variant="danger" :class="DEL" @click="removeRow(activeRow)">
     >>>>
 
-    ### src/views/GiftSetEditor.vue
+    ### src/views/ImageDict.vue
     <<<<
-      a.download = 'data.js'
+          <Btn size="sm" variant="danger" :disabled="!sorted.length" @click="confirmOpen = true">
     >>>>
     <<<<
-      a.download = FILE_NAME
-    >>>>
-
-    ### src/views/GiftSetEditor.vue
-    <<<<
-      toast.success('已导出 data.js')
-    >>>>
-    <<<<
-      toast.success(`已导出 ${FILE_NAME}`)
+          <Btn size="sm" variant="danger" :class="DEL" :disabled="!sorted.length" @click="confirmOpen = true">
     >>>>
 
-    ### src/views/GiftSetEditor.vue
+    ### src/views/VideoCover.vue
     <<<<
-              : '将从线上重新拉取 data.js，覆盖当前编辑内容。'
+                    <Btn
+                      variant="secondary"
+                      size="sm"
+                      square
+                      aria-label="删除"
+                      @click="s.floatImg.splice(i, 1)"
+                    >
+                      <template #icon><Icon name="ui.trash" class="text-danger" /></template>
+                    </Btn>
     >>>>
     <<<<
-              : `将从线上重新拉取 ${FILE_NAME}，覆盖当前编辑内容。`
-    >>>>
-
-    ### README.md
-    <<<<
-    两个编辑器改完要「导出 `data.js`」→ 把导出的文件重命名成 `tales.js`（或 `gift-set.js`）覆盖 `public/data/` 下的同名文件 → 提交，等 Actions 部署完（一两分钟）再刷新。
-    >>>>
-    <<<<
-    两个编辑器改完点「导出」→ 导出得到的文件名**已经就是** `tales.js` / `gift-set.js`，直接覆盖 `public/data/` 下的同名文件 → 提交，等 Actions 部署完（一两分钟）再刷新。
-    >>>>
-
-    ### CHANGELOG.md
-    <<<<
-    ### 2026-11-08 · 跟随主仓库字典改名，README 补全
-
-    - **起因**：两件事。① 主仓库把跨仓库那份字典改了名（`icon-dict.js` → `image-dict.js`、全局 `ICON_DICT` → `IMAGE_DICT`）—— 四个页面按绝对 URL 读它，不跟着改就全都取不到角色图。② README 的「数据保存」一节断在半张表格上，目录里承诺的「常见问题」「项目结构」两节根本不存在。
-    - **经过**：四个页面（旅闻 / 套装 + 两个编辑器）的 URL 常量与 `loadGlobalScript` 的全局名同批改掉，顺手清掉还写着旧名的几处注释与数据文件说明；改动用一份照抄主仓库的清单式临时 Action 完成（`DELETES` 里写了它自己，合并后自动消失）。README 补全「数据保存 / 导出与导入 / 游戏数据从哪来 / 常见问题 / 项目结构 / 致谢」，AGENTS 补「三份文档怎么分工」与「批量机械改动」两段，并把跨仓库依赖那节对齐新名字。
-    - **结果**：跨仓库依赖两边名字一致，四个页面图标恢复；README 从目录到致谢一路自洽（六个锚点都能点）；以后这边挪文件、全站替换、删文件有现成套路。
-    >>>>
-    <<<<
-    ### 2026-11-08 · 字典改名跟随 · 文档补全 · 编辑器导出文件名修正
-
-    - **起因**：三件事。① 主仓库把跨仓库那份字典改了名（`icon-dict.js` → `image-dict.js`、全局 `ICON_DICT` → `IMAGE_DICT`）—— 四个页面按绝对 URL 读它，不跟着改就全都取不到角色图。② README 的「数据保存」一节断在半张表格上，目录里承诺的「常见问题」「项目结构」两节根本不存在。③ 两个编辑器导出的文件写死叫 `data.js`，每次都得手动重命名成 `tales.js` / `gift-set.js` 才敢覆盖。
-    - **经过**：四个页面（旅闻 / 套装 + 两个编辑器）的 URL 常量与 `loadGlobalScript` 的全局名同批改掉，顺手清掉还写着旧名的几处注释与数据文件说明；两个编辑器改成按 `DATA_URL` 取名（`FILE_NAME`），导出直接就是 `tales.js` / `gift-set.js`，「重载线上数据」提示里的文件名跟着变；改动用一份照抄主仓库的清单式临时 Action 完成（`DELETES` 里写了它自己，合并后自动消失）。README 补全「数据保存 / 导出与导入 / 游戏数据从哪来 / 常见问题 / 项目结构 / 致谢」，AGENTS 补「三份文档怎么分工」与「批量机械改动」两段，并把跨仓库依赖那节对齐新名字。
-    - **结果**：跨仓库依赖两边名字一致，四个页面图标恢复，编辑器导出即落地（少一步手动重命名）；README 从目录到致谢一路自洽（六个锚点都能点）；以后这边挪文件、全站替换、删文件有现成套路。
+                    <Btn
+                      variant="danger"
+                      size="sm"
+                      square
+                      class="border border-danger/30"
+                      aria-label="删除"
+                      @click="s.floatImg.splice(i, 1)"
+                    >
+                      <template #icon><Icon name="ui.trash" /></template>
+                    </Btn>
     >>>>
 
     ### AGENTS.md
     <<<<
-    ### 批量机械改动（临时 Action）
-
-    挪文件、全站同一个字符串替换、删几个文件，**不要一个个文件去改** —— 照抄主仓库的 `.github/workflows/reorg.yml`（清单式：`MOVES` / `EDITS` / `DELETES` / `CHECKS` 四段写在文件顶部 `env` 里），在本仓库默认分支上建出来、直接 Run workflow（从 `main` 跑，清单名会变成分支名 `reorg-<名字>`）。
-
-    - 工序固定：`MOVES` → `EDITS` → `DELETES` → `CHECKS` → 构建 → 才提交推送；**只推 `reorg-<名字>` 分支，永远不碰 main**；找不到原文、自检没过、构建失败都不推。
-    - `EDITS` 里的文件名要写**搬完之后的路径**；`CHECKS` 查「实际行为」而不是名字 —— 新文注释里顺手写个被检查的字符串，会把自己卡住（栽过）。
-    - 验收：`https://github.com/GRILLED-TIGER-FISH-LW/adventurer-handbook/compare/main...reorg-<名字>` → 开 PR → Merge → 删分支。手机上看不到分支横幅，直接用这条链接。
-    - 只适合机械改动；要重写的东西（搬页面、改交互）不适用。
-    - 用完就删（2026-11 那次改名就是这么干完顺手自删的），下次要用再抄一份。
+    - **危险色在小尺寸图标按钮上「看不见」**：`danger` 的底色 `#f8e9e7` 与卡片底 `#faf9f5` 对比只有 1.02:1，所以删除按钮一律补一条 `border border-danger/30`（旧版也是靠那 1px 红线区分）。一图流表单里这是 `DEL` 常量；预览框右上角那种悬浮按钮一律用 `Btn` 的 `float-danger` 档（自带这条红边），三个工具别再各写各的。
     >>>>
     <<<<
-    ### 批量机械改动（清单式 Action）
+    - **危险色在小尺寸图标按钮上「看不见」**：`danger` 的底色 `#f8e9e7` 与卡片底 `#faf9f5` 对比只有 1.02:1，所以删除按钮一律补一条 `border border-danger/30`（旧版也是靠那 1px 红线区分）。同一页出现两次以上就抽个 `DEL = 'border border-danger/30'` 常量（一图流、图片字典都这么写），只出现一次就直接写进 class（视频封面的浮动图片行）；预览框右上角那种悬浮按钮一律用 `Btn` 的 `float-danger` 档（自带这条红边），三个工具别再各写各的。
+    >>>>
 
-    挪文件、全站同一个字符串替换、删几个文件，**不要一个个文件去改** —— 用本仓库的 `.github/workflows/reorg.yml`（和主仓库那份同一套；清单式：`MOVES` / `EDITS` / `DELETES` / `CHECKS` 四段写在文件顶部 `env` 里）。**这份常驻**：换清单 → 提交 → 直接 Run workflow（从 `main` 跑，清单名会变成分支名 `reorg-<名字>`）。
+    ### AGENTS.md
+    <<<<
+    - **铁律**：只推 `reorg-<名字>` 分支，**永远不碰 main**；任一步失败都不推；替换找不到原文就中止；自检失败就中止。
+    >>>>
+    <<<<
+    - **铁律**：只推 `reorg-<名字>` 分支，**永远不碰 main**；任一步失败都不推；替换找不到原文就中止；**原文在同一文件里出现不止一次也中止**（否则 `str.replace` 会顺手改掉别处）；自检失败就中止。
+    >>>>
 
-    - 工序固定：`MOVES` → `EDITS` → `DELETES` → `CHECKS` → 构建 → 才提交推送；**只推 `reorg-<名字>` 分支，永远不碰 main**；找不到原文、自检没过、构建失败都不推。
-    - `EDITS` 里的文件名要写**搬完之后的路径**；`CHECKS` 查「实际行为」而不是名字 —— 新文注释里顺手写个被检查的字符串，会把自己卡住（栽过）。
-    - 验收：`https://github.com/GRILLED-TIGER-FISH-LW/adventurer-handbook/compare/main...reorg-<名字>` → 开 PR → Merge → 删分支。手机上看不到分支横幅，直接用这条链接。
-    - 只适合机械改动；要重写的东西（搬页面、改交互）不适用。
-    - 清单名随便取（同名会覆盖旧分支），合并后把分支删掉；工作流本身留着，下次接着用。
+    ### AGENTS.md
+    <<<<
+    - `Btn.vue` 的 `lg` / `float` / `float-danger` 档位记得同步到 `adventurer-handbook`（那边连 `float` 都还没有）；`tokens.css` 新加的 `--color-preview` 也要同步 —— 这两个文件都要求两仓库逐字节相同。
+    >>>>
+    <<<<
+    - `adventurer-handbook` 的 `Btn.vue` 还缺 `lg` / `float` / `float-danger` 三档 —— 那边现在没有预览框、也没有底部悬浮主操作，用不到；等哪页真用上再同步。`tokens.css` 要求两仓库逐字节相同，改动一律两边同时改（`--color-preview` 与同步日期已于 2026-11-08 对齐）。
+    >>>>
+
+    ### CHANGELOG.md
+    <<<<
+    预览框那块裸 hex 深底也收进令牌 `--color-preview`（不随主题变）。
+    >>>>
+    <<<<
+    预览框那块裸 hex 深底也收进令牌 `--color-preview`（不随主题变）；表单里剩下那几处删除按钮（视频封面的浮动图片行、图片字典三处）也补齐了 `border-danger/30` —— 全站删除按钮现在只剩两种写法：表单里 `danger` + 红描边，浮在图上 `float-danger`。
     >>>>
 
   # ---------- ③ 删文件 / 目录 ----------
@@ -160,28 +149,17 @@ env:
 
   # ---------- ④ 自检 ----------
   CHECKS: |
-    ! grep -n 'data\.js' src/views/TalesEditor.vue src/views/GiftSetEditor.vue
-    grep -qF "const FILE_NAME = DATA_URL.split('/').pop()" src/views/TalesEditor.vue
-    grep -qF "const FILE_NAME = DATA_URL.split('/').pop()" src/views/GiftSetEditor.vue
-    grep -qF 'a.download = FILE_NAME' src/views/TalesEditor.vue
-    grep -qF 'a.download = FILE_NAME' src/views/GiftSetEditor.vue
-    grep -qF '已导出 ${FILE_NAME}' src/views/TalesEditor.vue
-    grep -qF '已导出 ${FILE_NAME}' src/views/GiftSetEditor.vue
-    ! grep -n '重命名成' README.md
-    grep -qF '## 📌 备注与致谢' README.md
-    ! grep -n '^| *$' README.md
-    test "$(tail -n 1 README.md)" = '</div>'
-    for a in start tales giftset save faq structure; do grep -q "id=\"$a\"" README.md || { echo 缺锚点-$a; exit 1; }; done
-    ! grep -n 'icon-dict\.js\|icon-loader\.js\|ICON_DICT\|gi-icons' README.md AGENTS.md
-    grep -qF '这份常驻' AGENTS.md
-    ! grep -n '用完就删' AGENTS.md
-    grep -qF '批量机械改动（清单式 Action）' AGENTS.md
-    grep -qF '读它的地方有 4 个' AGENTS.md
-    grep -qF '2026-11-08 · 字典改名跟随' CHANGELOG.md
-    grep -qF '导出直接就是 `tales.js` / `gift-set.js`' CHANGELOG.md
-    grep -qF '### 2026-11-04 · 技术栈迁移完成' CHANGELOG.md
-    node -e 'const s=require("fs").readFileSync("src/views/TalesEditor.vue","utf8");const m=s.match(/const DATA_URL = (.*)\nconst FILE_NAME = (.*)\n/);if(!m)throw new Error("没挨着");const DATA_URL=eval(m[1]),n=eval(m[2]);if(n!=="tales.js")throw new Error("导出名="+n);console.log("TalesEditor -> "+n)'
-    node -e 'const s=require("fs").readFileSync("src/views/GiftSetEditor.vue","utf8");const m=s.match(/const DATA_URL = (.*)\nconst FILE_NAME = (.*)\n/);if(!m)throw new Error("没挨着");const DATA_URL=eval(m[1]),n=eval(m[2]);if(n!=="gift-set.js")throw new Error("导出名="+n);console.log("GiftSetEditor -> "+n)'
+    test "$(grep -c 'const DEL' src/views/ImageDict.vue)" = 1
+    test "$(grep -c ':class="DEL"' src/views/ImageDict.vue)" = 3
+    test "$(grep -c 'variant="danger"' src/views/ImageDict.vue)" = 3
+    grep -q 'class="border border-danger/30"' src/views/VideoCover.vue
+    ! grep -q 'ui.trash" class="text-danger"' src/views/VideoCover.vue
+    grep -q '原文在同一文件里出现不止一次也中止' AGENTS.md
+    grep -q '只出现一次就直接写进 class' AGENTS.md
+    grep -q '那边现在没有预览框、也没有底部悬浮主操作' AGENTS.md
+    grep -q 'border-danger/30' CHANGELOG.md
+    grep -q 'variant="float-danger"' src/views/CharacterGuide.vue
+    test -f src/styles/tokens.css
 
 jobs:
   reorg:
@@ -273,6 +251,8 @@ jobs:
               text = p.read_text(encoding='utf-8')
               if src not in text:
                   die('没找到原文：' + path)
+              if text.count(src) != 1:
+                  die('原文在 %s 里出现 %d 次，不唯一：%s' % (path, text.count(src), src.split('\n')[0][:60]))
               p.write_text(text.replace(src, dst), encoding='utf-8')
               print('改了 ' + path)
 
