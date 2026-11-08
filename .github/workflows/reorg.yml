@@ -1,33 +1,16 @@
 name: Reorg
 
-# 机械改动 + 大删除的通用机器人（清单区就在下面 env 里）。
-#   改清单 → Actions 里选 Reorg → Run workflow（清单名用默认的即可）
-#   → 它在 reorg-<清单名> 分支上做完、跑一次 npm run build → 你去 compare 页面合并。
-#   任一步失败都不会推分支、不会动 main。
-#   这份工作流常驻：跑完只推分支，自己不会消失，下次换掉 env 里那四段清单接着用。
+# 清单式 Action：机械改动 / 大删除 / 全仓库同一个字符串替换 / 文档批量改 —— 都走这里。
+#   清单在仓库根的 `reorg-list.txt`（四段：MOVES / EDITS / DELETES / CHECKS，格式见那个文件顶部）。
+#   跑法：改 reorg-list.txt → 提交 → Actions → Reorg → Run workflow（清单名会变成分支名 reorg-<名字>）
+#        → 它在 reorg-<清单名> 分支上做完 + 跑一次 npm run build → 去 compare 页面合并。
+#   任一步失败都不推分支、不碰 main。
+#   **这份工作流常驻、不用再动**（清单不在它里面了）；两个仓库的这份文件逐字节相同。
 #
-# 清单格式
-#   ① MOVES    一行一条：旧路径 -> 新路径
-#   ② EDITS    一条一个块，格式固定四段：
-#                 ### 文件路径
-#                 <<<<
-#                 原文（可多行，逐字查找；找不到就中止；同一文件里要唯一，多处就分几个块写）
-#                 >>>>
-#                 <<<<
-#                 新文
-#                 >>>>
-#   ③ DELETES  一行一个路径（文件或目录都行）
-#   ④ CHECKS   一行一条命令，非 0 即中止（失败会打印该命令的输出）
-#   经验：自检要查「实际读取」，别查名字 —— 新文注释里顺手写个文件名就会把自己卡住（栽过一次）。
-#
-# 这一批（no-traveler）：四个页面读字典时不要「旅行者一家」。
-#   · 字典里 Traveler 与 旅行者·冰 都是 order: 1（普通角色从 2 起）—— 一律不进这四个页面
-#   · 5 处枚举 dict.characters 的循环各加一行「item.order === 1 跳过」
-#     （GiftSet 1 处、GiftSetEditor 1 处、Tales 2 处、TalesEditor 1 处）
-#   · 赠礼套装页那条只认名字的 EXCLUDED 从 Set(['旅行者']) 改成 /^旅行者/：
-#     字典已经不读了，但存档里可能还留着旧的「旅行者·冰」，靠它滤掉
-#   · 主仓库的一图流要用这些条目，所以过滤留在这四个页面里，别搬进字典或加载器
-#   · AGENTS 的「跨仓库依赖」补一段这个约定；CHANGELOG 并进 11-08 那条
+# 经验（都是栽过的）：
+#   · 自检要查「实际行为」，别查名字 —— 新文注释里顺手写个被检查的字符串会把自己卡住；
+#   · 原文在同一文件里出现不止一次也中止（否则 str.replace 会顺手改掉别处）；
+#   · EDITS 段里不要写 `#` 注释行（会被当成文件路径）；注释写在段外或 MOVES/DELETES/CHECKS 段里。
 
 on:
   workflow_dispatch:
@@ -35,165 +18,14 @@ on:
       batch:
         description: 清单名（会建 reorg-<名字> 分支）
         required: true
-        default: no-traveler
+        default: reorg
+      list:
+        description: 清单文件路径
+        required: true
+        default: reorg-list.txt
 
 permissions:
   contents: write
-
-env:
-  # ---------- ① 搬文件 ----------
-  MOVES: |
-    # 这批没有要搬的文件
-
-  # ---------- ② 替换 ----------
-  EDITS: |
-    ### src/views/GiftSet.vue
-    <<<<
-    const EXCLUDED = new Set(['旅行者'])
-    >>>>
-    <<<<
-    /* 旅行者一家（本体 + 冰 / 火 / 雷 …各元素变体）不进这个页面。
-       字典里 order === 1 的就是它们（见下方枚举 dict.characters 那行），
-       这里按名字前缀兜底 —— 存档里可能还留着旧的「旅行者·冰」，得一并滤掉。 */
-    const EXCLUDED = /^旅行者/
-    >>>>
-
-    ### src/views/GiftSet.vue
-    <<<<
-    Array.isArray(list) ? list.filter((x) => typeof x === 'string' && !EXCLUDED.has(x)) : []
-    >>>>
-    <<<<
-    Array.isArray(list) ? list.filter((x) => typeof x === 'string' && !EXCLUDED.test(x)) : []
-    >>>>
-
-    ### src/views/GiftSet.vue
-    <<<<
-    .filter((c) => !EXCLUDED.has(c))
-    >>>>
-    <<<<
-    .filter((c) => !EXCLUDED.test(c))
-    >>>>
-
-    ### src/views/GiftSet.vue
-    <<<<
-    if (!name || EXCLUDED.has(name)) return
-    >>>>
-    <<<<
-    if (!name || EXCLUDED.test(name)) return
-    >>>>
-
-    ### src/views/GiftSet.vue
-    <<<<
-    if (!set?.key || !name || EXCLUDED.has(name)) return
-    >>>>
-    <<<<
-    if (!set?.key || !name || EXCLUDED.test(name)) return
-    >>>>
-
-    ### src/views/GiftSet.vue
-    <<<<
-    if (!item?.name || EXCLUDED.has(item.name)) continue
-    >>>>
-    <<<<
-    if (!item?.name || item.order === 1) continue
-    >>>>
-
-    ### src/views/GiftSetEditor.vue
-    <<<<
-        if (!item?.name) continue
-    >>>>
-    <<<<
-        if (!item?.name || item.order === 1) continue
-    >>>>
-
-    ### src/views/Tales.vue
-    <<<<
-    if (!item?.name) continue
-    >>>>
-    <<<<
-    if (!item?.name || item.order === 1) continue
-    >>>>
-
-    ### src/views/Tales.vue
-    <<<<
-    if (item?.name) m.set(item.name, typeof item.order === 'number' ? item.order : 9999)
-    >>>>
-    <<<<
-    if (item?.name && item.order !== 1) m.set(item.name, typeof item.order === 'number' ? item.order : 9999)
-    >>>>
-
-    ### src/views/TalesEditor.vue
-    <<<<
-        if (!item?.name) continue
-    >>>>
-    <<<<
-        if (!item?.name || item.order === 1) continue
-    >>>>
-
-    ### AGENTS.md
-    <<<<
-    **读它的地方有 4 个**：`src/views/{GiftSet,GiftSetEditor,Tales,TalesEditor}.vue`，
-    每个文件两处（URL 常量 + `loadGlobalScript` 的全局名），都带 `.catch(() => null)` —— 断了只是没图标、不白屏。
-    >>>>
-    <<<<
-    **读它的地方有 4 个**：`src/views/{GiftSet,GiftSetEditor,Tales,TalesEditor}.vue`，
-    每个文件两处（URL 常量 + `loadGlobalScript` 的全局名），都带 `.catch(() => null)` —— 断了只是没图标、不白屏。
-    **旅行者一家不进这四个页面**：字典里 `order === 1` 的就是它们（`Traveler` 与 `旅行者·冰` 都是 1，普通角色从 2 起），
-    所以 5 处枚举 `dict.characters` 的循环里都有一行 `item.order === 1` 跳过（GiftSet 1 处、GiftSetEditor 1 处、Tales 2 处、TalesEditor 1 处）；
-    赠礼套装页另有一条只认名字的兜底 `EXCLUDED = /^旅行者/`，用来滤掉存档里遗留的旧数据。
-    **主仓库的一图流要用这些条目，所以过滤只留在这四个页面里，别搬进字典或加载器。**
-    >>>>
-
-    ### CHANGELOG.md
-    <<<<
-    ### 2026-11-08 · 字典改名跟随 · 文档补全 · 编辑器导出文件名修正
-    >>>>
-    <<<<
-    ### 2026-11-08 · 字典改名跟随 · 文档补全 · 编辑器导出文件名修正 · 四个页面不再读旅行者
-    >>>>
-
-    ### CHANGELOG.md
-    <<<<
-    - **起因**：三件事。
-    >>>>
-    <<<<
-    - **起因**：四件事。
-    >>>>
-
-    ### CHANGELOG.md
-    <<<<
-    每次都得手动重命名成 `tales.js` / `gift-set.js` 才敢覆盖。
-    >>>>
-    <<<<
-    每次都得手动重命名成 `tales.js` / `gift-set.js` 才敢覆盖。④ 四个页面把字典里的「旅行者一家」也当普通角色读了出来（`Traveler` 与 `旅行者·冰` 在字典里都是 `order: 1`），角色列表、统计与筛选里都不该有它。
-    >>>>
-
-    ### CHANGELOG.md
-    <<<<
-    并把跨仓库依赖那节对齐新名字。
-    >>>>
-    <<<<
-    并把跨仓库依赖那节对齐新名字；同日还把这四个页面读字典的 5 处枚举各加了一条「`order === 1` 跳过」（字典里就是旅行者本体与各元素变体），赠礼套装页那条只认名字的 `EXCLUDED` 从 `Set(['旅行者'])` 改成 `/^旅行者/`，存档里遗留的 `旅行者·冰` 一并滤掉。
-    >>>>
-
-  # ---------- ③ 删文件 / 目录 ----------
-  DELETES: |
-    # 这批没有要删的文件
-
-  # ---------- ④ 自检 ----------
-  CHECKS: |
-    test "$(grep -c 'item.order === 1) continue' src/views/GiftSet.vue)" = 1
-    test "$(grep -c 'order === 1' src/views/GiftSetEditor.vue)" = 1
-    test "$(grep -c -e 'order === 1' -e 'order !== 1' src/views/Tales.vue)" = 2
-    test "$(grep -c 'order === 1' src/views/TalesEditor.vue)" = 1
-    ! grep -q 'EXCLUDED.has' src/views/GiftSet.vue
-    test "$(grep -c 'EXCLUDED.test' src/views/GiftSet.vue)" = 4
-    grep -qF 'const EXCLUDED = /^旅行者/' src/views/GiftSet.vue
-    grep -q 'order === 1' AGENTS.md
-    grep -q '别搬进字典或加载器' AGENTS.md
-    grep -q 'order: 1' CHANGELOG.md
-    grep -q 'if (!item?.name || item.order === 1) continue' src/views/Tales.vue
-    grep -q 'if (item?.name && item.order !== 1) m.set' src/views/Tales.vue
 
 jobs:
   reorg:
@@ -206,10 +38,23 @@ jobs:
           node-version: 20
 
       - name: 按清单区改
+        env:
+          LIST_FILE: ${{ inputs.list }}
         run: |
           python3 - <<'PY'
           import os, re, subprocess, sys
           from pathlib import Path
+
+          list_path = Path(os.environ['LIST_FILE'])
+          if not list_path.is_file():
+              print('中止：找不到清单文件 ' + str(list_path))
+              sys.exit(1)
+          LIST = list_path.read_text(encoding='utf-8')
+
+          def section(name):
+              # 取 == NAME == 与下一个 == … == 之间的内容；段外的行一律忽略
+              m = re.search(r'^==\s*%s\s*==\s*$(.*?)(?=^==\s*\w+\s*==\s*$|\Z)' % name, LIST, re.S | re.M)
+              return m.group(1) if m else ''
 
           def pick(text):
               return [l.strip() for l in text.split('\n') if l.strip() and not l.strip().startswith('#')]
@@ -259,8 +104,21 @@ jobs:
               print('中止：' + msg)
               sys.exit(1)
 
+          moves = pick(section('MOVES'))
+          records = split_records(section('EDITS'))
+          deletes = pick(section('DELETES'))
+          checks = pick(section('CHECKS'))
+
+          print('清单文件 %s：MOVES %d 条 / EDITS %d 块 / DELETES %d 条 / CHECKS %d 条'
+                % (list_path, len(moves), len(records), len(deletes), len(checks)))
+
+          if not (moves or records or deletes):
+              die('清单四段里没有要做的改动')
+          if not checks:
+              die('清单里没有 CHECKS：每批都要有自检')
+
           # ① 搬
-          for entry in pick(os.environ.get('MOVES', '')):
+          for entry in moves:
               from_, sep, to = entry.partition(' -> ')
               if not sep:
                   die('MOVES 这行没有 -> ：' + entry)
@@ -268,10 +126,6 @@ jobs:
               print('mv %s -> %s' % (from_, to))
 
           # ② 替换
-          edits = os.environ.get('EDITS', '')
-          records = split_records(edits)
-          if edits.strip() and not records:
-              die('EDITS 里没有 ### 头')
           for rec in records:
               lines = rec.split('\n')
               path = lines[0].strip()
@@ -291,12 +145,12 @@ jobs:
               print('改了 ' + path)
 
           # ③ 删
-          for path in pick(os.environ.get('DELETES', '')):
+          for path in deletes:
               subprocess.run(['git', 'rm', '-r', '-q', '--ignore-unmatch', path], check=True)
               print('rm ' + path)
 
           # ④ 自检：失败时把命令输出也打出来
-          for check in pick(os.environ.get('CHECKS', '')):
+          for check in checks:
               print('check: ' + check)
               r = subprocess.run(['bash', '-c', check], capture_output=True, text=True)
               if r.returncode != 0:
