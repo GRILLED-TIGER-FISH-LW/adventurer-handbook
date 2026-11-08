@@ -94,6 +94,10 @@ https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js
 图片字典（头像 / 名片 / 立绘，约 75KB，跨仓库共用所以不本地化）。读它用 `loadGlobalScript(URL, 'IMAGE_DICT')`，拿到的是整个字典对象（`dict.characters[代号].name` 这样取）。**不要再引入**主仓库的 `theme.css` / `ui-icons.js` / `dropdown.js` / `image-loader.js`。
 **读它的地方有 4 个**：`src/views/{GiftSet,GiftSetEditor,Tales,TalesEditor}.vue`，
 每个文件两处（URL 常量 + `loadGlobalScript` 的全局名），都带 `.catch(() => null)` —— 断了只是没图标、不白屏。
+**旅行者一家不进这四个页面**：字典里 `order === 1` 的就是它们（`Traveler` 与 `旅行者·冰` 都是 1，普通角色从 2 起），
+所以 5 处枚举 `dict.characters` 的循环里都有一行 `item.order === 1` 跳过（GiftSet 1 处、GiftSetEditor 1 处、Tales 2 处、TalesEditor 1 处）；
+赠礼套装页另有一条只认名字的兜底 `EXCLUDED = /^旅行者/`，用来滤掉存档里遗留的旧数据。
+**主仓库的一图流要用这些条目，所以过滤只留在这四个页面里，别搬进字典或加载器。**
 **主仓库 2026-11 给字典改过名**（现在叫 `image-dict.js`、全局 `IMAGE_DICT`，见它自己的 CHANGELOG）；
 跟着改的就是这 8 处；那边以后再动，这边要一起改。
 

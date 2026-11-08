@@ -44,7 +44,7 @@ function buildAvatarCache(dict) {
   if (!dict?.characters || !cfg) return
   for (const key in dict.characters) {
     const item = dict.characters[key]
-    if (!item?.name) continue
+    if (!item?.name || item.order === 1) continue
     avatarCache.set(
       item.name,
       item.url
@@ -61,7 +61,7 @@ function buildOrderMap(dict) {
   if (dict?.characters) {
     for (const key in dict.characters) {
       const item = dict.characters[key]
-      if (item?.name) m.set(item.name, typeof item.order === 'number' ? item.order : 9999)
+      if (item?.name && item.order !== 1) m.set(item.name, typeof item.order === 'number' ? item.order : 9999)
     }
   }
   return m

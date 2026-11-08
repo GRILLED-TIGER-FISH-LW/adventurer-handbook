@@ -478,7 +478,7 @@ onMounted(async () => {
       const cfg = dict.config?.characters
       const tmp = []
       for (const [key, item] of Object.entries(dict.characters)) {
-        if (!item?.name) continue
+        if (!item?.name || item.order === 1) continue
         tmp.push({ name: item.name, order: item.order ?? 9999 })
         orderMap.set(item.name, item.order ?? 9999)
 

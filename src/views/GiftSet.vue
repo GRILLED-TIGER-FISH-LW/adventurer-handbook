@@ -14,7 +14,10 @@ const KEY_UID = 'genshin_homeworld_gift_sets_uid_v1'
 const IMAGE_DICT_URL =
   'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
 
-const EXCLUDED = new Set(['旅行者'])
+/* 旅行者一家（本体 + 冰 / 火 / 雷 …各元素变体）不进这个页面。
+   字典里 order === 1 的就是它们（见下方枚举 dict.characters 那行），
+   这里按名字前缀兜底 —— 存档里可能还留着旧的「旅行者·冰」，得一并滤掉。 */
+const EXCLUDED = /^旅行者/
 const toast = useToast()
 
 const loading = ref(true)
@@ -74,7 +77,7 @@ const typeLabel = (t) => (t === 'exterior' ? '室外' : t === 'interior' ? '室�
 const getOrder = (name) => charByName.get(name)?.order ?? 9999
 
 const sanitizeOwned = (list) =>
-  Array.isArray(list) ? list.filter((x) => typeof x === 'string' && !EXCLUDED.has(x)) : []
+  Array.isArray(list) ? list.filter((x) => typeof x === 'string' && !EXCLUDED.test(x)) : []
 
 const cardMap = computed(() => {
   const ownedSet = new Set(owned.value)
@@ -82,7 +85,7 @@ const cardMap = computed(() => {
 
   for (const set of sets.value) {
     const chars = (Array.isArray(set.preferredCharacters) ? set.preferredCharacters : [])
-      .filter((c) => !EXCLUDED.has(c))
+      .filter((c) => !EXCLUDED.test(c))
       .slice()
       .sort((a, b) => getOrder(a) - getOrder(b))
 
@@ -222,7 +225,7 @@ function saveUid() {
 }
 
 function toggleOwned(name) {
-  if (!name || EXCLUDED.has(name)) return
+  if (!name || EXCLUDED.test(name)) return
   const i = owned.value.indexOf(name)
   if (i >= 0) owned.value.splice(i, 1)
   else owned.value.push(name)
@@ -236,7 +239,7 @@ function toggleExpand(key) {
 }
 
 function toggleSetChar(set, name) {
-  if (!set?.key || !name || EXCLUDED.has(name)) return
+  if (!set?.key || !name || EXCLUDED.test(name)) return
 
   if (!owned.value.includes(name)) {
     toast.error(`未拥有「${name}」，先去上面的角色栏勾选`)
@@ -394,7 +397,7 @@ onMounted(async () => {
       const cfg = dict.config?.characters
       const tmp = new Map()
       for (const [key, item] of Object.entries(dict.characters)) {
-        if (!item?.name || EXCLUDED.has(item.name)) continue
+        if (!item?.name || item.order === 1) continue
         tmp.set(item.name, { key, order: item.order ?? 9999 })
 
         let url = ''
