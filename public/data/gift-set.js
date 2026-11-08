@@ -5,7 +5,7 @@
  * · key 不含扩展名
  *   图片 URL = config.image.prefix + key + config.image.ext
  * · type: "exterior"（室外）| "interior"（室内）
- * · preferredCharacters 存角色中文名，按 icon-dict order 升序
+ * · preferredCharacters 存角色中文名，按图片字典 order 升序
  * · sets 按 id 升序排列
  * ============================================================ */
 

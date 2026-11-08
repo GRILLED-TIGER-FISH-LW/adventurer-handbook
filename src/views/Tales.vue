@@ -11,8 +11,8 @@ const STORAGE_KEY = 'genshin_travelers_tales_completed_v2'
 const LEGACY_KEY = 'genshin_travelers_tales_completed_v1'
 const UID_KEY = 'genshin_travelers_tales_uid_v1'
 
-const ICON_DICT_URL =
-  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/gi-icons/icon-dict.js'
+const IMAGE_DICT_URL =
+  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
 
 const toast = useToast()
 
@@ -252,7 +252,7 @@ function onUidInput(val) {
 onMounted(async () => {
   try {
     const data = await loadTalesData()
-    const dict = await loadGlobalScript(ICON_DICT_URL, 'ICON_DICT').catch(() => null)
+    const dict = await loadGlobalScript(IMAGE_DICT_URL, 'IMAGE_DICT').catch(() => null)
 
     if (!data || !Array.isArray(data.entries)) throw new Error('data.js 内容无效')
 
