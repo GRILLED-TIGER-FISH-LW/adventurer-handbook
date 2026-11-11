@@ -562,7 +562,7 @@ onBeforeUnmount(() => {
         class="flex min-h-0 flex-col bg-surface-2"
         :class="[mobilePane === 'form' ? 'hidden min-[900px]:flex' : 'flex', 'border-line min-[900px]:border-r']"
       >
-        <div class="grid shrink-0 gap-1.5 border-b border-line p-2">
+        <div class="grid shrink-0 gap-2 border-b border-line p-2">
           <div class="relative flex items-center">
             <Icon
               name="ui.search"
@@ -588,13 +588,13 @@ onBeforeUnmount(() => {
             </button>
           </div>
 
-          <div class="grid grid-cols-2 gap-1.5">
+          <div class="grid grid-cols-2 gap-2">
             <Dropdown v-model="versionFilter" :options="versionOptions" label="版本" />
             <Dropdown v-model="visibilityFilter" :options="visibilityOptions" label="类型" />
           </div>
         </div>
 
-        <div class="grid min-h-0 flex-1 content-start gap-1 overflow-y-auto p-1.5">
+        <div class="grid min-h-0 flex-1 content-start gap-1 overflow-y-auto p-2">
           <p v-if="!data" class="p-3 text-xs text-muted">数据未加载，点「重载」或「导入」</p>
           <p v-else-if="!filteredEntries.length" class="p-3 text-xs text-muted">
             没有匹配的条目
@@ -604,7 +604,7 @@ onBeforeUnmount(() => {
             v-for="e in filteredEntries"
             :key="e.id"
             type="button"
-            class="flex w-full items-center gap-2 rounded-ctl border p-1.5 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+            class="flex w-full items-center gap-2 rounded-ctl border p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
             :class="
               e.id === selectedId
                 ? 'border-accent bg-accent-soft'
@@ -625,7 +625,7 @@ onBeforeUnmount(() => {
                 @error="(ev) => ev.target.remove()"
               />
             </span>
-            <span class="grid min-w-0 flex-1 gap-0.5">
+            <span class="grid min-w-0 flex-1 gap-1">
               <span
                 class="truncate text-xs font-medium"
                 :class="e.hidden ? 'text-danger' : 'text-ink'"
@@ -639,7 +639,7 @@ onBeforeUnmount(() => {
           </button>
         </div>
 
-        <div class="grid shrink-0 grid-cols-2 gap-1.5 border-t border-line p-2">
+        <div class="grid shrink-0 grid-cols-2 gap-2 border-t border-line p-2">
           <Btn size="sm" @click="addEntry">
             <template #icon><Icon name="ui.plus" size="sm" /></template>
             新增
@@ -703,9 +703,9 @@ onBeforeUnmount(() => {
             </div>
 
             <!-- id -->
-            <div class="grid gap-1.5">
+            <div class="grid gap-2">
               <span class="text-xs font-medium text-muted">id · 可手动改，需唯一</span>
-              <div class="flex items-center gap-1.5">
+              <div class="flex items-center gap-2">
                 <input
                   v-model="idInput"
                   type="text"
@@ -732,7 +732,7 @@ onBeforeUnmount(() => {
             </div>
 
             <!-- 版本 -->
-            <div class="grid gap-1.5">
+            <div class="grid gap-2">
               <span class="text-xs font-medium text-muted">版本 · 输入新值会自动加入列表</span>
               <Combobox
                 v-model="entry.version"
@@ -744,7 +744,7 @@ onBeforeUnmount(() => {
             </div>
 
             <!-- 角色 -->
-            <div class="grid gap-1.5">
+            <div class="grid gap-2">
               <span class="text-xs font-medium text-muted">角色名 · 从字典联想，可自定义</span>
               <Combobox
                 v-model="entry.character"
@@ -873,7 +873,7 @@ onBeforeUnmount(() => {
     <!-- 导出前检查 -->
     <Modal v-model="exportOpen" title="导出前检查" confirm-text="继续导出" @confirm="runExport">
       <p class="text-sm text-body">发现 {{ warnings.length }} 项问题：</p>
-      <ul class="grid max-h-60 list-disc gap-0.5 overflow-y-auto pl-5 text-xs text-muted">
+      <ul class="grid max-h-60 list-disc gap-1 overflow-y-auto pl-5 text-xs text-muted">
         <li v-for="(w, i) in warnings.slice(0, 30)" :key="i">{{ w }}</li>
       </ul>
       <p v-if="warnings.length > 30" class="text-xs text-muted">

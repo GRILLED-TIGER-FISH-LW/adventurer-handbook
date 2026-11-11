@@ -808,7 +808,7 @@ onBeforeUnmount(() => {
           'border-line min-[900px]:border-r',
         ]"
       >
-        <div class="grid shrink-0 gap-1.5 border-b border-line p-2">
+        <div class="grid shrink-0 gap-2 border-b border-line p-2">
           <div class="relative flex items-center">
             <Icon
               name="ui.search"
@@ -834,13 +834,13 @@ onBeforeUnmount(() => {
             </button>
           </div>
 
-          <div class="grid grid-cols-2 gap-1.5">
+          <div class="grid grid-cols-2 gap-2">
             <Dropdown v-model="typeFilter" :options="typeFilterOptions" label="类型" />
             <Dropdown v-model="regionFilter" :options="regionFilterOptions" label="地区" />
           </div>
         </div>
 
-        <div class="grid min-h-0 flex-1 content-start gap-1 overflow-y-auto p-1.5">
+        <div class="grid min-h-0 flex-1 content-start gap-1 overflow-y-auto p-2">
           <p v-if="!data" class="p-3 text-xs text-muted">数据未加载，点「重载」或「导入」</p>
           <p v-else-if="!sortedSets.length" class="p-3 text-xs text-muted">
             {{ setCount ? '没有匹配的套装' : '暂无套装，点下方「新增套装」' }}
@@ -850,7 +850,7 @@ onBeforeUnmount(() => {
             v-for="s in sortedSets"
             :key="s.id"
             type="button"
-            class="flex w-full items-center gap-2 rounded-ctl border p-1.5 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+            class="flex w-full items-center gap-2 rounded-ctl border p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
             :class="
               s.id === selectedId
                 ? 'border-accent bg-accent-soft'
@@ -871,7 +871,7 @@ onBeforeUnmount(() => {
                 @error="onImgError"
               />
             </span>
-            <span class="grid min-w-0 flex-1 gap-0.5">
+            <span class="grid min-w-0 flex-1 gap-1">
               <span class="truncate text-xs font-medium text-ink">
                 {{ s.name || '(未命名套装)' }}
               </span>
@@ -883,7 +883,7 @@ onBeforeUnmount(() => {
           </button>
         </div>
 
-        <div class="grid shrink-0 grid-cols-2 gap-1.5 border-t border-line p-2">
+        <div class="grid shrink-0 grid-cols-2 gap-2 border-t border-line p-2">
           <Btn size="sm" @click="addSet">
             <template #icon><Icon name="ui.plus" size="sm" /></template>
             新增套装
@@ -938,7 +938,7 @@ onBeforeUnmount(() => {
                 />
                 <span v-else class="text-[10px] text-faint">未设置图</span>
               </span>
-              <span class="grid min-w-0 flex-1 gap-0.5">
+              <span class="grid min-w-0 flex-1 gap-1">
                 <span class="truncate text-sm font-semibold text-ink">
                   {{ entry.name || '(未命名套装)' }}
                 </span>
@@ -947,9 +947,9 @@ onBeforeUnmount(() => {
             </div>
 
             <!-- id -->
-            <div class="grid gap-1.5">
+            <div class="grid gap-2">
               <span class="text-xs font-medium text-muted">id · 可手动改，需唯一</span>
-              <div class="flex items-center gap-1.5">
+              <div class="flex items-center gap-2">
                 <input
                   v-model="idInput"
                   type="text"
@@ -976,7 +976,7 @@ onBeforeUnmount(() => {
             </div>
 
             <!-- 地区 -->
-            <div class="grid gap-1.5">
+            <div class="grid gap-2">
               <span class="text-xs font-medium text-muted">地区 · 输入新值会自动加入列表</span>
               <Combobox
                 v-model="entry.region"
@@ -990,11 +990,11 @@ onBeforeUnmount(() => {
             </div>
 
             <!-- 图片 URL -->
-            <div class="grid gap-1.5">
+            <div class="grid gap-2">
               <span class="text-xs font-medium text-muted">
                 套装图 URL · 粘贴后自动识别 key / 类型 / 地区
               </span>
-              <div class="flex items-center gap-1.5">
+              <div class="flex items-center gap-2">
                 <input
                   v-model="urlInput"
                   type="text"
@@ -1026,7 +1026,7 @@ onBeforeUnmount(() => {
             />
 
             <!-- 室内 / 室外：只占内容宽度 -->
-            <div class="grid gap-1.5">
+            <div class="grid gap-2">
               <span class="text-xs font-medium text-muted">室内 / 室外</span>
               <Seg
                 v-model="entry.type"
@@ -1037,20 +1037,20 @@ onBeforeUnmount(() => {
             </div>
 
             <!-- 偏好角色 -->
-            <div class="grid gap-1.5">
+            <div class="grid gap-2">
               <span class="text-xs font-medium text-muted">
                 偏好角色 · 支持逗号 / 空格 / 顿号批量输入，点格子可移除
               </span>
 
               <div
                 v-if="sortedChars.length"
-                class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-1.5 rounded-ctl border border-line-2 bg-sunken p-1.5"
+                class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2 rounded-ctl border border-line-2 bg-sunken p-2"
               >
                 <button
                   v-for="name in sortedChars"
                   :key="name"
                   type="button"
-                  class="grid cursor-pointer justify-items-center gap-0.5 rounded-ctl border border-line bg-surface p-1 hover:border-danger focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                  class="grid cursor-pointer justify-items-center gap-1 rounded-ctl border border-line bg-surface p-1 hover:border-danger focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
                   :title="`移除 ${name}`"
                   :aria-label="`移除 ${name}`"
                   @click="removeChar(name)"
@@ -1140,7 +1140,7 @@ onBeforeUnmount(() => {
     <!-- 导出前检查 -->
     <Modal v-model="exportOpen" title="导出前检查" confirm-text="继续导出" @confirm="runExport">
       <p class="text-sm text-body">发现 {{ warnings.length }} 项问题：</p>
-      <ul class="grid max-h-60 list-disc gap-0.5 overflow-y-auto pl-5 text-xs text-muted">
+      <ul class="grid max-h-60 list-disc gap-1 overflow-y-auto pl-5 text-xs text-muted">
         <li v-for="(w, i) in warnings.slice(0, 30)" :key="i">{{ w }}</li>
       </ul>
       <p v-if="warnings.length > 30" class="text-xs text-muted">

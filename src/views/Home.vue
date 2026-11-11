@@ -21,9 +21,9 @@ const tools = router.options.routes.filter((r) => r.meta?.label)
         <Icon :name="t.meta.icon" size="sm" />
       </span>
 
-      <span class="grid min-w-0 gap-0.5">
-        <span class="truncate text-sm font-semibold text-ink">{{ t.meta.label }}</span>
-        <span class="line-clamp-2 text-xs leading-snug text-muted">{{ t.meta.desc }}</span>
+      <span class="grid min-w-0 gap-1">
+        <span class="truncate text-body-sm-medium text-ink">{{ t.meta.label }}</span>
+        <span class="line-clamp-2 text-caption text-muted">{{ t.meta.desc }}</span>
       </span>
     </RouterLink>
   </div>
