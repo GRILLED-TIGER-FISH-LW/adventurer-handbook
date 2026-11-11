@@ -2,7 +2,7 @@
 #
 # 这一批（scale-c3）：编辑器的间距收敛 + 残留的列表行 + Home
 #   gap-1.5(6) → gap-2(8)   gap-0.5(2) → gap-1(4)   p-1.5(6) → p-2(8)
-#   Home：gap-0.5→gap-1，说明文字 12px/leading-snug → text-caption，卡片标题 → text-body-sm-medium
+#   Home：gap-0.5→gap-1，说明文字 → text-caption，卡片标题 → text-body-sm-medium
 #
 # GiftSet.vue 那两处列表行字符串完全相同：第 1 处带上下文，第 2 处必须排在它之后（那时才唯一）。
 
@@ -63,11 +63,11 @@ class="grid min-w-0 flex-1 gap-1">
 ### src/views/GiftSetEditor.vue
 <<<<
 class="grid min-w-0 flex-1 gap-0.5">
-                  <span class="truncate text-sm font-semibold text-ink">
+                <span class="truncate text-sm font-semibold text-ink">
 >>>>
 <<<<
 class="grid min-w-0 flex-1 gap-1">
-                  <span class="truncate text-sm font-semibold text-ink">
+                <span class="truncate text-sm font-semibold text-ink">
 >>>>
 
 ### src/views/GiftSetEditor.vue
@@ -267,17 +267,17 @@ class="grid max-h-60 list-disc gap-1 overflow-y-auto pl-5 text-xs text-muted"
 ### src/views/GiftSet.vue
 <<<<
 class="rounded-panel border border-line bg-surface"
-              >
-                <button
-                  type="button"
-                  class="flex w-full items-center gap-2 p-1.5 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+            >
+              <button
+                type="button"
+                class="flex w-full items-center gap-2 p-1.5 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
 >>>>
 <<<<
 class="rounded-panel border border-line bg-surface"
-              >
-                <button
-                  type="button"
-                  class="flex w-full items-center gap-2 p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+            >
+              <button
+                type="button"
+                class="flex w-full items-center gap-2 p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
 >>>>
 
 ### src/views/GiftSet.vue
