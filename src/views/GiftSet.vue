@@ -552,7 +552,7 @@ onMounted(async () => {
             >
               <button
                 type="button"
-                class="flex w-full items-center gap-2 p-1.5 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                class="flex w-full items-center gap-2 p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
                 :aria-expanded="expandedKeys.has(s.key)"
                 @click="toggleExpand(s.key)"
               >
@@ -700,7 +700,7 @@ onMounted(async () => {
             >
               <button
                 type="button"
-                class="flex w-full items-center gap-2 p-1.5 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                class="flex w-full items-center gap-2 p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
                 :aria-expanded="expandedKeys.has(s.key)"
                 @click="toggleExpand(s.key)"
               >
