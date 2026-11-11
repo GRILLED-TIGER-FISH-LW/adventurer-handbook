@@ -254,11 +254,13 @@
 <<<<
   --color-accent-solid: #a3543a;
   --color-accent-hover: #8b432c;
+  --color-on-accent: #ffffff;
   --color-accent-soft: rgba(204, 120, 92, 0.18);
 >>>>
 <<<<
   --color-accent-solid: #a9583e;
   --color-accent-hover: #a9583e;
+  --color-on-accent: #ffffff;
   --color-accent-soft: rgba(204, 120, 92, 0.18);
 >>>>
 
