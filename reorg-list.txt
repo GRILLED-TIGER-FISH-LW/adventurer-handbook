@@ -1,9 +1,10 @@
 # 清单文件：给 .github/workflows/reorg.yml 读的。四段，每段开头一行 == 段名 ==。
 #
-# 这一批（scale-c1）：页面层 ① —— 4 个页面里的手写控件统一到 Notion 规格
-#   输入框：h-9/h-10 → h-control(44px)、字 12/14 → text-body-md(16/400)、圆角 → md、内边距 → 16
-#   搜索框：图标偏移跟着放大（left-3 / pl-10 / pr-10）
-#   角标「推荐」：text-caption-bold(13) → text-micro-uppercase(11/600 + 1px 字距)
+# 这一批（scale-c2）：两个列表页的间距刻度收敛到 Notion 数值（4/8/12/16/20/32）
+#   gap-1.5(6px) → gap-2(8)   gap-0.5(2px) → gap-1(4)
+#   p-1.5(6) → p-2(8)         px-2 py-1.5 → px-3 py-2
+#   gap-x-2.5(10)/p-2.5(10) → gap-x-2/p-3
+#   顺带修 Tales.vue 的 border-line-3（令牌已删，边框失效）
 
 == MOVES ==
 # 这批没有要搬的文件
@@ -11,180 +12,242 @@
 == EDITS ==
 ### src/views/GiftSet.vue
 <<<<
-class="h-9 w-24 shrink-0 rounded-ctl border border-line-2 bg-surface px-2.5 text-center text-xs text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+class="flex w-full items-center gap-2 px-2 py-1.5 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+            :aria-expanded="!charCollapsed"
 >>>>
 <<<<
-class="h-control w-24 shrink-0 rounded-md border border-line-2 bg-surface px-3 text-center text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-class="h-9 w-full min-w-0 rounded-ctl border border-line-2 bg-surface px-2.5 text-xs text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
->>>>
-<<<<
-class="h-control w-full min-w-0 rounded-md border border-line-2 bg-surface px-3 text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+class="flex w-full items-center gap-2 px-3 py-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+            :aria-expanded="!charCollapsed"
 >>>>
 
 ### src/views/GiftSet.vue
 <<<<
-class="h-9 w-full min-w-0 rounded-ctl border border-line-2 bg-surface pl-8 pr-8 text-xs text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+class="flex w-full items-center gap-2 px-2 py-1.5 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+            :aria-expanded="!recommendCollapsed"
 >>>>
 <<<<
-class="h-control w-full min-w-0 rounded-md border border-line-2 bg-surface pl-10 pr-10 text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-class="pointer-events-none absolute left-2.5 text-muted"
->>>>
-<<<<
-class="pointer-events-none absolute left-3 text-muted"
+class="flex w-full items-center gap-2 px-3 py-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+            :aria-expanded="!recommendCollapsed"
 >>>>
 
 ### src/views/GiftSet.vue
 <<<<
-class="absolute right-1.5 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+class="flex w-full items-center gap-2 px-2 py-1.5 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+            :aria-expanded="!allCollapsed"
 >>>>
 <<<<
-class="absolute right-2 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+class="flex w-full items-center gap-2 px-3 py-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+            :aria-expanded="!allCollapsed"
 >>>>
 
 ### src/views/GiftSet.vue
 <<<<
-rounded-br-sm bg-accent-solid px-2 py-0.5 text-caption-bold text-on-accent
+v-if="!charCollapsed" class="grid gap-1.5 px-2 pb-2"
 >>>>
 <<<<
-rounded-br-sm bg-accent-solid px-2 py-0.5 text-micro-uppercase text-on-accent
+v-if="!charCollapsed" class="grid gap-2 px-2 pb-2"
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+v-if="!recommendCollapsed" class="grid gap-1.5 px-2 pb-2"
+>>>>
+<<<<
+v-if="!recommendCollapsed" class="grid gap-2 px-2 pb-2"
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+v-if="!allCollapsed" class="grid gap-1.5 px-2 pb-2"
+>>>>
+<<<<
+v-if="!allCollapsed" class="grid gap-2 px-2 pb-2"
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+<div class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-1.5">
+              <button
+                v-for="name in visibleCharNames"
+                :key="name"
+                type="button"
+                class="grid justify-items-center gap-0.5 rounded-ctl border p-1 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+>>>>
+<<<<
+<div class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
+              <button
+                v-for="name in visibleCharNames"
+                :key="name"
+                type="button"
+                class="grid justify-items-center gap-1 rounded-ctl border p-1 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+class="grid gap-1.5 border-t border-line p-1.5">
+                <div class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-1.5">
+>>>>
+<<<<
+class="grid gap-2 border-t border-line p-2">
+                <div class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+class="grid gap-1.5 border-t border-line p-1.5">
+                <div v-if="!cardMap.get(s.key)?.chars.length" class="p-1.5 text-xs text-muted">
+>>>>
+<<<<
+class="grid gap-2 border-t border-line p-2">
+                <div v-if="!cardMap.get(s.key)?.chars.length" class="p-2 text-xs text-muted">
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+<div v-else class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-1.5">
+                  <button
+                    v-for="name in cardMap.get(s.key).chars"
+                    :key="`${s.key}-${name}`"
+                    type="button"
+                    class="grid justify-items-center gap-0.5 rounded-ctl border p-1 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+>>>>
+<<<<
+<div v-else class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
+                  <button
+                    v-for="name in cardMap.get(s.key).chars"
+                    :key="`${s.key}-${name}`"
+                    type="button"
+                    class="grid justify-items-center gap-1 rounded-ctl border p-1 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+class="grid min-w-0 flex-1 gap-0.5">
+                  <span class="truncate text-sm font-medium text-ink">{{ s.name }}</span>
+>>>>
+<<<<
+class="grid min-w-0 flex-1 gap-1">
+                  <span class="truncate text-sm font-medium text-ink">{{ s.name }}</span>
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+class="grid min-w-0 flex-1 gap-0.5">
+                  <span class="truncate text-sm font-medium text-ink">
+>>>>
+<<<<
+class="grid min-w-0 flex-1 gap-1">
+                  <span class="truncate text-sm font-medium text-ink">
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+class="flex flex-1 justify-end gap-1.5"
+>>>>
+<<<<
+class="flex flex-1 justify-end gap-2"
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+class="grid grid-cols-3 gap-1.5"
+>>>>
+<<<<
+class="grid grid-cols-3 gap-2"
 >>>>
 
 ### src/views/Tales.vue
 <<<<
-class="h-9 w-full min-w-0 rounded-ctl border border-line-2 bg-surface pl-8 pr-8 text-xs text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+class="grid gap-1.5 border-b border-line bg-canvas p-2"
 >>>>
 <<<<
-class="h-control w-full min-w-0 rounded-md border border-line-2 bg-surface pl-10 pr-10 text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
->>>>
-
-### src/views/Tales.vue
-<<<<
-class="h-9 w-24 shrink-0 rounded-ctl border border-line-2 bg-surface px-2.5 text-center text-xs text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
->>>>
-<<<<
-class="h-control w-24 shrink-0 rounded-md border border-line-2 bg-surface px-3 text-center text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+class="grid gap-2 border-b border-line bg-canvas p-2"
 >>>>
 
 ### src/views/Tales.vue
 <<<<
-class="pointer-events-none absolute left-2.5 text-muted"
+class="grid grid-cols-3 gap-1.5"
 >>>>
 <<<<
-class="pointer-events-none absolute left-3 text-muted"
+class="grid grid-cols-3 gap-2"
 >>>>
 
 ### src/views/Tales.vue
 <<<<
-class="absolute right-1.5 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+class="flex flex-1 justify-end gap-1.5"
 >>>>
 <<<<
-class="absolute right-2 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
->>>>
-
-### src/views/GiftSetEditor.vue
-<<<<
-class="h-9 w-full min-w-0 rounded-ctl border border-line-2 bg-surface pl-8 pr-8 text-xs text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
->>>>
-<<<<
-class="h-control w-full min-w-0 rounded-md border border-line-2 bg-surface pl-10 pr-10 text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+class="flex flex-1 justify-end gap-2"
 >>>>
 
-### src/views/GiftSetEditor.vue
+### src/views/Tales.vue
 <<<<
-class="pointer-events-none absolute left-2.5 text-muted"
+v-else class="grid gap-1.5">
 >>>>
 <<<<
-class="pointer-events-none absolute left-3 text-muted"
->>>>
-
-### src/views/GiftSetEditor.vue
-<<<<
-class="absolute right-1.5 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
->>>>
-<<<<
-class="absolute right-2 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+v-else class="grid gap-2">
 >>>>
 
-### src/views/GiftSetEditor.vue
+### src/views/Tales.vue
 <<<<
-class="h-10 w-full min-w-0 rounded-ctl border bg-surface px-3 text-sm text-ink focus-visible:outline-2 focus-visible:outline-offset-1"
+class="grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2.5 gap-y-1 rounded-panel border p-2.5 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
 >>>>
 <<<<
-class="h-control w-full min-w-0 rounded-md border bg-surface px-input-x text-body-md text-ink focus-visible:outline-2 focus-visible:outline-offset-1"
->>>>
-
-### src/views/GiftSetEditor.vue
-<<<<
-class="h-10 w-full min-w-0 rounded-ctl border bg-surface px-3 text-sm text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1"
->>>>
-<<<<
-class="h-control w-full min-w-0 rounded-md border bg-surface px-input-x text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1"
+class="grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 rounded-panel border p-3 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
 >>>>
 
-### src/views/TalesEditor.vue
+### src/views/Tales.vue
 <<<<
-class="h-9 w-full min-w-0 rounded-ctl border border-line-2 bg-surface pl-8 pr-8 text-xs text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+'border-line-3 bg-sunken/50 opacity-70'
 >>>>
 <<<<
-class="h-control w-full min-w-0 rounded-md border border-line-2 bg-surface pl-10 pr-10 text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-class="pointer-events-none absolute left-2.5 text-muted"
->>>>
-<<<<
-class="pointer-events-none absolute left-3 text-muted"
+'border-line-2 bg-sunken/50 opacity-70'
 >>>>
 
-### src/views/TalesEditor.vue
+### src/views/Tales.vue
 <<<<
-class="absolute right-1.5 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+class="flex min-w-0 items-center gap-1.5"
 >>>>
 <<<<
-class="absolute right-2 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-class="h-10 w-full min-w-0 rounded-ctl border bg-surface px-3 text-sm text-ink focus-visible:outline-2 focus-visible:outline-offset-1"
->>>>
-<<<<
-class="h-control w-full min-w-0 rounded-md border bg-surface px-input-x text-body-md text-ink focus-visible:outline-2 focus-visible:outline-offset-1"
+class="flex min-w-0 items-center gap-2"
 >>>>
 
-### src/views/TalesEditor.vue
+### src/views/Tales.vue
 <<<<
-class="flex h-10 w-fit cursor-pointer items-center gap-2 rounded-ctl border border-line-2 bg-sunken px-3"
+class="shrink-0 rounded bg-accent-soft px-1 text-[10px] font-medium leading-4 text-accent-strong tabular-nums"
 >>>>
 <<<<
-class="flex h-control w-fit cursor-pointer items-center gap-2 rounded-md border border-line-2 bg-sunken px-3"
+class="shrink-0 rounded bg-accent-soft px-2 py-0.5 text-micro text-accent-strong tabular-nums"
+>>>>
+
+### src/views/Tales.vue
+<<<<
+class="col-span-3 grid gap-0.5">
+>>>>
+<<<<
+class="col-span-3 grid gap-1">
+>>>>
+
+### src/views/Tales.vue
+<<<<
+class="col-span-3 text-xs leading-relaxed text-muted"
+>>>>
+<<<<
+class="col-span-3 text-body-sm text-muted"
 >>>>
 
 == DELETES ==
 # 这批没有要删的文件
 
 == CHECKS ==
-test "$(grep -rl 'h-9 w-full min-w-0 rounded-ctl' src/views/ | wc -l)" = 0
-test "$(grep -rl 'h-9 w-24 shrink-0 rounded-ctl' src/views/ | wc -l)" = 0
-test "$(grep -rl 'h-10 w-full min-w-0 rounded-ctl' src/views/ | wc -l)" = 0
-test "$(grep -rl 'pl-8 pr-8 text-xs' src/views/ | wc -l)" = 0
-test "$(grep -rl 'absolute left-2.5 text-muted' src/views/ | wc -l)" = 0
-test "$(grep -rl 'absolute right-1.5 grid size-6' src/views/ | wc -l)" = 0
-test "$(grep -rl 'h-10 w-fit cursor-pointer' src/views/ | wc -l)" = 0
-grep -qF 'h-control w-24 shrink-0 rounded-md border border-line-2 bg-surface px-3 text-center text-body-md' src/views/GiftSet.vue
-grep -qF 'h-control w-full min-w-0 rounded-md border border-line-2 bg-surface pl-10 pr-10 text-body-md' src/views/Tales.vue
-grep -qF 'h-control w-full min-w-0 rounded-md border bg-surface px-input-x text-body-md' src/views/TalesEditor.vue
-grep -qF 'h-control w-full min-w-0 rounded-md border bg-surface px-input-x text-body-md' src/views/GiftSetEditor.vue
-grep -qF 'h-control w-fit cursor-pointer items-center gap-2 rounded-md border border-line-2 bg-sunken' src/views/TalesEditor.vue
-grep -qF 'rounded-br-sm bg-accent-solid px-2 py-0.5 text-micro-uppercase text-on-accent' src/views/GiftSet.vue
-test "$(grep -c 'text-caption-bold text-on-accent' src/views/GiftSet.vue)" = 0
-grep -qF 'absolute left-3 text-muted' src/views/TalesEditor.vue
+test "$(grep -cE 'gap-1\.5|gap-0\.5' src/views/GiftSet.vue)" = 0
+test "$(grep -cE 'gap-1\.5|gap-0\.5' src/views/Tales.vue)" = 0
+test "$(grep -c 'border-line-3' src/views/Tales.vue)" = 0
+test "$(grep -c 'text-\[10px\]' src/views/Tales.vue)" = 0
+grep -qF 'px-3 py-2 text-left' src/views/GiftSet.vue
+grep -qF 'v-if="!charCollapsed" class="grid gap-2 px-2 pb-2"' src/views/GiftSet.vue
+grep -qF 'class="grid justify-items-center gap-1 rounded-ctl border p-1' src/views/GiftSet.vue
+grep -qF 'class="grid min-w-0 flex-1 gap-1"' src/views/GiftSet.vue
+grep -qF 'items-center gap-x-2 gap-y-1 rounded-panel border p-3' src/views/Tales.vue
+grep -qF "'border-line-2 bg-sunken/50 opacity-70'" src/views/Tales.vue
+grep -qF 'class="col-span-3 text-body-sm text-muted"' src/views/Tales.vue
