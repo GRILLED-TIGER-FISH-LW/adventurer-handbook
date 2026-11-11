@@ -434,7 +434,7 @@ onMounted(async () => {
         inputmode="numeric"
         maxlength="15"
         spellcheck="false"
-        class="h-9 w-24 shrink-0 rounded-ctl border border-line-2 bg-surface px-2.5 text-center text-xs text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+        class="h-control w-24 shrink-0 rounded-md border border-line-2 bg-surface px-3 text-center text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
         @input="onUidInput($event.target.value)"
       />
       <div class="flex flex-1 justify-end gap-1.5">
@@ -487,7 +487,7 @@ onMounted(async () => {
             <input
               v-model="charSearch"
               type="text"
-              class="h-9 w-full min-w-0 rounded-ctl border border-line-2 bg-surface px-2.5 text-xs text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+              class="h-control w-full min-w-0 rounded-md border border-line-2 bg-surface px-3 text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
               placeholder="搜索角色"
               autocomplete="off"
               spellcheck="false"
@@ -568,7 +568,7 @@ onMounted(async () => {
                     class="size-full object-contain"
                   />
                   <span
-                    class="absolute left-0 top-0 rounded-br-sm bg-accent-solid px-2 py-0.5 text-caption-bold text-on-accent"
+                    class="absolute left-0 top-0 rounded-br-sm bg-accent-solid px-2 py-0.5 text-micro-uppercase text-on-accent"
                   >
                     推荐
                   </span>
@@ -654,12 +654,12 @@ onMounted(async () => {
               <Icon
                 name="ui.search"
                 size="sm"
-                class="pointer-events-none absolute left-2.5 text-muted"
+                class="pointer-events-none absolute left-3 text-muted"
               />
               <input
                 v-model="search"
                 type="text"
-                class="h-9 w-full min-w-0 rounded-ctl border border-line-2 bg-surface pl-8 pr-8 text-xs text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                class="h-control w-full min-w-0 rounded-md border border-line-2 bg-surface pl-10 pr-10 text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
                 placeholder="搜索套装名 / 角色名"
                 autocomplete="off"
                 spellcheck="false"
@@ -667,7 +667,7 @@ onMounted(async () => {
               <button
                 v-if="search"
                 type="button"
-                class="absolute right-1.5 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                class="absolute right-2 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
                 aria-label="清除搜索"
                 @click="search = ''"
               >
