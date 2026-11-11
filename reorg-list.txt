@@ -1,9 +1,8 @@
 # 清单文件：给 .github/workflows/reorg.yml 读的。四段，每段开头一行 == 段名 ==。
 #
-# 这一批（scale-a）：把「刻度」落进设计系统。
-#   颜色 · Claude 全量（白天/黑夜）—— 删野值、补缺档
-#   尺寸几何排版 · Notion 全量（圆角/间距/字号，含用不上的备用档）
-#   本批只改 tokens.css 与 base.css，不动任何组件和页面：界面几乎不变。
+# 这一批（scale-b）：组件层 —— 把批 A 的刻度接到 9 个组件上，值全部照 Notion 组件规格原文。
+#   tokens.css 那 1 块是给组件内边距补令牌（主仓库也要跑这一块）
+#   其余 29 块只属于本仓库
 
 == MOVES ==
 # 这批没有要搬的文件
@@ -11,331 +10,339 @@
 == EDITS ==
 ### src/styles/tokens.css
 <<<<
- * 色板 Claude · 几何 Notion
- * 两仓库逐字节相同，改动需同步；同步日期 2026-11-08
+  --spacing-sidebar: 20rem;
 >>>>
 <<<<
- * 颜色 Claude 全量（白天 / 黑夜两套）· 尺寸 / 几何 / 排版 Notion 全量
- * 两仓库逐字节相同，改动需同步；同步日期 2026-11-12
->>>>
-
-### src/styles/tokens.css
-<<<<
-  --color-accent: #cc785c;
-  --color-accent-strong: #a3543a;
-  --color-accent-solid: #a3543a;
-  --color-accent-hover: #8b432c;
-  --color-on-accent: #ffffff;
-  --color-accent-soft: rgba(204, 120, 92, 0.12);
->>>>
-<<<<
-  --color-accent: #cc785c;
-  --color-accent-strong: #a9583e;
-  --color-accent-solid: #a9583e;
-  --color-accent-hover: #a9583e;
-  --color-on-accent: #ffffff;
-  --color-accent-soft: rgba(204, 120, 92, 0.12);
-  --color-accent-teal: #5db8a6;
-  --color-accent-amber: #e8a55a;
-  --color-on-dark: #faf9f5;
-  --color-on-dark-soft: #a09d96;
->>>>
-
-### src/styles/tokens.css
-<<<<
-  --color-preview: #121212;
->>>>
-<<<<
-  --color-preview: #181715;
->>>>
-
-### src/styles/tokens.css
-<<<<
-  --color-line: #ebe6df;
-  --color-line-2: #e6dfd8;
-  --color-line-3: #ded6c6;
->>>>
-<<<<
-  --color-line: #ebe6df;
-  --color-line-2: #e6dfd8;
->>>>
-
-### src/styles/tokens.css
-<<<<
-  --color-body: #3d3d3a;
-  --color-muted: #6c6a64;
->>>>
-<<<<
-  --color-body: #3d3d3a;
-  --color-body-strong: #252523;
-  --color-muted: #6c6a64;
->>>>
-
-### src/styles/tokens.css
-<<<<
-  --color-danger: #c64545;
-  --color-danger-soft: #f8e9e7;
-  --color-success: #5db872;
-  --color-mask: rgba(20, 20, 19, 0.32);
->>>>
-<<<<
-  --color-danger: #c64545;
-  --color-danger-soft: #f8e9e7;
-  --color-success: #5db872;
-  --color-warning: #d4a017;
-  --color-mask: rgba(20, 20, 19, 0.32);
->>>>
-
-### src/styles/tokens.css
-<<<<
-  /* ---------- 几何 ---------- */
-  --radius-ctl: 8px;
-  --radius-panel: 12px;
->>>>
-<<<<
-  /* ---------- 圆角 · Notion 全量 ---------- */
-  --radius-xs: 4px;
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius-xxl: 20px;
-  --radius-xxxl: 24px;
-  /* 兼容别名：批次 B（组件层）迁移完删除 */
-  --radius-ctl: 8px;
-  --radius-panel: 12px;
->>>>
-
-### src/styles/tokens.css
-<<<<
-  /* ---------- 阴影 ---------- */
-  --shadow-panel: 0 4px 12px rgba(15, 15, 15, 0.08);
-  --shadow-float: 0 16px 48px -8px rgba(15, 15, 15, 0.16);
->>>>
-<<<<
-  /* ---------- 间距 · Notion 全量 ---------- */
-  --spacing-xxs: 4px;
-  --spacing-xs: 8px;
-  --spacing-sm: 12px;
-  --spacing-md: 16px;
-  --spacing-lg: 20px;
-  --spacing-xl: 24px;
-  --spacing-xxl: 32px;
-  --spacing-xxxl: 40px;
-  --spacing-section-sm: 48px;
-  --spacing-section: 64px;
-  --spacing-section-lg: 96px;
-  --spacing-hero: 120px;
-
-  /* ---------- 控件尺寸 ---------- */
-  --spacing-control: 44px;
-  --spacing-control-sm: 36px;
-  --spacing-icon-btn: 36px;
   --spacing-sidebar: 20rem;
 
-  /* ---------- 排版 · Notion 全量 ---------- */
-  --text-hero-display: 80px;
-  --text-hero-display--line-height: 1.05;
-  --text-hero-display--letter-spacing: -2px;
-  --text-hero-display--font-weight: 600;
-
-  --text-display-lg: 56px;
-  --text-display-lg--line-height: 1.1;
-  --text-display-lg--letter-spacing: -1px;
-  --text-display-lg--font-weight: 600;
-
-  --text-heading-1: 48px;
-  --text-heading-1--line-height: 1.15;
-  --text-heading-1--letter-spacing: -0.5px;
-  --text-heading-1--font-weight: 600;
-
-  --text-heading-2: 36px;
-  --text-heading-2--line-height: 1.2;
-  --text-heading-2--letter-spacing: -0.5px;
-  --text-heading-2--font-weight: 600;
-
-  --text-heading-3: 28px;
-  --text-heading-3--line-height: 1.25;
-  --text-heading-3--font-weight: 600;
-
-  --text-heading-4: 22px;
-  --text-heading-4--line-height: 1.3;
-  --text-heading-4--font-weight: 600;
-
-  --text-heading-5: 18px;
-  --text-heading-5--line-height: 1.4;
-  --text-heading-5--font-weight: 600;
-
-  --text-subtitle: 18px;
-  --text-subtitle--line-height: 1.5;
-  --text-subtitle--font-weight: 400;
-
-  --text-body-md: 16px;
-  --text-body-md--line-height: 1.55;
-  --text-body-md--font-weight: 400;
-
-  --text-body-md-medium: 16px;
-  --text-body-md-medium--line-height: 1.55;
-  --text-body-md-medium--font-weight: 500;
-
-  --text-body-sm: 14px;
-  --text-body-sm--line-height: 1.5;
-  --text-body-sm--font-weight: 400;
-
-  --text-body-sm-medium: 14px;
-  --text-body-sm-medium--line-height: 1.5;
-  --text-body-sm-medium--font-weight: 500;
-
-  --text-caption: 13px;
-  --text-caption--line-height: 1.4;
-  --text-caption--font-weight: 400;
-
-  --text-caption-bold: 13px;
-  --text-caption-bold--line-height: 1.4;
-  --text-caption-bold--font-weight: 600;
-
-  --text-micro: 12px;
-  --text-micro--line-height: 1.4;
-  --text-micro--font-weight: 500;
-
-  --text-micro-uppercase: 11px;
-  --text-micro-uppercase--line-height: 1.4;
-  --text-micro-uppercase--letter-spacing: 1px;
-  --text-micro-uppercase--font-weight: 600;
-
-  --text-button: 14px;
-  --text-button--line-height: 1.3;
-  --text-button--font-weight: 500;
-
-  /* ---------- 阴影 ---------- */
-  --shadow-panel: 0 4px 12px rgba(15, 15, 15, 0.08);
-  --shadow-float: rgba(15, 15, 15, 0.2) 0 24px 48px -8px;
+  /* ---------- 组件内边距 · Notion 组件规格原文 ---------- */
+  --spacing-btn-x: 18px;
+  --spacing-btn-y: 10px;
+  --spacing-btn-ghost-x: 12px;
+  --spacing-btn-ghost-y: 8px;
+  --spacing-input-x: 16px;
+  --spacing-input-y: 12px;
 >>>>
 
-### src/styles/tokens.css
+### src/components/AppDrawer.vue
 <<<<
-  --color-sunken: #121110;
-  --color-hover: #2b2825;
-  --color-thumb: #322d27;
+            class="flex h-11 items-center gap-2.5 rounded-ctl px-3 text-left text-sm focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
 >>>>
 <<<<
-  --color-sunken: #1f1e1b;
-  --color-hover: #252320;
-  --color-thumb: #252320;
+            class="flex h-control items-center gap-xs rounded-md px-sm text-left text-body-sm focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
 >>>>
 
-### src/styles/tokens.css
+### src/components/AppDrawer.vue
 <<<<
-  --color-line: #26231f;
-  --color-line-2: #302c27;
-  --color-line-3: #3c3730;
+          <h2 class="text-sm font-semibold text-ink">功能导航</h2>
 >>>>
 <<<<
-  --color-line: #26231f;
-  --color-line-2: #302c27;
+          <h2 class="text-heading-5 text-ink">功能导航</h2>
 >>>>
 
-### src/styles/tokens.css
+### src/components/AppNav.vue
 <<<<
-  --color-ink: #faf9f5;
-  --color-body: #d6d2ca;
-  --color-muted: #a09d96;
-  --color-faint: #86817a;
+      class="grid size-9 shrink-0 place-items-center rounded-ctl border border-line-2 bg-surface text-ink hover:border-line-3 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+      aria-label="打开菜单"
 >>>>
 <<<<
-  --color-ink: #faf9f5;
-  --color-body: #d6d2ca;
-  --color-body-strong: #faf9f5;
-  --color-muted: #a09d96;
-  --color-faint: #86817a;
+      class="grid size-icon-btn shrink-0 place-items-center rounded-md border border-line-2 bg-surface text-ink hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+      aria-label="打开菜单"
 >>>>
 
-### src/styles/tokens.css
+### src/components/AppNav.vue
 <<<<
-  --color-accent-solid: #a3543a;
-  --color-accent-hover: #8b432c;
-  --color-on-accent: #ffffff;
-  --color-accent-soft: rgba(204, 120, 92, 0.18);
+      class="grid size-9 shrink-0 place-items-center rounded-ctl border border-line-2 bg-surface text-ink hover:border-line-3 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+      :aria-label="themeLabel"
 >>>>
 <<<<
-  --color-accent-solid: #a9583e;
-  --color-accent-hover: #a9583e;
-  --color-on-accent: #ffffff;
-  --color-accent-soft: rgba(204, 120, 92, 0.18);
+      class="grid size-icon-btn shrink-0 place-items-center rounded-md border border-line-2 bg-surface text-ink hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+      :aria-label="themeLabel"
 >>>>
 
-### src/styles/tokens.css
+### src/components/AppNav.vue
 <<<<
-  --color-danger: #e07070;
-  --color-danger-soft: rgba(224, 112, 112, 0.14);
-  --color-success: #5db872;
-  --color-mask: rgba(0, 0, 0, 0.55);
+      class="grid size-7 shrink-0 place-items-center rounded-ctl bg-accent-soft text-accent-strong"
 >>>>
 <<<<
-  --color-danger: #e07070;
-  --color-danger-soft: rgba(224, 112, 112, 0.14);
-  --color-success: #5db872;
-  --color-warning: #d4a017;
-  --color-mask: rgba(0, 0, 0, 0.55);
+      class="grid size-7 shrink-0 place-items-center rounded-md bg-accent-soft text-accent-strong"
 >>>>
 
-### src/styles/tokens.css
+### src/components/AppNav.vue
 <<<<
-  --shadow-panel: 0 4px 12px rgba(0, 0, 0, 0.5);
-  --shadow-float: 0 16px 48px -8px rgba(0, 0, 0, 0.6);
+    <h1 class="min-w-0 flex-1 truncate text-base font-semibold text-ink">{{ title }}</h1>
 >>>>
 <<<<
-  --shadow-panel: 0 4px 12px rgba(0, 0, 0, 0.5);
-  --shadow-float: rgba(0, 0, 0, 0.6) 0 24px 48px -8px;
+    <h1 class="min-w-0 flex-1 truncate text-heading-5 text-ink">{{ title }}</h1>
 >>>>
 
-### src/styles/base.css
+### src/components/Btn.vue
 <<<<
-  @apply bg-canvas text-body text-sm antialiased;
+/* md 窄屏 40px（配表单/弹窗），宽屏 36px；sm 恒定 36px（配工具栏的输入框/下拉） */
+const MD = 'h-10 px-4 text-sm gap-2 sm:h-9'
+const SM = 'h-9 px-3 text-xs gap-1.5'
+const MD_SQ = 'size-10 p-0 gap-0 sm:size-9'
+const SM_SQ = 'size-9 p-0 gap-0'
 >>>>
 <<<<
-  @apply bg-canvas text-body-sm text-body antialiased;
+/* Notion button：内边距 10×18、字 14/500、行高 1.3、圆角 8（高度由内边距决定）
+   Notion ghost：内边距 8×12，作紧凑档
+   方形图标钮：Notion 无规格，统一取图标钮档 36px */
+const MD = 'px-btn-x py-btn-y text-button gap-2'
+const SM = 'px-btn-ghost-x py-btn-ghost-y text-button gap-2'
+const MD_SQ = 'size-icon-btn p-0 gap-0'
+const SM_SQ = 'size-icon-btn p-0 gap-0'
 >>>>
 
-### src/styles/base.css
+### src/components/Btn.vue
 <<<<
-  @apply outline-2 outline-offset-2 outline-accent;
+  'relative inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-ctl',
 >>>>
 <<<<
-  @apply outline-2 outline-offset-1 outline-accent;
+  'relative inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-md',
 >>>>
 
-### src/styles/base.css
+### src/components/Combobox.vue
 <<<<
-::-webkit-scrollbar-thumb {
-  @apply bg-line-3 rounded-sm;
-}
+        class="h-10 w-full min-w-0 rounded-ctl border border-line-2 bg-surface px-3 text-sm text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
 >>>>
 <<<<
-::-webkit-scrollbar-thumb {
-  @apply bg-line-2;
-}
+        class="h-control w-full min-w-0 rounded-md border border-line-2 bg-surface px-input-x text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+>>>>
+
+### src/components/Combobox.vue
+<<<<
+      class="absolute inset-x-0 top-[calc(100%+4px)] z-30 max-h-60 overflow-y-auto rounded-panel border border-line-2 bg-surface p-1 shadow-float"
+>>>>
+<<<<
+      class="absolute inset-x-0 top-[calc(100%+4px)] z-30 max-h-60 overflow-y-auto rounded-lg border border-line-2 bg-surface p-1 shadow-float"
+>>>>
+
+### src/components/Combobox.vue
+<<<<
+      <li v-if="!options.length" class="px-2 py-1.5 text-xs text-muted">
+>>>>
+<<<<
+      <li v-if="!options.length" class="px-input-x py-btn-ghost-y text-body-sm text-muted">
+>>>>
+
+### src/components/Combobox.vue
+<<<<
+        class="cursor-pointer truncate rounded-ctl px-2 py-1.5 text-sm"
+>>>>
+<<<<
+        class="cursor-pointer truncate rounded-sm px-input-x py-btn-ghost-y text-body-sm"
+>>>>
+
+### src/components/Dropdown.vue
+<<<<
+    class="flex h-9 w-full min-w-0 items-center gap-1.5 rounded-ctl border border-line-2 bg-surface px-2.5 text-xs text-ink hover:border-line-3 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent disabled:pointer-events-none disabled:opacity-50"
+>>>>
+<<<<
+    class="flex h-control w-full min-w-0 items-center gap-xs rounded-md border border-line-2 bg-surface px-input-x text-body-md text-ink focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent disabled:pointer-events-none disabled:opacity-50"
+>>>>
+
+### src/components/Dropdown.vue
+<<<<
+    'cursor-pointer rounded-ctl px-2.5 py-1.5 text-xs',
+>>>>
+<<<<
+    'cursor-pointer rounded-sm px-input-x py-btn-ghost-y text-body-sm',
+>>>>
+
+### src/components/Dropdown.vue
+<<<<
+      class="z-[60] overflow-y-auto rounded-panel border border-line-3 bg-surface p-1 shadow-float"
+>>>>
+<<<<
+      class="z-[60] overflow-y-auto rounded-lg border border-line-2 bg-surface p-1 shadow-float"
+>>>>
+
+### src/components/Dropdown.vue
+<<<<
+      <li v-if="!options.length" class="px-2.5 py-1.5 text-xs text-muted" role="presentation">
+>>>>
+<<<<
+      <li v-if="!options.length" class="px-input-x py-btn-ghost-y text-body-sm text-muted" role="presentation">
+>>>>
+
+### src/components/Field.vue
+<<<<
+/* 输入框比按钮高一档：40px vs 36px（桌面），移动端两者都 40px。
+   焦点环用 outline（全站统一），错误态换成红色；边框变色瞬时 —— 不做颜色过渡 */
+>>>>
+<<<<
+/* Notion text-input：高 44px、圆角 8、内边距 12×16、字 16/400、行高 1.55。
+   焦点环用 outline（全站统一），错误态换成红色；边框变色瞬时 —— 不做颜色过渡 */
+>>>>
+
+### src/components/Field.vue
+<<<<
+  'w-full min-w-0 rounded-ctl border bg-surface px-3 text-sm text-ink',
+  'placeholder:text-muted',
+  'transition-colors duration-150 ease-spring',
+  'hover:border-line-3',
+  'focus-visible:outline-2 focus-visible:outline-offset-1',
+>>>>
+<<<<
+  'w-full min-w-0 rounded-md border bg-surface px-input-x text-body-md text-ink',
+  'placeholder:text-muted',
+  'transition-colors duration-150 ease-spring',
+  'focus-visible:outline-2 focus-visible:outline-offset-1',
+>>>>
+
+### src/components/Field.vue
+<<<<
+  isTextarea.value ? 'resize-none py-2 leading-relaxed' : 'h-10',
+>>>>
+<<<<
+  isTextarea.value ? 'resize-none py-input-y' : 'h-control',
+>>>>
+
+### src/components/Field.vue
+<<<<
+      <label v-if="label" :for="id" class="text-xs font-medium text-muted">
+        {{ label }}
+        <span v-if="required" class="text-danger" aria-hidden="true">*</span>
+      </label>
+      <span v-if="showCount" class="shrink-0 text-xs tabular-nums text-faint">
+>>>>
+<<<<
+      <label v-if="label" :for="id" class="text-micro text-muted">
+        {{ label }}
+        <span v-if="required" class="text-danger" aria-hidden="true">*</span>
+      </label>
+      <span v-if="showCount" class="shrink-0 text-micro tabular-nums text-faint">
+>>>>
+
+### src/components/Field.vue
+<<<<
+  <div class="grid gap-1.5">
+    <div v-if="label || showCount" class="flex items-center justify-between gap-2">
+>>>>
+<<<<
+  <div class="grid gap-xs">
+    <div v-if="label || showCount" class="flex items-center justify-between gap-2">
+>>>>
+
+### src/components/Field.vue
+<<<<
+      class="text-xs leading-relaxed"
+>>>>
+<<<<
+      class="text-caption"
+>>>>
+
+### src/components/Modal.vue
+<<<<
+          class="grid w-full max-w-md gap-4 rounded-panel border border-line bg-surface p-5 shadow-float focus:outline-none"
+>>>>
+<<<<
+          class="grid w-full max-w-md gap-4 rounded-lg border border-line bg-surface p-6 shadow-float focus:outline-none"
+>>>>
+
+### src/components/Modal.vue
+<<<<
+          <h2 v-if="title" :id="titleId" class="text-base font-semibold text-ink">
+>>>>
+<<<<
+          <h2 v-if="title" :id="titleId" class="text-heading-5 text-ink">
+>>>>
+
+### src/components/Modal.vue
+<<<<
+          <div :id="bodyId" class="grid gap-2 text-sm leading-relaxed text-body">
+>>>>
+<<<<
+          <div :id="bodyId" class="grid gap-2 text-body-sm text-body">
+>>>>
+
+### src/components/Seg.vue
+<<<<
+/* 内层 32px + 外层 p-1×2 = 40px 恒定，与表单里的 Field 同高 */
+const itemClass = computed(() => [
+  'grid place-items-center rounded-ctl px-3',
+  'text-xs font-medium text-muted',
+  'transition-shadow duration-150 ease-spring',
+  'h-8',
+  'peer-checked:bg-surface peer-checked:text-ink peer-checked:shadow-panel',
+>>>>
+<<<<
+/* Notion segmented-tab：内边距 12×16、字 14/500、2px 底线（选中用 ink） */
+const itemClass = computed(() => [
+  'grid place-items-center border-b-2 border-transparent px-input-x py-input-y',
+  'text-body-sm-medium text-muted',
+  'transition-shadow duration-150 ease-spring',
+  'peer-checked:border-ink peer-checked:text-ink',
+>>>>
+
+### src/components/Seg.vue
+<<<<
+  <div
+    class="inline-flex items-center gap-1 rounded-panel border border-line bg-sunken p-1"
+    :class="full && 'flex w-full'"
+  >
+>>>>
+<<<<
+  <div
+    class="inline-flex items-center"
+    :class="full && 'flex w-full'"
+  >
+>>>>
+
+### src/components/Tabs.vue
+<<<<
+      class="h-8 shrink-0 whitespace-nowrap rounded-full border px-3 text-xs font-medium focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent"
+>>>>
+<<<<
+      class="shrink-0 whitespace-nowrap rounded-full border px-input-x py-btn-ghost-y text-body-sm-medium focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent"
+>>>>
+
+### src/components/ToastHost.vue
+<<<<
+          class="pointer-events-auto flex w-full max-w-sm items-start gap-2 rounded-panel border bg-surface px-3 py-2 shadow-float"
+>>>>
+<<<<
+          class="pointer-events-auto flex w-full max-w-sm items-start gap-2 rounded-lg border bg-surface px-input-x py-sm shadow-float"
+>>>>
+
+### src/components/ToastHost.vue
+<<<<
+          <p class="min-w-0 flex-1 text-sm leading-relaxed text-ink">{{ t.text }}</p>
+>>>>
+<<<<
+          <p class="min-w-0 flex-1 text-body-sm-medium text-ink">{{ t.text }}</p>
+>>>>
+
+### src/components/ToastHost.vue
+<<<<
+            class="grid size-6 shrink-0 place-items-center rounded-ctl text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+>>>>
+<<<<
+            class="grid size-icon-btn shrink-0 place-items-center rounded-md text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
 >>>>
 
 == DELETES ==
 # 这批没有要删的文件
 
 == CHECKS ==
-grep -qF -- '--text-body-sm--line-height: 1.5;' src/styles/tokens.css
-grep -qF -- '--text-heading-5: 18px;' src/styles/tokens.css
-grep -qF -- '--text-button: 14px;' src/styles/tokens.css
-grep -qF -- '--text-hero-display: 80px;' src/styles/tokens.css
-grep -qF -- '--spacing-xxs: 4px;' src/styles/tokens.css
-grep -qF -- '--spacing-hero: 120px;' src/styles/tokens.css
-grep -qF -- '--spacing-control: 44px;' src/styles/tokens.css
-grep -qF -- '--radius-xxxl: 24px;' src/styles/tokens.css
-grep -qF -- '--color-accent-teal: #5db8a6;' src/styles/tokens.css
-grep -qF -- '--color-warning: #d4a017;' src/styles/tokens.css
-grep -qF -- '--color-body-strong: #252523;' src/styles/tokens.css
-grep -qF -- '--color-preview: #181715;' src/styles/tokens.css
-grep -qF -- '--color-thumb: #252320;' src/styles/tokens.css
-grep -qF 'rgba(15, 15, 15, 0.2) 0 24px 48px -8px' src/styles/tokens.css
-test "$(grep -c 'line-3' src/styles/tokens.css)" = 0
-test "$(grep -c 'bg-line-3' src/styles/base.css)" = 0
-grep -qF '@apply bg-canvas text-body-sm text-body antialiased;' src/styles/base.css
-grep -qF 'outline-2 outline-offset-1 outline-accent' src/styles/base.css
+grep -qF -- '--spacing-btn-x: 18px;' src/styles/tokens.css
+grep -qF -- '--spacing-btn-ghost-x: 12px;' src/styles/tokens.css
+grep -qF -- '--spacing-input-y: 12px;' src/styles/tokens.css
+grep -qF "const MD = 'px-btn-x py-btn-y text-button gap-2'" src/components/Btn.vue
+grep -qF "const SM = 'px-btn-ghost-x py-btn-ghost-y text-button gap-2'" src/components/Btn.vue
+grep -qF 'h-control w-full min-w-0 items-center gap-xs rounded-md' src/components/Dropdown.vue
+grep -qF 'h-control w-full min-w-0 rounded-md border border-line-2 bg-surface px-input-x text-body-md' src/components/Combobox.vue
+grep -qF 'px-input-x text-body-md text-ink' src/components/Field.vue
+grep -qF "'resize-none py-input-y' : 'h-control'" src/components/Field.vue
+grep -qF 'text-caption' src/components/Field.vue
+grep -qF 'text-heading-5 text-ink' src/components/Modal.vue
+grep -qF 'text-heading-5' src/components/AppNav.vue
+grep -qF 'size-icon-btn' src/components/AppNav.vue
+grep -qF 'size-icon-btn' src/components/ToastHost.vue
+grep -qF 'peer-checked:border-ink' src/components/Seg.vue
+grep -qF 'py-btn-ghost-y text-body-sm-medium' src/components/Tabs.vue
+grep -qF 'h-control items-center gap-xs' src/components/AppDrawer.vue
+test "$(grep -rlE 'rounded-(ctl|panel)' src/components/ | wc -l)" = 0
+test "$(grep -rl 'text-xs' src/components/ | wc -l)" = 0
+test "$(grep -rl 'border-line-3' src/components/ | wc -l)" = 0
