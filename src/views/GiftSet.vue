@@ -437,7 +437,7 @@ onMounted(async () => {
         class="h-control w-24 shrink-0 rounded-md border border-line-2 bg-surface px-3 text-center text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
         @input="onUidInput($event.target.value)"
       />
-      <div class="flex flex-1 justify-end gap-1.5">
+      <div class="flex flex-1 justify-end gap-2">
         <Btn size="sm" @click="exportArchive">
           <template #icon><Icon name="ui.export" size="sm" /></template>
           导出
@@ -469,7 +469,7 @@ onMounted(async () => {
         <section class="border-b border-line">
           <button
             type="button"
-            class="flex w-full items-center gap-2 px-2 py-1.5 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+            class="flex w-full items-center gap-2 px-3 py-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
             :aria-expanded="!charCollapsed"
             @click="charCollapsed = !charCollapsed"
           >
@@ -483,7 +483,7 @@ onMounted(async () => {
             />
           </button>
 
-          <div v-if="!charCollapsed" class="grid gap-1.5 px-2 pb-2">
+          <div v-if="!charCollapsed" class="grid gap-2 px-2 pb-2">
             <input
               v-model="charSearch"
               type="text"
@@ -493,12 +493,12 @@ onMounted(async () => {
               spellcheck="false"
             />
 
-            <div class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-1.5">
+            <div class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
               <button
                 v-for="name in visibleCharNames"
                 :key="name"
                 type="button"
-                class="grid justify-items-center gap-0.5 rounded-ctl border p-1 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                class="grid justify-items-center gap-1 rounded-ctl border p-1 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
                 :class="
                   owned.includes(name)
                     ? 'border-accent bg-accent-soft'
@@ -530,7 +530,7 @@ onMounted(async () => {
         <section v-if="recommendations.length" class="border-b border-line">
           <button
             type="button"
-            class="flex w-full items-center gap-2 px-2 py-1.5 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+            class="flex w-full items-center gap-2 px-3 py-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
             :aria-expanded="!recommendCollapsed"
             @click="recommendCollapsed = !recommendCollapsed"
           >
@@ -544,7 +544,7 @@ onMounted(async () => {
             />
           </button>
 
-          <div v-if="!recommendCollapsed" class="grid gap-1.5 px-2 pb-2">
+          <div v-if="!recommendCollapsed" class="grid gap-2 px-2 pb-2">
             <article
               v-for="s in recommendations"
               :key="`r-${s.key}`"
@@ -574,7 +574,7 @@ onMounted(async () => {
                   </span>
                 </span>
 
-                <span class="grid min-w-0 flex-1 gap-0.5">
+                <span class="grid min-w-0 flex-1 gap-1">
                   <span class="truncate text-sm font-medium text-ink">{{ s.name }}</span>
                   <span class="text-xs text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</span>
                 </span>
@@ -591,13 +591,13 @@ onMounted(async () => {
                 />
               </button>
 
-              <div v-if="expandedKeys.has(s.key)" class="grid gap-1.5 border-t border-line p-1.5">
-                <div class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-1.5">
+              <div v-if="expandedKeys.has(s.key)" class="grid gap-2 border-t border-line p-2">
+                <div class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
                   <button
                     v-for="name in cardMap.get(s.key)?.chars || []"
                     :key="`${s.key}-${name}`"
                     type="button"
-                    class="grid justify-items-center gap-0.5 rounded-ctl border p-1 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                    class="grid justify-items-center gap-1 rounded-ctl border p-1 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
                     :class="
                       !owned.includes(name)
                         ? 'border-line bg-surface opacity-50'
@@ -635,7 +635,7 @@ onMounted(async () => {
         <section>
           <button
             type="button"
-            class="flex w-full items-center gap-2 px-2 py-1.5 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+            class="flex w-full items-center gap-2 px-3 py-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
             :aria-expanded="!allCollapsed"
             @click="allCollapsed = !allCollapsed"
           >
@@ -649,7 +649,7 @@ onMounted(async () => {
             />
           </button>
 
-          <div v-if="!allCollapsed" class="grid gap-1.5 px-2 pb-2">
+          <div v-if="!allCollapsed" class="grid gap-2 px-2 pb-2">
             <div class="relative flex items-center">
               <Icon
                 name="ui.search"
@@ -675,7 +675,7 @@ onMounted(async () => {
               </button>
             </div>
 
-            <div class="grid grid-cols-3 gap-1.5">
+            <div class="grid grid-cols-3 gap-2">
               <Dropdown v-model="regionFilter" :options="regionOptions" label="地区" />
               <Dropdown v-model="typeFilter" :options="typeOptions" label="类型" />
               <Dropdown v-model="statusFilter" :options="STATUS_OPTIONS" label="状态" />
@@ -717,7 +717,7 @@ onMounted(async () => {
                   />
                 </span>
 
-                <span class="grid min-w-0 flex-1 gap-0.5">
+                <span class="grid min-w-0 flex-1 gap-1">
                   <span class="truncate text-sm font-medium text-ink">
                     {{ s.name || '(未命名)' }}
                   </span>
@@ -741,16 +741,16 @@ onMounted(async () => {
                 />
               </button>
 
-              <div v-if="expandedKeys.has(s.key)" class="grid gap-1.5 border-t border-line p-1.5">
-                <div v-if="!cardMap.get(s.key)?.chars.length" class="p-1.5 text-xs text-muted">
+              <div v-if="expandedKeys.has(s.key)" class="grid gap-2 border-t border-line p-2">
+                <div v-if="!cardMap.get(s.key)?.chars.length" class="p-2 text-xs text-muted">
                   无偏好角色数据
                 </div>
-                <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-1.5">
+                <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
                   <button
                     v-for="name in cardMap.get(s.key).chars"
                     :key="`${s.key}-${name}`"
                     type="button"
-                    class="grid justify-items-center gap-0.5 rounded-ctl border p-1 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                    class="grid justify-items-center gap-1 rounded-ctl border p-1 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
                     :class="
                       !owned.includes(name)
                         ? 'border-line bg-surface opacity-50'
