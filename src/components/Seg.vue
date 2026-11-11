@@ -14,13 +14,12 @@ const model = defineModel({ type: String, default: '' })
 const uid = useId()
 const groupName = computed(() => `seg-${uid}`)
 
-/* 内层 32px + 外层 p-1×2 = 40px 恒定，与表单里的 Field 同高 */
+/* Notion segmented-tab：内边距 12×16、字 14/500、2px 底线（选中用 ink） */
 const itemClass = computed(() => [
-  'grid place-items-center rounded-ctl px-3',
-  'text-xs font-medium text-muted',
+  'grid place-items-center border-b-2 border-transparent px-input-x py-input-y',
+  'text-body-sm-medium text-muted',
   'transition-shadow duration-150 ease-spring',
-  'h-8',
-  'peer-checked:bg-surface peer-checked:text-ink peer-checked:shadow-panel',
+  'peer-checked:border-ink peer-checked:text-ink',
   'peer-focus-visible:outline-2 peer-focus-visible:outline-offset-1 peer-focus-visible:outline-accent',
   'peer-disabled:opacity-50',
   props.full ? 'min-w-0 flex-1' : 'shrink-0',
@@ -29,7 +28,7 @@ const itemClass = computed(() => [
 
 <template>
   <div
-    class="inline-flex items-center gap-1 rounded-panel border border-line bg-sunken p-1"
+    class="inline-flex items-center"
     :class="full && 'flex w-full'"
   >
     <label

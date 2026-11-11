@@ -161,7 +161,7 @@ function itemClass(i, value) {
   const selected = value === model.value
   const active = i === activeIndex.value
   return [
-    'cursor-pointer rounded-ctl px-2.5 py-1.5 text-xs',
+    'cursor-pointer rounded-sm px-input-x py-btn-ghost-y text-body-sm',
     selected ? 'font-medium text-accent-strong' : 'text-ink',
     active ? 'bg-hover' : selected ? 'bg-accent-soft' : '',
   ]
@@ -172,7 +172,7 @@ function itemClass(i, value) {
   <button
     ref="trigger"
     type="button"
-    class="flex h-9 w-full min-w-0 items-center gap-1.5 rounded-ctl border border-line-2 bg-surface px-2.5 text-xs text-ink hover:border-line-3 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent disabled:pointer-events-none disabled:opacity-50"
+    class="flex h-control w-full min-w-0 items-center gap-xs rounded-md border border-line-2 bg-surface px-input-x text-body-md text-ink focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent disabled:pointer-events-none disabled:opacity-50"
     :disabled="disabled"
     :aria-expanded="isOpen"
     aria-haspopup="listbox"
@@ -203,9 +203,9 @@ function itemClass(i, value) {
       ref="panel"
       role="listbox"
       :style="panelStyle"
-      class="z-[60] overflow-y-auto rounded-panel border border-line-3 bg-surface p-1 shadow-float"
+      class="z-[60] overflow-y-auto rounded-lg border border-line-2 bg-surface p-1 shadow-float"
     >
-      <li v-if="!options.length" class="px-2.5 py-1.5 text-xs text-muted" role="presentation">
+      <li v-if="!options.length" class="px-input-x py-btn-ghost-y text-body-sm text-muted" role="presentation">
         没有可选项
       </li>
 

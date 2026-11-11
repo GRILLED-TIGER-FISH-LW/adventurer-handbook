@@ -123,7 +123,7 @@ function labelOf(it) {
         :placeholder="placeholder || undefined"
         autocomplete="off"
         spellcheck="false"
-        class="h-10 w-full min-w-0 rounded-ctl border border-line-2 bg-surface px-3 text-sm text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+        class="h-control w-full min-w-0 rounded-md border border-line-2 bg-surface px-input-x text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
         :class="$slots.prefix && 'pl-11'"
         @focus="onFocus"
         @input="onInput"
@@ -136,9 +136,9 @@ function labelOf(it) {
       v-if="showPopup"
       :id="listId"
       role="listbox"
-      class="absolute inset-x-0 top-[calc(100%+4px)] z-30 max-h-60 overflow-y-auto rounded-panel border border-line-2 bg-surface p-1 shadow-float"
+      class="absolute inset-x-0 top-[calc(100%+4px)] z-30 max-h-60 overflow-y-auto rounded-lg border border-line-2 bg-surface p-1 shadow-float"
     >
-      <li v-if="!options.length" class="px-2 py-1.5 text-xs text-muted">
+      <li v-if="!options.length" class="px-input-x py-btn-ghost-y text-body-sm text-muted">
         无匹配，可直接输入新值
       </li>
       <li
@@ -147,7 +147,7 @@ function labelOf(it) {
         :key="it.value"
         role="option"
         :aria-selected="it.value === modelValue"
-        class="cursor-pointer truncate rounded-ctl px-2 py-1.5 text-sm"
+        class="cursor-pointer truncate rounded-sm px-input-x py-btn-ghost-y text-body-sm"
         :class="[
           it.isNew ? 'text-accent-strong' : it.value === modelValue ? 'text-accent-strong' : 'text-ink',
           i === highlight ? 'bg-hover' : it.value === modelValue ? 'bg-accent-soft' : '',

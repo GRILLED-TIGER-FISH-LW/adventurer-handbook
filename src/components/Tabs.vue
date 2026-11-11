@@ -30,7 +30,7 @@ watch(() => model.value, revealActive, { immediate: true })
       :key="opt.value"
       type="button"
       :aria-current="model === opt.value ? 'true' : undefined"
-      class="h-8 shrink-0 whitespace-nowrap rounded-full border px-3 text-xs font-medium focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent"
+      class="shrink-0 whitespace-nowrap rounded-full border px-input-x py-btn-ghost-y text-body-sm-medium focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent"
       :class="
         model === opt.value
           ? 'border-ink bg-ink text-canvas'

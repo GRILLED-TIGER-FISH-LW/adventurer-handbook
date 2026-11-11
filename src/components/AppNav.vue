@@ -22,7 +22,7 @@ const themeLabel = computed(() =>
     <button
       v-if="showMenu"
       type="button"
-      class="grid size-9 shrink-0 place-items-center rounded-ctl border border-line-2 bg-surface text-ink hover:border-line-3 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+      class="grid size-icon-btn shrink-0 place-items-center rounded-md border border-line-2 bg-surface text-ink hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
       aria-label="打开菜单"
       @click="$emit('open-menu')"
     >
@@ -31,17 +31,17 @@ const themeLabel = computed(() =>
 
     <span
       v-if="titleIcon"
-      class="grid size-7 shrink-0 place-items-center rounded-ctl bg-accent-soft text-accent-strong"
+      class="grid size-7 shrink-0 place-items-center rounded-md bg-accent-soft text-accent-strong"
       aria-hidden="true"
     >
       <Icon :name="titleIcon" size="sm" />
     </span>
 
-    <h1 class="min-w-0 flex-1 truncate text-base font-semibold text-ink">{{ title }}</h1>
+    <h1 class="min-w-0 flex-1 truncate text-heading-5 text-ink">{{ title }}</h1>
 
     <button
       type="button"
-      class="grid size-9 shrink-0 place-items-center rounded-ctl border border-line-2 bg-surface text-ink hover:border-line-3 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+      class="grid size-icon-btn shrink-0 place-items-center rounded-md border border-line-2 bg-surface text-ink hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
       :aria-label="themeLabel"
       @click="toggleTheme"
     >
