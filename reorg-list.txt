@@ -1,51 +1,190 @@
 # 清单文件：给 .github/workflows/reorg.yml 读的。四段，每段开头一行 == 段名 ==。
 #
-# 这一批（fix-cent）：居中与对齐修正 + 残留的数值硬凑。只有 4 块。
+# 这一批（scale-c1）：页面层 ① —— 4 个页面里的手写控件统一到 Notion 规格
+#   输入框：h-9/h-10 → h-control(44px)、字 12/14 → text-body-md(16/400)、圆角 → md、内边距 → 16
+#   搜索框：图标偏移跟着放大（left-3 / pl-10 / pr-10）
+#   角标「推荐」：text-caption-bold(13) → text-micro-uppercase(11/600 + 1px 字距)
 
 == MOVES ==
 # 这批没有要搬的文件
 
 == EDITS ==
-### src/components/ToastHost.vue
+### src/views/GiftSet.vue
 <<<<
-items-start gap-2 rounded-lg border bg-surface
+class="h-9 w-24 shrink-0 rounded-ctl border border-line-2 bg-surface px-2.5 text-center text-xs text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
 >>>>
 <<<<
-items-center gap-2 rounded-lg border bg-surface
->>>>
-
-### src/components/Icon.vue
-<<<<
-:class="[SIZE[size], 'shrink-0']"
->>>>
-<<<<
-:class="[SIZE[size], 'block shrink-0']"
+class="h-control w-24 shrink-0 rounded-md border border-line-2 bg-surface px-3 text-center text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
 >>>>
 
 ### src/views/GiftSet.vue
 <<<<
-rounded-br-ctl bg-accent-solid px-1 text-[10px] leading-4 text-on-accent
+class="h-9 w-full min-w-0 rounded-ctl border border-line-2 bg-surface px-2.5 text-xs text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
 >>>>
 <<<<
+class="h-control w-full min-w-0 rounded-md border border-line-2 bg-surface px-3 text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+class="h-9 w-full min-w-0 rounded-ctl border border-line-2 bg-surface pl-8 pr-8 text-xs text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+>>>>
+<<<<
+class="h-control w-full min-w-0 rounded-md border border-line-2 bg-surface pl-10 pr-10 text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+class="pointer-events-none absolute left-2.5 text-muted"
+>>>>
+<<<<
+class="pointer-events-none absolute left-3 text-muted"
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+class="absolute right-1.5 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+>>>>
+<<<<
+class="absolute right-2 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
 rounded-br-sm bg-accent-solid px-2 py-0.5 text-caption-bold text-on-accent
+>>>>
+<<<<
+rounded-br-sm bg-accent-solid px-2 py-0.5 text-micro-uppercase text-on-accent
 >>>>
 
 ### src/views/Tales.vue
 <<<<
-class="flex min-w-0 items-baseline gap-1.5 text-xs"
+class="h-9 w-full min-w-0 rounded-ctl border border-line-2 bg-surface pl-8 pr-8 text-xs text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
 >>>>
 <<<<
-class="flex min-w-0 items-center gap-2 text-caption"
+class="h-control w-full min-w-0 rounded-md border border-line-2 bg-surface pl-10 pr-10 text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+>>>>
+
+### src/views/Tales.vue
+<<<<
+class="h-9 w-24 shrink-0 rounded-ctl border border-line-2 bg-surface px-2.5 text-center text-xs text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+>>>>
+<<<<
+class="h-control w-24 shrink-0 rounded-md border border-line-2 bg-surface px-3 text-center text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+>>>>
+
+### src/views/Tales.vue
+<<<<
+class="pointer-events-none absolute left-2.5 text-muted"
+>>>>
+<<<<
+class="pointer-events-none absolute left-3 text-muted"
+>>>>
+
+### src/views/Tales.vue
+<<<<
+class="absolute right-1.5 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+>>>>
+<<<<
+class="absolute right-2 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+class="h-9 w-full min-w-0 rounded-ctl border border-line-2 bg-surface pl-8 pr-8 text-xs text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+>>>>
+<<<<
+class="h-control w-full min-w-0 rounded-md border border-line-2 bg-surface pl-10 pr-10 text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+class="pointer-events-none absolute left-2.5 text-muted"
+>>>>
+<<<<
+class="pointer-events-none absolute left-3 text-muted"
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+class="absolute right-1.5 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+>>>>
+<<<<
+class="absolute right-2 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+class="h-10 w-full min-w-0 rounded-ctl border bg-surface px-3 text-sm text-ink focus-visible:outline-2 focus-visible:outline-offset-1"
+>>>>
+<<<<
+class="h-control w-full min-w-0 rounded-md border bg-surface px-input-x text-body-md text-ink focus-visible:outline-2 focus-visible:outline-offset-1"
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+class="h-10 w-full min-w-0 rounded-ctl border bg-surface px-3 text-sm text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1"
+>>>>
+<<<<
+class="h-control w-full min-w-0 rounded-md border bg-surface px-input-x text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1"
+>>>>
+
+### src/views/TalesEditor.vue
+<<<<
+class="h-9 w-full min-w-0 rounded-ctl border border-line-2 bg-surface pl-8 pr-8 text-xs text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+>>>>
+<<<<
+class="h-control w-full min-w-0 rounded-md border border-line-2 bg-surface pl-10 pr-10 text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+>>>>
+
+### src/views/TalesEditor.vue
+<<<<
+class="pointer-events-none absolute left-2.5 text-muted"
+>>>>
+<<<<
+class="pointer-events-none absolute left-3 text-muted"
+>>>>
+
+### src/views/TalesEditor.vue
+<<<<
+class="absolute right-1.5 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+>>>>
+<<<<
+class="absolute right-2 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+>>>>
+
+### src/views/TalesEditor.vue
+<<<<
+class="h-10 w-full min-w-0 rounded-ctl border bg-surface px-3 text-sm text-ink focus-visible:outline-2 focus-visible:outline-offset-1"
+>>>>
+<<<<
+class="h-control w-full min-w-0 rounded-md border bg-surface px-input-x text-body-md text-ink focus-visible:outline-2 focus-visible:outline-offset-1"
+>>>>
+
+### src/views/TalesEditor.vue
+<<<<
+class="flex h-10 w-fit cursor-pointer items-center gap-2 rounded-ctl border border-line-2 bg-sunken px-3"
+>>>>
+<<<<
+class="flex h-control w-fit cursor-pointer items-center gap-2 rounded-md border border-line-2 bg-sunken px-3"
 >>>>
 
 == DELETES ==
 # 这批没有要删的文件
 
 == CHECKS ==
-grep -qF 'items-center gap-2 rounded-lg border bg-surface' src/components/ToastHost.vue
-test "$(grep -c 'items-start' src/components/ToastHost.vue)" = 0
-grep -qF "SIZE[size], 'block shrink-0'" src/components/Icon.vue
-test "$(grep -rl 'rounded-br-ctl' src/ | wc -l)" = 0
-grep -qF 'rounded-br-sm bg-accent-solid px-2 py-0.5 text-caption-bold text-on-accent' src/views/GiftSet.vue
-grep -qF 'class="flex min-w-0 items-center gap-2 text-caption"' src/views/Tales.vue
-test "$(grep -c 'items-baseline' src/views/Tales.vue)" = 0
+test "$(grep -rl 'h-9 w-full min-w-0 rounded-ctl' src/views/ | wc -l)" = 0
+test "$(grep -rl 'h-9 w-24 shrink-0 rounded-ctl' src/views/ | wc -l)" = 0
+test "$(grep -rl 'h-10 w-full min-w-0 rounded-ctl' src/views/ | wc -l)" = 0
+test "$(grep -rl 'pl-8 pr-8 text-xs' src/views/ | wc -l)" = 0
+test "$(grep -rl 'absolute left-2.5 text-muted' src/views/ | wc -l)" = 0
+test "$(grep -rl 'absolute right-1.5 grid size-6' src/views/ | wc -l)" = 0
+test "$(grep -rl 'h-10 w-fit cursor-pointer' src/views/ | wc -l)" = 0
+grep -qF 'h-control w-24 shrink-0 rounded-md border border-line-2 bg-surface px-3 text-center text-body-md' src/views/GiftSet.vue
+grep -qF 'h-control w-full min-w-0 rounded-md border border-line-2 bg-surface pl-10 pr-10 text-body-md' src/views/Tales.vue
+grep -qF 'h-control w-full min-w-0 rounded-md border bg-surface px-input-x text-body-md' src/views/TalesEditor.vue
+grep -qF 'h-control w-full min-w-0 rounded-md border bg-surface px-input-x text-body-md' src/views/GiftSetEditor.vue
+grep -qF 'h-control w-fit cursor-pointer items-center gap-2 rounded-md border border-line-2 bg-sunken' src/views/TalesEditor.vue
+grep -qF 'rounded-br-sm bg-accent-solid px-2 py-0.5 text-micro-uppercase text-on-accent' src/views/GiftSet.vue
+test "$(grep -c 'text-caption-bold text-on-accent' src/views/GiftSet.vue)" = 0
+grep -qF 'absolute left-3 text-muted' src/views/TalesEditor.vue
