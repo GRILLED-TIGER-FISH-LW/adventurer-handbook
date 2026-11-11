@@ -1,73 +1,11 @@
 # 清单文件：给 .github/workflows/reorg.yml 读的。四段，每段开头一行 == 段名 ==。
 #
-# 这一批（fix-2）：修 max-w 竖条事故 + 居中/对齐 + 残留的数值硬凑
-#   ① 的 5 块 = 上一份 scale-fix（已跑过就删掉这 5 块）
-#   ② 的 4 块 = 本轮新修
+# 这一批（fix-cent）：居中与对齐修正 + 残留的数值硬凑。只有 4 块。
 
 == MOVES ==
 # 这批没有要搬的文件
 
 == EDITS ==
-### src/styles/tokens.css
-<<<<
-  /* ---------- 间距 · Notion 全量 ---------- */
-  --spacing-xxs: 4px;
-  --spacing-xs: 8px;
-  --spacing-sm: 12px;
-  --spacing-md: 16px;
-  --spacing-lg: 20px;
-  --spacing-xl: 24px;
-  --spacing-xxl: 32px;
-  --spacing-xxxl: 40px;
-  --spacing-section-sm: 48px;
-  --spacing-section: 64px;
-  --spacing-section-lg: 96px;
-  --spacing-hero: 120px;
-
-  /* ---------- 控件尺寸 ---------- */
->>>>
-<<<<
-  /* ---------- 间距 · Notion 全量（用数值刻度，不另起名字） ----------
-     Notion 的 4/8/12/16/20/24/32/40/48/64/96/120 = Tailwind 的
-     p-1 p-2 p-3 p-4 p-5 p-6 p-8 p-10 p-12 p-16 p-24 p-30。
-     不要写成 --spacing-<名字>：会和 Tailwind 的 --container-* 撞名，
-     max-w-md 会变成 16px（弹窗出过竖条事故）。 */
-
-  /* ---------- 控件尺寸 ---------- */
->>>>
-
-### src/components/Field.vue
-<<<<
-class="grid gap-xs"
->>>>
-<<<<
-class="grid gap-2"
->>>>
-
-### src/components/Dropdown.vue
-<<<<
-items-center gap-xs rounded-md border border-line-2 bg-surface px-input-x
->>>>
-<<<<
-items-center gap-2 rounded-md border border-line-2 bg-surface px-input-x
->>>>
-
-### src/components/AppDrawer.vue
-<<<<
-items-center gap-xs rounded-md px-sm text-left
->>>>
-<<<<
-items-center gap-2 rounded-md px-3 text-left
->>>>
-
-### src/components/ToastHost.vue
-<<<<
-px-input-x py-sm shadow-float
->>>>
-<<<<
-px-input-x py-3 shadow-float
->>>>
-
 ### src/components/ToastHost.vue
 <<<<
 items-start gap-2 rounded-lg border bg-surface
@@ -104,17 +42,10 @@ class="flex min-w-0 items-center gap-2 text-caption"
 # 这批没有要删的文件
 
 == CHECKS ==
-test "$(grep -c -- '--spacing-md' src/styles/tokens.css)" = 0
-test "$(grep -c -- '--spacing-xs' src/styles/tokens.css)" = 0
-grep -qF -- '--spacing-control: 44px;' src/styles/tokens.css
-grep -qF -- '--spacing-input-x: 16px;' src/styles/tokens.css
-grep -qF 'max-w-md' src/components/Modal.vue
-grep -qF 'max-w-sm' src/components/ToastHost.vue
-test "$(grep -rl 'gap-xs' src/components/ | wc -l)" = 0
-test "$(grep -rlE 'p[xy]-sm' src/components/ | wc -l)" = 0
 grep -qF 'items-center gap-2 rounded-lg border bg-surface' src/components/ToastHost.vue
-test "$(grep -rl 'items-start' src/components/ | wc -l)" = 0
-grep -qF "block shrink-0" src/components/Icon.vue
+test "$(grep -c 'items-start' src/components/ToastHost.vue)" = 0
+grep -qF "SIZE[size], 'block shrink-0'" src/components/Icon.vue
 test "$(grep -rl 'rounded-br-ctl' src/ | wc -l)" = 0
 grep -qF 'rounded-br-sm bg-accent-solid px-2 py-0.5 text-caption-bold text-on-accent' src/views/GiftSet.vue
 grep -qF 'class="flex min-w-0 items-center gap-2 text-caption"' src/views/Tales.vue
+test "$(grep -c 'items-baseline' src/views/Tales.vue)" = 0
