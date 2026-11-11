@@ -304,7 +304,7 @@ onMounted(async () => {
 
 <template>
   <div class="grid h-full grid-rows-[auto_minmax(0,1fr)_auto]">
-    <header class="grid gap-1.5 border-b border-line bg-canvas p-2">
+    <header class="grid gap-2 border-b border-line bg-canvas p-2">
       <div class="flex items-center gap-2">
         <div class="relative flex min-w-0 flex-1 items-center">
           <Icon
@@ -341,7 +341,7 @@ onMounted(async () => {
         </div>
       </div>
 
-      <div class="grid grid-cols-3 gap-1.5">
+      <div class="grid grid-cols-3 gap-2">
         <Dropdown v-model="version" :options="versionOptions" label="版本" />
         <Dropdown v-model="status" :options="statusOptions" label="状态" />
         <Dropdown v-model="visibility" :options="visibilityOptions" label="类型" />
@@ -359,7 +359,7 @@ onMounted(async () => {
           class="h-control w-24 shrink-0 rounded-md border border-line-2 bg-surface px-3 text-center text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
           @input="onUidInput($event.target.value)"
         />
-        <div class="flex flex-1 justify-end gap-1.5">
+        <div class="flex flex-1 justify-end gap-2">
           <Btn size="sm" @click="exportArchive">
             <template #icon><Icon name="ui.export" size="sm" /></template>
             导出
@@ -393,7 +393,7 @@ onMounted(async () => {
         <p class="text-sm text-muted">没有找到匹配的旅闻</p>
       </div>
 
-      <div v-else class="grid gap-1.5">
+      <div v-else class="grid gap-2">
         <article
           v-for="row in rows"
           :key="row.key"
@@ -401,10 +401,10 @@ onMounted(async () => {
           :aria-checked="row.isDone"
           :aria-label="`${row.e.character} ${row.e.version} ${row.e.title}`"
           tabindex="0"
-          class="grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2.5 gap-y-1 rounded-panel border p-2.5 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+          class="grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 rounded-panel border p-3 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
           :class="
             row.isDone
-              ? 'border-line-3 bg-sunken/50 opacity-70'
+              ? 'border-line-2 bg-sunken/50 opacity-70'
               : 'border-line bg-surface hover:bg-hover'
           "
           @click="toggle(row)"
@@ -425,10 +425,10 @@ onMounted(async () => {
             />
           </div>
 
-          <div class="flex min-w-0 items-center gap-1.5">
+          <div class="flex min-w-0 items-center gap-2">
             <span class="shrink-0 text-sm font-medium text-ink">{{ row.e.character }}</span>
             <span
-              class="shrink-0 rounded bg-accent-soft px-1 text-[10px] font-medium leading-4 text-accent-strong tabular-nums"
+              class="shrink-0 rounded bg-accent-soft px-2 py-0.5 text-micro text-accent-strong tabular-nums"
             >
               {{ row.e.version }}
             </span>
@@ -452,7 +452,7 @@ onMounted(async () => {
             <Icon name="ui.check" size="sm" />
           </span>
 
-          <div v-if="row.metas.length" class="col-span-3 grid gap-0.5">
+          <div v-if="row.metas.length" class="col-span-3 grid gap-1">
             <div
               v-for="m in row.metas"
               :key="m.id"
@@ -463,7 +463,7 @@ onMounted(async () => {
             </div>
           </div>
 
-          <div v-if="row.desc" class="col-span-3 text-xs leading-relaxed text-muted">
+          <div v-if="row.desc" class="col-span-3 text-body-sm text-muted">
             {{ row.desc }}
           </div>
         </article>
