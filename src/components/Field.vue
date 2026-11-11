@@ -33,20 +33,19 @@ const len = computed(() => (model.value ?? '').length)
 
 const isNumber = computed(() => props.type === 'number')
 
-/* 输入框比按钮高一档：40px vs 36px（桌面），移动端两者都 40px。
+/* Notion text-input：高 44px、圆角 8、内边距 12×16、字 16/400、行高 1.55。
    焦点环用 outline（全站统一），错误态换成红色；边框变色瞬时 —— 不做颜色过渡 */
 const fieldClass = computed(() => [
-  'w-full min-w-0 rounded-ctl border bg-surface px-3 text-sm text-ink',
+  'w-full min-w-0 rounded-md border bg-surface px-input-x text-body-md text-ink',
   'placeholder:text-muted',
   'transition-colors duration-150 ease-spring',
-  'hover:border-line-3',
   'focus-visible:outline-2 focus-visible:outline-offset-1',
   'disabled:pointer-events-none disabled:opacity-50 disabled:bg-sunken',
   'readonly:bg-sunken',
   props.error
     ? 'border-danger focus-visible:outline-danger'
     : 'border-line-2 focus-visible:border-accent focus-visible:outline-accent',
-  isTextarea.value ? 'resize-none py-2 leading-relaxed' : 'h-10',
+  isTextarea.value ? 'resize-none py-input-y' : 'h-control',
   isNumber.value
     ? '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none'
     : '',
@@ -54,13 +53,13 @@ const fieldClass = computed(() => [
 </script>
 
 <template>
-  <div class="grid gap-1.5">
+  <div class="grid gap-xs">
     <div v-if="label || showCount" class="flex items-center justify-between gap-2">
-      <label v-if="label" :for="id" class="text-xs font-medium text-muted">
+      <label v-if="label" :for="id" class="text-micro text-muted">
         {{ label }}
         <span v-if="required" class="text-danger" aria-hidden="true">*</span>
       </label>
-      <span v-if="showCount" class="shrink-0 text-xs tabular-nums text-faint">
+      <span v-if="showCount" class="shrink-0 text-micro tabular-nums text-faint">
         {{ len }}<template v-if="maxlength">/{{ maxlength }}</template>
       </span>
     </div>
@@ -100,7 +99,7 @@ const fieldClass = computed(() => [
     <p
       v-if="hasDesc"
       :id="descId"
-      class="text-xs leading-relaxed"
+      class="text-caption"
       :class="error ? 'text-danger' : 'text-faint'"
       :aria-live="error ? 'polite' : undefined"
     >

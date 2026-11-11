@@ -122,13 +122,13 @@ onBeforeUnmount(() => {
           :aria-labelledby="title ? titleId : undefined"
           :aria-describedby="$slots.default || message ? bodyId : undefined"
           tabindex="-1"
-          class="grid w-full max-w-md gap-4 rounded-panel border border-line bg-surface p-5 shadow-float focus:outline-none"
+          class="grid w-full max-w-md gap-4 rounded-lg border border-line bg-surface p-6 shadow-float focus:outline-none"
         >
-          <h2 v-if="title" :id="titleId" class="text-base font-semibold text-ink">
+          <h2 v-if="title" :id="titleId" class="text-heading-5 text-ink">
             {{ title }}
           </h2>
 
-          <div :id="bodyId" class="grid gap-2 text-sm leading-relaxed text-body">
+          <div :id="bodyId" class="grid gap-2 text-body-sm text-body">
             <slot>
               <p v-if="message">{{ message }}</p>
             </slot>

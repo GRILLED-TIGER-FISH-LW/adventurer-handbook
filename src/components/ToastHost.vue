@@ -30,18 +30,18 @@ const FRAME = {
           :key="t.id"
           role="status"
           :aria-live="t.type === 'error' ? 'assertive' : 'polite'"
-          class="pointer-events-auto flex w-full max-w-sm items-start gap-2 rounded-panel border bg-surface px-3 py-2 shadow-float"
+          class="pointer-events-auto flex w-full max-w-sm items-start gap-2 rounded-lg border bg-surface px-input-x py-sm shadow-float"
           :class="FRAME[t.type]"
         >
           <span class="grid h-5 shrink-0 place-items-center" aria-hidden="true">
             <span class="size-2 rounded-full" :class="DOT[t.type]"></span>
           </span>
 
-          <p class="min-w-0 flex-1 text-sm leading-relaxed text-ink">{{ t.text }}</p>
+          <p class="min-w-0 flex-1 text-body-sm-medium text-ink">{{ t.text }}</p>
 
           <button
             type="button"
-            class="grid size-6 shrink-0 place-items-center rounded-ctl text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+            class="grid size-icon-btn shrink-0 place-items-center rounded-md text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
             aria-label="关闭通知"
             @click="remove(t.id)"
           >

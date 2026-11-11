@@ -98,7 +98,7 @@ function go(path) {
         class="fixed inset-y-0 left-0 z-[100] flex w-64 max-w-[85vw] flex-col border-r border-line bg-canvas focus:outline-none"
       >
         <div class="flex h-14 shrink-0 items-center border-b border-line px-4">
-          <h2 class="text-sm font-semibold text-ink">功能导航</h2>
+          <h2 class="text-heading-5 text-ink">功能导航</h2>
         </div>
 
         <nav class="grid gap-1 overflow-y-auto p-2">
@@ -106,7 +106,7 @@ function go(path) {
             v-for="item in items"
             :key="item.path"
             type="button"
-            class="flex h-11 items-center gap-2.5 rounded-ctl px-3 text-left text-sm focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+            class="flex h-control items-center gap-xs rounded-md px-sm text-left text-body-sm focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
             :class="
               isActive(item.path)
                 ? 'bg-surface font-semibold text-ink'

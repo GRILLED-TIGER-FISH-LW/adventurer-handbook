@@ -23,11 +23,13 @@ const props = defineProps({
   loading: { type: Boolean, default: false },
 })
 
-/* md 窄屏 40px（配表单/弹窗），宽屏 36px；sm 恒定 36px（配工具栏的输入框/下拉） */
-const MD = 'h-10 px-4 text-sm gap-2 sm:h-9'
-const SM = 'h-9 px-3 text-xs gap-1.5'
-const MD_SQ = 'size-10 p-0 gap-0 sm:size-9'
-const SM_SQ = 'size-9 p-0 gap-0'
+/* Notion button：内边距 10×18、字 14/500、行高 1.3、圆角 8（高度由内边距决定）
+   Notion ghost：内边距 8×12，作紧凑档
+   方形图标钮：Notion 无规格，统一取图标钮档 36px */
+const MD = 'px-btn-x py-btn-y text-button gap-2'
+const SM = 'px-btn-ghost-x py-btn-ghost-y text-button gap-2'
+const MD_SQ = 'size-icon-btn p-0 gap-0'
+const SM_SQ = 'size-icon-btn p-0 gap-0'
 
 const VARIANTS = {
   primary: 'bg-accent-solid text-on-accent hover:bg-accent-hover',
@@ -39,7 +41,7 @@ const VARIANTS = {
 const isDisabled = computed(() => props.disabled || props.loading)
 
 const rootClass = computed(() => [
-  'relative inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-ctl',
+  'relative inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-md',
   'font-medium select-none',
   'transition-transform duration-100 ease-spring active:scale-[0.98]',
   'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent',

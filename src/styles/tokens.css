@@ -81,6 +81,14 @@
   --spacing-icon-btn: 36px;
   --spacing-sidebar: 20rem;
 
+  /* ---------- 组件内边距 · Notion 组件规格原文 ---------- */
+  --spacing-btn-x: 18px;
+  --spacing-btn-y: 10px;
+  --spacing-btn-ghost-x: 12px;
+  --spacing-btn-ghost-y: 8px;
+  --spacing-input-x: 16px;
+  --spacing-input-y: 12px;
+
   /* ---------- 排版 · Notion 全量 ---------- */
   --text-hero-display: 80px;
   --text-hero-display--line-height: 1.05;
