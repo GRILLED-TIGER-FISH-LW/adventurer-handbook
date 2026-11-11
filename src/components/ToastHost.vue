@@ -30,7 +30,7 @@ const FRAME = {
           :key="t.id"
           role="status"
           :aria-live="t.type === 'error' ? 'assertive' : 'polite'"
-          class="pointer-events-auto flex w-full max-w-sm items-start gap-2 rounded-lg border bg-surface px-input-x py-sm shadow-float"
+          class="pointer-events-auto flex w-full max-w-sm items-start gap-2 rounded-lg border bg-surface px-input-x py-3 shadow-float"
           :class="FRAME[t.type]"
         >
           <span class="grid h-5 shrink-0 place-items-center" aria-hidden="true">

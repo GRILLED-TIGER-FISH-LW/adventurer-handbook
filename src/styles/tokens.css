@@ -61,19 +61,11 @@
   --radius-ctl: 8px;
   --radius-panel: 12px;
 
-  /* ---------- 间距 · Notion 全量 ---------- */
-  --spacing-xxs: 4px;
-  --spacing-xs: 8px;
-  --spacing-sm: 12px;
-  --spacing-md: 16px;
-  --spacing-lg: 20px;
-  --spacing-xl: 24px;
-  --spacing-xxl: 32px;
-  --spacing-xxxl: 40px;
-  --spacing-section-sm: 48px;
-  --spacing-section: 64px;
-  --spacing-section-lg: 96px;
-  --spacing-hero: 120px;
+  /* ---------- 间距 · Notion 全量（用数值刻度，不另起名字） ----------
+     Notion 的 4/8/12/16/20/24/32/40/48/64/96/120 = Tailwind 的
+     p-1 p-2 p-3 p-4 p-5 p-6 p-8 p-10 p-12 p-16 p-24 p-30。
+     不要写成 --spacing-<名字>：会和 Tailwind 的 --container-* 撞名，
+     max-w-md 会变成 16px（弹窗出过竖条事故）。 */
 
   /* ---------- 控件尺寸 ---------- */
   --spacing-control: 44px;

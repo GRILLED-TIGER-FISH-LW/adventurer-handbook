@@ -53,7 +53,7 @@ const fieldClass = computed(() => [
 </script>
 
 <template>
-  <div class="grid gap-xs">
+  <div class="grid gap-2">
     <div v-if="label || showCount" class="flex items-center justify-between gap-2">
       <label v-if="label" :for="id" class="text-micro text-muted">
         {{ label }}
