@@ -568,7 +568,7 @@ onMounted(async () => {
                     class="size-full object-contain"
                   />
                   <span
-                    class="absolute left-0 top-0 rounded-br-ctl bg-accent-solid px-1 text-[10px] leading-4 text-on-accent"
+                    class="absolute left-0 top-0 rounded-br-sm bg-accent-solid px-2 py-0.5 text-caption-bold text-on-accent"
                   >
                     推荐
                   </span>

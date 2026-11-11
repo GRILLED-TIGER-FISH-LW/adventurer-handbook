@@ -26,7 +26,7 @@ const inner = computed(() => {
     viewBox="0 0 24 24"
     fill="currentColor"
     focusable="false"
-    :class="[SIZE[size], 'shrink-0']"
+    :class="[SIZE[size], 'block shrink-0']"
     :role="label ? 'img' : undefined"
     :aria-label="label || undefined"
     :aria-hidden="label ? undefined : 'true'"

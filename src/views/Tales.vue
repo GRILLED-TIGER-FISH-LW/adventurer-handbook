@@ -456,7 +456,7 @@ onMounted(async () => {
             <div
               v-for="m in row.metas"
               :key="m.id"
-              class="flex min-w-0 items-baseline gap-1.5 text-xs"
+              class="flex min-w-0 items-center gap-2 text-caption"
             >
               <span class="shrink-0 text-muted">{{ m.label }}</span>
               <span class="min-w-0 text-gold">{{ m.value }}</span>
