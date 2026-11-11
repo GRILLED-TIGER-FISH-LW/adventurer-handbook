@@ -106,7 +106,7 @@ function go(path) {
             v-for="item in items"
             :key="item.path"
             type="button"
-            class="flex h-control items-center gap-xs rounded-md px-sm text-left text-body-sm focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+            class="flex h-control items-center gap-2 rounded-md px-3 text-left text-body-sm focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
             :class="
               isActive(item.path)
                 ? 'bg-surface font-semibold text-ink'
