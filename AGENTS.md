@@ -54,6 +54,7 @@
 - 验收：`https://github.com/GRILLED-TIGER-FISH-LW/adventurer-handbook/compare/main...reorg-<名字>` → 开 PR → Merge → 删分支。手机上看不到分支横幅，直接用这条链接。
 - 只适合机械改动；要重写的东西（搬页面、改交互）不适用。
 - 清单名随便取（同名会覆盖旧分支），合并后把分支删掉；工作流本身留着，下次接着用。
+- 合并后 `reorg-list.txt` 里留着的是**过期清单**（原文都已经不存在了），下次开工整份替换。误拿旧清单跑一次只会中途中止：不推分支、不碰 main。
 
 ---
 
@@ -217,6 +218,12 @@ https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js
 
 窄屏是**分栏切换**（列表 ↔ 表单）。任何「清空选中项」的操作都必须同时把当前栏切回列表；**返回按钮要放在最外层**，保证任何状态都能回列表。
 
+### Deploy 一直 `queued` / 取消失败
+
+`deploy.yml` 有 `concurrency: group: pages`（官方 Pages 模板自带，防两次部署撞车）+ `cancel-in-progress: false`。**这条通道里只要留着一个没结束的 run，后面每一次 Deploy 都会变成 `pending` 一直等** —— 表现就是「全部卡排队」，点取消还报 `Failed to cancel workflow.`（GitHub 故障期产生的孤儿 run 取消不掉，实测能挂好几小时）。
+
+修法：把 `group: pages` 换一个名字（如 `pages-2`）提交 —— 换通道即解，而且这次提交本身就会触发一次新 Deploy 来验证。旧的孤儿 run 留在旧通道里自生自灭，不影响任何东西。Reorg 没有 `concurrency` 段，不受影响，出事时照常能跑。
+
 ### 部署失败怎么读日志
 
 `Actions` → 红的 workflow → 点 **`build`** 方框 → 点红的步骤 → **拉到最底**（错误在最后十几行，前面全是 npm 噪音）。
@@ -238,11 +245,10 @@ https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js
 
 ### 当前状态（每批合并后更新；下一轮开工先读这段，别去现场探索）
 
-- **最后合并**：`docs-method` —— 收尾批：修掉 AGENTS 两节过期内容、补「清单式 Action 的经验」、底部危险条加 iPhone 安全区、清掉 tokens 里的过期注释。
+- **最后合并**：`docs-fix2` —— 小尾巴批：Deploy 排队（concurrency 孤儿 run）写进诊断套路、去掉待办里自相矛盾的「已定未做：无」。
 - **设计系统已对齐**（唯一真源是 `src/styles/tokens.css`）：颜色 = Claude 全量；字号 / 间距 / 圆角 / 控件高度 / 组件规格 = Notion 全量。刻度 → 9 个组件 → 四个页面 / 编辑器 / Home 都已落地。
 - **已定未做 ①**：字体族换 Notion Sans（= Inter）—— 会牵动一图流 / 视频封面的文字度量，必须单独一批，排在最后。
 - **已定未做 ②**：主仓库 `genshin-guide` 的 `tokens.css` / `base.css` 要跑同一份刻度（两个文件本该逐字节相同，现在分叉了）。
-- **已定未做**：无。
 - **约定**：跨仓库只读主仓库 `shared/image-dict.js`；旅行者一家（字典里 `order === 1`）不进这四个页面，**别把过滤搬进字典或加载器**（主仓库一图流要用它）。
 - **数据影响**：存档里遗留的「旅行者·冰」已被滤掉，下次导出即消失。
 - **清单式 Action**：清单在 `reorg-list.txt`，工作流不用再动（见第二节）。
