@@ -470,7 +470,7 @@ onMounted(async () => {
       </div>
     </div>
 
-    <div class="border-t border-line bg-canvas p-2">
+    <div class="border-t border-line bg-canvas p-2 safe-bottom">
       <Btn variant="danger" class="w-full" size="sm" @click="confirmClear">
         <template #icon><Icon name="ui.trash" size="sm" /></template>
         清空全部记录

@@ -57,6 +57,20 @@
 
 ---
 
+### 清单式 Action 的经验（都是栽过的）
+
+- **读仓库文件要钉住 commit SHA**：`https://cdn.jsdelivr.net/gh/<owner>/<repo>@<40 位 SHA>/<path>`。用 `@main` 会拿到几小时前的缓存旧版（曾据此误判"用户还没跑上一批"）；`raw.githubusercontent.com` 在这个沙箱里经常超时，别用。
+- **`原文` 尽量挑「不含行首缩进的短片段」**（如 `class="grid gap-1.5"`）。片段越短，越不容易抄错。
+- **必须带上下文行时，先把那几行按 SHA 打印出来照抄**，绝不凭记忆写缩进（栽过两次：多抄一行、缩进 18 写成 16 个空格）。
+- **开工先数一遍要改的字符串在文件里出现几次**（`grep -c`）。出现 >1 次时：① 给"第一次"写带上下文的块；② 把"剩下那次"写成单行块并**排在后面**（那时它已唯一）。顺序写反就中止。
+- **`CHECKS` 查"终态"而不是名字**：`test "$(grep -c 'x' f)" = 0` 这种断言真的抓到过漏项（三组相同的字符格漏了中间一组）。也别让自检的字符串出现在自己新文的注释里（会自己撞自己）。
+- **不要用 `--spacing-<名字>` 定义间距令牌**：`xs/sm/md/lg/xl` 与 Tailwind 的 `--container-*` 撞名，会把 `max-w-md` / `max-w-sm` 打成 16px / 12px（出过"弹窗变竖条"事故）。间距一律用数值刻度（Notion 的刻度 = Tailwind 数字刻度）。
+- **改值不要改语义**：颜色可以保留本地叫法，但每个取值都要能指回 Claude 表里的某一项；自造值（`#8b432c`、`#ded6c6`、`#121110`）一律换成表内的。
+- **每批只做一件事、块数 ~30 以内**：一次中止 = 一轮往返，小批多次比大批一次稳。
+- **组件层的"一次性值"优先收编**：`rounded-br-ctl`、`text-[10px]`、`leading-4`、`border-2` 这类只出现一次的值，是漂移的源头。
+- **别猜仓库名**：先用 GitHub API 确认 owner/repo，再动手。
+- **沙箱**：一次只读 1–2 个小文件、只打印要改的那几行；整仓抓取会 OOM（`signal 9`）。
+
 ## 三、当前架构
 
 单一 Vue 单页应用。**没有 iframe，没有多页构建。**
@@ -109,16 +123,25 @@ https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js
 ### 令牌
 
 - 颜色、圆角、阴影、缓动都在 `src/styles/tokens.css` 的 `@theme` 块里，**改颜色只改这一个文件**。
-- Tailwind 默认刻度**已等于** Notion 刻度（间距 4/8/12/16/24/32，控件高 `h-9`/`h-10`），**不需要自定义间距与高度 token**。
+- **颜色**一律取自 Claude 的 `DESIGN.md` 全量（白天 / 黑夜两套，深色靠 `[data-theme="dark"]` 覆盖）；**字号 / 间距 / 圆角 / 控件高度 / 组件规格**一律取自 Notion 的 `DESIGN.md` 全量。两个 skill 打架时的裁决：**颜色看 Claude，多少 px 看 Notion**。
+- **间距只用数值刻度**：4 / 8 / 12 / 16 / 20 / 24 / 32 / 40 / 48 / 64 / 96 / 120（= `p-1 p-2 p-3 p-4 p-5 p-6 p-8 p-10 p-12 p-16 p-24 p-30`）。**不要写 `--spacing-<名字>`**：`xs/sm/md/lg/xl` 会和 Tailwind 的 `--container-*` 撞名，把 `max-w-md` / `max-w-sm` 打成 16px / 12px（出过"弹窗变竖条"事故）。
+- 字号只用 Notion 的档：`text-micro`(12) / `text-caption`(13) / `text-body-sm`(14) / `text-body-md`(16) / `text-heading-5`(18) / `text-button`(14/500)。`text-[10px]` 是历史豁免（GiftSet 字符格、编辑器列表副行），**别再新增**。
 - 深色模式**靠变量覆盖**，不用 `dark:` 前缀。
-- 图像衬底用 `--color-thumb`（深色下比卡片**亮**）；`--color-sunken` 只用于凹陷（分段轨道、已完成底色）。
+- 图像衬底用 `--color-thumb`（深色下比卡片**亮**）；`--color-sunken` 只用于凹陷（分段轨道、已完成底色）；图片 / 视频预览底用 `--color-preview`（= Claude `surface-dark`）。
+- `--radius-ctl` / `--radius-panel` 是**语义别名**（值分别等于 `radius-md` / `radius-lg`），保留使用。
 
 ### 控件高度
 
 | 场景 | 高度 |
 |---|---|
-| 顶部工具栏 / 筛选条 | `h-9`（窄屏 `h-10`） |
-| 页内表单 / 弹窗内 | `h-10` |
+| 输入框 / 下拉 / 组合框 / 表单内主按钮 | `h-control`（44px，Notion `text-input`） |
+| 胶囊标签页 / 图标按钮 / 列表行内按钮 | 36px（内边距驱动；图标钮 `size-icon-btn`） |
+| 分段控件 `Seg` | 内边距驱动 `px-input-x py-input-y`（Notion `segmented-tab`，下划线式） |
+| 列表缩略图 / 头像（媒体，不是控件） | 32px（列表）/ 40px（详情）；套装图 2 : 1 |
+
+- 组件内边距令牌（Notion 组件规格原文）：`--spacing-btn-x: 18px` / `--spacing-btn-y: 10px` / `--spacing-btn-ghost-x: 12px` / `--spacing-btn-ghost-y: 8px` / `--spacing-input-x: 16px` / `--spacing-input-y: 12px`。
+- **页面里不要再手写输入框的类**（`h-10 … rounded-ctl border bg-surface px-3 text-sm` 那种），用 `<Field>`。编辑器的 id / URL 两处是历史重复（视觉已对齐），将来抽成共用常量再收。
+- 输入框内的"清除 ×"保持 `size-6`（框只有 44px，36px 的图标钮会盖住输入区）—— 这是豁免，不是漏做。
 
 ### 禁用清单
 
@@ -215,7 +238,10 @@ https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js
 
 ### 当前状态（每批合并后更新；下一轮开工先读这段，别去现场探索）
 
-- **最后合并**：`no-traveler` —— 四个页面读字典时跳过 `order === 1` 的旅行者一家；赠礼套装页那条只认名字的 `EXCLUDED` 改成 `/^旅行者/`。
+- **最后合并**：`docs-method` —— 收尾批：修掉 AGENTS 两节过期内容、补「清单式 Action 的经验」、底部危险条加 iPhone 安全区、清掉 tokens 里的过期注释。
+- **设计系统已对齐**（唯一真源是 `src/styles/tokens.css`）：颜色 = Claude 全量；字号 / 间距 / 圆角 / 控件高度 / 组件规格 = Notion 全量。刻度 → 9 个组件 → 四个页面 / 编辑器 / Home 都已落地。
+- **已定未做 ①**：字体族换 Notion Sans（= Inter）—— 会牵动一图流 / 视频封面的文字度量，必须单独一批，排在最后。
+- **已定未做 ②**：主仓库 `genshin-guide` 的 `tokens.css` / `base.css` 要跑同一份刻度（两个文件本该逐字节相同，现在分叉了）。
 - **已定未做**：无。
 - **约定**：跨仓库只读主仓库 `shared/image-dict.js`；旅行者一家（字典里 `order === 1`）不进这四个页面，**别把过滤搬进字典或加载器**（主仓库一图流要用它）。
 - **数据影响**：存档里遗留的「旅行者·冰」已被滤掉，下次导出即消失。

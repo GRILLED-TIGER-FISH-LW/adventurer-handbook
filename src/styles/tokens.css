@@ -57,7 +57,7 @@
   --radius-xl: 16px;
   --radius-xxl: 20px;
   --radius-xxxl: 24px;
-  /* 兼容别名：批次 B（组件层）迁移完删除 */
+  /* 语义别名：控件圆角走 ctl、面板走 panel（值分别等于 radius-md / radius-lg），保留 */
   --radius-ctl: 8px;
   --radius-panel: 12px;
 

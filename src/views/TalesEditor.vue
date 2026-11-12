@@ -826,7 +826,7 @@ onBeforeUnmount(() => {
     </main>
 
     <!-- 底部固定危险区 -->
-    <div v-if="entry" class="border-t border-line bg-canvas p-2">
+    <div v-if="entry" class="border-t border-line bg-canvas p-2 safe-bottom">
       <Btn variant="danger" class="w-full" @click="deleteOpen = true">
         <template #icon><Icon name="ui.trash" size="sm" /></template>
         删除此条

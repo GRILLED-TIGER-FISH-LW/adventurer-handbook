@@ -40,6 +40,12 @@ html.theme-switching *::after {
   }
 }
 
+/* iPhone 底部安全区：固定底栏加这个类，就不用写 inline env()
+   非 layer 规则，优先级高于 utilities —— 能盖住 p-2 的下内边距 */
+.safe-bottom {
+  padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+}
+
 /* 滚动条：细、暖色 */
 ::-webkit-scrollbar {
   width: 6px;

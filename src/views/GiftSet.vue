@@ -787,7 +787,7 @@ onMounted(async () => {
       </template>
     </div>
 
-    <div class="border-t border-line bg-canvas p-2">
+    <div class="border-t border-line bg-canvas p-2 safe-bottom">
       <Btn variant="danger" class="w-full" size="sm" @click="resetOpen = true">
         <template #icon><Icon name="ui.trash" size="sm" /></template>
         重置全部数据
