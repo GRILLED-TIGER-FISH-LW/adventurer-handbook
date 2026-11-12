@@ -66,4 +66,6 @@ grep -qF '孤儿 run 取消不掉' AGENTS.md
 grep -qF 'docs-fix2' AGENTS.md
 grep -qF '整份替换' AGENTS.md
 grep -qF 'Deploy 孤儿 run' CHANGELOG.md
-test "$(grep -c '已定未做' AGENTS.md)" = 2
+test "$(grep -c '已定未做\*\*：无' AGENTS.md)" = 0
+test "$(grep -c '已定未做 ①' AGENTS.md)" = 1
+test "$(grep -c '已定未做 ②' AGENTS.md)" = 1
