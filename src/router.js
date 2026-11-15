@@ -8,30 +8,30 @@ import Home from './views/Home.vue'
    · internal → 内部页：顶栏不显示菜单按钮
    注意：desc 不要写数量，数据更新时不想再改这里 */
 const routes = [
-  { path: '/', name: 'home', component: Home },
+  { path: '/', name: 'home', component: Home, meta: { icon: 'home' } },
   {
     path: '/tales',
     name: 'tales',
     component: () => import('./views/Tales.vue'),
-    meta: { label: '游逸旅闻', desc: '旅闻查询 · 完成记录', icon: 'handbook.tales' },
+    meta: { label: '游逸旅闻', desc: '旅闻查询 · 完成记录', icon: 'map-point' },
   },
   {
     path: '/gift-set',
     name: 'giftSet',
     component: () => import('./views/GiftSet.vue'),
-    meta: { label: '尘歌壶赠礼套装', desc: '套装进度 · 角色偏好', icon: 'handbook.giftSet' },
+    meta: { label: '尘歌壶赠礼套装', desc: '套装进度 · 角色偏好', icon: 'gift' },
   },
   {
     path: '/tales-editor',
     name: 'talesEditor',
     component: () => import('./views/TalesEditor.vue'),
-    meta: { title: '游逸旅闻编辑器', icon: 'handbook.tales', internal: true },
+    meta: { title: '游逸旅闻编辑器', icon: 'map-point', internal: true },
   },
   {
     path: '/gift-set-editor',
     name: 'giftSetEditor',
     component: () => import('./views/GiftSetEditor.vue'),
-    meta: { title: '尘歌壶赠礼套装编辑器', icon: 'handbook.giftSet', internal: true },
+    meta: { title: '尘歌壶赠礼套装编辑器', icon: 'gift', internal: true },
   },
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]

@@ -3,7 +3,7 @@ import {
   MapPointIcon,
   GiftIcon,
   HamburgerMenuIcon,
-  SunIcon,
+  Sun2Icon,
   MoonIcon,
 } from '@solar-icons/vue/linear'
 import {
@@ -11,7 +11,7 @@ import {
   MapPointIcon as MapPointBold,
   GiftIcon as GiftBold,
   HamburgerMenuIcon as HamburgerMenuBold,
-  SunIcon as SunBold,
+  Sun2Icon as Sun2Bold,
   MoonIcon as MoonBold,
 } from '@solar-icons/vue/bold'
 
@@ -22,7 +22,7 @@ const SETS = {
   'map-point': { linear: MapPointIcon, bold: MapPointBold },
   gift: { linear: GiftIcon, bold: GiftBold },
   'hamburger-menu': { linear: HamburgerMenuIcon, bold: HamburgerMenuBold },
-  sun: { linear: SunIcon, bold: SunBold },
+  'sun-2': { linear: Sun2Icon, bold: Sun2Bold },
   moon: { linear: MoonIcon, bold: MoonBold },
 }
 

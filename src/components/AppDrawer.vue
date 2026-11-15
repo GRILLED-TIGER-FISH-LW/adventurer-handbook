@@ -1,15 +1,16 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import Icon from './Icon.vue'
+import SolarIcon from './SolarIcon.vue'
 
 const open = defineModel({ type: Boolean, default: false })
 
 const route = useRoute()
 const router = useRouter()
 
+/* 首页路由只有 meta.icon、没有 label，所以菜单入口还是单独写一行 */
 const items = computed(() => [
-  { path: '/', label: '首页', icon: 'nav.home' },
+  { path: '/', label: '首页', icon: 'home' },
   ...router.options.routes
     .filter((r) => r.meta?.label)
     .map((r) => ({ path: r.path, label: r.meta.label, icon: r.meta.icon })),
@@ -118,8 +119,9 @@ function go(path) {
             <span
               class="grid size-5 shrink-0 place-items-center"
               :class="isActive(item.path) ? 'text-accent-strong' : 'text-muted'"
+              aria-hidden="true"
             >
-              <Icon :name="item.icon" size="sm" />
+              <SolarIcon :name="item.icon" :bold="isActive(item.path)" size="20" />
             </span>
             <span class="min-w-0 truncate">{{ item.label }}</span>
           </button>
