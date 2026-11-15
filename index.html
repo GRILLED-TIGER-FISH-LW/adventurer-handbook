@@ -24,6 +24,7 @@
           saved === "dark" ||
           (saved !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
         document.documentElement.dataset.theme = dark ? "dark" : "light";
+        document.documentElement.classList.toggle("dark", dark);
         var m = document.querySelector('meta[name="theme-color"]');
         if (m) m.setAttribute("content", dark ? "#181715" : "#f5f0e8");
       })();

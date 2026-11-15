@@ -2,3 +2,68 @@
 
 @import "./tokens.css";
 @import "./base.css";
+
+/* ============================================================
+   Element Plus 主题映射
+   背景 / 文字 / 描边 / 遮罩沿用 tokens.css 里的 Claude 昼夜色，
+   其余一律用 EP 默认值（圆角 4px、控件 32px、字号 14px、EP 字体栈）。
+   本文件在 main.js 里排在 element-plus 样式之后，所以这里的覆盖生效。
+   ============================================================ */
+
+:root {
+  --el-color-primary: var(--color-accent);
+  --el-color-primary-rgb: 204, 120, 92;
+  --el-color-primary-dark-2: var(--color-accent-strong);
+  --el-color-primary-light-3: color-mix(in srgb, var(--color-accent) 30%, var(--color-canvas));
+  --el-color-primary-light-5: color-mix(in srgb, var(--color-accent) 50%, var(--color-canvas));
+  --el-color-primary-light-7: color-mix(in srgb, var(--color-accent) 70%, var(--color-canvas));
+  --el-color-primary-light-8: color-mix(in srgb, var(--color-accent) 80%, var(--color-canvas));
+  --el-color-primary-light-9: color-mix(in srgb, var(--color-accent) 90%, var(--color-canvas));
+
+  --el-color-success: var(--color-success);
+  --el-color-warning: var(--color-warning);
+  --el-color-danger: var(--color-danger);
+  --el-color-error: var(--color-danger);
+  --el-color-info: var(--color-muted);
+
+  --el-bg-color: var(--color-surface);
+  --el-bg-color-page: var(--color-canvas);
+  --el-bg-color-overlay: var(--color-surface-2);
+
+  --el-text-color-primary: var(--color-ink);
+  --el-text-color-regular: var(--color-body);
+  --el-text-color-secondary: var(--color-muted);
+  --el-text-color-placeholder: var(--color-faint);
+  --el-text-color-disabled: var(--color-faint);
+
+  --el-border-color: var(--color-line);
+  --el-border-color-light: var(--color-line);
+  --el-border-color-lighter: var(--color-line);
+  --el-border-color-extra-light: var(--color-line);
+  --el-border-color-dark: var(--color-line-2);
+  --el-border-color-darker: var(--color-line-2);
+
+  --el-fill-color: var(--color-surface-2);
+  --el-fill-color-light: var(--color-surface-2);
+  --el-fill-color-lighter: var(--color-surface);
+  --el-fill-color-extra-light: var(--color-surface);
+  --el-fill-color-dark: var(--color-sunken);
+  --el-fill-color-darker: var(--color-sunken);
+  --el-fill-color-blank: var(--color-surface);
+
+  --el-mask-color: var(--color-mask);
+  --el-mask-color-extra-light: color-mix(in srgb, var(--color-mask) 50%, transparent);
+
+  --el-disabled-bg-color: var(--color-sunken);
+  --el-disabled-text-color: var(--color-faint);
+  --el-disabled-border-color: var(--color-line);
+
+  --el-box-shadow: 0 2px 8px 0 color-mix(in srgb, var(--color-ink) 8%, transparent);
+  --el-box-shadow-light: 0 2px 12px 0 color-mix(in srgb, var(--color-ink) 6%, transparent);
+  --el-box-shadow-dark: 0 4px 16px 0 color-mix(in srgb, var(--color-ink) 12%, transparent);
+}
+
+/* 暗色下 --color-accent-strong 跟 --color-accent 同色，按下态需要更暗一档 */
+html.dark {
+  --el-color-primary-dark-2: color-mix(in srgb, var(--color-accent) 85%, #000000);
+}

@@ -27,6 +27,7 @@ export function applyTheme(next) {
   void root.offsetHeight
 
   root.dataset.theme = next
+  root.classList.toggle('dark', next === 'dark')
   if (meta) meta.setAttribute('content', THEME_COLOR[next])
 
   void root.offsetHeight
