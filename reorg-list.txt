@@ -6,246 +6,56 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：solar-nav —— 首页与侧栏导航图标统一走 Solar；修 EP 变量的 light-N 比例与暗色优先级
+# 最近一批：home-fix —— 首页顶栏去掉图标；手机端功能一行一个；暗色下卡片垫色压暗
 
 == MOVES ==
 
 == EDITS ==
-### package.json
-<<<<
-  "dependencies": {
-    "@element-plus/icons-vue": "^2.0.0",
-    "element-plus": "^2.0.0",
-    "vue": "^3.5.0",
-    "vue-router": "^4.4.0"
-  },
->>>>
-<<<<
-  "dependencies": {
-    "@element-plus/icons-vue": "^2.0.0",
-    "@solar-icons/vue": "^2.6.0",
-    "element-plus": "^2.0.0",
-    "vue": "^3.5.0",
-    "vue-router": "^4.4.0"
-  },
->>>>
-
 ### src/router.js
-<<<<
-  { path: '/', name: 'home', component: Home },
->>>>
 <<<<
   { path: '/', name: 'home', component: Home, meta: { icon: 'home' } },
 >>>>
-
-### src/router.js
 <<<<
-    meta: { label: '游逸旅闻', desc: '旅闻查询 · 完成记录', icon: 'handbook.tales' },
->>>>
-<<<<
-    meta: { label: '游逸旅闻', desc: '旅闻查询 · 完成记录', icon: 'map-point' },
->>>>
-
-### src/router.js
-<<<<
-    meta: { title: '游逸旅闻编辑器', icon: 'handbook.tales', internal: true },
->>>>
-<<<<
-    meta: { title: '游逸旅闻编辑器', icon: 'map-point', internal: true },
->>>>
-
-### src/router.js
-<<<<
-    meta: { label: '尘歌壶赠礼套装', desc: '套装进度 · 角色偏好', icon: 'handbook.giftSet' },
->>>>
-<<<<
-    meta: { label: '尘歌壶赠礼套装', desc: '套装进度 · 角色偏好', icon: 'gift' },
->>>>
-
-### src/router.js
-<<<<
-    meta: { title: '尘歌壶赠礼套装编辑器', icon: 'handbook.giftSet', internal: true },
->>>>
-<<<<
-    meta: { title: '尘歌壶赠礼套装编辑器', icon: 'gift', internal: true },
->>>>
-
-### src/icons/solar.js
-<<<<
-  SunIcon,
->>>>
-<<<<
-  Sun2Icon,
->>>>
-
-### src/icons/solar.js
-<<<<
-  SunIcon as SunBold,
->>>>
-<<<<
-  Sun2Icon as Sun2Bold,
->>>>
-
-### src/icons/solar.js
-<<<<
-  sun: { linear: SunIcon, bold: SunBold },
->>>>
-<<<<
-  'sun-2': { linear: Sun2Icon, bold: Sun2Bold },
->>>>
-
-### src/components/SolarIcon.vue
-<<<<
-const comp = computed(() => solarIcon(props.name, props.bold))
->>>>
-<<<<
-const comp = computed(() => solarIcon(props.name, props.bold))
-
-/* 图标名写错会静默空白，开发期直接报出来 */
-if (import.meta.env.DEV && !comp.value) {
-  console.warn('[SolarIcon] 没登记的图标名：' + props.name)
-}
->>>>
-
-### src/styles/app.css
-<<<<
-  --el-color-primary-light-3: color-mix(in srgb, var(--color-accent) 30%, var(--color-canvas));
-  --el-color-primary-light-5: color-mix(in srgb, var(--color-accent) 50%, var(--color-canvas));
-  --el-color-primary-light-7: color-mix(in srgb, var(--color-accent) 70%, var(--color-canvas));
-  --el-color-primary-light-8: color-mix(in srgb, var(--color-accent) 80%, var(--color-canvas));
-  --el-color-primary-light-9: color-mix(in srgb, var(--color-accent) 90%, var(--color-canvas));
->>>>
-<<<<
-  --el-color-primary-light-3: color-mix(in srgb, var(--color-accent) 70%, var(--color-canvas));
-  --el-color-primary-light-5: color-mix(in srgb, var(--color-accent) 50%, var(--color-canvas));
-  --el-color-primary-light-7: color-mix(in srgb, var(--color-accent) 30%, var(--color-canvas));
-  --el-color-primary-light-8: color-mix(in srgb, var(--color-accent) 20%, var(--color-canvas));
-  --el-color-primary-light-9: color-mix(in srgb, var(--color-accent) 10%, var(--color-canvas));
->>>>
-
-### src/styles/app.css
-<<<<
-:root {
->>>>
-<<<<
-:root,
-html.dark {
->>>>
-
-### src/components/AppNav.vue
-<<<<
-import { theme, toggleTheme } from '../composables/useTheme.js'
-import Icon from './Icon.vue'
->>>>
-<<<<
-import { theme, toggleTheme } from '../composables/useTheme.js'
-import SolarIcon from './SolarIcon.vue'
->>>>
-
-### src/components/AppNav.vue
-<<<<
-      <Icon name="app.hamburger" size="sm" />
->>>>
-<<<<
-      <SolarIcon name="hamburger-menu" size="20" aria-hidden="true" />
->>>>
-
-### src/components/AppNav.vue
-<<<<
-      <Icon :name="titleIcon" size="sm" />
->>>>
-<<<<
-      <SolarIcon :name="titleIcon" size="20" />
->>>>
-
-### src/components/AppNav.vue
-<<<<
-      <Icon :name="theme === 'dark' ? 'app.moon' : 'app.sun'" size="sm" />
->>>>
-<<<<
-      <SolarIcon :name="theme === 'dark' ? 'moon' : 'sun-2'" :bold="true" size="20" aria-hidden="true" />
+  { path: '/', name: 'home', component: Home },
 >>>>
 
 ### src/components/AppDrawer.vue
-<<<<
-import { useRoute, useRouter } from 'vue-router'
-import Icon from './Icon.vue'
->>>>
-<<<<
-import { useRoute, useRouter } from 'vue-router'
-import SolarIcon from './SolarIcon.vue'
->>>>
-
-### src/components/AppDrawer.vue
-<<<<
-const items = computed(() => [
-  { path: '/', label: '首页', icon: 'nav.home' },
->>>>
 <<<<
 /* 首页路由只有 meta.icon、没有 label，所以菜单入口还是单独写一行 */
-const items = computed(() => [
-  { path: '/', label: '首页', icon: 'home' },
->>>>
-
-### src/components/AppDrawer.vue
-<<<<
-            <span
-              class="grid size-5 shrink-0 place-items-center"
-              :class="isActive(item.path) ? 'text-accent-strong' : 'text-muted'"
-            >
-              <Icon :name="item.icon" size="sm" />
-            </span>
 >>>>
 <<<<
-            <span
-              class="grid size-5 shrink-0 place-items-center"
-              :class="isActive(item.path) ? 'text-accent-strong' : 'text-muted'"
-              aria-hidden="true"
-            >
-              <SolarIcon :name="item.icon" :bold="isActive(item.path)" size="20" />
-            </span>
+/* 首页不在路由条目里，菜单入口单独写一行 */
 >>>>
 
 ### src/views/Home.vue
 <<<<
-import { useRouter } from 'vue-router'
-import { Reading, Present } from '@element-plus/icons-vue'
+    <el-col v-for="t in tools" :key="t.path" :xs="12" :sm="8" :lg="6">
+>>>>
+<<<<
+    <el-col v-for="t in tools" :key="t.path" :xs="24" :sm="12" :md="8" :lg="6">
+>>>>
 
-/* 首页只列带 label 的路由，也就是两个工具入口 */
-const router = useRouter()
-const tools = router.options.routes.filter((r) => r.meta?.label)
-
-/* 旧的自绘图标字典没有对应组件，这里换成 Element Plus 图标 */
-const ICONS = {
-  'handbook.tales': Reading,
-  'handbook.giftSet': Present,
+### src/views/Home.vue
+<<<<
+  background-color: var(--el-color-primary-light-9);
+  color: var(--el-color-primary);
 }
-const DEFAULT_ICON = Reading
 >>>>
 <<<<
-import { useRouter } from 'vue-router'
-import SolarIcon from '../components/SolarIcon.vue'
+  background-color: var(--el-color-primary-light-9);
+  color: var(--el-color-primary);
+}
 
-/* 首页只列带 label 的路由，也就是两个工具入口 */
-const router = useRouter()
-const tools = router.options.routes.filter((r) => r.meta?.label)
->>>>
-
-### src/views/Home.vue
-<<<<
-            <el-icon :size="18">
-              <component :is="ICONS[t.meta.icon] || DEFAULT_ICON" />
-            </el-icon>
->>>>
-<<<<
-            <SolarIcon :name="t.meta.icon" :size="18" />
+/* 暗色下 EP 的 light-9 叠了陶土橙之后比卡片还亮，这里单独压暗一档 */
+[data-theme='dark'] .ah-home__icon {
+  background-color: color-mix(in srgb, var(--color-accent) 8%, var(--color-canvas));
+}
 >>>>
 
 == DELETES ==
 
 == CHECKS ==
-grep -q '"@solar-icons/vue"' package.json && grep -q "SolarIcon" src/components/AppDrawer.vue
-! grep -qE "<Icon |app\.hamburger|handbook\.tales|handbook\.giftSet|nav\.home" src/components/AppDrawer.vue src/components/AppNav.vue src/router.js
-grep -q "70%, var(--color-canvas)" src/styles/app.css
-! grep -q "component :is=\"ICONS" src/views/Home.vue
-grep -q "'sun-2'" src/icons/solar.js
+grep -q ':xs="24" :sm="12" :md="8" :lg="6"' src/views/Home.vue
+! grep -q "icon: 'home'" src/router.js
+grep -q "color-mix(in srgb, var(--color-accent) 8%, var(--color-canvas))" src/views/Home.vue
+grep -q "首页不在路由条目里" src/components/AppDrawer.vue
