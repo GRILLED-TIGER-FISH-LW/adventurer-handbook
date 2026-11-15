@@ -67,4 +67,7 @@ html.dark {
 /* 暗色下 --color-accent-strong 跟 --color-accent 同色，按下态需要更暗一档 */
 html.dark {
   --el-color-primary-dark-2: color-mix(in srgb, var(--color-accent) 85%, #000000);
+
+  /* 暗色下面板与卡片底色只差一档，描边换用更亮的 line-2 才看得见 */
+  --el-border-color: var(--color-line-2);
 }

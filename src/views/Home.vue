@@ -67,13 +67,9 @@ const tools = router.options.routes.filter((r) => r.meta?.label)
   height: 32px;
   border-radius: var(--el-border-radius-base);
   place-items: center;
-  background-color: var(--el-color-primary-light-9);
-  color: var(--el-color-primary);
-}
-
-/* 暗色下 EP 的 light-9 叠了陶土橙之后比卡片还亮，这里单独压暗一档 */
-[data-theme='dark'] .ah-home__icon {
-  background-color: color-mix(in srgb, var(--color-accent) 8%, var(--color-canvas));
+  /* 垫色和图标色都固定，昼夜一致，不随主题切换 */
+  background-color: color-mix(in srgb, var(--color-accent) 10%, #ffffff);
+  color: color-mix(in srgb, var(--color-accent) 78%, #000000);
 }
 
 .ah-home__body {
