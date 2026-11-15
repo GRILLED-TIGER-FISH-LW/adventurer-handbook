@@ -8,7 +8,7 @@ const open = defineModel({ type: Boolean, default: false })
 const route = useRoute()
 const router = useRouter()
 
-/* 首页路由只有 meta.icon、没有 label，所以菜单入口还是单独写一行 */
+/* 首页不在路由条目里，菜单入口单独写一行 */
 const items = computed(() => [
   { path: '/', label: '首页', icon: 'home' },
   ...router.options.routes
