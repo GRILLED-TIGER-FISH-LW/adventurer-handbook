@@ -1,71 +1,306 @@
 # 清单文件：给 .github/workflows/reorg.yml 读的。四段，每段开头一行 == 段名 ==。
+#   MOVES    一行一条：旧路径 -> 新路径
+#   EDITS    一条一个块：### 文件路径，然后 <<<< 原文 >>>>，再 <<<< 新文 >>>>（原文逐字、在该文件里唯一）
+#            —— 这一段里不要写 # 注释行（会被当成文件路径）
+#   DELETES  一行一个路径（文件或目录都行）
+#   CHECKS   一行一条命令，非 0 即中止
+# 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 这一批（docs-fix2）：收最后两处小尾巴。
-#   ① AGENTS.md 待办里自相矛盾的一行（「已定未做：无。」和它上面的 ①② 打架）
-#   ② 把「Deploy 一直排队 / 取消不掉」这条写进诊断套路
-#   ③ 顺手提醒「清单合并后就过期了」，CHANGELOG 的 11-12 那条补一句
 
 == MOVES ==
-# 这批没有要搬的文件
 
 == EDITS ==
-### AGENTS.md
+### package.json
 <<<<
-- **已定未做 ②**：主仓库 `genshin-guide` 的 `tokens.css` / `base.css` 要跑同一份刻度（两个文件本该逐字节相同，现在分叉了）。
-- **已定未做**：无。
+  "dependencies": {
+    "vue": "^3.5.0",
+    "vue-router": "^4.4.0"
+  },
 >>>>
 <<<<
-- **已定未做 ②**：主仓库 `genshin-guide` 的 `tokens.css` / `base.css` 要跑同一份刻度（两个文件本该逐字节相同，现在分叉了）。
->>>>
-
-### AGENTS.md
-<<<<
-### 部署失败怎么读日志
->>>>
-<<<<
-### Deploy 一直 `queued` / 取消失败
-
-`deploy.yml` 有 `concurrency: group: pages`（官方 Pages 模板自带，防两次部署撞车）+ `cancel-in-progress: false`。**这条通道里只要留着一个没结束的 run，后面每一次 Deploy 都会变成 `pending` 一直等** —— 表现就是「全部卡排队」，点取消还报 `Failed to cancel workflow.`（GitHub 故障期产生的孤儿 run 取消不掉，实测能挂好几小时）。
-
-修法：把 `group: pages` 换一个名字（如 `pages-2`）提交 —— 换通道即解，而且这次提交本身就会触发一次新 Deploy 来验证。旧的孤儿 run 留在旧通道里自生自灭，不影响任何东西。Reorg 没有 `concurrency` 段，不受影响，出事时照常能跑。
-
-### 部署失败怎么读日志
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.0.0",
+    "element-plus": "^2.0.0",
+    "vue": "^3.5.0",
+    "vue-router": "^4.4.0"
+  },
 >>>>
 
-### AGENTS.md
+### src/main.js
 <<<<
-- **最后合并**：`docs-method` —— 收尾批：修掉 AGENTS 两节过期内容、补「清单式 Action 的经验」、底部危险条加 iPhone 安全区、清掉 tokens 里的过期注释。
+import { createApp } from 'vue'
+import App from './App.vue'
+import { router } from './router.js'
+import './styles/app.css'
 >>>>
 <<<<
-- **最后合并**：`docs-fix2` —— 小尾巴批：Deploy 排队（concurrency 孤儿 run）写进诊断套路、去掉待办里自相矛盾的「已定未做：无」。
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+import 'element-plus/theme-chalk/dark/css-vars.css'
+import { createApp } from 'vue'
+import App from './App.vue'
+import { router } from './router.js'
+import './styles/app.css'
 >>>>
 
-### AGENTS.md
+### src/main.js
 <<<<
-- 清单名随便取（同名会覆盖旧分支），合并后把分支删掉；工作流本身留着，下次接着用。
+app.use(router)
+app.mount('#app')
 >>>>
 <<<<
-- 清单名随便取（同名会覆盖旧分支），合并后把分支删掉；工作流本身留着，下次接着用。
-- 合并后 `reorg-list.txt` 里留着的是**过期清单**（原文都已经不存在了），下次开工整份替换。误拿旧清单跑一次只会中途中止：不推分支、不碰 main。
+app.use(ElementPlus)
+app.use(router)
+app.mount('#app')
 >>>>
 
-### CHANGELOG.md
+### src/styles/app.css
 <<<<
-写成方法论，下次照着做就不会再撞。
+@import "tailwindcss";
+
+@import "./tokens.css";
+@import "./base.css";
 >>>>
 <<<<
-写成方法论，下次照着做就不会再撞。当天还撞了一次平台侧的：GitHub 故障期留下一个取消不掉的 Deploy 孤儿 run，占着 `deploy.yml` 的 `concurrency: group: pages` 通道，把后面**每一次**部署都堵成 `pending`（表现就是「全部卡排队」）—— 把 group 换个名字即解，Reorg 没有 `concurrency` 段不受影响。
+@import "tailwindcss";
+
+@import "./tokens.css";
+@import "./base.css";
+
+/* ============================================================
+   Element Plus 主题映射
+   背景 / 文字 / 描边 / 遮罩沿用 tokens.css 里的 Claude 昼夜色，
+   其余一律用 EP 默认值（圆角 4px、控件 32px、字号 14px、EP 字体栈）。
+   本文件在 main.js 里排在 element-plus 样式之后，所以这里的覆盖生效。
+   ============================================================ */
+
+:root {
+  --el-color-primary: var(--color-accent);
+  --el-color-primary-rgb: 204, 120, 92;
+  --el-color-primary-dark-2: var(--color-accent-strong);
+  --el-color-primary-light-3: color-mix(in srgb, var(--color-accent) 30%, var(--color-canvas));
+  --el-color-primary-light-5: color-mix(in srgb, var(--color-accent) 50%, var(--color-canvas));
+  --el-color-primary-light-7: color-mix(in srgb, var(--color-accent) 70%, var(--color-canvas));
+  --el-color-primary-light-8: color-mix(in srgb, var(--color-accent) 80%, var(--color-canvas));
+  --el-color-primary-light-9: color-mix(in srgb, var(--color-accent) 90%, var(--color-canvas));
+
+  --el-color-success: var(--color-success);
+  --el-color-warning: var(--color-warning);
+  --el-color-danger: var(--color-danger);
+  --el-color-error: var(--color-danger);
+  --el-color-info: var(--color-muted);
+
+  --el-bg-color: var(--color-surface);
+  --el-bg-color-page: var(--color-canvas);
+  --el-bg-color-overlay: var(--color-surface-2);
+
+  --el-text-color-primary: var(--color-ink);
+  --el-text-color-regular: var(--color-body);
+  --el-text-color-secondary: var(--color-muted);
+  --el-text-color-placeholder: var(--color-faint);
+  --el-text-color-disabled: var(--color-faint);
+
+  --el-border-color: var(--color-line);
+  --el-border-color-light: var(--color-line);
+  --el-border-color-lighter: var(--color-line);
+  --el-border-color-extra-light: var(--color-line);
+  --el-border-color-dark: var(--color-line-2);
+  --el-border-color-darker: var(--color-line-2);
+
+  --el-fill-color: var(--color-surface-2);
+  --el-fill-color-light: var(--color-surface-2);
+  --el-fill-color-lighter: var(--color-surface);
+  --el-fill-color-extra-light: var(--color-surface);
+  --el-fill-color-dark: var(--color-sunken);
+  --el-fill-color-darker: var(--color-sunken);
+  --el-fill-color-blank: var(--color-surface);
+
+  --el-mask-color: var(--color-mask);
+  --el-mask-color-extra-light: color-mix(in srgb, var(--color-mask) 50%, transparent);
+
+  --el-disabled-bg-color: var(--color-sunken);
+  --el-disabled-text-color: var(--color-faint);
+  --el-disabled-border-color: var(--color-line);
+
+  --el-box-shadow: 0 2px 8px 0 color-mix(in srgb, var(--color-ink) 8%, transparent);
+  --el-box-shadow-light: 0 2px 12px 0 color-mix(in srgb, var(--color-ink) 6%, transparent);
+  --el-box-shadow-dark: 0 4px 16px 0 color-mix(in srgb, var(--color-ink) 12%, transparent);
+}
+
+/* 暗色下 --color-accent-strong 跟 --color-accent 同色，按下态需要更暗一档 */
+html.dark {
+  --el-color-primary-dark-2: color-mix(in srgb, var(--color-accent) 85%, #000000);
+}
+>>>>
+
+### src/composables/useTheme.js
+<<<<
+  root.dataset.theme = next
+  if (meta) meta.setAttribute('content', THEME_COLOR[next])
+>>>>
+<<<<
+  root.dataset.theme = next
+  root.classList.toggle('dark', next === 'dark')
+  if (meta) meta.setAttribute('content', THEME_COLOR[next])
+>>>>
+
+### index.html
+<<<<
+        document.documentElement.dataset.theme = dark ? "dark" : "light";
+        var m = document.querySelector('meta[name="theme-color"]');
+>>>>
+<<<<
+        document.documentElement.dataset.theme = dark ? "dark" : "light";
+        document.documentElement.classList.toggle("dark", dark);
+        var m = document.querySelector('meta[name="theme-color"]');
+>>>>
+
+### src/views/Home.vue
+<<<<
+<script setup>
+import { useRouter } from 'vue-router'
+import Icon from '../components/Icon.vue'
+
+const router = useRouter()
+const tools = router.options.routes.filter((r) => r.meta?.label)
+</script>
+
+<template>
+  <div class="grid grid-cols-2 content-start gap-2 p-3 sm:grid-cols-3 lg:grid-cols-4">
+    <RouterLink
+      v-for="t in tools"
+      :key="t.path"
+      :to="t.path"
+      class="grid content-start gap-2 rounded-panel border border-line bg-surface p-3 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+    >
+      <span
+        class="grid size-8 place-items-center rounded-ctl bg-accent-soft text-accent-strong"
+        aria-hidden="true"
+      >
+        <Icon :name="t.meta.icon" size="sm" />
+      </span>
+
+      <span class="grid min-w-0 gap-1">
+        <span class="truncate text-body-sm-medium text-ink">{{ t.meta.label }}</span>
+        <span class="line-clamp-2 text-caption text-muted">{{ t.meta.desc }}</span>
+      </span>
+    </RouterLink>
+  </div>
+</template>
+>>>>
+<<<<
+<script setup>
+import { useRouter } from 'vue-router'
+import { Reading, Present } from '@element-plus/icons-vue'
+
+/* 首页只列带 label 的路由，也就是两个工具入口 */
+const router = useRouter()
+const tools = router.options.routes.filter((r) => r.meta?.label)
+
+/* 旧的自绘图标字典没有对应组件，这里换成 Element Plus 图标 */
+const ICONS = {
+  'handbook.tales': Reading,
+  'handbook.giftSet': Present,
+}
+const DEFAULT_ICON = Reading
+</script>
+
+<template>
+  <el-row :gutter="12" class="ah-home">
+    <el-col v-for="t in tools" :key="t.path" :xs="12" :sm="8" :lg="6">
+      <RouterLink :to="t.path" class="ah-home__link">
+        <el-card shadow="never" class="ah-home__card">
+          <span class="ah-home__icon" aria-hidden="true">
+            <el-icon :size="18">
+              <component :is="ICONS[t.meta.icon] || DEFAULT_ICON" />
+            </el-icon>
+          </span>
+
+          <div class="ah-home__body">
+            <div class="ah-home__title">{{ t.meta.label }}</div>
+            <div class="ah-home__desc">{{ t.meta.desc }}</div>
+          </div>
+        </el-card>
+      </RouterLink>
+    </el-col>
+  </el-row>
+</template>
+
+<style scoped>
+/* 这里只写 Element Plus 不提供的排版细节；
+   颜色、圆角、字号、控件尺寸全部走 EP 变量 */
+.ah-home {
+  padding: 12px;
+}
+
+.ah-home__link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.ah-home__link:focus-visible {
+  outline: 2px solid var(--el-color-primary);
+  outline-offset: 2px;
+}
+
+.ah-home__card {
+  color: inherit;
+  transition: background-color var(--el-transition-duration-fast);
+}
+
+.ah-home__link:hover .ah-home__card,
+.ah-home__link:focus-visible .ah-home__card {
+  background-color: var(--el-fill-color-dark);
+}
+
+.ah-home__card :deep(.el-card__body) {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.ah-home__icon {
+  display: grid;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--el-border-radius-base);
+  place-items: center;
+  background-color: var(--el-color-primary-light-9);
+  color: var(--el-color-primary);
+}
+
+.ah-home__body {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.ah-home__title {
+  color: var(--el-text-color-primary);
+  font-size: var(--el-font-size-base);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ah-home__desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  color: var(--el-text-color-secondary);
+  font-size: var(--el-font-size-small);
+  overflow: hidden;
+}
+</style>
 >>>>
 
 == DELETES ==
-# 这批没有要删的文件
 
 == CHECKS ==
-grep -qF 'pages-2' AGENTS.md
-grep -qF '孤儿 run 取消不掉' AGENTS.md
-grep -qF 'docs-fix2' AGENTS.md
-grep -qF '整份替换' AGENTS.md
-grep -qF 'Deploy 孤儿 run' CHANGELOG.md
-test "$(grep -c '已定未做\*\*：无' AGENTS.md)" = 0
-test "$(grep -c '已定未做 ①' AGENTS.md)" = 1
-test "$(grep -c '已定未做 ②' AGENTS.md)" = 1
+grep -q '"element-plus"' package.json && grep -q 'app.use(ElementPlus)' src/main.js
+! grep -qE 'rounded-panel|grid-cols|size-8|place-items-center' src/views/Home.vue
+grep -q 'classList.toggle("dark", dark)' index.html
