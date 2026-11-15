@@ -68,6 +68,7 @@ html.dark {
 html.dark {
   --el-color-primary-dark-2: color-mix(in srgb, var(--color-accent) 85%, #000000);
 
-  /* 暗色下面板与卡片底色只差一档，描边换用更亮的 line-2 才看得见 */
-  --el-border-color: var(--color-line-2);
+  /* 暗色下 line-2 对卡片只有 1.14:1，人眼分辨不出；
+     掺 faint 抬到约 1.9:1 才和白天观感相当 */
+  --el-border-color: color-mix(in srgb, var(--color-faint) 40%, var(--color-line-2));
 }
