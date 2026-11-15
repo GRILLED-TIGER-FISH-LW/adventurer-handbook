@@ -31,6 +31,8 @@ const tools = router.options.routes.filter((r) => r.meta?.label)
    颜色、圆角、字号、控件尺寸全部走 EP 变量 */
 .ah-home {
   padding: 12px;
+  /* el-row 的 gutter 只做左右间距，换行堆叠时的上下间距要自己给 */
+  row-gap: 12px;
 }
 
 .ah-home__link {
@@ -67,8 +69,10 @@ const tools = router.options.routes.filter((r) => r.meta?.label)
   height: 32px;
   border-radius: var(--el-border-radius-base);
   place-items: center;
-  /* 垫色和图标色都固定，昼夜一致，不随主题切换 */
-  background-color: color-mix(in srgb, var(--color-accent) 10%, #ffffff);
+  /* 垫色和图标色都固定，昼夜一致，不随主题切换。
+     基准用暖白 #f5f0e8（= tokens.css 里白天的 canvas），不是纯白，
+     否则陶土橙会被稀释成近白色 */
+  background-color: color-mix(in srgb, var(--color-accent) 10%, #f5f0e8);
   color: color-mix(in srgb, var(--color-accent) 78%, #000000);
 }
 
