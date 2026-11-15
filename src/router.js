@@ -8,7 +8,7 @@ import Home from './views/Home.vue'
    · internal → 内部页：顶栏不显示菜单按钮
    注意：desc 不要写数量，数据更新时不想再改这里 */
 const routes = [
-  { path: '/', name: 'home', component: Home, meta: { icon: 'home' } },
+  { path: '/', name: 'home', component: Home },
   {
     path: '/tales',
     name: 'tales',

@@ -9,7 +9,7 @@ const tools = router.options.routes.filter((r) => r.meta?.label)
 
 <template>
   <el-row :gutter="12" class="ah-home">
-    <el-col v-for="t in tools" :key="t.path" :xs="12" :sm="8" :lg="6">
+    <el-col v-for="t in tools" :key="t.path" :xs="24" :sm="12" :md="8" :lg="6">
       <RouterLink :to="t.path" class="ah-home__link">
         <el-card shadow="never" class="ah-home__card">
           <span class="ah-home__icon" aria-hidden="true">
@@ -69,6 +69,11 @@ const tools = router.options.routes.filter((r) => r.meta?.label)
   place-items: center;
   background-color: var(--el-color-primary-light-9);
   color: var(--el-color-primary);
+}
+
+/* 暗色下 EP 的 light-9 叠了陶土橙之后比卡片还亮，这里单独压暗一档 */
+[data-theme='dark'] .ah-home__icon {
+  background-color: color-mix(in srgb, var(--color-accent) 8%, var(--color-canvas));
 }
 
 .ah-home__body {
