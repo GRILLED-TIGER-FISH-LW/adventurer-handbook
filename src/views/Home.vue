@@ -1,30 +1,107 @@
 <script setup>
 import { useRouter } from 'vue-router'
-import Icon from '../components/Icon.vue'
+import { Reading, Present } from '@element-plus/icons-vue'
 
+/* 首页只列带 label 的路由，也就是两个工具入口 */
 const router = useRouter()
 const tools = router.options.routes.filter((r) => r.meta?.label)
+
+/* 旧的自绘图标字典没有对应组件，这里换成 Element Plus 图标 */
+const ICONS = {
+  'handbook.tales': Reading,
+  'handbook.giftSet': Present,
+}
+const DEFAULT_ICON = Reading
 </script>
 
 <template>
-  <div class="grid grid-cols-2 content-start gap-2 p-3 sm:grid-cols-3 lg:grid-cols-4">
-    <RouterLink
-      v-for="t in tools"
-      :key="t.path"
-      :to="t.path"
-      class="grid content-start gap-2 rounded-panel border border-line bg-surface p-3 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-    >
-      <span
-        class="grid size-8 place-items-center rounded-ctl bg-accent-soft text-accent-strong"
-        aria-hidden="true"
-      >
-        <Icon :name="t.meta.icon" size="sm" />
-      </span>
+  <el-row :gutter="12" class="ah-home">
+    <el-col v-for="t in tools" :key="t.path" :xs="12" :sm="8" :lg="6">
+      <RouterLink :to="t.path" class="ah-home__link">
+        <el-card shadow="never" class="ah-home__card">
+          <span class="ah-home__icon" aria-hidden="true">
+            <el-icon :size="18">
+              <component :is="ICONS[t.meta.icon] || DEFAULT_ICON" />
+            </el-icon>
+          </span>
 
-      <span class="grid min-w-0 gap-1">
-        <span class="truncate text-body-sm-medium text-ink">{{ t.meta.label }}</span>
-        <span class="line-clamp-2 text-caption text-muted">{{ t.meta.desc }}</span>
-      </span>
-    </RouterLink>
-  </div>
+          <div class="ah-home__body">
+            <div class="ah-home__title">{{ t.meta.label }}</div>
+            <div class="ah-home__desc">{{ t.meta.desc }}</div>
+          </div>
+        </el-card>
+      </RouterLink>
+    </el-col>
+  </el-row>
 </template>
+
+<style scoped>
+/* 这里只写 Element Plus 不提供的排版细节；
+   颜色、圆角、字号、控件尺寸全部走 EP 变量 */
+.ah-home {
+  padding: 12px;
+}
+
+.ah-home__link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.ah-home__link:focus-visible {
+  outline: 2px solid var(--el-color-primary);
+  outline-offset: 2px;
+}
+
+.ah-home__card {
+  color: inherit;
+  transition: background-color var(--el-transition-duration-fast);
+}
+
+.ah-home__link:hover .ah-home__card,
+.ah-home__link:focus-visible .ah-home__card {
+  background-color: var(--el-fill-color-dark);
+}
+
+.ah-home__card :deep(.el-card__body) {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.ah-home__icon {
+  display: grid;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--el-border-radius-base);
+  place-items: center;
+  background-color: var(--el-color-primary-light-9);
+  color: var(--el-color-primary);
+}
+
+.ah-home__body {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.ah-home__title {
+  color: var(--el-text-color-primary);
+  font-size: var(--el-font-size-base);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ah-home__desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  color: var(--el-text-color-secondary);
+  font-size: var(--el-font-size-small);
+  overflow: hidden;
+}
+</style>
