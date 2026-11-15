@@ -10,15 +10,16 @@
    本文件在 main.js 里排在 element-plus 样式之后，所以这里的覆盖生效。
    ============================================================ */
 
-:root {
+:root,
+html.dark {
   --el-color-primary: var(--color-accent);
   --el-color-primary-rgb: 204, 120, 92;
   --el-color-primary-dark-2: var(--color-accent-strong);
-  --el-color-primary-light-3: color-mix(in srgb, var(--color-accent) 30%, var(--color-canvas));
+  --el-color-primary-light-3: color-mix(in srgb, var(--color-accent) 70%, var(--color-canvas));
   --el-color-primary-light-5: color-mix(in srgb, var(--color-accent) 50%, var(--color-canvas));
-  --el-color-primary-light-7: color-mix(in srgb, var(--color-accent) 70%, var(--color-canvas));
-  --el-color-primary-light-8: color-mix(in srgb, var(--color-accent) 80%, var(--color-canvas));
-  --el-color-primary-light-9: color-mix(in srgb, var(--color-accent) 90%, var(--color-canvas));
+  --el-color-primary-light-7: color-mix(in srgb, var(--color-accent) 30%, var(--color-canvas));
+  --el-color-primary-light-8: color-mix(in srgb, var(--color-accent) 20%, var(--color-canvas));
+  --el-color-primary-light-9: color-mix(in srgb, var(--color-accent) 10%, var(--color-canvas));
 
   --el-color-success: var(--color-success);
   --el-color-warning: var(--color-warning);

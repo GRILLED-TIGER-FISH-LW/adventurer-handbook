@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { theme, toggleTheme } from '../composables/useTheme.js'
-import Icon from './Icon.vue'
+import SolarIcon from './SolarIcon.vue'
 
 defineEmits(['open-menu'])
 
@@ -26,7 +26,7 @@ const themeLabel = computed(() =>
       aria-label="打开菜单"
       @click="$emit('open-menu')"
     >
-      <Icon name="app.hamburger" size="sm" />
+      <SolarIcon name="hamburger-menu" size="20" aria-hidden="true" />
     </button>
 
     <span
@@ -34,7 +34,7 @@ const themeLabel = computed(() =>
       class="grid size-7 shrink-0 place-items-center rounded-md bg-accent-soft text-accent-strong"
       aria-hidden="true"
     >
-      <Icon :name="titleIcon" size="sm" />
+      <SolarIcon :name="titleIcon" size="20" />
     </span>
 
     <h1 class="min-w-0 flex-1 truncate text-heading-5 text-ink">{{ title }}</h1>
@@ -45,7 +45,7 @@ const themeLabel = computed(() =>
       :aria-label="themeLabel"
       @click="toggleTheme"
     >
-      <Icon :name="theme === 'dark' ? 'app.moon' : 'app.sun'" size="sm" />
+      <SolarIcon :name="theme === 'dark' ? 'moon' : 'sun-2'" :bold="true" size="20" aria-hidden="true" />
     </button>
   </header>
 </template>

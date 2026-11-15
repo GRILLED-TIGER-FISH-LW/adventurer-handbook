@@ -1,17 +1,10 @@
 <script setup>
 import { useRouter } from 'vue-router'
-import { Reading, Present } from '@element-plus/icons-vue'
+import SolarIcon from '../components/SolarIcon.vue'
 
 /* 首页只列带 label 的路由，也就是两个工具入口 */
 const router = useRouter()
 const tools = router.options.routes.filter((r) => r.meta?.label)
-
-/* 旧的自绘图标字典没有对应组件，这里换成 Element Plus 图标 */
-const ICONS = {
-  'handbook.tales': Reading,
-  'handbook.giftSet': Present,
-}
-const DEFAULT_ICON = Reading
 </script>
 
 <template>
@@ -20,9 +13,7 @@ const DEFAULT_ICON = Reading
       <RouterLink :to="t.path" class="ah-home__link">
         <el-card shadow="never" class="ah-home__card">
           <span class="ah-home__icon" aria-hidden="true">
-            <el-icon :size="18">
-              <component :is="ICONS[t.meta.icon] || DEFAULT_ICON" />
-            </el-icon>
+            <SolarIcon :name="t.meta.icon" :size="18" />
           </span>
 
           <div class="ah-home__body">

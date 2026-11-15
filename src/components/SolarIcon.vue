@@ -9,6 +9,11 @@ const props = defineProps({
 })
 
 const comp = computed(() => solarIcon(props.name, props.bold))
+
+/* 图标名写错会静默空白，开发期直接报出来 */
+if (import.meta.env.DEV && !comp.value) {
+  console.warn('[SolarIcon] 没登记的图标名：' + props.name)
+}
 </script>
 
 <template>
