@@ -6,47 +6,53 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：home-fix2 —— 卡片图标垫色/图标色固定为昼夜一致；暗色下描边换亮一档
+# 最近一批：home-fix3 —— 卡片换行加 row-gap；垫色基准改回暖白；暗色描边提亮
 
 == MOVES ==
 
 == EDITS ==
 ### src/views/Home.vue
 <<<<
-  background-color: var(--el-color-primary-light-9);
-  color: var(--el-color-primary);
-}
-
-/* 暗色下 EP 的 light-9 叠了陶土橙之后比卡片还亮，这里单独压暗一档 */
-[data-theme='dark'] .ah-home__icon {
-  background-color: color-mix(in srgb, var(--color-accent) 8%, var(--color-canvas));
+.ah-home {
+  padding: 12px;
 }
 >>>>
+<<<<
+.ah-home {
+  padding: 12px;
+  /* el-row 的 gutter 只做左右间距，换行堆叠时的上下间距要自己给 */
+  row-gap: 12px;
+}
+>>>>
+
+### src/views/Home.vue
 <<<<
   /* 垫色和图标色都固定，昼夜一致，不随主题切换 */
   background-color: color-mix(in srgb, var(--color-accent) 10%, #ffffff);
   color: color-mix(in srgb, var(--color-accent) 78%, #000000);
-}
+>>>>
+<<<<
+  /* 垫色和图标色都固定，昼夜一致，不随主题切换。
+     基准用暖白 #f5f0e8（= tokens.css 里白天的 canvas），不是纯白，
+     否则陶土橙会被稀释成近白色 */
+  background-color: color-mix(in srgb, var(--color-accent) 10%, #f5f0e8);
+  color: color-mix(in srgb, var(--color-accent) 78%, #000000);
 >>>>
 
 ### src/styles/app.css
 <<<<
-html.dark {
-  --el-color-primary-dark-2: color-mix(in srgb, var(--color-accent) 85%, #000000);
-}
->>>>
-<<<<
-html.dark {
-  --el-color-primary-dark-2: color-mix(in srgb, var(--color-accent) 85%, #000000);
-
   /* 暗色下面板与卡片底色只差一档，描边换用更亮的 line-2 才看得见 */
   --el-border-color: var(--color-line-2);
-}
+>>>>
+<<<<
+  /* 暗色下 line-2 对卡片只有 1.14:1，人眼分辨不出；
+     掺 faint 抬到约 1.9:1 才和白天观感相当 */
+  --el-border-color: color-mix(in srgb, var(--color-faint) 40%, var(--color-line-2));
 >>>>
 
 == DELETES ==
 
 == CHECKS ==
-grep -q "color-mix(in srgb, var(--color-accent) 10%, #ffffff)" src/views/Home.vue
-! grep -q "data-theme='dark'" src/views/Home.vue
-grep -q -e "--el-border-color: var(--color-line-2)" src/styles/app.css
+grep -q "row-gap: 12px" src/views/Home.vue
+grep -q "10%, #f5f0e8" src/views/Home.vue
+grep -qF -e "--el-border-color: color-mix(in srgb, var(--color-faint) 40%, var(--color-line-2))" src/styles/app.css
