@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessageBox } from 'element-plus'
-import { Check, Delete, Download, Refresh, Search, Upload } from '@element-plus/icons-vue'
+import { Delete, Download, Refresh, Search, Upload } from '@element-plus/icons-vue'
 import { useToast } from '../composables/useToast.js'
 import { loadGlobalScript, loadTalesData } from '../composables/useData.js'
 
@@ -231,12 +231,13 @@ function clearFilters() {
 
 /* 120 行不能每行都占一个 Tab 位：容器是唯一 Tab 停靠点，方向键在行间移动 */
 function moveRow(delta) {
-  const buttons = listRef.value?.querySelectorAll('.ah-tales__row-button')
-  if (!buttons?.length) return
-  const list = [...buttons]
-  const from = list.indexOf(document.activeElement) < 0
+  const list = [...(listRef.value?.querySelectorAll('.ah-tales__row-body') || [])]
+  if (!list.length) return
+  /* 焦点可能在行内的 checkbox 上，先往上找到行容器 */
+  const current = document.activeElement?.closest?.('.ah-tales__row-body')
+  const from = list.indexOf(current) < 0
     ? (delta > 0 ? -1 : list.length)
-    : list.indexOf(document.activeElement)
+    : list.indexOf(current)
   const next = Math.max(0, Math.min(list.length - 1, from + delta))
   ;(list[next] || listRef.value).focus()
 }
@@ -340,21 +341,20 @@ onMounted(async () => {
           aria-label="搜索角色名或旅闻名"
           placeholder="搜索角色名 / 旅闻名"
           clearable
-          class="min-w-0 flex-1"
+          class="min-w-0 w-2/3"
         >
           <template #prefix>
             <el-icon><Search /></el-icon>
           </template>
         </el-input>
 
-        <div
-          class="flex shrink-0 items-center gap-1 rounded-ctl bg-accent-soft px-2 py-1 text-xs text-accent-strong"
-        >
-          <span>已完成</span>
-          <span class="font-semibold tabular-nums">{{ done.size }}</span>
-          <span aria-hidden="true">/</span>
-          <span class="tabular-nums">{{ total }}</span>
-        </div>
+        <el-statistic
+          class="ah-tales__summary"
+          title="已完成"
+          :value="`${done.size} / ${total}`"
+          :title-style="{ fontSize: '12px' }"
+          :value-style="{ fontSize: '12px', fontWeight: 600 }"
+        />
       </div>
 
       <div class="grid grid-cols-3 gap-2">
@@ -374,7 +374,7 @@ onMounted(async () => {
           v-model="uid"
           aria-label="UID"
           placeholder="UID"
-          class="w-24 shrink-0"
+          class="w-1/3 shrink-0"
           @input="onUidInput"
         />
         <div class="flex flex-1 justify-end gap-2">
@@ -422,13 +422,15 @@ onMounted(async () => {
         @keydown.up.prevent="moveRow(-1)"
       >
         <el-card v-for="row in rows" :key="row.key" shadow="never" class="ah-tales__row">
-          <button
-            type="button"
-            class="ah-tales__row-button grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 p-3"
+          <div
+            class="ah-tales__row-body grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1"
+            tabindex="-1"
+            role="button"
             :aria-pressed="row.isDone"
             :aria-label="`${row.e.character} ${row.e.version} ${row.e.title}`"
             :class="row.isDone ? 'opacity-70' : ''"
-            @click="toggle(row)"
+            @keydown.enter.prevent="toggle(row)"
+            @keydown.space.prevent="toggle(row)"
           >
           <div
             class="relative grid size-10 shrink-0 place-items-center overflow-hidden rounded-ctl bg-thumb text-sm font-semibold text-muted"
@@ -444,25 +446,28 @@ onMounted(async () => {
             />
           </div>
 
-          <div class="flex min-w-0 items-center gap-2">
-            <span class="shrink-0 text-sm font-medium text-ink">{{ row.e.character }}</span>
-            <span
-              class="shrink-0 rounded bg-accent-soft px-2 py-0.5 text-micro text-accent-strong tabular-nums"
-            >
-              {{ row.e.version }}
-            </span>
-            <el-tag v-if="row.e.hidden" type="danger" size="small" effect="plain">隐藏</el-tag>
-            <span
-              class="min-w-0 truncate text-sm"
+          <div class="flex min-w-0 flex-col gap-0.5">
+            <div class="flex items-center gap-2">
+              <span class="shrink-0 text-sm font-medium text-ink">{{ row.e.character }}</span>
+              <el-tag v-if="row.e.hidden" type="danger" size="small" effect="plain">隐藏</el-tag>
+              <el-tag class="ah-tales__version" size="small" effect="plain" type="primary">
+                {{ row.e.version }}
+              </el-tag>
+            </div>
+            <p
+              class="min-w-0 text-sm leading-snug line-clamp-2"
               :class="row.e.hidden ? 'text-danger' : 'text-body'"
             >
               {{ row.e.title }}
-            </span>
+            </p>
           </div>
 
-          <el-icon class="shrink-0" :class="row.isDone ? 'text-accent-strong' : 'text-faint'">
-            <Check />
-          </el-icon>
+          <el-checkbox
+            class="ah-tales__row-check"
+            :model-value="row.isDone"
+            @change="toggle(row)"
+            aria-hidden="true"
+          />
 
           <div v-if="row.metas.length" class="col-span-3 grid gap-1">
             <div
@@ -478,7 +483,7 @@ onMounted(async () => {
           <div v-if="row.desc" class="col-span-3 text-body-sm text-muted">
             {{ row.desc }}
           </div>
-        </button>
+        </div>
         </el-card>
       </div>
     </div>
@@ -499,18 +504,29 @@ onMounted(async () => {
   --el-card-padding: 0;
 }
 
-.ah-tales__row-button {
-  width: 100%;
-  border: 0;
-  border-radius: var(--el-border-radius-base);
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  text-align: left;
+.ah-tales__row-body {
+  padding: 12px;
 }
 
-.ah-tales__row-button:focus-visible {
+/* 整列只有容器一个 Tab 位：checkbox 是装饰，不单独占 Tab、也不进无障碍树 */
+.ah-tales__row-check :deep(input) {
+  tab-index: -1;
+}
+
+.ah-tales__row-body:focus-visible {
   outline: 2px solid var(--el-color-primary);
   outline-offset: 2px;
+}
+
+.ah-tales__version {
+  margin-right: 4px;
+}
+
+.ah-tales__summary {
+  flex: 1;
+  padding: 4px 8px;
+  border-radius: var(--el-border-radius-base);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
 }
 </style>
