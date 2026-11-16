@@ -70,10 +70,11 @@ const tools = router.options.routes.filter((r) => r.meta?.label)
   border-radius: var(--el-border-radius-base);
   place-items: center;
   /* 垫色和图标色都固定，昼夜一致，不随主题切换。
-     基准用暖白 #f5f0e8（= tokens.css 里白天的 canvas），不是纯白，
-     否则陶土橙会被稀释成近白色 */
-  background-color: color-mix(in srgb, var(--color-accent) 10%, #f5f0e8);
-  color: color-mix(in srgb, var(--color-accent) 78%, #000000);
+     垫色 = 陶土橙混 30%；图标色 = 改版前的 accent-strong。
+     这里写死 #a9583e 而不是 var(--color-accent-strong)：后者在暗色下
+     会变成 #cc785c，对垫色只有 2.28:1，低于图形 3:1 的线 */
+  background-color: color-mix(in srgb, var(--color-accent) 30%, #faf9f5);
+  color: #a9583e;
 }
 
 .ah-home__body {
