@@ -341,20 +341,19 @@ onMounted(async () => {
           aria-label="搜索角色名或旅闻名"
           placeholder="搜索角色名 / 旅闻名"
           clearable
-          class="min-w-0 w-2/3"
+          class="min-w-0 ah-tales__search"
         >
           <template #prefix>
             <el-icon><Search /></el-icon>
           </template>
         </el-input>
 
-        <el-statistic
-          class="ah-tales__summary"
-          title="已完成"
-          :value="`${done.size} / ${total}`"
-          :title-style="{ fontSize: '12px' }"
-          :value-style="{ fontSize: '12px', fontWeight: 600 }"
-        />
+        <el-tag class="ah-tales__summary">
+          <span>已完成</span>
+          <span class="font-semibold tabular-nums">{{ done.size }}</span>
+          <span aria-hidden="true">/</span>
+          <span class="tabular-nums">{{ total }}</span>
+        </el-tag>
       </div>
 
       <div class="grid grid-cols-3 gap-2">
@@ -374,7 +373,7 @@ onMounted(async () => {
           v-model="uid"
           aria-label="UID"
           placeholder="UID"
-          class="w-1/3 shrink-0"
+          class="ah-tales__uid shrink-0"
           @input="onUidInput"
         />
         <div class="flex flex-1 justify-end gap-2">
@@ -446,20 +445,18 @@ onMounted(async () => {
             />
           </div>
 
-          <div class="flex min-w-0 flex-col gap-0.5">
-            <div class="flex items-center gap-2">
-              <span class="shrink-0 text-sm font-medium text-ink">{{ row.e.character }}</span>
-              <el-tag v-if="row.e.hidden" type="danger" size="small" effect="plain">隐藏</el-tag>
-              <el-tag class="ah-tales__version" size="small" effect="plain" type="primary">
-                {{ row.e.version }}
-              </el-tag>
-            </div>
-            <p
-              class="min-w-0 text-sm leading-snug line-clamp-2"
+          <div class="flex min-w-0 items-center gap-2">
+            <span class="shrink-0 text-sm font-medium text-ink">{{ row.e.character }}</span>
+            <el-tag v-if="row.e.hidden" type="danger" size="small" effect="plain">隐藏</el-tag>
+            <el-tag class="ah-tales__version" size="small" effect="plain" type="primary">
+              {{ row.e.version }}
+            </el-tag>
+            <span
+              class="min-w-0 truncate text-sm"
               :class="row.e.hidden ? 'text-danger' : 'text-body'"
             >
               {{ row.e.title }}
-            </p>
+            </span>
           </div>
 
           <el-checkbox
@@ -523,10 +520,26 @@ onMounted(async () => {
 }
 
 .ah-tales__summary {
-  flex: 1;
-  padding: 4px 8px;
-  border-radius: var(--el-border-radius-base);
-  background: var(--color-accent-soft);
-  color: var(--color-accent-strong);
+  --el-tag-bg-color: var(--color-accent-soft);
+  --el-tag-border-color: transparent;
+  --el-tag-text-color: var(--color-accent-strong);
+  flex: none;
+  margin-left: auto;
+  height: var(--el-input-height, 32px);
+  padding: 0 8px;
+  white-space: nowrap;
+}
+
+/* 一个下拉框的宽度 = 下面那行 3 个 el-select 各占的宽度（grid gap-2，两条缝共 16px）
+   注意：不能写 Tailwind 的 w-2/3 —— EP 的 CSS 不带 @layer，非分层会盖掉 @layer utilities */
+.ah-tales__search {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: calc((100% - 16px) / 3 * 2);
+}
+
+.ah-tales__uid {
+  width: calc((100% - 16px) / 3);
+  flex: none;
 }
 </style>
