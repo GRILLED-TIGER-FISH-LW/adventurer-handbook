@@ -1,9 +1,7 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
-import Btn from '../components/Btn.vue'
-import Dropdown from '../components/Dropdown.vue'
-import Modal from '../components/Modal.vue'
-import Icon from '../components/Icon.vue'
+import { ElMessageBox } from 'element-plus'
+import { Check, Delete, Download, Refresh, Search, Upload } from '@element-plus/icons-vue'
 import { useToast } from '../composables/useToast.js'
 import { loadGlobalScript, loadTalesData } from '../composables/useData.js'
 
@@ -34,7 +32,6 @@ const status = ref('all')
 const visibility = ref('all')
 const uid = ref('')
 const done = reactive(new Set())
-const clearOpen = ref(false)
 
 const entryKey = (e) => `${e.character || ''}·${e.version || ''}·${e.title || ''}`
 const cleanText = (s) => String(s ?? '').replace(/<br\s*\/?>/gi, ' ').replace(/\s+/g, ' ').trim()
@@ -223,12 +220,44 @@ function onImportFile(ev) {
   reader.readAsText(file)
 }
 
+const listRef = ref(null)
+
+function clearFilters() {
+  search.value = ''
+  version.value = 'all'
+  status.value = 'all'
+  visibility.value = 'all'
+}
+
+/* 120 行不能每行都占一个 Tab 位：容器是唯一 Tab 停靠点，方向键在行间移动 */
+function moveRow(delta) {
+  const buttons = listRef.value?.querySelectorAll('.ah-tales__row-button')
+  if (!buttons?.length) return
+  const list = [...buttons]
+  const from = list.indexOf(document.activeElement) < 0
+    ? (delta > 0 ? -1 : list.length)
+    : list.indexOf(document.activeElement)
+  const next = Math.max(0, Math.min(list.length - 1, from + delta))
+  ;(list[next] || listRef.value).focus()
+}
+
 function confirmClear() {
   if (done.size === 0) {
     toast.show('暂无已完成的旅闻')
     return
   }
-  clearOpen.value = true
+  ElMessageBox.confirm(
+    `确定清空所有完成标记吗？共 ${done.size} 条。建议先导出存档备份进度，清空后无法恢复。`,
+    '清空完成记录',
+    {
+      confirmButtonText: '确认清空',
+      cancelButtonText: '取消',
+      confirmButtonClass: 'el-button--danger',
+      type: 'warning',
+    },
+  )
+    .then(doClear)
+    .catch(() => {})
 }
 
 function doClear() {
@@ -306,30 +335,17 @@ onMounted(async () => {
   <div class="grid h-full grid-rows-[auto_minmax(0,1fr)_auto]">
     <header class="grid gap-2 border-b border-line bg-canvas p-2">
       <div class="flex items-center gap-2">
-        <div class="relative flex min-w-0 flex-1 items-center">
-          <Icon
-            name="ui.search"
-            size="sm"
-            class="pointer-events-none absolute left-3 text-muted"
-          />
-          <input
-            v-model="search"
-            type="text"
-            class="h-control w-full min-w-0 rounded-md border border-line-2 bg-surface pl-10 pr-10 text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-            placeholder="搜索角色名 / 旅闻名"
-            autocomplete="off"
-            spellcheck="false"
-          />
-          <button
-            v-if="search"
-            type="button"
-            class="absolute right-2 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-            aria-label="清除搜索"
-            @click="search = ''"
-          >
-            <Icon name="ui.close" size="sm" />
-          </button>
-        </div>
+        <el-input
+          v-model="search"
+          aria-label="搜索角色名或旅闻名"
+          placeholder="搜索角色名 / 旅闻名"
+          clearable
+          class="min-w-0 flex-1"
+        >
+          <template #prefix>
+            <el-icon><Search /></el-icon>
+          </template>
+        </el-input>
 
         <div
           class="flex shrink-0 items-center gap-1 rounded-ctl bg-accent-soft px-2 py-1 text-xs text-accent-strong"
@@ -342,32 +358,34 @@ onMounted(async () => {
       </div>
 
       <div class="grid grid-cols-3 gap-2">
-        <Dropdown v-model="version" :options="versionOptions" label="版本" />
-        <Dropdown v-model="status" :options="statusOptions" label="状态" />
-        <Dropdown v-model="visibility" :options="visibilityOptions" label="类型" />
+        <el-select v-model="version" placeholder="版本" class="w-full">
+          <el-option v-for="o in versionOptions" :key="o.value" :label="o.label" :value="o.value" />
+        </el-select>
+        <el-select v-model="status" placeholder="状态" class="w-full">
+          <el-option v-for="o in statusOptions" :key="o.value" :label="o.label" :value="o.value" />
+        </el-select>
+        <el-select v-model="visibility" placeholder="类型" class="w-full">
+          <el-option v-for="o in visibilityOptions" :key="o.value" :label="o.label" :value="o.value" />
+        </el-select>
       </div>
 
       <div class="flex items-center gap-2">
-        <input
-          :value="uid"
-          type="text"
+        <el-input
+          v-model="uid"
           aria-label="UID"
           placeholder="UID"
-          inputmode="numeric"
-          maxlength="15"
-          spellcheck="false"
-          class="h-control w-24 shrink-0 rounded-md border border-line-2 bg-surface px-3 text-center text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-          @input="onUidInput($event.target.value)"
+          class="w-24 shrink-0"
+          @input="onUidInput"
         />
         <div class="flex flex-1 justify-end gap-2">
-          <Btn size="sm" @click="exportArchive">
-            <template #icon><Icon name="ui.export" size="sm" /></template>
-            导出
-          </Btn>
-          <Btn size="sm" @click="fileInput?.click()">
-            <template #icon><Icon name="ui.import" size="sm" /></template>
-            导入
-          </Btn>
+          <el-button size="small" @click="exportArchive">
+            <el-icon><Download /></el-icon>
+            <span>导出</span>
+          </el-button>
+          <el-button size="small" @click="fileInput?.click()">
+            <el-icon><Upload /></el-icon>
+            <span>导入</span>
+          </el-button>
         </div>
         <input
           ref="fileInput"
@@ -385,32 +403,33 @@ onMounted(async () => {
       <div v-else-if="errorMsg" class="grid justify-items-center gap-3 p-8 text-center">
         <p class="text-sm font-semibold text-danger">数据加载失败</p>
         <p class="text-xs text-muted">{{ errorMsg }}</p>
-        <Btn size="sm" @click="() => location.reload()">重新加载</Btn>
+        <el-button size="small" @click="() => location.reload()">
+          <el-icon><Refresh /></el-icon>
+          <span>重新加载</span>
+        </el-button>
       </div>
 
-      <div v-else-if="!rows.length" class="grid justify-items-center gap-3 p-8 text-center">
-        <Icon name="ui.inbox" size="lg" class="text-faint" />
-        <p class="text-sm text-muted">没有找到匹配的旅闻</p>
-      </div>
+      <el-empty v-else-if="!rows.length" description="没有找到匹配的旅闻">
+        <el-button size="small" @click="clearFilters">清除筛选条件</el-button>
+      </el-empty>
 
-      <div v-else class="grid gap-2">
-        <article
-          v-for="row in rows"
-          :key="row.key"
-          role="checkbox"
-          :aria-checked="row.isDone"
-          :aria-label="`${row.e.character} ${row.e.version} ${row.e.title}`"
-          tabindex="0"
-          class="grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 rounded-panel border p-3 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-          :class="
-            row.isDone
-              ? 'border-line-2 bg-sunken/50 opacity-70'
-              : 'border-line bg-surface hover:bg-hover'
-          "
-          @click="toggle(row)"
-          @keydown.enter.prevent="toggle(row)"
-          @keydown.space.prevent="toggle(row)"
-        >
+      <div
+        v-else
+        ref="listRef"
+        tabindex="0"
+        class="grid gap-2"
+        @keydown.down.prevent="moveRow(1)"
+        @keydown.up.prevent="moveRow(-1)"
+      >
+        <el-card v-for="row in rows" :key="row.key" shadow="never" class="ah-tales__row">
+          <button
+            type="button"
+            class="ah-tales__row-button grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 p-3"
+            :aria-pressed="row.isDone"
+            :aria-label="`${row.e.character} ${row.e.version} ${row.e.title}`"
+            :class="row.isDone ? 'opacity-70' : ''"
+            @click="toggle(row)"
+          >
           <div
             class="relative grid size-10 shrink-0 place-items-center overflow-hidden rounded-ctl bg-thumb text-sm font-semibold text-muted"
           >
@@ -432,6 +451,7 @@ onMounted(async () => {
             >
               {{ row.e.version }}
             </span>
+            <el-tag v-if="row.e.hidden" type="danger" size="small" effect="plain">隐藏</el-tag>
             <span
               class="min-w-0 truncate text-sm"
               :class="row.e.hidden ? 'text-danger' : 'text-body'"
@@ -440,17 +460,9 @@ onMounted(async () => {
             </span>
           </div>
 
-          <span
-            class="grid size-5 shrink-0 place-items-center rounded-ctl border"
-            :class="
-              row.isDone
-                ? 'border-accent-solid bg-accent-solid text-on-accent'
-                : 'border-line-2 bg-surface text-transparent'
-            "
-            aria-hidden="true"
-          >
-            <Icon name="ui.check" size="sm" />
-          </span>
+          <el-icon class="shrink-0" :class="row.isDone ? 'text-accent-strong' : 'text-faint'">
+            <Check />
+          </el-icon>
 
           <div v-if="row.metas.length" class="col-span-3 grid gap-1">
             <div
@@ -466,25 +478,39 @@ onMounted(async () => {
           <div v-if="row.desc" class="col-span-3 text-body-sm text-muted">
             {{ row.desc }}
           </div>
-        </article>
+        </button>
+        </el-card>
       </div>
     </div>
 
     <div class="border-t border-line bg-canvas p-2 safe-bottom">
-      <Btn variant="danger" class="w-full" size="sm" @click="confirmClear">
-        <template #icon><Icon name="ui.trash" size="sm" /></template>
-        清空全部记录
-      </Btn>
+      <el-button type="danger" class="w-full" size="small" @click="confirmClear">
+        <el-icon><Delete /></el-icon>
+        <span>清空全部记录</span>
+      </el-button>
     </div>
 
-    <Modal
-      v-model="clearOpen"
-      title="清空完成记录"
-      :message="`确定清空所有完成标记吗？共 ${done.size} 条。建议先导出存档备份进度，清空后无法恢复。`"
-      confirm-text="确认清空"
-      danger
-      persistent
-      @confirm="doClear"
-    />
   </div>
 </template>
+
+<style scoped>
+/* 卡片体不要内边距：按钮自己撑满整张卡 */
+.ah-tales__row {
+  --el-card-padding: 0;
+}
+
+.ah-tales__row-button {
+  width: 100%;
+  border: 0;
+  border-radius: var(--el-border-radius-base);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.ah-tales__row-button:focus-visible {
+  outline: 2px solid var(--el-color-primary);
+  outline-offset: 2px;
+}
+</style>
