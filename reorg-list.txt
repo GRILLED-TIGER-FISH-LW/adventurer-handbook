@@ -6,38 +6,364 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：home-fix8 —— 去掉 el-row 的 gutter（负外边距造成横向溢出），改用 column-gap
+# 最近一批：ep-tales —— 游逸旅闻页换 Element Plus；顺手修无障碍与空态
 
 == MOVES ==
 
 == EDITS ==
-### src/views/Home.vue
+### src/views/Tales.vue
 <<<<
-el-row :gutter="12" class="ah-home">
+import Btn from '../components/Btn.vue'
+import Dropdown from '../components/Dropdown.vue'
+import Modal from '../components/Modal.vue'
+import Icon from '../components/Icon.vue'
+import { useToast } from '../composables/useToast.js'
 >>>>
 <<<<
-el-row class="ah-home">
->>>>
-
-### src/views/Home.vue
-<<<<
-gutter 只做左右间距
->>>>
-<<<<
-gutter 会给 el-row 加负外边距造成横向溢出，改用 column-gap
+import { ElMessageBox } from 'element-plus'
+import { Check, Delete, Download, Refresh, Search, Upload } from '@element-plus/icons-vue'
+import { useToast } from '../composables/useToast.js'
 >>>>
 
-### src/views/Home.vue
+### src/views/Tales.vue
 <<<<
-row-gap: 12px;
+const uid = ref('')
+const done = reactive(new Set())
+const clearOpen = ref(false)
 >>>>
 <<<<
-column-gap: 12px;
-  row-gap: 12px;
+const uid = ref('')
+const done = reactive(new Set())
+>>>>
+
+### src/views/Tales.vue
+<<<<
+function confirmClear() {
+>>>>
+<<<<
+const listRef = ref(null)
+
+function clearFilters() {
+  search.value = ''
+  version.value = 'all'
+  status.value = 'all'
+  visibility.value = 'all'
+}
+
+/* 120 行不能每行都占一个 Tab 位：容器是唯一 Tab 停靠点，方向键在行间移动 */
+function moveRow(delta) {
+  const buttons = listRef.value?.querySelectorAll('.ah-tales__row-button')
+  if (!buttons?.length) return
+  const list = [...buttons]
+  const from = list.indexOf(document.activeElement) < 0
+    ? (delta > 0 ? -1 : list.length)
+    : list.indexOf(document.activeElement)
+  const next = Math.max(0, Math.min(list.length - 1, from + delta))
+  ;(list[next] || listRef.value).focus()
+}
+
+function confirmClear() {
+>>>>
+
+### src/views/Tales.vue
+<<<<
+  clearOpen.value = true
+}
+>>>>
+<<<<
+  ElMessageBox.confirm(
+    `确定清空所有完成标记吗？共 ${done.size} 条。建议先导出存档备份进度，清空后无法恢复。`,
+    '清空完成记录',
+    {
+      confirmButtonText: '确认清空',
+      cancelButtonText: '取消',
+      confirmButtonClass: 'el-button--danger',
+      type: 'warning',
+    },
+  )
+    .then(doClear)
+    .catch(() => {})
+}
+>>>>
+
+### src/views/Tales.vue
+<<<<
+        <div class="relative flex min-w-0 flex-1 items-center">
+          <Icon
+            name="ui.search"
+            size="sm"
+            class="pointer-events-none absolute left-3 text-muted"
+          />
+          <input
+            v-model="search"
+            type="text"
+            class="h-control w-full min-w-0 rounded-md border border-line-2 bg-surface pl-10 pr-10 text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+            placeholder="搜索角色名 / 旅闻名"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button
+            v-if="search"
+            type="button"
+            class="absolute right-2 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+            aria-label="清除搜索"
+            @click="search = ''"
+          >
+            <Icon name="ui.close" size="sm" />
+          </button>
+        </div>
+>>>>
+<<<<
+        <el-input
+          v-model="search"
+          aria-label="搜索角色名或旅闻名"
+          placeholder="搜索角色名 / 旅闻名"
+          clearable
+          class="min-w-0 flex-1"
+        >
+          <template #prefix>
+            <el-icon><Search /></el-icon>
+          </template>
+        </el-input>
+>>>>
+
+### src/views/Tales.vue
+<<<<
+        <Dropdown v-model="version" :options="versionOptions" label="版本" />
+        <Dropdown v-model="status" :options="statusOptions" label="状态" />
+        <Dropdown v-model="visibility" :options="visibilityOptions" label="类型" />
+>>>>
+<<<<
+        <el-select v-model="version" placeholder="版本" class="w-full">
+          <el-option v-for="o in versionOptions" :key="o.value" :label="o.label" :value="o.value" />
+        </el-select>
+        <el-select v-model="status" placeholder="状态" class="w-full">
+          <el-option v-for="o in statusOptions" :key="o.value" :label="o.label" :value="o.value" />
+        </el-select>
+        <el-select v-model="visibility" placeholder="类型" class="w-full">
+          <el-option v-for="o in visibilityOptions" :key="o.value" :label="o.label" :value="o.value" />
+        </el-select>
+>>>>
+
+### src/views/Tales.vue
+<<<<
+        <input
+          :value="uid"
+          type="text"
+          aria-label="UID"
+          placeholder="UID"
+          inputmode="numeric"
+          maxlength="15"
+          spellcheck="false"
+          class="h-control w-24 shrink-0 rounded-md border border-line-2 bg-surface px-3 text-center text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+          @input="onUidInput($event.target.value)"
+        />
+        <div class="flex flex-1 justify-end gap-2">
+          <Btn size="sm" @click="exportArchive">
+            <template #icon><Icon name="ui.export" size="sm" /></template>
+            导出
+          </Btn>
+          <Btn size="sm" @click="fileInput?.click()">
+            <template #icon><Icon name="ui.import" size="sm" /></template>
+            导入
+          </Btn>
+        </div>
+>>>>
+<<<<
+        <el-input
+          v-model="uid"
+          aria-label="UID"
+          placeholder="UID"
+          class="w-24 shrink-0"
+          @input="onUidInput"
+        />
+        <div class="flex flex-1 justify-end gap-2">
+          <el-button size="small" @click="exportArchive">
+            <el-icon><Download /></el-icon>
+            <span>导出</span>
+          </el-button>
+          <el-button size="small" @click="fileInput?.click()">
+            <el-icon><Upload /></el-icon>
+            <span>导入</span>
+          </el-button>
+        </div>
+>>>>
+
+### src/views/Tales.vue
+<<<<
+        <Btn size="sm" @click="() => location.reload()">重新加载</Btn>
+      </div>
+
+      <div v-else-if="!rows.length" class="grid justify-items-center gap-3 p-8 text-center">
+        <Icon name="ui.inbox" size="lg" class="text-faint" />
+        <p class="text-sm text-muted">没有找到匹配的旅闻</p>
+      </div>
+>>>>
+<<<<
+        <el-button size="small" @click="() => location.reload()">
+          <el-icon><Refresh /></el-icon>
+          <span>重新加载</span>
+        </el-button>
+      </div>
+
+      <el-empty v-else-if="!rows.length" description="没有找到匹配的旅闻">
+        <el-button size="small" @click="clearFilters">清除筛选条件</el-button>
+      </el-empty>
+>>>>
+
+### src/views/Tales.vue
+<<<<
+      <div v-else class="grid gap-2">
+        <article
+          v-for="row in rows"
+          :key="row.key"
+          role="checkbox"
+          :aria-checked="row.isDone"
+          :aria-label="`${row.e.character} ${row.e.version} ${row.e.title}`"
+          tabindex="0"
+          class="grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 rounded-panel border p-3 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+          :class="
+            row.isDone
+              ? 'border-line-2 bg-sunken/50 opacity-70'
+              : 'border-line bg-surface hover:bg-hover'
+          "
+          @click="toggle(row)"
+          @keydown.enter.prevent="toggle(row)"
+          @keydown.space.prevent="toggle(row)"
+        >
+>>>>
+<<<<
+      <div
+        v-else
+        ref="listRef"
+        tabindex="0"
+        class="grid gap-2"
+        @keydown.down.prevent="moveRow(1)"
+        @keydown.up.prevent="moveRow(-1)"
+      >
+        <el-card v-for="row in rows" :key="row.key" shadow="never" class="ah-tales__row">
+          <button
+            type="button"
+            class="ah-tales__row-button grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 p-3"
+            :aria-pressed="row.isDone"
+            :aria-label="`${row.e.character} ${row.e.version} ${row.e.title}`"
+            :class="row.isDone ? 'opacity-70' : ''"
+            @click="toggle(row)"
+          >
+>>>>
+
+### src/views/Tales.vue
+<<<<
+            <span
+              class="min-w-0 truncate text-sm"
+              :class="row.e.hidden ? 'text-danger' : 'text-body'"
+            >
+              {{ row.e.title }}
+            </span>
+          </div>
+
+          <span
+            class="grid size-5 shrink-0 place-items-center rounded-ctl border"
+            :class="
+              row.isDone
+                ? 'border-accent-solid bg-accent-solid text-on-accent'
+                : 'border-line-2 bg-surface text-transparent'
+            "
+            aria-hidden="true"
+          >
+            <Icon name="ui.check" size="sm" />
+          </span>
+>>>>
+<<<<
+            <el-tag v-if="row.e.hidden" type="danger" size="small" effect="plain">隐藏</el-tag>
+            <span
+              class="min-w-0 truncate text-sm"
+              :class="row.e.hidden ? 'text-danger' : 'text-body'"
+            >
+              {{ row.e.title }}
+            </span>
+          </div>
+
+          <el-icon class="shrink-0" :class="row.isDone ? 'text-accent-strong' : 'text-faint'">
+            <Check />
+          </el-icon>
+>>>>
+
+### src/views/Tales.vue
+<<<<
+          <div v-if="row.desc" class="col-span-3 text-body-sm text-muted">
+            {{ row.desc }}
+          </div>
+        </article>
+>>>>
+<<<<
+          <div v-if="row.desc" class="col-span-3 text-body-sm text-muted">
+            {{ row.desc }}
+          </div>
+        </button>
+        </el-card>
+>>>>
+
+### src/views/Tales.vue
+<<<<
+      <Btn variant="danger" class="w-full" size="sm" @click="confirmClear">
+        <template #icon><Icon name="ui.trash" size="sm" /></template>
+        清空全部记录
+      </Btn>
+>>>>
+<<<<
+      <el-button type="danger" class="w-full" size="small" @click="confirmClear">
+        <el-icon><Delete /></el-icon>
+        <span>清空全部记录</span>
+      </el-button>
+>>>>
+
+### src/views/Tales.vue
+<<<<
+    <Modal
+      v-model="clearOpen"
+      title="清空完成记录"
+      :message="`确定清空所有完成标记吗？共 ${done.size} 条。建议先导出存档备份进度，清空后无法恢复。`"
+      confirm-text="确认清空"
+      danger
+      persistent
+      @confirm="doClear"
+    />
+  </div>
+</template>
+>>>>
+<<<<
+  </div>
+</template>
+
+<style scoped>
+/* 卡片体不要内边距：按钮自己撑满整张卡 */
+.ah-tales__row {
+  --el-card-padding: 0;
+}
+
+.ah-tales__row-button {
+  width: 100%;
+  border: 0;
+  border-radius: var(--el-border-radius-base);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.ah-tales__row-button:focus-visible {
+  outline: 2px solid var(--el-color-primary);
+  outline-offset: 2px;
+}
+</style>
 >>>>
 
 == DELETES ==
 
 == CHECKS ==
-! grep -q ":gutter=" src/views/Home.vue
-grep -q "column-gap: 12px;" src/views/Home.vue
+grep -q "ElMessageBox" src/views/Tales.vue
+! grep -qE "<Btn|<Dropdown|<Modal|<Icon |<article" src/views/Tales.vue
+grep -q "el-empty" src/views/Tales.vue
+grep -q "aria-label=\"搜索角色名或旅闻名\"" src/views/Tales.vue
+grep -q "moveRow" src/views/Tales.vue
