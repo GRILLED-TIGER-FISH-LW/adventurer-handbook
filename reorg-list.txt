@@ -6,38 +6,20 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-tales-b —— 汇总条改 el-statistic；行改 el-checkbox；文字两行式；图标加粗
+# 最近一批：ep-tales-c —— 修宽度（EP 盖掉 Tailwind w-*）；汇总条换 el-tag；标题回角色名那行
 
 == MOVES ==
 
 == EDITS ==
 ### src/views/Tales.vue
 <<<<
-import { Check, Delete, Download, Refresh, Search, Upload } from '@element-plus/icons-vue'
->>>>
-<<<<
-import { Delete, Download, Refresh, Search, Upload } from '@element-plus/icons-vue'
->>>>
-
-### src/views/Tales.vue
-<<<<
-          class="min-w-0 flex-1"
->>>>
-<<<<
           class="min-w-0 w-2/3"
 >>>>
+<<<<
+          class="min-w-0 ah-tales__search"
+>>>>
 
 ### src/views/Tales.vue
-<<<<
-        <div
-          class="flex shrink-0 items-center gap-1 rounded-ctl bg-accent-soft px-2 py-1 text-xs text-accent-strong"
-        >
-          <span>已完成</span>
-          <span class="font-semibold tabular-nums">{{ done.size }}</span>
-          <span aria-hidden="true">/</span>
-          <span class="tabular-nums">{{ total }}</span>
-        </div>
->>>>
 <<<<
         <el-statistic
           class="ah-tales__summary"
@@ -47,57 +29,24 @@ import { Delete, Download, Refresh, Search, Upload } from '@element-plus/icons-v
           :value-style="{ fontSize: '12px', fontWeight: 600 }"
         />
 >>>>
+<<<<
+        <el-tag class="ah-tales__summary">
+          <span>已完成</span>
+          <span class="font-semibold tabular-nums">{{ done.size }}</span>
+          <span aria-hidden="true">/</span>
+          <span class="tabular-nums">{{ total }}</span>
+        </el-tag>
+>>>>
 
 ### src/views/Tales.vue
-<<<<
-          class="w-24 shrink-0"
->>>>
 <<<<
           class="w-1/3 shrink-0"
 >>>>
-
-### src/views/Tales.vue
 <<<<
-          <button
-            type="button"
-            class="ah-tales__row-button grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 p-3"
-            :aria-pressed="row.isDone"
-            :aria-label="`${row.e.character} ${row.e.version} ${row.e.title}`"
-            :class="row.isDone ? 'opacity-70' : ''"
-            @click="toggle(row)"
-          >
->>>>
-<<<<
-          <div
-            class="ah-tales__row-body grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1"
-            tabindex="-1"
-            role="button"
-            :aria-pressed="row.isDone"
-            :aria-label="`${row.e.character} ${row.e.version} ${row.e.title}`"
-            :class="row.isDone ? 'opacity-70' : ''"
-            @keydown.enter.prevent="toggle(row)"
-            @keydown.space.prevent="toggle(row)"
-          >
+          class="ah-tales__uid shrink-0"
 >>>>
 
 ### src/views/Tales.vue
-<<<<
-          <div class="flex min-w-0 items-center gap-2">
-            <span class="shrink-0 text-sm font-medium text-ink">{{ row.e.character }}</span>
-            <span
-              class="shrink-0 rounded bg-accent-soft px-2 py-0.5 text-micro text-accent-strong tabular-nums"
-            >
-              {{ row.e.version }}
-            </span>
-            <el-tag v-if="row.e.hidden" type="danger" size="small" effect="plain">隐藏</el-tag>
-            <span
-              class="min-w-0 truncate text-sm"
-              :class="row.e.hidden ? 'text-danger' : 'text-body'"
-            >
-              {{ row.e.title }}
-            </span>
-          </div>
->>>>
 <<<<
           <div class="flex min-w-0 flex-col gap-0.5">
             <div class="flex items-center gap-2">
@@ -115,68 +64,24 @@ import { Delete, Download, Refresh, Search, Upload } from '@element-plus/icons-v
             </p>
           </div>
 >>>>
-
-### src/views/Tales.vue
 <<<<
-          <el-icon class="shrink-0" :class="row.isDone ? 'text-accent-strong' : 'text-faint'">
-            <Check />
-          </el-icon>
->>>>
-<<<<
-          <el-checkbox
-            class="ah-tales__row-check"
-            :model-value="row.isDone"
-            @change="toggle(row)"
-            aria-hidden="true"
-          />
->>>>
-
-### src/views/Tales.vue
-<<<<
-        </button>
-        </el-card>
->>>>
-<<<<
-        </div>
-        </el-card>
+          <div class="flex min-w-0 items-center gap-2">
+            <span class="shrink-0 text-sm font-medium text-ink">{{ row.e.character }}</span>
+            <el-tag v-if="row.e.hidden" type="danger" size="small" effect="plain">隐藏</el-tag>
+            <el-tag class="ah-tales__version" size="small" effect="plain" type="primary">
+              {{ row.e.version }}
+            </el-tag>
+            <span
+              class="min-w-0 truncate text-sm"
+              :class="row.e.hidden ? 'text-danger' : 'text-body'"
+            >
+              {{ row.e.title }}
+            </span>
+          </div>
 >>>>
 
 ### src/views/Tales.vue
 <<<<
-.ah-tales__row-button {
-  width: 100%;
-  border: 0;
-  border-radius: var(--el-border-radius-base);
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  text-align: left;
-}
-
-.ah-tales__row-button:focus-visible {
-  outline: 2px solid var(--el-color-primary);
-  outline-offset: 2px;
-}
->>>>
-<<<<
-.ah-tales__row-body {
-  padding: 12px;
-}
-
-/* 整列只有容器一个 Tab 位：checkbox 是装饰，不单独占 Tab、也不进无障碍树 */
-.ah-tales__row-check :deep(input) {
-  tab-index: -1;
-}
-
-.ah-tales__row-body:focus-visible {
-  outline: 2px solid var(--el-color-primary);
-  outline-offset: 2px;
-}
-
-.ah-tales__version {
-  margin-right: 4px;
-}
-
 .ah-tales__summary {
   flex: 1;
   padding: 4px 8px;
@@ -185,48 +90,38 @@ import { Delete, Download, Refresh, Search, Upload } from '@element-plus/icons-v
   color: var(--color-accent-strong);
 }
 >>>>
-
-### src/views/Tales.vue
 <<<<
-function moveRow(delta) {
-  const buttons = listRef.value?.querySelectorAll('.ah-tales__row-button')
-  if (!buttons?.length) return
-  const list = [...buttons]
-  const from = list.indexOf(document.activeElement) < 0
-    ? (delta > 0 ? -1 : list.length)
-    : list.indexOf(document.activeElement)
-  const next = Math.max(0, Math.min(list.length - 1, from + delta))
-  ;(list[next] || listRef.value).focus()
+.ah-tales__summary {
+  --el-tag-bg-color: var(--color-accent-soft);
+  --el-tag-border-color: transparent;
+  --el-tag-text-color: var(--color-accent-strong);
+  flex: none;
+  margin-left: auto;
+  height: var(--el-input-height, 32px);
+  padding: 0 8px;
+  white-space: nowrap;
 }
->>>>
-<<<<
-function moveRow(delta) {
-  const list = [...(listRef.value?.querySelectorAll('.ah-tales__row-body') || [])]
-  if (!list.length) return
-  /* 焦点可能在行内的 checkbox 上，先往上找到行容器 */
-  const current = document.activeElement?.closest?.('.ah-tales__row-body')
-  const from = list.indexOf(current) < 0
-    ? (delta > 0 ? -1 : list.length)
-    : list.indexOf(current)
-  const next = Math.max(0, Math.min(list.length - 1, from + delta))
-  ;(list[next] || listRef.value).focus()
-}
->>>>
 
-### src/components/AppNav.vue
-<<<<
-      <SolarIcon :name="titleIcon" size="20" />
->>>>
-<<<<
-      <SolarIcon :name="titleIcon" :bold="true" size="20" />
+/* 一个下拉框的宽度 = 下面那行 3 个 el-select 各占的宽度（grid gap-2，两条缝共 16px）
+   注意：不能写 Tailwind 的 w-2/3 —— EP 的 CSS 不带 @layer，非分层会盖掉 @layer utilities */
+.ah-tales__search {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: calc((100% - 16px) / 3 * 2);
+}
+
+.ah-tales__uid {
+  width: calc((100% - 16px) / 3);
+  flex: none;
+}
 >>>>
 
 == DELETES ==
 
 == CHECKS ==
-grep -q "el-statistic" src/views/Tales.vue
-grep -q "ah-tales__row-check" src/views/Tales.vue
-! grep -q "ah-tales__row-button" src/views/Tales.vue
-grep -q 'class="min-w-0 w-2/3"' src/views/Tales.vue
-grep -q "w-1/3 shrink-0" src/views/Tales.vue
-grep -q "name=\"titleIcon\" :bold=\"true\"" src/components/AppNav.vue
+grep -q "ah-tales__search" src/views/Tales.vue
+grep -q "ah-tales__uid" src/views/Tales.vue
+grep -q "ah-tales__summary" src/views/Tales.vue
+! grep -q "el-statistic" src/views/Tales.vue
+grep -q "min-w-0 truncate text-sm" src/views/Tales.vue
+grep -q "ah-tales__row-body" src/views/Tales.vue
