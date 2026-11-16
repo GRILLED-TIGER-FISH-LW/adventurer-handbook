@@ -8,7 +8,7 @@ const tools = router.options.routes.filter((r) => r.meta?.label)
 </script>
 
 <template>
-  <el-row :gutter="12" class="ah-home">
+  <el-row class="ah-home">
     <el-col v-for="t in tools" :key="t.path" :xs="24" :sm="12" :md="8" :lg="6">
       <RouterLink :to="t.path" class="ah-home__link">
         <el-card shadow="never" class="ah-home__card">
@@ -31,7 +31,8 @@ const tools = router.options.routes.filter((r) => r.meta?.label)
    颜色、圆角、字号、控件尺寸全部走 EP 变量 */
 .ah-home {
   padding: 12px;
-  /* el-row 的 gutter 只做左右间距，换行堆叠时的上下间距要自己给 */
+  /* el-row 的 gutter 会给 el-row 加负外边距造成横向溢出，改用 column-gap，换行堆叠时的上下间距要自己给 */
+  column-gap: 12px;
   row-gap: 12px;
 }
 
