@@ -349,8 +349,8 @@ onMounted(async () => {
         </el-input>
 
         <el-tag class="ah-tales__summary">
-          <span>已完成</span>
-          <span class="font-semibold tabular-nums">{{ done.size }}</span>
+          <span>已完成&nbsp;</span>
+          <span class="tabular-nums">{{ done.size }}</span>
           <span aria-hidden="true">/</span>
           <span class="tabular-nums">{{ total }}</span>
         </el-tag>
@@ -530,12 +530,13 @@ onMounted(async () => {
   white-space: nowrap;
 }
 
-/* 一个下拉框的宽度 = 下面那行 3 个 el-select 各占的宽度（grid gap-2，两条缝共 16px）
-   注意：不能写 Tailwind 的 w-2/3 —— EP 的 CSS 不带 @layer，非分层会盖掉 @layer utilities */
+/* 搜索框右边缘对齐第二个下拉框的右边缘 = 2 个下拉框宽 + 中间那条 8px 缝
+   一个下拉框 = (100% - 16px) / 3（下面那行 3 个 el-select 是 grid-cols-3 gap-2，两条缝各 8px）
+   注意：不能写 Tailwind 的 w-* —— EP 的 CSS 不带 @layer，非分层会盖掉 @layer utilities */
 .ah-tales__search {
   flex: 1 1 0;
   min-width: 0;
-  max-width: calc((100% - 16px) / 3 * 2);
+  max-width: calc((100% - 16px) / 3 * 2 + 8px);
 }
 
 .ah-tales__uid {
