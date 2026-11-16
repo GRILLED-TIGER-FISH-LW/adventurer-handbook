@@ -69,12 +69,16 @@ const tools = router.options.routes.filter((r) => r.meta?.label)
   height: 32px;
   border-radius: var(--el-border-radius-base);
   place-items: center;
-  /* 垫色和图标色都固定，昼夜一致，不随主题切换。
-     垫色 = 陶土橙混 12%；图标色 = 改版前的 accent-strong。
-     这里写死 #a9583e 而不是 var(--color-accent-strong)：后者在暗色下
-     会变成 #cc785c，对垫色只有 2.28:1，低于图形 3:1 的线 */
+  /* 垫色白天黑夜各一色 —— 原版 bg-accent-soft 本来就是这样：
+     白天 12% 陶土橙叠 #faf9f5 = #f4e9e3；黑夜 18% 叠 #1f1e1b = #3e2e27。
+     图标色跟主题走 = 改版前的 accent-strong（白天 #a9583e，黑夜 #cc785c） */
   background-color: color-mix(in srgb, var(--color-accent) 12%, #faf9f5);
-  color: #a9583e;
+  color: var(--color-accent-strong);
+}
+
+/* 黑夜垫色单独一档，不能跟白天共用 */
+[data-theme='dark'] .ah-home__icon {
+  background-color: color-mix(in srgb, var(--color-accent) 18%, #1f1e1b);
 }
 
 .ah-home__body {
