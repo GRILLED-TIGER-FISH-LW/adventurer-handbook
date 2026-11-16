@@ -6,37 +6,38 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：home-fix7 —— 黑夜垫色单独一档（18% 叠 #1f1e1b），图标色跟主题走
+# 最近一批：home-fix8 —— 去掉 el-row 的 gutter（负外边距造成横向溢出），改用 column-gap
 
 == MOVES ==
 
 == EDITS ==
 ### src/views/Home.vue
 <<<<
-  /* 垫色和图标色都固定，昼夜一致，不随主题切换。
-     垫色 = 陶土橙混 12%；图标色 = 改版前的 accent-strong。
-     这里写死 #a9583e 而不是 var(--color-accent-strong)：后者在暗色下
-     会变成 #cc785c，对垫色只有 2.28:1，低于图形 3:1 的线 */
-  background-color: color-mix(in srgb, var(--color-accent) 12%, #faf9f5);
-  color: #a9583e;
-}
+el-row :gutter="12" class="ah-home">
 >>>>
 <<<<
-  /* 垫色白天黑夜各一色 —— 原版 bg-accent-soft 本来就是这样：
-     白天 12% 陶土橙叠 #faf9f5 = #f4e9e3；黑夜 18% 叠 #1f1e1b = #3e2e27。
-     图标色跟主题走 = 改版前的 accent-strong（白天 #a9583e，黑夜 #cc785c） */
-  background-color: color-mix(in srgb, var(--color-accent) 12%, #faf9f5);
-  color: var(--color-accent-strong);
-}
+el-row class="ah-home">
+>>>>
 
-/* 黑夜垫色单独一档，不能跟白天共用 */
-[data-theme='dark'] .ah-home__icon {
-  background-color: color-mix(in srgb, var(--color-accent) 18%, #1f1e1b);
-}
+### src/views/Home.vue
+<<<<
+gutter 只做左右间距
+>>>>
+<<<<
+gutter 会给 el-row 加负外边距造成横向溢出，改用 column-gap
+>>>>
+
+### src/views/Home.vue
+<<<<
+row-gap: 12px;
+>>>>
+<<<<
+column-gap: 12px;
+  row-gap: 12px;
 >>>>
 
 == DELETES ==
 
 == CHECKS ==
-grep -q "color: var(--color-accent-strong);" src/views/Home.vue
-grep -q "18%, #1f1e1b" src/views/Home.vue
+! grep -q ":gutter=" src/views/Home.vue
+grep -q "column-gap: 12px;" src/views/Home.vue
