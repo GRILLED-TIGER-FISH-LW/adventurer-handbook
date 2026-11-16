@@ -34,7 +34,7 @@ const themeLabel = computed(() =>
       class="grid size-7 shrink-0 place-items-center rounded-md bg-accent-soft text-accent-strong"
       aria-hidden="true"
     >
-      <SolarIcon :name="titleIcon" size="20" />
+      <SolarIcon :name="titleIcon" :bold="true" size="20" />
     </span>
 
     <h1 class="min-w-0 flex-1 truncate text-heading-5 text-ink">{{ title }}</h1>
