@@ -6,44 +6,15 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-uid —— UID 宽度抽成全局共享类，旅闻/赠礼套装两边同宽
+# 最近一批：ep-gift-a —— 赠礼套装：按钮/搜索框/下拉换 EP
 
 == MOVES ==
 
 == EDITS ==
-### src/styles/app.css
+### src/views/GiftSet.vue
 <<<<
-  --el-border-color: color-mix(in srgb, var(--color-faint) 40%, var(--color-line-2));
-}
->>>>
-<<<<
-  --el-border-color: color-mix(in srgb, var(--color-faint) 40%, var(--color-line-2));
-}
+import Dropdown from '../components/Dropdown.vue'
 
-/* UID 输入框：旅闻 / 赠礼套装两个页面共用同一个宽度，必须永远一致
-   一个下拉框宽 = (100% - 16px) / 3（那行 3 个 el-select 是 grid-cols-3 gap-2，两条缝各 8px）
-   写在全局而不是各页 scoped：两边不能各改各的。
-   也不能写 Tailwind 的 w-*：EP 的 CSS 不带 @layer，非分层会盖掉 @layer utilities */
-.ah-uid {
-  width: calc((100% - 16px) / 3);
-  flex: none;
-}
->>>>
-
-### src/views/Tales.vue
-<<<<
-          class="ah-tales__uid shrink-0"
->>>>
-<<<<
-          class="ah-uid shrink-0"
->>>>
-
-### src/views/Tales.vue
-<<<<
-.ah-tales__uid {
-  width: calc((100% - 16px) / 3);
-  flex: none;
-}
 >>>>
 <<<<
 
@@ -51,36 +22,147 @@
 
 ### src/views/GiftSet.vue
 <<<<
-      <input
-        :value="uid"
-        type="text"
-        aria-label="UID"
-        placeholder="UID"
-        inputmode="numeric"
-        maxlength="15"
-        spellcheck="false"
-        class="h-control w-24 shrink-0 rounded-md border border-line-2 bg-surface px-3 text-center text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-        @input="onUidInput($event.target.value)"
-      />
+        <Btn size="sm" @click="exportArchive">
+          <template #icon><Icon name="ui.export" size="sm" /></template>
+          导出
+        </Btn>
 >>>>
 <<<<
-      <el-input
-        v-model="uid"
-        aria-label="UID"
-        placeholder="UID"
-        inputmode="numeric"
-        maxlength="15"
-        spellcheck="false"
-        class="ah-uid shrink-0"
-        @input="onUidInput"
-      />
+        <el-button size="small" @click="exportArchive">
+          <el-icon><Download /></el-icon>
+          <span>导出</span>
+        </el-button>
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+        <Btn size="sm" @click="fileInput?.click()">
+          <template #icon><Icon name="ui.import" size="sm" /></template>
+          导入
+        </Btn>
+>>>>
+<<<<
+        <el-button size="small" @click="fileInput?.click()">
+          <el-icon><Upload /></el-icon>
+          <span>导入</span>
+        </el-button>
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+        <Btn size="sm" @click="() => location.reload()">重新加载</Btn>
+>>>>
+<<<<
+        <el-button size="small" @click="() => location.reload()">
+          <span>重新加载</span>
+        </el-button>
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+            <input
+              v-model="charSearch"
+              type="text"
+              class="h-control w-full min-w-0 rounded-md border border-line-2 bg-surface px-3 text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+              placeholder="搜索角色"
+              autocomplete="off"
+              spellcheck="false"
+            />
+>>>>
+<<<<
+            <el-input
+              v-model="charSearch"
+              placeholder="搜索角色"
+              aria-label="搜索角色"
+              clearable
+              class="min-w-0"
+              autocomplete="off"
+              spellcheck="false"
+            />
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+            <div class="relative flex items-center">
+              <Icon
+                name="ui.search"
+                size="sm"
+                class="pointer-events-none absolute left-3 text-muted"
+              />
+              <input
+                v-model="search"
+                type="text"
+                class="h-control w-full min-w-0 rounded-md border border-line-2 bg-surface pl-10 pr-10 text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                placeholder="搜索套装名 / 角色名"
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <button
+                v-if="search"
+                type="button"
+                class="absolute right-2 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                aria-label="清除搜索"
+                @click="search = ''"
+              >
+                <Icon name="ui.close" size="sm" />
+              </button>
+            </div>
+>>>>
+<<<<
+            <el-input
+              v-model="search"
+              placeholder="搜索套装名 / 角色名"
+              aria-label="搜索套装名 / 角色名"
+              clearable
+              class="min-w-0"
+              autocomplete="off"
+              spellcheck="false"
+            >
+              <template #prefix>
+                <el-icon><Search /></el-icon>
+              </template>
+            </el-input>
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+              <Dropdown v-model="regionFilter" :options="regionOptions" label="地区" />
+              <Dropdown v-model="typeFilter" :options="typeOptions" label="类型" />
+              <Dropdown v-model="statusFilter" :options="STATUS_OPTIONS" label="状态" />
+>>>>
+<<<<
+              <el-select v-model="regionFilter" placeholder="地区" aria-label="地区" class="w-full">
+                <el-option
+                  v-for="o in regionOptions"
+                  :key="o.value"
+                  :label="o.label"
+                  :value="o.value"
+                />
+              </el-select>
+              <el-select v-model="typeFilter" placeholder="类型" aria-label="类型" class="w-full">
+                <el-option
+                  v-for="o in typeOptions"
+                  :key="o.value"
+                  :label="o.label"
+                  :value="o.value"
+                />
+              </el-select>
+              <el-select v-model="statusFilter" placeholder="状态" aria-label="状态" class="w-full">
+                <el-option
+                  v-for="o in STATUS_OPTIONS"
+                  :key="o.value"
+                  :label="o.label"
+                  :value="o.value"
+                />
+              </el-select>
 >>>>
 
 == DELETES ==
 
 == CHECKS ==
-grep -q "ah-uid" src/styles/app.css
-grep -q 'class="ah-uid shrink-0"' src/views/Tales.vue
-! grep -q "ah-tales__uid" src/views/Tales.vue
-grep -q 'class="ah-uid shrink-0"' src/views/GiftSet.vue
-! grep -q "h-control w-24" src/views/GiftSet.vue
+! grep -q "Dropdown" src/views/GiftSet.vue
+grep -q "<el-select" src/views/GiftSet.vue
+grep -q "<el-button" src/views/GiftSet.vue
+grep -q 'placeholder="搜索套装名 / 角色名"' src/views/GiftSet.vue
+grep -q "clearable" src/views/GiftSet.vue
+! grep -q "h-control w-full min-w-0 rounded-md border border-line-2" src/views/GiftSet.vue
