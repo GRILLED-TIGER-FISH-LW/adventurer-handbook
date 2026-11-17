@@ -6,7 +6,7 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-gift-collapse —— 我的角色 + 推荐套装换 el-collapse，角色格换 el-checkbox
+# 最近一批：ep-gift-collapse —— 完整 17 块（el-collapse 三区块 + 角色格 el-checkbox + 去卡片展开）
 
 == MOVES ==
 
@@ -171,11 +171,349 @@ function onCollapseChange(names) {
             <div class="grid gap-2">
 >>>>
 
+### src/views/GiftSet.vue
+<<<<
+                  <button
+                    v-for="name in cardMap.get(s.key)?.chars || []"
+                    :key="`${s.key}-${name}`"
+                    type="button"
+                    class="grid justify-items-center gap-1 rounded-ctl border p-1 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                    :class="
+                      !owned.includes(name)
+                        ? 'border-line bg-surface opacity-50'
+                        : (cardMap.get(s.key)?.done || []).includes(name)
+                          ? 'border-accent bg-accent-soft'
+                          : 'border-line-2 bg-surface'
+                    "
+                    :aria-pressed="(cardMap.get(s.key)?.done || []).includes(name)"
+                    :title="name"
+                    @click="toggleSetChar(s, name)"
+                  >
+                    <span
+                      class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
+                    >
+                      <span aria-hidden="true">{{ name.charAt(0) }}</span>
+                      <img
+                        v-if="charAvatar.get(name)"
+                        :src="charAvatar.get(name)"
+                        alt=""
+                        loading="lazy"
+                        class="absolute inset-0 size-full object-cover"
+                        @error="(ev) => ev.target.remove()"
+                      />
+                    </span>
+                    <span class="w-full truncate text-center text-[10px] text-muted">
+                      {{ name }}
+                    </span>
+                  </button>
+>>>>
+<<<<
+                  <el-checkbox
+                    v-for="name in cardMap.get(s.key)?.chars || []"
+                    :key="`${s.key}-${name}`"
+                    :model-value="(cardMap.get(s.key)?.done || []).includes(name)"
+                    class="ah-gift__char"
+                    :class="
+                      !owned.includes(name)
+                        ? 'border-line bg-surface opacity-50'
+                        : (cardMap.get(s.key)?.done || []).includes(name)
+                          ? 'border-accent bg-accent-soft'
+                          : 'border-line-2 bg-surface'
+                    "
+                    :title="name"
+                    @change="toggleSetChar(s, name)"
+                  >
+                    <span
+                      class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
+                    >
+                      <span aria-hidden="true">{{ name.charAt(0) }}</span>
+                      <img
+                        v-if="charAvatar.get(name)"
+                        :src="charAvatar.get(name)"
+                        alt=""
+                        loading="lazy"
+                        class="absolute inset-0 size-full object-cover"
+                        @error="(ev) => ev.target.remove()"
+                      />
+                    </span>
+                    <span class="w-full truncate text-center text-[10px] text-muted">
+                      {{ name }}
+                    </span>
+                  </el-checkbox>
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+        </section>
+
+        <section>
+          <button
+            type="button"
+            class="flex w-full items-center gap-2 px-3 py-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+            :aria-expanded="!allCollapsed"
+            @click="allCollapsed = !allCollapsed"
+          >
+            <span class="text-sm font-semibold text-ink">全部套装</span>
+            <span class="text-xs text-muted">{{ filteredSets.length }} / {{ sets.length }}</span>
+            <el-icon class="ml-auto text-muted">
+              <ArrowUp v-if="!allCollapsed" />
+              <ArrowDown v-else />
+            </el-icon>
+          </button>
+
+          <div v-if="!allCollapsed" class="grid gap-2 px-2 pb-2">
+>>>>
+<<<<
+          </el-collapse-item>
+
+          <el-collapse-item name="all">
+            <template #title>
+              <span class="text-sm font-semibold text-ink">全部套装</span>
+              <span class="text-xs text-muted">{{ filteredSets.length }} / {{ sets.length }}</span>
+            </template>
+            <div class="grid gap-2">
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+                  <button
+                    v-for="name in cardMap.get(s.key).chars"
+                    :key="`${s.key}-${name}`"
+                    type="button"
+                    class="grid justify-items-center gap-1 rounded-ctl border p-1 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                    :class="
+                      !owned.includes(name)
+                        ? 'border-line bg-surface opacity-50'
+                        : cardMap.get(s.key).done.includes(name)
+                          ? 'border-accent bg-accent-soft'
+                          : 'border-line-2 bg-surface'
+                    "
+                    :aria-pressed="cardMap.get(s.key).done.includes(name)"
+                    :title="name"
+                    @click="toggleSetChar(s, name)"
+                  >
+                    <span
+                      class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
+                    >
+                      <span aria-hidden="true">{{ name.charAt(0) }}</span>
+                      <img
+                        v-if="charAvatar.get(name)"
+                        :src="charAvatar.get(name)"
+                        alt=""
+                        loading="lazy"
+                        class="absolute inset-0 size-full object-cover"
+                        @error="(ev) => ev.target.remove()"
+                      />
+                    </span>
+                    <span class="w-full truncate text-center text-[10px] text-muted">
+                      {{ name }}
+                    </span>
+                  </button>
+>>>>
+<<<<
+                  <el-checkbox
+                    v-for="name in cardMap.get(s.key).chars"
+                    :key="`${s.key}-${name}`"
+                    :model-value="cardMap.get(s.key).done.includes(name)"
+                    class="ah-gift__char"
+                    :class="
+                      !owned.includes(name)
+                        ? 'border-line bg-surface opacity-50'
+                        : cardMap.get(s.key).done.includes(name)
+                          ? 'border-accent bg-accent-soft'
+                          : 'border-line-2 bg-surface'
+                    "
+                    :title="name"
+                    @change="toggleSetChar(s, name)"
+                  >
+                    <span
+                      class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
+                    >
+                      <span aria-hidden="true">{{ name.charAt(0) }}</span>
+                      <img
+                        v-if="charAvatar.get(name)"
+                        :src="charAvatar.get(name)"
+                        alt=""
+                        loading="lazy"
+                        class="absolute inset-0 size-full object-cover"
+                        @error="(ev) => ev.target.remove()"
+                      />
+                    </span>
+                    <span class="w-full truncate text-center text-[10px] text-muted">
+                      {{ name }}
+                    </span>
+                  </el-checkbox>
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+        </section>
+      </template>
+>>>>
+<<<<
+          </el-collapse-item>
+        </el-collapse>
+      </template>
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+      </template>
+    </el-dialog>
+  </div>
+</template>
+>>>>
+<<<<
+      </template>
+    </el-dialog>
+  </div>
+</template>
+
+<style scoped>
+/* 角色块用 el-checkbox 拿语义（role=checkbox / aria-checked / 空格切换），
+   外观是头像块：藏掉 EP 自带的勾选框，状态交给外框颜色表达 */
+.ah-gift__char {
+  width: 100%;
+}
+
+.ah-gift__char :deep(.el-checkbox__input) {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ah-gift__char :deep(.el-checkbox__label) {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+/* 勾选框是透明的，焦点环画在整块上，键盘用户才看得见走到哪 */
+.ah-gift__char:focus-within {
+  outline: 2px solid var(--el-color-primary);
+  outline-offset: 1px;
+}
+</style>
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+const expandedKeys = reactive(new Set())
+
+const charCollapsed = ref(false)
+>>>>
+<<<<
+const charCollapsed = ref(false)
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+function toggleExpand(key) {
+  if (!key) return
+  if (expandedKeys.has(key)) expandedKeys.delete(key)
+  else expandedKeys.add(key)
+}
+
+function toggleSetChar(set, name) {
+>>>>
+<<<<
+function toggleSetChar(set, name) {
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+  completed.value = {}
+  uid.value = ''
+  expandedKeys.clear()
+
+  saveOwned()
+>>>>
+<<<<
+  completed.value = {}
+  uid.value = ''
+
+  saveOwned()
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+                :aria-expanded="expandedKeys.has(s.key)"
+                @click="toggleExpand(s.key)"
+              >
+                <span
+                  class="relative h-9 shrink-0 overflow-hidden rounded-ctl bg-thumb"
+>>>>
+<<<<
+              >
+                <span
+                  class="relative h-9 shrink-0 overflow-hidden rounded-ctl bg-thumb"
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+                :aria-expanded="expandedKeys.has(s.key)"
+                @click="toggleExpand(s.key)"
+              >
+                <span
+                  class="h-9 shrink-0 overflow-hidden rounded-ctl bg-thumb"
+                  style="aspect-ratio: 2 / 1"
+>>>>
+<<<<
+              >
+                <span
+                  class="h-9 shrink-0 overflow-hidden rounded-ctl bg-thumb"
+                  style="aspect-ratio: 2 / 1"
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+                <el-icon class="shrink-0 text-muted">
+                  <ArrowUp v-if="expandedKeys.has(s.key)" />
+                  <ArrowDown v-else />
+                </el-icon>
+              </button>
+
+              <div v-if="expandedKeys.has(s.key)" class="grid gap-2 border-t border-line p-2">
+                <div class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
+                  <el-checkbox
+                    v-for="name in cardMap.get(s.key)?.chars || []"
+>>>>
+<<<<
+              </button>
+
+              <div class="grid gap-2 border-t border-line p-2">
+                <div class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
+                  <el-checkbox
+                    v-for="name in cardMap.get(s.key)?.chars || []"
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+                <el-icon class="shrink-0 text-muted">
+                  <ArrowUp v-if="expandedKeys.has(s.key)" />
+                  <ArrowDown v-else />
+                </el-icon>
+              </button>
+
+              <div v-if="expandedKeys.has(s.key)" class="grid gap-2 border-t border-line p-2">
+                <div v-if="!cardMap.get(s.key)?.chars.length" class="p-2 text-xs text-muted">
+>>>>
+<<<<
+              </button>
+
+              <div class="grid gap-2 border-t border-line p-2">
+                <div v-if="!cardMap.get(s.key)?.chars.length" class="p-2 text-xs text-muted">
+>>>>
+
 == DELETES ==
 
 == CHECKS ==
 grep -q "@element-plus/icons-vue" src/views/GiftSet.vue
+! grep -q "ArrowUp" src/views/GiftSet.vue
 grep -q "<el-collapse" src/views/GiftSet.vue
 grep -q "<el-collapse-item" src/views/GiftSet.vue
 grep -q "activeCollapse" src/views/GiftSet.vue
 grep -q "<el-checkbox" src/views/GiftSet.vue
+! grep -q "<section" src/views/GiftSet.vue
+grep -q "ah-gift__char" src/views/GiftSet.vue
