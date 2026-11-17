@@ -867,8 +867,11 @@ onBeforeUnmount(() => {
       </section>
     </main>
 
-    <!-- 底部固定危险区 -->
-    <div v-if="entry" class="border-t border-line bg-canvas p-2 safe-bottom">
+    <!-- 底部固定危险区：只有停在表单栏（手机端点进某条后）才出现删除入口 -->
+    <div
+      v-if="entry && mobilePane === 'form'"
+      class="border-t border-line bg-canvas p-2 safe-bottom"
+    >
       <el-button type="danger" class="w-full" @click="deleteOpen = true">
         <el-icon><Delete /></el-icon>
         <span>删除此条</span>
