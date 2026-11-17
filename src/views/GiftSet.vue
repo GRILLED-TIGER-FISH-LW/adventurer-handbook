@@ -492,7 +492,7 @@ onMounted(async () => {
           <el-collapse-item name="char">
             <template #title>
               <span class="text-sm font-semibold text-ink">我的角色</span>
-              <span class="text-xs text-muted">{{ owned.length }}</span>
+              <span class="text-xs text-muted ml-2">{{ owned.length }}</span>
             </template>
             <div class="grid gap-2">
             <el-input
@@ -547,7 +547,7 @@ onMounted(async () => {
           <el-collapse-item v-if="recommendations.length" name="recommend">
             <template #title>
               <span class="text-sm font-semibold text-ink">推荐套装</span>
-              <span class="text-xs text-muted">前 {{ recommendations.length }}</span>
+              <span class="text-xs text-muted ml-2">前 {{ recommendations.length }}</span>
             </template>
             <div class="grid gap-2">
             <article
@@ -635,7 +635,7 @@ onMounted(async () => {
           <el-collapse-item name="all">
             <template #title>
               <span class="text-sm font-semibold text-ink">全部套装</span>
-              <span class="text-xs text-muted">{{ filteredSets.length }} / {{ sets.length }}</span>
+              <span class="text-xs text-muted ml-2">{{ filteredSets.length }} / {{ sets.length }}</span>
             </template>
             <div class="grid gap-2">
             <el-input
@@ -834,9 +834,13 @@ onMounted(async () => {
    放开高度、去掉 inline-flex 的 30px 右边距，让格子按内容撑成竖长方形 */
 .ah-gift__char {
   display: block;
+  width: 100%;
+  box-sizing: border-box;
+  justify-self: stretch;
+  min-width: 0;
   height: auto;
   min-height: 0;
-  margin-right: 0;
+  margin: 0;
   padding: 2px 0;
 }
 
@@ -858,5 +862,14 @@ onMounted(async () => {
    在 grid-cols-3 里会把下拉框推出格子，弹窗跟着偏 */
 .ah-gift__collapse :deep(.el-select) {
   margin: 0;
+}
+
+/* 推荐角标：只留右下角圆角（左上角跟着缩略图走），再缩小一圈 */
+.ah-gift__collapse :deep(.el-tag) {
+  border-radius: 0 0 4px 0;
+  padding: 0 4px;
+  height: 16px;
+  line-height: 16px;
+  font-size: 10px;
 }
 </style>
