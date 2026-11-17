@@ -1,5 +1,5 @@
 <script setup>
-import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import SolarIcon from './SolarIcon.vue'
 
@@ -24,55 +24,16 @@ function close() {
 
 watch(() => route.fullPath, close)
 
+/* 抽屉打开时把背景整块设成 inert：读屏和 Tab 都跑不到后面去。
+   el-drawer 内部就是 focus-trap 组件（loop + 关闭时归还焦点），Esc 和点遮罩关闭也由它处理，
+   所以这里不用再手写键盘循环。 */
 const appRoot = document.getElementById('app')
-const panel = ref(null)
-let lastFocused = null
 
-const FOCUSABLE =
-  'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'
-
-/* Esc 关闭；Tab 在抽屉内循环（与 Modal 同一套规则） */
-function onKey(e) {
-  if (e.key === 'Escape') {
-    close()
-    return
-  }
-  if (e.key !== 'Tab') return
-
-  const nodes = panel.value?.querySelectorAll(FOCUSABLE)
-  if (!nodes?.length) {
-    e.preventDefault()
-    return
-  }
-  const first = nodes[0]
-  const last = nodes[nodes.length - 1]
-  const active = document.activeElement
-
-  if (e.shiftKey && (active === first || active === panel.value)) {
-    e.preventDefault()
-    last.focus()
-  } else if (!e.shiftKey && active === last) {
-    e.preventDefault()
-    first.focus()
-  }
-}
-
-watch(open, async (v) => {
+watch(open, (v) => {
   if (appRoot) appRoot.inert = v
-  if (v) {
-    lastFocused = document.activeElement
-    document.addEventListener('keydown', onKey)
-    await nextTick()
-    panel.value?.focus()
-  } else {
-    document.removeEventListener('keydown', onKey)
-    lastFocused?.focus?.()
-    lastFocused = null
-  }
 })
 
 onBeforeUnmount(() => {
-  document.removeEventListener('keydown', onKey)
   if (appRoot) appRoot.inert = false
 })
 
@@ -84,38 +45,21 @@ function go(path) {
 
 <template>
   <Teleport to="body">
-    <Transition name="dr">
-      <div v-if="open" class="fixed inset-0 z-[90] bg-mask" @mousedown.self="close"></div>
-    </Transition>
+    <el-drawer
+      v-model="open"
+      direction="ltr"
+      size="256px"
+      :with-header="false"
+      aria-label="功能导航"
+      class="ah-drawer"
+    >
+      <div class="flex h-14 shrink-0 items-center border-b border-line px-4">
+        <h2 class="text-heading-5 text-ink">功能导航</h2>
+      </div>
 
-    <Transition name="drp">
-      <aside
-        v-if="open"
-        ref="panel"
-        role="dialog"
-        aria-modal="true"
-        aria-label="功能导航"
-        tabindex="-1"
-        class="fixed inset-y-0 left-0 z-[100] flex w-64 max-w-[85vw] flex-col border-r border-line bg-canvas focus:outline-none"
-      >
-        <div class="flex h-14 shrink-0 items-center border-b border-line px-4">
-          <h2 class="text-heading-5 text-ink">功能导航</h2>
-        </div>
-
-        <nav class="grid gap-1 overflow-y-auto p-2">
-          <button
-            v-for="item in items"
-            :key="item.path"
-            type="button"
-            class="flex h-control items-center gap-2 rounded-md px-3 text-left text-body-sm focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-            :class="
-              isActive(item.path)
-                ? 'bg-surface font-semibold text-ink'
-                : 'text-body hover:bg-hover'
-            "
-            :aria-current="isActive(item.path) ? 'page' : undefined"
-            @click="go(item.path)"
-          >
+      <nav class="ah-drawer__nav" aria-label="功能菜单">
+        <el-menu :default-active="route.path" class="ah-drawer__menu" @select="go">
+          <el-menu-item v-for="item in items" :key="item.path" :index="item.path">
             <span
               class="grid size-5 shrink-0 place-items-center"
               :class="isActive(item.path) ? 'text-accent-strong' : 'text-muted'"
@@ -124,29 +68,55 @@ function go(path) {
               <SolarIcon :name="item.icon" :bold="isActive(item.path)" size="20" />
             </span>
             <span class="min-w-0 truncate">{{ item.label }}</span>
-          </button>
-        </nav>
-      </aside>
-    </Transition>
+          </el-menu-item>
+        </el-menu>
+      </nav>
+    </el-drawer>
   </Teleport>
 </template>
 
 <style scoped>
-.dr-enter-active,
-.dr-leave-active {
-  transition: opacity 200ms var(--ease-spring);
-}
-.dr-enter-from,
-.dr-leave-to {
-  opacity: 0;
+.ah-drawer {
+  border-right: 1px solid var(--color-line);
+  background-color: var(--color-canvas);
 }
 
-.drp-enter-active,
-.drp-leave-active {
-  transition: transform 200ms var(--ease-spring);
+.ah-drawer__nav {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 8px;
 }
-.drp-enter-from,
-.drp-leave-to {
-  transform: translateX(-100%);
+
+.ah-drawer__menu {
+  --el-menu-item-height: var(--el-input-height, 32px);
+  --el-menu-bg-color: transparent;
+  --el-menu-text-color: var(--color-body);
+  --el-menu-hover-bg-color: var(--color-hover);
+  --el-menu-active-color: var(--color-ink);
+  border: 0;
+  background: transparent;
+}
+
+.ah-drawer__menu :deep(.el-menu-item) {
+  height: var(--el-input-height, 32px);
+  line-height: var(--el-input-height, 32px);
+  border-radius: var(--el-border-radius-base);
+  color: var(--color-body);
+}
+
+.ah-drawer__menu :deep(.el-menu-item:hover) {
+  background-color: var(--color-hover);
+}
+
+.ah-drawer__menu :deep(.el-menu-item.is-active) {
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+.ah-drawer__menu :deep(.el-menu-item:focus-visible) {
+  outline: 2px solid var(--el-color-primary);
+  outline-offset: -2px;
 }
 </style>
