@@ -6,125 +6,176 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-gift-fix —— 修图标缺失/进度文字被删/搜索框缺放大镜/弹窗宽度溢出
+# 最近一批：ep-gift-collapse —— 我的角色 + 推荐套装换 el-collapse，角色格换 el-checkbox
 
 == MOVES ==
 
 == EDITS ==
 ### src/views/GiftSet.vue
 <<<<
-import { computed, onMounted, reactive, ref } from 'vue'
->>>>
-<<<<
-import { computed, onMounted, reactive, ref } from 'vue'
 import { ArrowDown, ArrowUp, Delete, Download, Search, Upload } from '@element-plus/icons-vue'
 >>>>
-
-### src/views/GiftSet.vue
 <<<<
-            <el-input
-              v-model="charSearch"
-              placeholder="搜索角色"
-              aria-label="搜索角色"
-              clearable
-              class="min-w-0"
-              autocomplete="off"
-              spellcheck="false"
-            />
->>>>
-<<<<
-            <el-input
-              v-model="charSearch"
-              placeholder="搜索角色"
-              aria-label="搜索角色"
-              clearable
-              class="min-w-0"
-              autocomplete="off"
-              spellcheck="false"
-            >
-              <template #prefix>
-                <el-icon><Search /></el-icon>
-              </template>
-            </el-input>
+import { Delete, Download, Search, Upload } from '@element-plus/icons-vue'
 >>>>
 
 ### src/views/GiftSet.vue
 <<<<
-                <span class="grid min-w-0 flex-1 gap-1">
-                  <span class="truncate text-sm font-medium text-ink">{{ s.name }}</span>
-                  <span class="text-xs text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</span>
-                </span>
-
-                <el-icon class="shrink-0 text-muted">
-                  <ArrowUp v-if="expandedKeys.has(s.key)" />
-                  <ArrowDown v-else />
-                </el-icon>
+const allCollapsed = ref(false)
 >>>>
 <<<<
-                <span class="grid min-w-0 flex-1 gap-1">
-                  <span class="truncate text-sm font-medium text-ink">{{ s.name }}</span>
-                  <span class="text-xs text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</span>
-                </span>
+const allCollapsed = ref(false)
 
-                <span class="shrink-0 text-xs tabular-nums text-muted">
-                  {{ cardMap.get(s.key)?.progress.text }}
-                </span>
-
-                <el-icon class="shrink-0 text-muted">
-                  <ArrowUp v-if="expandedKeys.has(s.key)" />
-                  <ArrowDown v-else />
-                </el-icon>
+/* el-collapse 用「展开项的 name 数组」表达状态，这里跟上面三个布尔值互转，
+   脚本里那几处 charCollapsed.value = ... 不用改 */
+const COLLAPSE_KEYS = [
+  ['char', charCollapsed],
+  ['recommend', recommendCollapsed],
+  ['all', allCollapsed],
+]
+const activeCollapse = computed(() =>
+  COLLAPSE_KEYS.filter(([, c]) => !c.value).map(([k]) => k),
+)
+function onCollapseChange(names) {
+  for (const [k, c] of COLLAPSE_KEYS) c.value = !names.includes(k)
+}
 >>>>
 
 ### src/views/GiftSet.vue
 <<<<
-                  <span class="truncate text-sm font-medium text-ink">
-                    {{ s.name || '(未命名)' }}
-                  </span>
-                  <span class="text-xs text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</span>
-                </span>
+        <section class="border-b border-line">
+          <button
+            type="button"
+            class="flex w-full items-center gap-2 px-3 py-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+            :aria-expanded="!charCollapsed"
+            @click="charCollapsed = !charCollapsed"
+          >
+            <span class="text-sm font-semibold text-ink">我的角色</span>
+            <span class="text-xs text-muted">{{ owned.length }}</span>
+            <el-icon class="ml-auto text-muted">
+              <ArrowUp v-if="!charCollapsed" />
+              <ArrowDown v-else />
+            </el-icon>
+          </button>
 
-                <el-icon class="shrink-0 text-muted">
-                  <ArrowUp v-if="expandedKeys.has(s.key)" />
-                  <ArrowDown v-else />
-                </el-icon>
+          <div v-if="!charCollapsed" class="grid gap-2 px-2 pb-2">
 >>>>
 <<<<
-                  <span class="truncate text-sm font-medium text-ink">
-                    {{ s.name || '(未命名)' }}
-                  </span>
-                  <span class="text-xs text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</span>
-                </span>
+        <el-collapse
+          :model-value="activeCollapse"
+          @change="onCollapseChange"
+          class="ah-gift__collapse"
+        >
+          <el-collapse-item name="char">
+            <template #title>
+              <span class="text-sm font-semibold text-ink">我的角色</span>
+              <span class="text-xs text-muted">{{ owned.length }}</span>
+            </template>
+            <div class="grid gap-2">
+>>>>
 
+### src/views/GiftSet.vue
+<<<<
+              <button
+                v-for="name in visibleCharNames"
+                :key="name"
+                type="button"
+                class="grid justify-items-center gap-1 rounded-ctl border p-1 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                :class="
+                  owned.includes(name)
+                    ? 'border-accent bg-accent-soft'
+                    : 'border-line bg-surface opacity-50'
+                "
+                :aria-pressed="owned.includes(name)"
+                :title="name"
+                @click="toggleOwned(name)"
+              >
                 <span
-                  class="shrink-0 text-xs tabular-nums"
-                  :class="
-                    cardMap.get(s.key)?.progress.completed ? 'text-accent-strong' : 'text-muted'
-                  "
+                  class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
                 >
-                  {{ cardMap.get(s.key)?.progress.text }}
+                  <span aria-hidden="true">{{ name.charAt(0) }}</span>
+                  <img
+                    v-if="charAvatar.get(name)"
+                    :src="charAvatar.get(name)"
+                    alt=""
+                    loading="lazy"
+                    class="absolute inset-0 size-full object-cover"
+                    @error="(ev) => ev.target.remove()"
+                  />
                 </span>
-
-                <el-icon class="shrink-0 text-muted">
-                  <ArrowUp v-if="expandedKeys.has(s.key)" />
-                  <ArrowDown v-else />
-                </el-icon>
+                <span class="w-full truncate text-center text-[10px] text-muted">{{ name }}</span>
+              </button>
+>>>>
+<<<<
+              <el-checkbox
+                v-for="name in visibleCharNames"
+                :key="name"
+                :model-value="owned.includes(name)"
+                class="ah-gift__char"
+                :class="
+                  owned.includes(name)
+                    ? 'border-accent bg-accent-soft'
+                    : 'border-line bg-surface opacity-50'
+                "
+                :title="name"
+                @change="toggleOwned(name)"
+              >
+                <span
+                  class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
+                >
+                  <span aria-hidden="true">{{ name.charAt(0) }}</span>
+                  <img
+                    v-if="charAvatar.get(name)"
+                    :src="charAvatar.get(name)"
+                    alt=""
+                    loading="lazy"
+                    class="absolute inset-0 size-full object-cover"
+                    @error="(ev) => ev.target.remove()"
+                  />
+                </span>
+                <span class="w-full truncate text-center text-[10px] text-muted">
+                  {{ name }}
+                </span>
+              </el-checkbox>
 >>>>
 
 ### src/views/GiftSet.vue
 <<<<
-      width="420px"
+        </section>
+
+        <section v-if="recommendations.length" class="border-b border-line">
+          <button
+            type="button"
+            class="flex w-full items-center gap-2 px-3 py-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+            :aria-expanded="!recommendCollapsed"
+            @click="recommendCollapsed = !recommendCollapsed"
+          >
+            <span class="text-sm font-semibold text-ink">推荐套装</span>
+            <span class="text-xs text-muted">前 {{ recommendations.length }}</span>
+            <el-icon class="ml-auto text-muted">
+              <ArrowUp v-if="!recommendCollapsed" />
+              <ArrowDown v-else />
+            </el-icon>
+          </button>
+
+          <div v-if="!recommendCollapsed" class="grid gap-2 px-2 pb-2">
 >>>>
 <<<<
-      width="min(420px, 88vw)"
+          </el-collapse-item>
+
+          <el-collapse-item v-if="recommendations.length" name="recommend">
+            <template #title>
+              <span class="text-sm font-semibold text-ink">推荐套装</span>
+              <span class="text-xs text-muted">前 {{ recommendations.length }}</span>
+            </template>
+            <div class="grid gap-2">
 >>>>
 
 == DELETES ==
 
 == CHECKS ==
 grep -q "@element-plus/icons-vue" src/views/GiftSet.vue
-[ "$(grep -c "<template #prefix>" src/views/GiftSet.vue)" -ge 2 ]
-[ "$(grep -c "progress.text" src/views/GiftSet.vue)" -ge 2 ]
-grep -q 'width="min(420px, 88vw)"' src/views/GiftSet.vue
-grep -q "<el-icon><Download /></el-icon>" src/views/GiftSet.vue
-grep -q "<el-icon><Delete /></el-icon>" src/views/GiftSet.vue
+grep -q "<el-collapse" src/views/GiftSet.vue
+grep -q "<el-collapse-item" src/views/GiftSet.vue
+grep -q "activeCollapse" src/views/GiftSet.vue
+grep -q "<el-checkbox" src/views/GiftSet.vue
