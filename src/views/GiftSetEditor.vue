@@ -1,15 +1,20 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
-import Btn from '../components/Btn.vue'
-import Dropdown from '../components/Dropdown.vue'
-import Field from '../components/Field.vue'
-import Seg from '../components/Seg.vue'
-import Combobox from '../components/Combobox.vue'
-import Modal from '../components/Modal.vue'
-import Icon from '../components/Icon.vue'
+import {
+  ArrowDown,
+  ArrowUp,
+  Back,
+  Delete,
+  Document,
+  Download,
+  Plus,
+  Refresh,
+  Search,
+  Sort,
+  Upload,
+} from '@element-plus/icons-vue'
 import { useToast } from '../composables/useToast.js'
 import { loadGlobalScript } from '../composables/useData.js'
-import '../icons/editor-icons.js'
 
 const DRAFT_KEY = 'genshin_homeworld_gift_sets_editor_draft_v1'
 const DATA_URL = 'data/gift-set.js'
@@ -699,6 +704,15 @@ function onCharBlur() {
   setTimeout(() => commitChars(true), 160)
 }
 
+/* el-autocomplete 的联想源：从「尚未选中的角色」里按输入过滤 */
+function fetchCharSuggestions(queryString, cb) {
+  const q = (queryString || '').toLowerCase()
+  const list = q
+    ? charSuggestions.value.filter((n) => n.toLowerCase().includes(q))
+    : charSuggestions.value
+  cb(list.map((value) => ({ value })))
+}
+
 /* ---------- 图片兜底 ---------- */
 function onImgError(e) {
   e.target.remove()
@@ -765,7 +779,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="grid h-full grid-rows-[auto_minmax(0,1fr)_auto]">
+  <div class="ah-gift-ed grid h-full grid-rows-[auto_minmax(0,1fr)_auto]">
     <!-- 工具条 -->
     <div class="flex items-center gap-2 border-b border-line bg-canvas p-2">
       <span
@@ -778,23 +792,25 @@ onBeforeUnmount(() => {
 
       <div class="min-w-0 flex-1"></div>
 
-      <Btn size="sm" @click="reloadOpen = true">
-        <template #icon><Icon name="ui.reload" size="sm" /></template>
-        重载
-      </Btn>
-      <Btn size="sm" @click="fileInput?.click()">
-        <template #icon><Icon name="ui.import" size="sm" /></template>
-        导入
-      </Btn>
-      <Btn size="sm" @click="startExport">
-        <template #icon><Icon name="ui.export" size="sm" /></template>
-        导出
-      </Btn>
+      <el-button size="small" @click="reloadOpen = true">
+        <el-icon><Refresh /></el-icon>
+        <span>重载</span>
+      </el-button>
+      <el-button size="small" @click="fileInput?.click()">
+        <el-icon><Upload /></el-icon>
+        <span>导入</span>
+      </el-button>
+      <el-button size="small" @click="startExport">
+        <el-icon><Download /></el-icon>
+        <span>导出</span>
+      </el-button>
       <input
         ref="fileInput"
         type="file"
         accept=".js,.txt,text/javascript,application/javascript"
         class="hidden"
+        aria-hidden="true"
+        tabindex="-1"
         @change="onImportFile"
       />
     </div>
@@ -809,34 +825,37 @@ onBeforeUnmount(() => {
         ]"
       >
         <div class="grid shrink-0 gap-2 border-b border-line p-2">
-          <div class="relative flex items-center">
-            <Icon
-              name="ui.search"
-              size="sm"
-              class="pointer-events-none absolute left-3 text-muted"
-            />
-            <input
-              v-model="search"
-              type="text"
-              class="h-control w-full min-w-0 rounded-md border border-line-2 bg-surface pl-10 pr-10 text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-              placeholder="搜索套装名 / 偏好角色"
-              autocomplete="off"
-              spellcheck="false"
-            />
-            <button
-              v-if="search"
-              type="button"
-              class="absolute right-2 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-              aria-label="清除搜索"
-              @click="search = ''"
-            >
-              <Icon name="ui.close" size="sm" />
-            </button>
-          </div>
+          <el-input
+            v-model="search"
+            placeholder="搜索套装名 / 偏好角色"
+            aria-label="搜索套装名 / 偏好角色"
+            clearable
+            class="w-full min-w-0"
+            autocomplete="off"
+            spellcheck="false"
+          >
+            <template #prefix>
+              <el-icon><Search /></el-icon>
+            </template>
+          </el-input>
 
           <div class="grid grid-cols-2 gap-2">
-            <Dropdown v-model="typeFilter" :options="typeFilterOptions" label="类型" />
-            <Dropdown v-model="regionFilter" :options="regionFilterOptions" label="地区" />
+            <el-select v-model="typeFilter" placeholder="类型" aria-label="类型" class="w-full">
+              <el-option
+                v-for="o in typeFilterOptions"
+                :key="o.value"
+                :label="o.label"
+                :value="o.value"
+              />
+            </el-select>
+            <el-select v-model="regionFilter" placeholder="地区" aria-label="地区" class="w-full">
+              <el-option
+                v-for="o in regionFilterOptions"
+                :key="o.value"
+                :label="o.label"
+                :value="o.value"
+              />
+            </el-select>
           </div>
         </div>
 
@@ -846,10 +865,11 @@ onBeforeUnmount(() => {
             {{ setCount ? '没有匹配的套装' : '暂无套装，点下方「新增套装」' }}
           </p>
 
-          <button
+          <div
             v-for="s in sortedSets"
             :key="s.id"
-            type="button"
+            role="button"
+            tabindex="0"
             class="flex w-full items-center gap-2 rounded-ctl border p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
             :class="
               s.id === selectedId
@@ -857,6 +877,8 @@ onBeforeUnmount(() => {
                 : 'border-transparent hover:bg-hover'
             "
             @click="selectSet(s)"
+            @keydown.enter.prevent="selectSet(s)"
+            @keydown.space.prevent="selectSet(s)"
           >
             <span
               class="grid h-9 shrink-0 place-items-center overflow-hidden rounded-ctl bg-thumb"
@@ -880,18 +902,18 @@ onBeforeUnmount(() => {
                 {{ (s.preferredCharacters || []).length }} 人
               </span>
             </span>
-          </button>
+                    </div>
         </div>
 
         <div class="grid shrink-0 grid-cols-2 gap-2 border-t border-line p-2">
-          <Btn size="sm" @click="addSet">
-            <template #icon><Icon name="ui.plus" size="sm" /></template>
-            新增套装
-          </Btn>
-          <Btn size="sm" :disabled="!data || !setCount" @click="renumberOpen = true">
-            <template #icon><Icon name="ui.reorder" size="sm" /></template>
-            重排 ID
-          </Btn>
+          <el-button size="small" @click="addSet">
+            <el-icon><Plus /></el-icon>
+            <span>新增套装</span>
+          </el-button>
+          <el-button size="small" :disabled="!data || !setCount" @click="renumberOpen = true">
+            <el-icon><Sort /></el-icon>
+            <span>重排 ID</span>
+          </el-button>
         </div>
       </aside>
 
@@ -901,20 +923,20 @@ onBeforeUnmount(() => {
         :class="mobilePane === 'list' ? 'hidden min-[900px]:block' : 'block'"
       >
         <div class="grid gap-3">
-          <Btn
+          <el-button
             v-if="mobilePane === 'form'"
-            size="sm"
+            size="small"
             class="justify-self-start min-[900px]:hidden"
             @click="mobilePane = 'list'"
           >
-            <template #icon><Icon name="ui.back" size="sm" /></template>
-            返回列表
-          </Btn>
+            <el-icon><Back /></el-icon>
+            <span>返回列表</span>
+          </el-button>
 
           <p v-if="loading" class="text-sm text-muted">正在载入…</p>
 
           <div v-else-if="!data" class="grid justify-items-center gap-3 p-8 text-center">
-            <Icon name="ui.file" size="lg" class="text-faint" />
+            <el-icon class="text-faint"><Document /></el-icon>
             <p class="text-sm text-muted">数据未加载，请点右上角「重载」或「导入」</p>
           </div>
 
@@ -950,43 +972,46 @@ onBeforeUnmount(() => {
             <div class="grid gap-2">
               <span class="text-xs font-medium text-muted">id · 可手动改，需唯一</span>
               <div class="flex items-center gap-2">
-                <input
+                <el-input
                   v-model="idInput"
-                  type="text"
                   inputmode="numeric"
                   autocomplete="off"
                   aria-label="id"
-                  class="h-control w-full min-w-0 rounded-md border bg-surface px-input-x text-body-md text-ink focus-visible:outline-2 focus-visible:outline-offset-1"
-                  :class="
-                    idInvalid
-                      ? 'border-danger focus-visible:outline-danger'
-                      : 'border-line-2 focus-visible:outline-accent'
-                  "
-                  @input="commitId"
+                  :status="idInvalid ? 'error' : undefined"
+                  class="ah-id"
+                  @update:model-value="commitId"
                 />
-                <Btn class="shrink-0" @click="moveSet(-1)">
-                  <template #icon><Icon name="ui.arrowUp" size="sm" /></template>
-                  上移
-                </Btn>
-                <Btn class="shrink-0" @click="moveSet(1)">
-                  <template #icon><Icon name="ui.arrowDown" size="sm" /></template>
-                  下移
-                </Btn>
+                <el-button class="shrink-0" @click="moveSet(-1)">
+                  <el-icon><ArrowUp /></el-icon>
+                  <span>上移</span>
+                </el-button>
+                <el-button class="shrink-0" @click="moveSet(1)">
+                  <el-icon><ArrowDown /></el-icon>
+                  <span>下移</span>
+                </el-button>
               </div>
             </div>
 
             <!-- 地区 -->
             <div class="grid gap-2">
               <span class="text-xs font-medium text-muted">地区 · 输入新值会自动加入列表</span>
-              <Combobox
+              <el-select
                 v-model="entry.region"
-                :items="data.regions"
-                allow-custom
-                :custom-label="(r) => '＋ 新增地区：' + r"
-                aria-label="地区"
+                filterable
+                allow-create
+                default-first-option
                 placeholder="如 蒙德"
+                aria-label="地区"
+                class="w-full"
                 @update:model-value="onRegionInput"
-              />
+              >
+                <el-option
+                  v-for="r in data.regions"
+                  :key="r"
+                  :label="r"
+                  :value="r"
+                />
+              </el-select>
             </div>
 
             <!-- 图片 URL -->
@@ -995,43 +1020,39 @@ onBeforeUnmount(() => {
                 套装图 URL · 粘贴后自动识别 key / 类型 / 地区
               </span>
               <div class="flex items-center gap-2">
-                <input
+                <el-input
                   v-model="urlInput"
-                  type="text"
                   placeholder="粘贴图片直链…"
                   autocomplete="off"
                   spellcheck="false"
                   aria-label="套装图 URL"
-                  class="h-control w-full min-w-0 rounded-md border bg-surface px-input-x text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1"
-                  :class="
-                    urlInvalid
-                      ? 'border-danger focus-visible:outline-danger'
-                      : 'border-line-2 focus-visible:outline-accent'
-                  "
+                  :status="urlInvalid ? 'error' : undefined"
+                  @keydown.enter="recognizeUrl"
                   @blur="onUrlBlur"
-                  @keydown="onUrlKeydown"
                 />
-                <Btn class="shrink-0" @click="recognizeUrl">识别</Btn>
+                <el-button class="shrink-0" @click="recognizeUrl">识别</el-button>
               </div>
               <p v-if="urlHint" class="text-xs" :class="urlInvalid ? 'text-danger' : 'text-muted'">
                 {{ urlHint }}
               </p>
             </div>
 
-            <Field
-              v-model="entry.name"
-              label="名称"
-              placeholder="套装名称"
-              @update:model-value="markDirty"
-            />
+            <div class="grid gap-2">
+              <span class="text-micro text-muted">名称</span>
+              <el-input
+                v-model="entry.name"
+                placeholder="套装名称"
+                class="w-full"
+                @update:model-value="markDirty"
+              />
+            </div>
 
             <!-- 室内 / 室外：只占内容宽度 -->
             <div class="grid gap-2">
               <span class="text-xs font-medium text-muted">室内 / 室外</span>
-              <Seg
+              <el-segmented
                 v-model="entry.type"
                 :options="typeOptions"
-                class="justify-self-start"
                 @update:model-value="markDirty"
               />
             </div>
@@ -1046,14 +1067,17 @@ onBeforeUnmount(() => {
                 v-if="sortedChars.length"
                 class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2 rounded-ctl border border-line-2 bg-sunken p-2"
               >
-                <button
+                <div
                   v-for="name in sortedChars"
                   :key="name"
-                  type="button"
+                  role="button"
+                  tabindex="0"
                   class="grid cursor-pointer justify-items-center gap-1 rounded-ctl border border-line bg-surface p-1 hover:border-danger focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
                   :title="`移除 ${name}`"
                   :aria-label="`移除 ${name}`"
                   @click="removeChar(name)"
+                  @keydown.enter.prevent="removeChar(name)"
+                  @keydown.space.prevent="removeChar(name)"
                 >
                   <span
                     class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
@@ -1071,17 +1095,15 @@ onBeforeUnmount(() => {
                   <span class="w-full truncate text-center text-[10px] text-muted">
                     {{ name }}
                   </span>
-                </button>
+                                </div>
               </div>
 
-              <Combobox
+              <el-autocomplete
                 v-model="charQuery"
-                :items="charSuggestions"
-                allow-custom
-                :custom-label="(n) => '＋ 添加角色：' + n"
-                :suppress-when="hasSeparator"
-                aria-label="添加偏好角色"
+                :fetch-suggestions="fetchCharSuggestions"
+                :trigger-on-focus="false"
                 placeholder="输入角色名，多个用逗号 / 空格分隔"
+                aria-label="添加偏好角色"
                 @select="onCharSelect"
                 @keydown.enter="onCharEnter"
                 @blur="onCharBlur"
@@ -1092,53 +1114,71 @@ onBeforeUnmount(() => {
       </section>
     </main>
 
-    <!-- 底部固定危险区 -->
-    <div v-if="entry" class="border-t border-line bg-canvas p-2 safe-bottom">
-      <Btn variant="danger" class="w-full" @click="deleteOpen = true">
-        <template #icon><Icon name="ui.trash" size="sm" /></template>
-        删除此套
-      </Btn>
+    <!-- 底部固定危险区：只有停在表单栏（手机端点进某套后）才出现删除入口 -->
+    <div
+      v-if="entry && mobilePane === 'form'"
+      class="border-t border-line bg-canvas p-2 safe-bottom"
+    >
+      <el-button type="danger" class="w-full" @click="deleteOpen = true">
+        <el-icon><Delete /></el-icon>
+        <span>删除此套</span>
+      </el-button>
     </div>
 
     <!-- 确认：重载 -->
-    <Modal
+    <el-dialog
       v-model="reloadOpen"
       :title="dirty ? '放弃修改' : '重载线上数据'"
-      :message="
-        dirty
-          ? '当前有未导出的修改，重载会丢弃这些改动。'
-          : `将从线上重新拉取 ${FILE_NAME}，覆盖当前编辑内容。`
-      "
-      confirm-text="重载"
-      :danger="dirty"
+      width="20rem"
       :persistent="dirty"
-      @confirm="doReload"
-    />
+    >
+      <p class="text-sm text-body">
+        {{
+          dirty
+            ? '当前有未导出的修改，重载会丢弃这些改动。'
+            : `将从线上重新拉取 ${FILE_NAME}，覆盖当前编辑内容。`
+        }}
+      </p>
+      <template #footer>
+        <el-button @click="reloadOpen = false">取消</el-button>
+        <el-button type="danger" @click="doReload">重载</el-button>
+      </template>
+    </el-dialog>
 
     <!-- 确认：删除 -->
-    <Modal
+    <el-dialog
       v-model="deleteOpen"
       title="删除套装"
-      :message="`确定删除「${entry?.name || '(未命名)'}」吗？此操作不可撤销。`"
-      confirm-text="删除"
-      danger
+      width="20rem"
       persistent
-      @confirm="confirmDelete"
-    />
+    >
+      <p class="text-sm text-body">
+        确定删除「{{ entry?.name || '(未命名)' }}」吗？此操作不可撤销。
+      </p>
+      <template #footer>
+        <el-button @click="deleteOpen = false">取消</el-button>
+        <el-button type="danger" @click="confirmDelete">删除</el-button>
+      </template>
+    </el-dialog>
 
     <!-- 确认：重排 -->
-    <Modal
+    <el-dialog
       v-model="renumberOpen"
       title="重排 id"
-      :message="`将按当前显示顺序重新编号 1 ~ ${setCount}，原有 id 会被覆盖。`"
-      confirm-text="重排"
-      danger
+      width="20rem"
       persistent
-      @confirm="doRenumber"
-    />
+    >
+      <p class="text-sm text-body">
+        将按当前显示顺序重新编号 1 ~ {{ setCount }}，原有 id 会被覆盖。
+      </p>
+      <template #footer>
+        <el-button @click="renumberOpen = false">取消</el-button>
+        <el-button type="danger" @click="doRenumber">重排</el-button>
+      </template>
+    </el-dialog>
 
     <!-- 导出前检查 -->
-    <Modal v-model="exportOpen" title="导出前检查" confirm-text="继续导出" @confirm="runExport">
+    <el-dialog v-model="exportOpen" title="导出前检查" width="24rem">
       <p class="text-sm text-body">发现 {{ warnings.length }} 项问题：</p>
       <ul class="grid max-h-60 list-disc gap-1 overflow-y-auto pl-5 text-xs text-muted">
         <li v-for="(w, i) in warnings.slice(0, 30)" :key="i">{{ w }}</li>
@@ -1147,6 +1187,24 @@ onBeforeUnmount(() => {
         还有 {{ warnings.length - 30 }} 项未列出
       </p>
       <p class="text-xs text-body">是否继续导出？</p>
-    </Modal>
+      <template #footer>
+        <el-button @click="exportOpen = false">取消</el-button>
+        <el-button type="primary" @click="runExport">继续导出</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
+
+<style scoped>
+/* EP 给 .el-select 带了 margin-right:8px（input-group 那条还带 margin:0 -20px），
+   在 grid-cols-2 里会把下拉框推出格子，弹窗跟着偏 */
+.ah-gift-ed :deep(.el-select) {
+  margin: 0;
+}
+
+/* EP input 宽度默认 100%，在「id + 上移/下移」的 flex 行里会挤掉按钮 */
+.ah-gift-ed :deep(.ah-id) {
+  flex: 1;
+  min-width: 0;
+}
+</style>

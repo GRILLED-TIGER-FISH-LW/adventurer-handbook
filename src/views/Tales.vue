@@ -391,6 +391,8 @@ onMounted(async () => {
           type="file"
           accept=".json,application/json"
           class="hidden"
+          aria-hidden="true"
+          tabindex="-1"
           @change="onImportFile"
         />
       </div>

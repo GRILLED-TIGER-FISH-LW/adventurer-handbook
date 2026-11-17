@@ -468,6 +468,8 @@ onMounted(async () => {
         type="file"
         accept=".json,application/json"
         class="hidden"
+        aria-hidden="true"
+        tabindex="-1"
         @change="onImportFile"
       />
     </header>
@@ -555,12 +557,16 @@ onMounted(async () => {
               :key="`r-${s.key}`"
               class="rounded-panel border border-line bg-surface"
             >
-              <button
-                type="button"
+              <div
+                role="button"
+                tabindex="0"
                 class="flex w-full items-center gap-2 p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
                 :aria-expanded="expandedKeys.has(s.key)"
                 @click="toggleExpand(s.key)"
+                @keydown.enter.prevent="toggleExpand(s.key)"
+                @keydown.space.prevent="toggleExpand(s.key)"
               >
+
                 <span
                   class="relative h-9 shrink-0 overflow-hidden rounded-ctl bg-thumb"
                   style="aspect-ratio: 2 / 1"
@@ -590,7 +596,7 @@ onMounted(async () => {
                   <ArrowUp v-if="expandedKeys.has(s.key)" />
                   <ArrowDown v-else />
                 </el-icon>
-              </button>
+              </div>
 
               <div v-if="expandedKeys.has(s.key)" class="grid gap-2 border-t border-line p-2">
                 <div class="grid grid-cols-[repeat(auto-fill,minmax(56px,1fr))] gap-2">
@@ -694,12 +700,16 @@ onMounted(async () => {
                   : 'border-line bg-surface'
               "
             >
-              <button
-                type="button"
+              <div
+                role="button"
+                tabindex="0"
                 class="flex w-full items-center gap-2 p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
                 :aria-expanded="expandedKeys.has(s.key)"
                 @click="toggleExpand(s.key)"
+                @keydown.enter.prevent="toggleExpand(s.key)"
+                @keydown.space.prevent="toggleExpand(s.key)"
               >
+
                 <span
                   class="h-9 shrink-0 overflow-hidden rounded-ctl bg-thumb"
                   style="aspect-ratio: 2 / 1"
@@ -733,7 +743,7 @@ onMounted(async () => {
                   <ArrowUp v-if="expandedKeys.has(s.key)" />
                   <ArrowDown v-else />
                 </el-icon>
-              </button>
+              </div>
 
               <div v-if="expandedKeys.has(s.key)" class="grid gap-2 border-t border-line p-2">
                 <div v-if="!cardMap.get(s.key)?.chars.length" class="p-2 text-xs text-muted">
