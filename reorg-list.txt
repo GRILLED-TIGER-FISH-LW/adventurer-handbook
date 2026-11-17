@@ -6,78 +6,81 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-drawer-b —— 菜单行高恢复 EP 默认；选中项垫色改 accent-soft；图标文字补间距
+# 最近一批：ep-uid —— UID 宽度抽成全局共享类，旅闻/赠礼套装两边同宽
 
 == MOVES ==
 
 == EDITS ==
-### src/components/AppDrawer.vue
+### src/styles/app.css
 <<<<
-            class="grid size-5 shrink-0 place-items-center"
->>>>
-<<<<
-            class="grid size-5 mr-2 shrink-0 place-items-center"
->>>>
-
-### src/components/AppDrawer.vue
-<<<<
-.ah-drawer__menu {
-  --el-menu-item-height: var(--el-input-height, 32px);
-  --el-menu-bg-color: transparent;
-  --el-menu-text-color: var(--color-body);
-  --el-menu-hover-bg-color: var(--color-hover);
-  --el-menu-active-color: var(--color-ink);
-  border: 0;
-  background: transparent;
-}
-
-.ah-drawer__menu :deep(.el-menu-item) {
-  height: var(--el-input-height, 32px);
-  line-height: var(--el-input-height, 32px);
-  border-radius: var(--el-border-radius-base);
-  color: var(--color-body);
-}
-
-.ah-drawer__menu :deep(.el-menu-item:hover) {
-  background-color: var(--color-hover);
-}
-
-.ah-drawer__menu :deep(.el-menu-item.is-active) {
-  background-color: var(--color-surface);
-  color: var(--color-ink);
-  font-weight: 600;
+  --el-border-color: color-mix(in srgb, var(--color-faint) 40%, var(--color-line-2));
 }
 >>>>
 <<<<
-.ah-drawer__menu {
-  --el-menu-bg-color: transparent;
-  --el-menu-text-color: var(--color-body);
-  --el-menu-hover-bg-color: var(--color-hover);
-  --el-menu-active-color: var(--color-ink);
-  border: 0;
-  background: transparent;
+  --el-border-color: color-mix(in srgb, var(--color-faint) 40%, var(--color-line-2));
 }
 
-/* 行高不再覆盖：EP 默认 56px，比硬压到 32px 宽松，跟官方演示一致 */
-.ah-drawer__menu :deep(.el-menu-item) {
-  border-radius: var(--el-border-radius-base);
-  color: var(--color-body);
+/* UID 输入框：旅闻 / 赠礼套装两个页面共用同一个宽度，必须永远一致
+   一个下拉框宽 = (100% - 16px) / 3（那行 3 个 el-select 是 grid-cols-3 gap-2，两条缝各 8px）
+   写在全局而不是各页 scoped：两边不能各改各的。
+   也不能写 Tailwind 的 w-*：EP 的 CSS 不带 @layer，非分层会盖掉 @layer utilities */
+.ah-uid {
+  width: calc((100% - 16px) / 3);
+  flex: none;
 }
+>>>>
 
-.ah-drawer__menu :deep(.el-menu-item.is-active) {
-  /* 垫色：--color-surface 跟 --color-canvas 只差 5/255，肉眼等于没有；
-     改用 accent-soft（陶土橙 12%/18%），跟汇总条、首页图标同一套路 */
-  background-color: var(--color-accent-soft);
-  color: var(--color-ink);
-  font-weight: 600;
+### src/views/Tales.vue
+<<<<
+          class="ah-tales__uid shrink-0"
+>>>>
+<<<<
+          class="ah-uid shrink-0"
+>>>>
+
+### src/views/Tales.vue
+<<<<
+.ah-tales__uid {
+  width: calc((100% - 16px) / 3);
+  flex: none;
 }
+>>>>
+<<<<
+
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+      <input
+        :value="uid"
+        type="text"
+        aria-label="UID"
+        placeholder="UID"
+        inputmode="numeric"
+        maxlength="15"
+        spellcheck="false"
+        class="h-control w-24 shrink-0 rounded-md border border-line-2 bg-surface px-3 text-center text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+        @input="onUidInput($event.target.value)"
+      />
+>>>>
+<<<<
+      <el-input
+        v-model="uid"
+        aria-label="UID"
+        placeholder="UID"
+        inputmode="numeric"
+        maxlength="15"
+        spellcheck="false"
+        class="ah-uid shrink-0"
+        @input="onUidInput"
+      />
 >>>>
 
 == DELETES ==
 
 == CHECKS ==
-grep -q "mr-2 shrink-0" src/components/AppDrawer.vue
-grep -q "color-accent-soft" src/components/AppDrawer.vue
-! grep -q "var(--el-input-height, 32px)" src/components/AppDrawer.vue
-! grep -q "var(--color-surface)" src/components/AppDrawer.vue
-grep -q "ah-drawer__menu" src/components/AppDrawer.vue
+grep -q "ah-uid" src/styles/app.css
+grep -q 'class="ah-uid shrink-0"' src/views/Tales.vue
+! grep -q "ah-tales__uid" src/views/Tales.vue
+grep -q 'class="ah-uid shrink-0"' src/views/GiftSet.vue
+! grep -q "h-control w-24" src/views/GiftSet.vue
