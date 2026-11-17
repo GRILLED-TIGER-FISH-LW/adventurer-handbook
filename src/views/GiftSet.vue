@@ -1,8 +1,5 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
-import Btn from '../components/Btn.vue'
-import Modal from '../components/Modal.vue'
-import Icon from '../components/Icon.vue'
 import { useToast } from '../composables/useToast.js'
 import { loadGlobalScript, loadGiftSetData } from '../composables/useData.js'
 
@@ -363,6 +360,12 @@ function onImportFile(ev) {
   reader.readAsText(file)
 }
 
+/* el-dialog 的按钮不会自己关弹窗（原来 Modal 组件会），确认后补一下 */
+function confirmReset() {
+  doReset()
+  resetOpen.value = false
+}
+
 function doReset() {
   owned.value = []
   completed.value = {}
@@ -475,12 +478,10 @@ onMounted(async () => {
           >
             <span class="text-sm font-semibold text-ink">我的角色</span>
             <span class="text-xs text-muted">{{ owned.length }}</span>
-            <Icon
-              :name="charCollapsed ? 'ui.chevronDown' : 'ui.chevronUp'"
-              bold
-              size="sm"
-              class="ml-auto text-muted"
-            />
+            <el-icon class="ml-auto text-muted">
+              <ArrowUp v-if="!charCollapsed" />
+              <ArrowDown v-else />
+            </el-icon>
           </button>
 
           <div v-if="!charCollapsed" class="grid gap-2 px-2 pb-2">
@@ -537,12 +538,10 @@ onMounted(async () => {
           >
             <span class="text-sm font-semibold text-ink">推荐套装</span>
             <span class="text-xs text-muted">前 {{ recommendations.length }}</span>
-            <Icon
-              :name="recommendCollapsed ? 'ui.chevronDown' : 'ui.chevronUp'"
-              bold
-              size="sm"
-              class="ml-auto text-muted"
-            />
+            <el-icon class="ml-auto text-muted">
+              <ArrowUp v-if="!recommendCollapsed" />
+              <ArrowDown v-else />
+            </el-icon>
           </button>
 
           <div v-if="!recommendCollapsed" class="grid gap-2 px-2 pb-2">
@@ -580,16 +579,10 @@ onMounted(async () => {
                   <span class="text-xs text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</span>
                 </span>
 
-                <span class="shrink-0 text-xs tabular-nums text-muted">
-                  {{ cardMap.get(s.key)?.progress.text }}
-                </span>
-
-                <Icon
-                  :name="expandedKeys.has(s.key) ? 'ui.chevronUp' : 'ui.chevronDown'"
-                  bold
-                  size="sm"
-                  class="shrink-0 text-muted"
-                />
+                <el-icon class="shrink-0 text-muted">
+                  <ArrowUp v-if="expandedKeys.has(s.key)" />
+                  <ArrowDown v-else />
+                </el-icon>
               </button>
 
               <div v-if="expandedKeys.has(s.key)" class="grid gap-2 border-t border-line p-2">
@@ -642,12 +635,10 @@ onMounted(async () => {
           >
             <span class="text-sm font-semibold text-ink">全部套装</span>
             <span class="text-xs text-muted">{{ filteredSets.length }} / {{ sets.length }}</span>
-            <Icon
-              :name="allCollapsed ? 'ui.chevronDown' : 'ui.chevronUp'"
-              bold
-              size="sm"
-              class="ml-auto text-muted"
-            />
+            <el-icon class="ml-auto text-muted">
+              <ArrowUp v-if="!allCollapsed" />
+              <ArrowDown v-else />
+            </el-icon>
           </button>
 
           <div v-if="!allCollapsed" class="grid gap-2 px-2 pb-2">
@@ -692,12 +683,10 @@ onMounted(async () => {
               </el-select>
             </div>
 
-            <div v-if="!filteredSets.length" class="grid justify-items-center gap-3 p-8 text-center">
-              <Icon name="ui.inbox" size="lg" class="text-faint" />
-              <p class="text-sm text-muted">
-                {{ sets.length ? '没有匹配的套装' : '套装数据未加载，请检查 data.js' }}
-              </p>
-            </div>
+            <el-empty
+              v-if="!filteredSets.length"
+              :description="sets.length ? '没有匹配的套装' : '套装数据未加载，请检查 data.js'"
+            />
 
             <article
               v-for="s in filteredSets"
@@ -735,21 +724,10 @@ onMounted(async () => {
                   <span class="text-xs text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</span>
                 </span>
 
-                <span
-                  class="shrink-0 text-xs tabular-nums"
-                  :class="
-                    cardMap.get(s.key)?.progress.completed ? 'text-accent-strong' : 'text-muted'
-                  "
-                >
-                  {{ cardMap.get(s.key)?.progress.text }}
-                </span>
-
-                <Icon
-                  :name="expandedKeys.has(s.key) ? 'ui.chevronUp' : 'ui.chevronDown'"
-                  bold
-                  size="sm"
-                  class="shrink-0 text-muted"
-                />
+                <el-icon class="shrink-0 text-muted">
+                  <ArrowUp v-if="expandedKeys.has(s.key)" />
+                  <ArrowDown v-else />
+                </el-icon>
               </button>
 
               <div v-if="expandedKeys.has(s.key)" class="grid gap-2 border-t border-line p-2">
@@ -799,20 +777,24 @@ onMounted(async () => {
     </div>
 
     <div class="border-t border-line bg-canvas p-2 safe-bottom">
-      <Btn variant="danger" class="w-full" size="sm" @click="resetOpen = true">
-        <template #icon><Icon name="ui.trash" size="sm" /></template>
-        重置全部数据
-      </Btn>
+      <el-button type="danger" size="small" class="w-full" @click="resetOpen = true">
+        <el-icon><Delete /></el-icon>
+        <span>重置全部数据</span>
+      </el-button>
     </div>
 
-    <Modal
+    <el-dialog
       v-model="resetOpen"
       title="重置全部数据"
-      message="将清空「我拥有的角色」和所有完成记录，此操作不可撤销。"
-      confirm-text="重置"
-      danger
-      persistent
-      @confirm="doReset"
-    />
+      width="420px"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+    >
+      <p class="text-sm text-body">将清空「我拥有的角色」和所有完成记录，此操作不可撤销。</p>
+      <template #footer>
+        <el-button @click="resetOpen = false">取消</el-button>
+        <el-button type="danger" @click="confirmReset">重置</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
