@@ -6,114 +6,70 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-gift-bc —— 赠礼套装：图标/空状态/底部按钮/重置弹窗全部换 EP
+# 最近一批：ep-gift-fix —— 修图标缺失/进度文字被删/搜索框缺放大镜/弹窗宽度溢出
 
 == MOVES ==
 
 == EDITS ==
 ### src/views/GiftSet.vue
 <<<<
-import Btn from '../components/Btn.vue'
-
+import { computed, onMounted, reactive, ref } from 'vue'
 >>>>
 <<<<
-
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-import Modal from '../components/Modal.vue'
-
->>>>
-<<<<
-
+import { computed, onMounted, reactive, ref } from 'vue'
+import { ArrowDown, ArrowUp, Delete, Download, Search, Upload } from '@element-plus/icons-vue'
 >>>>
 
 ### src/views/GiftSet.vue
 <<<<
-import Icon from '../components/Icon.vue'
-
->>>>
-<<<<
-
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-function doReset() {
->>>>
-<<<<
-/* el-dialog 的按钮不会自己关弹窗（原来 Modal 组件会），确认后补一下 */
-function confirmReset() {
-  doReset()
-  resetOpen.value = false
-}
-
-function doReset() {
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-            <Icon
-              :name="charCollapsed ? 'ui.chevronDown' : 'ui.chevronUp'"
-              bold
-              size="sm"
-              class="ml-auto text-muted"
+            <el-input
+              v-model="charSearch"
+              placeholder="搜索角色"
+              aria-label="搜索角色"
+              clearable
+              class="min-w-0"
+              autocomplete="off"
+              spellcheck="false"
             />
 >>>>
 <<<<
-            <el-icon class="ml-auto text-muted">
-              <ArrowUp v-if="!charCollapsed" />
-              <ArrowDown v-else />
-            </el-icon>
+            <el-input
+              v-model="charSearch"
+              placeholder="搜索角色"
+              aria-label="搜索角色"
+              clearable
+              class="min-w-0"
+              autocomplete="off"
+              spellcheck="false"
+            >
+              <template #prefix>
+                <el-icon><Search /></el-icon>
+              </template>
+            </el-input>
 >>>>
 
 ### src/views/GiftSet.vue
 <<<<
-            <Icon
-              :name="recommendCollapsed ? 'ui.chevronDown' : 'ui.chevronUp'"
-              bold
-              size="sm"
-              class="ml-auto text-muted"
-            />
->>>>
-<<<<
-            <el-icon class="ml-auto text-muted">
-              <ArrowUp v-if="!recommendCollapsed" />
-              <ArrowDown v-else />
-            </el-icon>
->>>>
+                <span class="grid min-w-0 flex-1 gap-1">
+                  <span class="truncate text-sm font-medium text-ink">{{ s.name }}</span>
+                  <span class="text-xs text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</span>
+                </span>
 
-### src/views/GiftSet.vue
-<<<<
-            <Icon
-              :name="allCollapsed ? 'ui.chevronDown' : 'ui.chevronUp'"
-              bold
-              size="sm"
-              class="ml-auto text-muted"
-            />
+                <el-icon class="shrink-0 text-muted">
+                  <ArrowUp v-if="expandedKeys.has(s.key)" />
+                  <ArrowDown v-else />
+                </el-icon>
 >>>>
 <<<<
-            <el-icon class="ml-auto text-muted">
-              <ArrowUp v-if="!allCollapsed" />
-              <ArrowDown v-else />
-            </el-icon>
->>>>
+                <span class="grid min-w-0 flex-1 gap-1">
+                  <span class="truncate text-sm font-medium text-ink">{{ s.name }}</span>
+                  <span class="text-xs text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</span>
+                </span>
 
-### src/views/GiftSet.vue
-<<<<
                 <span class="shrink-0 text-xs tabular-nums text-muted">
                   {{ cardMap.get(s.key)?.progress.text }}
                 </span>
 
-                <Icon
-                  :name="expandedKeys.has(s.key) ? 'ui.chevronUp' : 'ui.chevronDown'"
-                  bold
-                  size="sm"
-                  class="shrink-0 text-muted"
-                />
->>>>
-<<<<
                 <el-icon class="shrink-0 text-muted">
                   <ArrowUp v-if="expandedKeys.has(s.key)" />
                   <ArrowDown v-else />
@@ -122,6 +78,24 @@ function doReset() {
 
 ### src/views/GiftSet.vue
 <<<<
+                  <span class="truncate text-sm font-medium text-ink">
+                    {{ s.name || '(未命名)' }}
+                  </span>
+                  <span class="text-xs text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</span>
+                </span>
+
+                <el-icon class="shrink-0 text-muted">
+                  <ArrowUp v-if="expandedKeys.has(s.key)" />
+                  <ArrowDown v-else />
+                </el-icon>
+>>>>
+<<<<
+                  <span class="truncate text-sm font-medium text-ink">
+                    {{ s.name || '(未命名)' }}
+                  </span>
+                  <span class="text-xs text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</span>
+                </span>
+
                 <span
                   class="shrink-0 text-xs tabular-nums"
                   :class="
@@ -131,14 +105,6 @@ function doReset() {
                   {{ cardMap.get(s.key)?.progress.text }}
                 </span>
 
-                <Icon
-                  :name="expandedKeys.has(s.key) ? 'ui.chevronUp' : 'ui.chevronDown'"
-                  bold
-                  size="sm"
-                  class="shrink-0 text-muted"
-                />
->>>>
-<<<<
                 <el-icon class="shrink-0 text-muted">
                   <ArrowUp v-if="expandedKeys.has(s.key)" />
                   <ArrowDown v-else />
@@ -147,71 +113,18 @@ function doReset() {
 
 ### src/views/GiftSet.vue
 <<<<
-            <div v-if="!filteredSets.length" class="grid justify-items-center gap-3 p-8 text-center">
-              <Icon name="ui.inbox" size="lg" class="text-faint" />
-              <p class="text-sm text-muted">
-                {{ sets.length ? '没有匹配的套装' : '套装数据未加载，请检查 data.js' }}
-              </p>
-            </div>
->>>>
-<<<<
-            <el-empty
-              v-if="!filteredSets.length"
-              :description="sets.length ? '没有匹配的套装' : '套装数据未加载，请检查 data.js'"
-            />
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-      <Btn variant="danger" class="w-full" size="sm" @click="resetOpen = true">
-        <template #icon><Icon name="ui.trash" size="sm" /></template>
-        重置全部数据
-      </Btn>
->>>>
-<<<<
-      <el-button type="danger" size="small" class="w-full" @click="resetOpen = true">
-        <el-icon><Delete /></el-icon>
-        <span>重置全部数据</span>
-      </el-button>
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-    <Modal
-      v-model="resetOpen"
-      title="重置全部数据"
-      message="将清空「我拥有的角色」和所有完成记录，此操作不可撤销。"
-      confirm-text="重置"
-      danger
-      persistent
-      @confirm="doReset"
-    />
->>>>
-<<<<
-    <el-dialog
-      v-model="resetOpen"
-      title="重置全部数据"
       width="420px"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
-    >
-      <p class="text-sm text-body">将清空「我拥有的角色」和所有完成记录，此操作不可撤销。</p>
-      <template #footer>
-        <el-button @click="resetOpen = false">取消</el-button>
-        <el-button type="danger" @click="confirmReset">重置</el-button>
-      </template>
-    </el-dialog>
+>>>>
+<<<<
+      width="min(420px, 88vw)"
 >>>>
 
 == DELETES ==
 
 == CHECKS ==
-grep -q "<el-button" src/views/GiftSet.vue
-! grep -q "ui.chevronUp" src/views/GiftSet.vue
-! grep -q "ui.inbox" src/views/GiftSet.vue
-! grep -q 'variant="danger"' src/views/GiftSet.vue
-! grep -q "<Modal" src/views/GiftSet.vue
-grep -q "<el-dialog" src/views/GiftSet.vue
-grep -q "<el-empty" src/views/GiftSet.vue
-grep -q "ArrowUp" src/views/GiftSet.vue
-grep -q "confirmReset" src/views/GiftSet.vue
+grep -q "@element-plus/icons-vue" src/views/GiftSet.vue
+[ "$(grep -c "<template #prefix>" src/views/GiftSet.vue)" -ge 2 ]
+[ "$(grep -c "progress.text" src/views/GiftSet.vue)" -ge 2 ]
+grep -q 'width="min(420px, 88vw)"' src/views/GiftSet.vue
+grep -q "<el-icon><Download /></el-icon>" src/views/GiftSet.vue
+grep -q "<el-icon><Delete /></el-icon>" src/views/GiftSet.vue
