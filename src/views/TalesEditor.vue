@@ -1,14 +1,21 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
-import Btn from '../components/Btn.vue'
-import Dropdown from '../components/Dropdown.vue'
-import Field from '../components/Field.vue'
-import Combobox from '../components/Combobox.vue'
-import Modal from '../components/Modal.vue'
-import Icon from '../components/Icon.vue'
+import {
+  ArrowDown,
+  ArrowUp,
+  Back,
+  Close,
+  Delete,
+  Document,
+  Download,
+  Plus,
+  Refresh,
+  Search,
+  Sort,
+  Upload,
+} from '@element-plus/icons-vue'
 import { useToast } from '../composables/useToast.js'
 import { loadGlobalScript } from '../composables/useData.js'
-import '../icons/editor-icons.js'
 
 const DRAFT_KEY = 'genshin_travelers_tales_editor_draft_v1'
 const DATA_URL = 'data/tales.js'
@@ -520,7 +527,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="grid h-full grid-rows-[auto_minmax(0,1fr)_auto]">
+  <div class="ah-tales grid h-full grid-rows-[auto_minmax(0,1fr)_auto]">
     <!-- 工具条 -->
     <div class="flex items-center gap-2 border-b border-line bg-canvas p-2">
       <span
@@ -535,18 +542,18 @@ onBeforeUnmount(() => {
 
       <div class="min-w-0 flex-1"></div>
 
-      <Btn size="sm" @click="reloadOpen = true">
-        <template #icon><Icon name="ui.reload" size="sm" /></template>
-        重载
-      </Btn>
-      <Btn size="sm" @click="fileInput?.click()">
-        <template #icon><Icon name="ui.import" size="sm" /></template>
-        导入
-      </Btn>
-      <Btn size="sm" @click="startExport">
-        <template #icon><Icon name="ui.export" size="sm" /></template>
-        导出
-      </Btn>
+      <el-button size="small" @click="reloadOpen = true">
+        <el-icon><Refresh /></el-icon>
+        <span>重载</span>
+      </el-button>
+      <el-button size="small" @click="fileInput?.click()">
+        <el-icon><Upload /></el-icon>
+        <span>导入</span>
+      </el-button>
+      <el-button size="small" @click="startExport">
+        <el-icon><Download /></el-icon>
+        <span>导出</span>
+      </el-button>
       <input
         ref="fileInput"
         type="file"
@@ -563,34 +570,37 @@ onBeforeUnmount(() => {
         :class="[mobilePane === 'form' ? 'hidden min-[900px]:flex' : 'flex', 'border-line min-[900px]:border-r']"
       >
         <div class="grid shrink-0 gap-2 border-b border-line p-2">
-          <div class="relative flex items-center">
-            <Icon
-              name="ui.search"
-              size="sm"
-              class="pointer-events-none absolute left-3 text-muted"
-            />
-            <input
-              v-model="search"
-              type="text"
-              class="h-control w-full min-w-0 rounded-md border border-line-2 bg-surface pl-10 pr-10 text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-              placeholder="搜索角色名 / 旅闻名"
-              autocomplete="off"
-              spellcheck="false"
-            />
-            <button
-              v-if="search"
-              type="button"
-              class="absolute right-2 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-              aria-label="清除搜索"
-              @click="search = ''"
-            >
-              <Icon name="ui.close" size="sm" />
-            </button>
-          </div>
+          <el-input
+            v-model="search"
+            placeholder="搜索角色名 / 旅闻名"
+            aria-label="搜索角色名 / 旅闻名"
+            clearable
+            class="w-full min-w-0"
+            autocomplete="off"
+            spellcheck="false"
+          >
+            <template #prefix>
+              <el-icon><Search /></el-icon>
+            </template>
+          </el-input>
 
           <div class="grid grid-cols-2 gap-2">
-            <Dropdown v-model="versionFilter" :options="versionOptions" label="版本" />
-            <Dropdown v-model="visibilityFilter" :options="visibilityOptions" label="类型" />
+            <el-select v-model="versionFilter" placeholder="版本" aria-label="版本" class="w-full">
+              <el-option
+                v-for="o in versionOptions"
+                :key="o.value"
+                :label="o.label"
+                :value="o.value"
+              />
+            </el-select>
+            <el-select v-model="visibilityFilter" placeholder="类型" aria-label="类型" class="w-full">
+              <el-option
+                v-for="o in visibilityOptions"
+                :key="o.value"
+                :label="o.label"
+                :value="o.value"
+              />
+            </el-select>
           </div>
         </div>
 
@@ -883,3 +893,11 @@ onBeforeUnmount(() => {
     </Modal>
   </div>
 </template>
+
+<style scoped>
+/* EP 给 .el-select 带了 margin-right:8px（input-group 那条还带 margin:0 -20px），
+   在 grid-cols-2 里会把下拉框推出格子，弹窗跟着偏 */
+.ah-tales :deep(.el-select) {
+  margin: 0;
+}
+</style>
