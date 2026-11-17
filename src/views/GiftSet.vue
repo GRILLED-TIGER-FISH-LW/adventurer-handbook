@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
+import { ArrowDown, ArrowUp, Delete, Download, Search, Upload } from '@element-plus/icons-vue'
 import { useToast } from '../composables/useToast.js'
 import { loadGlobalScript, loadGiftSetData } from '../composables/useData.js'
 
@@ -493,7 +494,11 @@ onMounted(async () => {
               class="min-w-0"
               autocomplete="off"
               spellcheck="false"
-            />
+            >
+              <template #prefix>
+                <el-icon><Search /></el-icon>
+              </template>
+            </el-input>
 
             <div class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
               <button
@@ -577,6 +582,10 @@ onMounted(async () => {
                 <span class="grid min-w-0 flex-1 gap-1">
                   <span class="truncate text-sm font-medium text-ink">{{ s.name }}</span>
                   <span class="text-xs text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</span>
+                </span>
+
+                <span class="shrink-0 text-xs tabular-nums text-muted">
+                  {{ cardMap.get(s.key)?.progress.text }}
                 </span>
 
                 <el-icon class="shrink-0 text-muted">
@@ -724,6 +733,15 @@ onMounted(async () => {
                   <span class="text-xs text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</span>
                 </span>
 
+                <span
+                  class="shrink-0 text-xs tabular-nums"
+                  :class="
+                    cardMap.get(s.key)?.progress.completed ? 'text-accent-strong' : 'text-muted'
+                  "
+                >
+                  {{ cardMap.get(s.key)?.progress.text }}
+                </span>
+
                 <el-icon class="shrink-0 text-muted">
                   <ArrowUp v-if="expandedKeys.has(s.key)" />
                   <ArrowDown v-else />
@@ -786,7 +804,7 @@ onMounted(async () => {
     <el-dialog
       v-model="resetOpen"
       title="重置全部数据"
-      width="420px"
+      width="min(420px, 88vw)"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
     >
