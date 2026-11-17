@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
-import { Delete, Download, Search, Upload } from '@element-plus/icons-vue'
+import { ArrowDown, ArrowUp, Delete, Download, Search, Upload } from '@element-plus/icons-vue'
 import { useToast } from '../composables/useToast.js'
 import { loadGlobalScript, loadGiftSetData } from '../composables/useData.js'
 
@@ -36,6 +36,8 @@ const charSearch = ref('')
 const regionFilter = ref('all')
 const typeFilter = ref('all')
 const statusFilter = ref('all')
+
+const expandedKeys = reactive(new Set())
 
 const charCollapsed = ref(false)
 const recommendCollapsed = ref(false)
@@ -241,6 +243,12 @@ function toggleOwned(name) {
   saveOwned()
 }
 
+function toggleExpand(key) {
+  if (!key) return
+  if (expandedKeys.has(key)) expandedKeys.delete(key)
+  else expandedKeys.add(key)
+}
+
 function toggleSetChar(set, name) {
   if (!set?.key || !name || EXCLUDED.test(name)) return
 
@@ -377,6 +385,7 @@ function doReset() {
   owned.value = []
   completed.value = {}
   uid.value = ''
+  expandedKeys.clear()
 
   saveOwned()
   saveCompleted()
@@ -500,7 +509,7 @@ onMounted(async () => {
               </template>
             </el-input>
 
-            <div class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
+            <div class="grid grid-cols-[repeat(auto-fill,minmax(56px,1fr))] gap-2">
               <el-checkbox
                 v-for="name in visibleCharNames"
                 :key="name"
@@ -549,6 +558,8 @@ onMounted(async () => {
               <button
                 type="button"
                 class="flex w-full items-center gap-2 p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                :aria-expanded="expandedKeys.has(s.key)"
+                @click="toggleExpand(s.key)"
               >
                 <span
                   class="relative h-9 shrink-0 overflow-hidden rounded-ctl bg-thumb"
@@ -561,11 +572,9 @@ onMounted(async () => {
                     loading="lazy"
                     class="size-full object-contain"
                   />
-                  <span
-                    class="absolute left-0 top-0 rounded-br-sm bg-accent-solid px-2 py-0.5 text-micro-uppercase text-on-accent"
-                  >
+                  <el-tag size="small" type="danger" effect="dark" class="absolute left-0 top-0">
                     推荐
-                  </span>
+                  </el-tag>
                 </span>
 
                 <span class="grid min-w-0 flex-1 gap-1">
@@ -577,10 +586,14 @@ onMounted(async () => {
                   {{ cardMap.get(s.key)?.progress.text }}
                 </span>
 
+                <el-icon class="shrink-0 text-muted">
+                  <ArrowUp v-if="expandedKeys.has(s.key)" />
+                  <ArrowDown v-else />
+                </el-icon>
               </button>
 
-              <div class="grid gap-2 border-t border-line p-2">
-                <div class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
+              <div v-if="expandedKeys.has(s.key)" class="grid gap-2 border-t border-line p-2">
+                <div class="grid grid-cols-[repeat(auto-fill,minmax(56px,1fr))] gap-2">
                   <el-checkbox
                     v-for="name in cardMap.get(s.key)?.chars || []"
                     :key="`${s.key}-${name}`"
@@ -684,6 +697,8 @@ onMounted(async () => {
               <button
                 type="button"
                 class="flex w-full items-center gap-2 p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                :aria-expanded="expandedKeys.has(s.key)"
+                @click="toggleExpand(s.key)"
               >
                 <span
                   class="h-9 shrink-0 overflow-hidden rounded-ctl bg-thumb"
@@ -714,13 +729,17 @@ onMounted(async () => {
                   {{ cardMap.get(s.key)?.progress.text }}
                 </span>
 
+                <el-icon class="shrink-0 text-muted">
+                  <ArrowUp v-if="expandedKeys.has(s.key)" />
+                  <ArrowDown v-else />
+                </el-icon>
               </button>
 
-              <div class="grid gap-2 border-t border-line p-2">
+              <div v-if="expandedKeys.has(s.key)" class="grid gap-2 border-t border-line p-2">
                 <div v-if="!cardMap.get(s.key)?.chars.length" class="p-2 text-xs text-muted">
                   无偏好角色数据
                 </div>
-                <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
+                <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(56px,1fr))] gap-2">
                   <el-checkbox
                     v-for="name in cardMap.get(s.key).chars"
                     :key="`${s.key}-${name}`"
@@ -809,5 +828,35 @@ onMounted(async () => {
 .ah-gift__char:focus-within {
   outline: 2px solid var(--el-color-primary);
   outline-offset: 1px;
+}
+
+/* 修复：EP checkbox 固定 32px 高会把头像块（32px 图标 + 名字）挤爆，
+   放开高度、去掉 inline-flex 的 30px 右边距，让格子按内容撑成竖长方形 */
+.ah-gift__char {
+  display: block;
+  height: auto;
+  min-height: 0;
+  margin-right: 0;
+  padding: 2px 0;
+}
+
+.ah-gift__char :deep(.el-checkbox__label) {
+  gap: 6px;
+}
+
+/* EP collapse 内容默认只有 padding-bottom:25px，没有左右内边距，
+   筛选行会顶到页面边缘 */
+.ah-gift__collapse :deep(.el-collapse-item__header) {
+  padding: 0 16px;
+}
+
+.ah-gift__collapse :deep(.el-collapse-item__content) {
+  padding: 12px 16px;
+}
+
+/* EP 给 .el-select 带了 margin-right:8px（input-group 那条还带 margin:0 -20px），
+   在 grid-cols-3 里会把下拉框推出格子，弹窗跟着偏 */
+.ah-gift__collapse :deep(.el-select) {
+  margin: 0;
 }
 </style>
