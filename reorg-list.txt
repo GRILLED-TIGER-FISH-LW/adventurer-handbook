@@ -6,192 +6,13 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-gift-fix2 —— 修 4 个问题（角色格高度 / 推荐标签 / collapse 间距 / 卡片默认收起）
+# 最近一批：ep-gift-fix3 —— 角色格垫色对称 / 推荐角标圆角与尺寸 / 栏标题数字加空格
 
 == MOVES ==
 
 == EDITS ==
 ### src/views/GiftSet.vue
 <<<<
-import { Delete, Download, Search, Upload } from '@element-plus/icons-vue'
->>>>
-<<<<
-import { ArrowDown, ArrowUp, Delete, Download, Search, Upload } from '@element-plus/icons-vue'
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-const charCollapsed = ref(false)
->>>>
-<<<<
-const expandedKeys = reactive(new Set())
-
-const charCollapsed = ref(false)
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-function toggleSetChar(set, name) {
->>>>
-<<<<
-function toggleExpand(key) {
-  if (!key) return
-  if (expandedKeys.has(key)) expandedKeys.delete(key)
-  else expandedKeys.add(key)
-}
-
-function toggleSetChar(set, name) {
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-  completed.value = {}
-  uid.value = ''
-
-  saveOwned()
->>>>
-<<<<
-  completed.value = {}
-  uid.value = ''
-  expandedKeys.clear()
-
-  saveOwned()
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-            <div class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
-              <el-checkbox
-                v-for="name in visibleCharNames"
->>>>
-<<<<
-            <div class="grid grid-cols-[repeat(auto-fill,minmax(56px,1fr))] gap-2">
-              <el-checkbox
-                v-for="name in visibleCharNames"
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-                  <span
-                    class="absolute left-0 top-0 rounded-br-sm bg-accent-solid px-2 py-0.5 text-micro-uppercase text-on-accent"
-                  >
-                    推荐
-                  </span>
->>>>
-<<<<
-                  <el-tag size="small" type="danger" effect="dark" class="absolute left-0 top-0">
-                    推荐
-                  </el-tag>
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-                class="flex w-full items-center gap-2 p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-              >
-                <span
-                  class="relative h-9 shrink-0 overflow-hidden rounded-ctl bg-thumb"
->>>>
-<<<<
-                class="flex w-full items-center gap-2 p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-                :aria-expanded="expandedKeys.has(s.key)"
-                @click="toggleExpand(s.key)"
-              >
-                <span
-                  class="relative h-9 shrink-0 overflow-hidden rounded-ctl bg-thumb"
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-                class="flex w-full items-center gap-2 p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-              >
-                <span
-                  class="h-9 shrink-0 overflow-hidden rounded-ctl bg-thumb"
-                  style="aspect-ratio: 2 / 1"
->>>>
-<<<<
-                class="flex w-full items-center gap-2 p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-                :aria-expanded="expandedKeys.has(s.key)"
-                @click="toggleExpand(s.key)"
-              >
-                <span
-                  class="h-9 shrink-0 overflow-hidden rounded-ctl bg-thumb"
-                  style="aspect-ratio: 2 / 1"
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-                </span>
-
-              </button>
-
-              <div class="grid gap-2 border-t border-line p-2">
-                <div class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
-                  <el-checkbox
-                    v-for="name in cardMap.get(s.key)?.chars || []"
->>>>
-<<<<
-                </span>
-
-                <el-icon class="shrink-0 text-muted">
-                  <ArrowUp v-if="expandedKeys.has(s.key)" />
-                  <ArrowDown v-else />
-                </el-icon>
-              </button>
-
-              <div v-if="expandedKeys.has(s.key)" class="grid gap-2 border-t border-line p-2">
-                <div class="grid grid-cols-[repeat(auto-fill,minmax(56px,1fr))] gap-2">
-                  <el-checkbox
-                    v-for="name in cardMap.get(s.key)?.chars || []"
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-                </span>
-
-              </button>
-
-              <div class="grid gap-2 border-t border-line p-2">
-                <div v-if="!cardMap.get(s.key)?.chars.length" class="p-2 text-xs text-muted">
-                  无偏好角色数据
-                </div>
-                <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
-                  <el-checkbox
-                    v-for="name in cardMap.get(s.key).chars"
->>>>
-<<<<
-                </span>
-
-                <el-icon class="shrink-0 text-muted">
-                  <ArrowUp v-if="expandedKeys.has(s.key)" />
-                  <ArrowDown v-else />
-                </el-icon>
-              </button>
-
-              <div v-if="expandedKeys.has(s.key)" class="grid gap-2 border-t border-line p-2">
-                <div v-if="!cardMap.get(s.key)?.chars.length" class="p-2 text-xs text-muted">
-                  无偏好角色数据
-                </div>
-                <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(56px,1fr))] gap-2">
-                  <el-checkbox
-                    v-for="name in cardMap.get(s.key).chars"
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-.ah-gift__char:focus-within {
-  outline: 2px solid var(--el-color-primary);
-  outline-offset: 1px;
-}
-</style>
->>>>
-<<<<
-.ah-gift__char:focus-within {
-  outline: 2px solid var(--el-color-primary);
-  outline-offset: 1px;
-}
-
-/* 修复：EP checkbox 固定 32px 高会把头像块（32px 图标 + 名字）挤爆，
-   放开高度、去掉 inline-flex 的 30px 右边距，让格子按内容撑成竖长方形 */
 .ah-gift__char {
   display: block;
   height: auto;
@@ -199,36 +20,78 @@ function toggleSetChar(set, name) {
   margin-right: 0;
   padding: 2px 0;
 }
-
-.ah-gift__char :deep(.el-checkbox__label) {
-  gap: 6px;
+>>>>
+<<<<
+.ah-gift__char {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  justify-self: stretch;
+  min-width: 0;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 2px 0;
 }
+>>>>
 
-/* EP collapse 内容默认只有 padding-bottom:25px，没有左右内边距，
-   筛选行会顶到页面边缘 */
-.ah-gift__collapse :deep(.el-collapse-item__header) {
-  padding: 0 16px;
-}
-
-.ah-gift__collapse :deep(.el-collapse-item__content) {
-  padding: 12px 16px;
-}
-
-/* EP 给 .el-select 带了 margin-right:8px（input-group 那条还带 margin:0 -20px），
-   在 grid-cols-3 里会把下拉框推出格子，弹窗跟着偏 */
+### src/views/GiftSet.vue
+<<<<
 .ah-gift__collapse :deep(.el-select) {
   margin: 0;
 }
 </style>
 >>>>
+<<<<
+.ah-gift__collapse :deep(.el-select) {
+  margin: 0;
+}
+
+/* 推荐角标：只留右下角圆角（左上角跟着缩略图走），再缩小一圈 */
+.ah-gift__collapse :deep(.el-tag) {
+  border-radius: 0 0 4px 0;
+  padding: 0 4px;
+  height: 16px;
+  line-height: 16px;
+  font-size: 10px;
+}
+</style>
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+              <span class="text-sm font-semibold text-ink">我的角色</span>
+              <span class="text-xs text-muted">{{ owned.length }}</span>
+>>>>
+<<<<
+              <span class="text-sm font-semibold text-ink">我的角色</span>
+              <span class="text-xs text-muted ml-2">{{ owned.length }}</span>
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+              <span class="text-sm font-semibold text-ink">推荐套装</span>
+              <span class="text-xs text-muted">前 {{ recommendations.length }}</span>
+>>>>
+<<<<
+              <span class="text-sm font-semibold text-ink">推荐套装</span>
+              <span class="text-xs text-muted ml-2">前 {{ recommendations.length }}</span>
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+              <span class="text-sm font-semibold text-ink">全部套装</span>
+              <span class="text-xs text-muted">{{ filteredSets.length }} / {{ sets.length }}</span>
+>>>>
+<<<<
+              <span class="text-sm font-semibold text-ink">全部套装</span>
+              <span class="text-xs text-muted ml-2">{{ filteredSets.length }} / {{ sets.length }}</span>
+>>>>
 
 == DELETES ==
 
 == CHECKS ==
-grep -q "expandedKeys" src/views/GiftSet.vue
-grep -q "toggleExpand" src/views/GiftSet.vue
-grep -q "ArrowUp" src/views/GiftSet.vue
-grep -q "<el-tag" src/views/GiftSet.vue
-grep -q "minmax(56px,1fr)" src/views/GiftSet.vue
-grep -q "el-collapse-item__content" src/views/GiftSet.vue
-! grep -q "text-micro-uppercase" src/views/GiftSet.vue
+grep -q "justify-self: stretch" src/views/GiftSet.vue
+grep -q "border-radius: 0 0 4px 0" src/views/GiftSet.vue
+grep -q "text-muted ml-2" src/views/GiftSet.vue
+grep -c "text-muted ml-2" src/views/GiftSet.vue
