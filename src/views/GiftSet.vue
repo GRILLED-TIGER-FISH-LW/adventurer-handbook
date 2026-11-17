@@ -845,6 +845,7 @@ onMounted(async () => {
 }
 
 .ah-gift__char :deep(.el-checkbox__label) {
+  padding: 0;
   gap: 6px;
 }
 
