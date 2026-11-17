@@ -6,92 +6,26 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-gift-fix3 —— 角色格垫色对称 / 推荐角标圆角与尺寸 / 栏标题数字加空格
+# 最近一批：ep-gift-fix4 —— 角色格 label 清掉 EP 默认 padding-left，头像名字居中
 
 == MOVES ==
 
 == EDITS ==
 ### src/views/GiftSet.vue
 <<<<
-.ah-gift__char {
-  display: block;
-  height: auto;
-  min-height: 0;
-  margin-right: 0;
-  padding: 2px 0;
+.ah-gift__char :deep(.el-checkbox__label) {
+  gap: 6px;
 }
 >>>>
 <<<<
-.ah-gift__char {
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
-  justify-self: stretch;
-  min-width: 0;
-  height: auto;
-  min-height: 0;
-  margin: 0;
-  padding: 2px 0;
+.ah-gift__char :deep(.el-checkbox__label) {
+  padding: 0;
+  gap: 6px;
 }
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-.ah-gift__collapse :deep(.el-select) {
-  margin: 0;
-}
-</style>
->>>>
-<<<<
-.ah-gift__collapse :deep(.el-select) {
-  margin: 0;
-}
-
-/* 推荐角标：只留右下角圆角（左上角跟着缩略图走），再缩小一圈 */
-.ah-gift__collapse :deep(.el-tag) {
-  border-radius: 0 0 4px 0;
-  padding: 0 4px;
-  height: 16px;
-  line-height: 16px;
-  font-size: 10px;
-}
-</style>
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-              <span class="text-sm font-semibold text-ink">我的角色</span>
-              <span class="text-xs text-muted">{{ owned.length }}</span>
->>>>
-<<<<
-              <span class="text-sm font-semibold text-ink">我的角色</span>
-              <span class="text-xs text-muted ml-2">{{ owned.length }}</span>
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-              <span class="text-sm font-semibold text-ink">推荐套装</span>
-              <span class="text-xs text-muted">前 {{ recommendations.length }}</span>
->>>>
-<<<<
-              <span class="text-sm font-semibold text-ink">推荐套装</span>
-              <span class="text-xs text-muted ml-2">前 {{ recommendations.length }}</span>
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-              <span class="text-sm font-semibold text-ink">全部套装</span>
-              <span class="text-xs text-muted">{{ filteredSets.length }} / {{ sets.length }}</span>
->>>>
-<<<<
-              <span class="text-sm font-semibold text-ink">全部套装</span>
-              <span class="text-xs text-muted ml-2">{{ filteredSets.length }} / {{ sets.length }}</span>
 >>>>
 
 == DELETES ==
 
 == CHECKS ==
-grep -q "justify-self: stretch" src/views/GiftSet.vue
-grep -q "border-radius: 0 0 4px 0" src/views/GiftSet.vue
-grep -q "text-muted ml-2" src/views/GiftSet.vue
-grep -c "text-muted ml-2" src/views/GiftSet.vue
+grep -c "padding: 0;" src/views/GiftSet.vue
+grep -q "gap: 6px;" src/views/GiftSet.vue
