@@ -782,7 +782,7 @@ onMounted(async () => {
     </div>
 
     <div class="border-t border-line bg-canvas p-2 safe-bottom">
-      <el-button type="danger" size="small" class="w-full" @click="resetOpen = true">
+      <el-button type="danger" class="w-full" @click="resetOpen = true">
         <el-icon><Delete /></el-icon>
         <span>重置全部数据</span>
       </el-button>

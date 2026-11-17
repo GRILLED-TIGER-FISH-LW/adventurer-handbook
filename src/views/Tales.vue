@@ -486,7 +486,7 @@ onMounted(async () => {
     </div>
 
     <div class="border-t border-line bg-canvas p-2 safe-bottom">
-      <el-button type="danger" class="w-full" size="small" @click="confirmClear">
+      <el-button type="danger" class="w-full" @click="confirmClear">
         <el-icon><Delete /></el-icon>
         <span>清空全部记录</span>
       </el-button>
