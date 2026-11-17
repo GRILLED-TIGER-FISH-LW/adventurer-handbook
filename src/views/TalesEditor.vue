@@ -4,7 +4,6 @@ import {
   ArrowDown,
   ArrowUp,
   Back,
-  Close,
   Delete,
   Document,
   Download,
@@ -772,7 +771,7 @@ onBeforeUnmount(() => {
               <span class="text-xs font-medium text-muted">角色名 · 从字典联想，可自定义</span>
               <div class="flex items-center gap-2">
                 <span
-                  class="grid size-7 shrink-0 place-items-center overflow-hidden rounded-ctl border border-line bg-surface text-[10px] font-semibold text-muted"
+                  class="relative grid size-7 shrink-0 place-items-center overflow-hidden rounded-ctl border border-line bg-surface text-[10px] font-semibold text-muted"
                 >
                   <span aria-hidden="true">{{ (entry.character || '?').charAt(0) }}</span>
                   <img
