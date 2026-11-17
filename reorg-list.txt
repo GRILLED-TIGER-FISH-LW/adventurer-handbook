@@ -6,40 +6,969 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-tales-fix2 —— 删除入口仅在表单栏出现；三页底部危险按钮统一默认 32px
+# 最近一批：ep-gift-set-ed —— 尘歌壶字典编辑器全量换 EP，四页原生标签清零
 
 == MOVES ==
 
 == EDITS ==
-### src/views/TalesEditor.vue
+### src/views/GiftSetEditor.vue
+<<<<
+import Btn from '../components/Btn.vue'
+import Dropdown from '../components/Dropdown.vue'
+import Field from '../components/Field.vue'
+import Seg from '../components/Seg.vue'
+import Combobox from '../components/Combobox.vue'
+import Modal from '../components/Modal.vue'
+import Icon from '../components/Icon.vue'
+import { useToast } from '../composables/useToast.js'
+import { loadGlobalScript } from '../composables/useData.js'
+import '../icons/editor-icons.js'
+>>>>
+<<<<
+import {
+  ArrowDown,
+  ArrowUp,
+  Back,
+  Delete,
+  Document,
+  Download,
+  Plus,
+  Refresh,
+  Search,
+  Sort,
+  Upload,
+} from '@element-plus/icons-vue'
+import { useToast } from '../composables/useToast.js'
+import { loadGlobalScript } from '../composables/useData.js'
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+      <Btn size="sm" @click="reloadOpen = true">
+        <template #icon><Icon name="ui.reload" size="sm" /></template>
+        重载
+      </Btn>
+      <Btn size="sm" @click="fileInput?.click()">
+        <template #icon><Icon name="ui.import" size="sm" /></template>
+        导入
+      </Btn>
+      <Btn size="sm" @click="startExport">
+        <template #icon><Icon name="ui.export" size="sm" /></template>
+        导出
+      </Btn>
+>>>>
+<<<<
+      <el-button size="small" @click="reloadOpen = true">
+        <el-icon><Refresh /></el-icon>
+        <span>重载</span>
+      </el-button>
+      <el-button size="small" @click="fileInput?.click()">
+        <el-icon><Upload /></el-icon>
+        <span>导入</span>
+      </el-button>
+      <el-button size="small" @click="startExport">
+        <el-icon><Download /></el-icon>
+        <span>导出</span>
+      </el-button>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+      <input
+        ref="fileInput"
+        type="file"
+        accept=".js,.txt,text/javascript,application/javascript"
+        class="hidden"
+        @change="onImportFile"
+      />
+>>>>
+<<<<
+      <input
+        ref="fileInput"
+        type="file"
+        accept=".js,.txt,text/javascript,application/javascript"
+        class="hidden"
+        aria-hidden="true"
+        tabindex="-1"
+        @change="onImportFile"
+      />
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+          <div class="relative flex items-center">
+            <Icon
+              name="ui.search"
+              size="sm"
+              class="pointer-events-none absolute left-3 text-muted"
+            />
+            <input
+              v-model="search"
+              type="text"
+              class="h-control w-full min-w-0 rounded-md border border-line-2 bg-surface pl-10 pr-10 text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+              placeholder="搜索套装名 / 偏好角色"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button
+              v-if="search"
+              type="button"
+              class="absolute right-2 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+              aria-label="清除搜索"
+              @click="search = ''"
+            >
+              <Icon name="ui.close" size="sm" />
+            </button>
+          </div>
+>>>>
+<<<<
+          <el-input
+            v-model="search"
+            placeholder="搜索套装名 / 偏好角色"
+            aria-label="搜索套装名 / 偏好角色"
+            clearable
+            class="w-full min-w-0"
+            autocomplete="off"
+            spellcheck="false"
+          >
+            <template #prefix>
+              <el-icon><Search /></el-icon>
+            </template>
+          </el-input>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+          <div class="grid grid-cols-2 gap-2">
+            <Dropdown v-model="typeFilter" :options="typeFilterOptions" label="类型" />
+            <Dropdown v-model="regionFilter" :options="regionFilterOptions" label="地区" />
+          </div>
+>>>>
+<<<<
+          <div class="grid grid-cols-2 gap-2">
+            <el-select v-model="typeFilter" placeholder="类型" aria-label="类型" class="w-full">
+              <el-option
+                v-for="o in typeFilterOptions"
+                :key="o.value"
+                :label="o.label"
+                :value="o.value"
+              />
+            </el-select>
+            <el-select v-model="regionFilter" placeholder="地区" aria-label="地区" class="w-full">
+              <el-option
+                v-for="o in regionFilterOptions"
+                :key="o.value"
+                :label="o.label"
+                :value="o.value"
+              />
+            </el-select>
+          </div>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+          <button
+            v-for="s in sortedSets"
+            :key="s.id"
+            type="button"
+            class="flex w-full items-center gap-2 rounded-ctl border p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+            :class="
+              s.id === selectedId
+                ? 'border-accent bg-accent-soft'
+                : 'border-transparent hover:bg-hover'
+            "
+            @click="selectSet(s)"
+          >
+            <span
+              class="grid h-9 shrink-0 place-items-center overflow-hidden rounded-ctl bg-thumb"
+              style="aspect-ratio: 2 / 1"
+            >
+              <img
+                v-if="setImageUrl(s)"
+                :src="setImageUrl(s)"
+                alt=""
+                loading="lazy"
+                class="size-full object-contain"
+                @error="onImgError"
+              />
+            </span>
+            <span class="grid min-w-0 flex-1 gap-1">
+              <span class="truncate text-xs font-medium text-ink">
+                {{ s.name || '(未命名套装)' }}
+              </span>
+              <span class="truncate text-[10px] text-muted">
+                {{ s.region || '?' }} · {{ typeLabel(s.type) }} ·
+                {{ (s.preferredCharacters || []).length }} 人
+              </span>
+            </span>
+          </button>
+>>>>
+<<<<
+          <div
+            v-for="s in sortedSets"
+            :key="s.id"
+            role="button"
+            tabindex="0"
+            class="flex w-full items-center gap-2 rounded-ctl border p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+            :class="
+              s.id === selectedId
+                ? 'border-accent bg-accent-soft'
+                : 'border-transparent hover:bg-hover'
+            "
+            @click="selectSet(s)"
+            @keydown.enter.prevent="selectSet(s)"
+            @keydown.space.prevent="selectSet(s)"
+          >
+            <span
+              class="grid h-9 shrink-0 place-items-center overflow-hidden rounded-ctl bg-thumb"
+              style="aspect-ratio: 2 / 1"
+            >
+              <img
+                v-if="setImageUrl(s)"
+                :src="setImageUrl(s)"
+                alt=""
+                loading="lazy"
+                class="size-full object-contain"
+                @error="onImgError"
+              />
+            </span>
+            <span class="grid min-w-0 flex-1 gap-1">
+              <span class="truncate text-xs font-medium text-ink">
+                {{ s.name || '(未命名套装)' }}
+              </span>
+              <span class="truncate text-[10px] text-muted">
+                {{ s.region || '?' }} · {{ typeLabel(s.type) }} ·
+                {{ (s.preferredCharacters || []).length }} 人
+              </span>
+            </span>
+          </div>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+          <Btn size="sm" @click="addSet">
+            <template #icon><Icon name="ui.plus" size="sm" /></template>
+            新增套装
+          </Btn>
+          <Btn size="sm" :disabled="!data || !setCount" @click="renumberOpen = true">
+            <template #icon><Icon name="ui.reorder" size="sm" /></template>
+            重排 ID
+          </Btn>
+>>>>
+<<<<
+          <el-button size="small" @click="addSet">
+            <el-icon><Plus /></el-icon>
+            <span>新增套装</span>
+          </el-button>
+          <el-button size="small" :disabled="!data || !setCount" @click="renumberOpen = true">
+            <el-icon><Sort /></el-icon>
+            <span>重排 ID</span>
+          </el-button>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+          <Btn
+            v-if="mobilePane === 'form'"
+            size="sm"
+            class="justify-self-start min-[900px]:hidden"
+            @click="mobilePane = 'list'"
+          >
+            <template #icon><Icon name="ui.back" size="sm" /></template>
+            返回列表
+          </Btn>
+>>>>
+<<<<
+          <el-button
+            v-if="mobilePane === 'form'"
+            size="small"
+            class="justify-self-start min-[900px]:hidden"
+            @click="mobilePane = 'list'"
+          >
+            <el-icon><Back /></el-icon>
+            <span>返回列表</span>
+          </el-button>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+            <Icon name="ui.file" size="lg" class="text-faint" />
+>>>>
+<<<<
+            <el-icon class="text-faint"><Document /></el-icon>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+                <input
+                  v-model="idInput"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  aria-label="id"
+                  class="h-control w-full min-w-0 rounded-md border bg-surface px-input-x text-body-md text-ink focus-visible:outline-2 focus-visible:outline-offset-1"
+                  :class="
+                    idInvalid
+                      ? 'border-danger focus-visible:outline-danger'
+                      : 'border-line-2 focus-visible:outline-accent'
+                  "
+                  @input="commitId"
+                />
+                <Btn class="shrink-0" @click="moveSet(-1)">
+                  <template #icon><Icon name="ui.arrowUp" size="sm" /></template>
+                  上移
+                </Btn>
+                <Btn class="shrink-0" @click="moveSet(1)">
+                  <template #icon><Icon name="ui.arrowDown" size="sm" /></template>
+                  下移
+                </Btn>
+>>>>
+<<<<
+                <el-input
+                  v-model="idInput"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  aria-label="id"
+                  :status="idInvalid ? 'error' : undefined"
+                  class="ah-id"
+                  @update:model-value="commitId"
+                />
+                <el-button class="shrink-0" @click="moveSet(-1)">
+                  <el-icon><ArrowUp /></el-icon>
+                  <span>上移</span>
+                </el-button>
+                <el-button class="shrink-0" @click="moveSet(1)">
+                  <el-icon><ArrowDown /></el-icon>
+                  <span>下移</span>
+                </el-button>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+              <Combobox
+                v-model="entry.region"
+                :items="data.regions"
+                allow-custom
+                :custom-label="(r) => '＋ 新增地区：' + r"
+                aria-label="地区"
+                placeholder="如 蒙德"
+                @update:model-value="onRegionInput"
+              />
+>>>>
+<<<<
+              <el-select
+                v-model="entry.region"
+                filterable
+                allow-create
+                default-first-option
+                placeholder="如 蒙德"
+                aria-label="地区"
+                class="w-full"
+                @update:model-value="onRegionInput"
+              >
+                <el-option
+                  v-for="r in data.regions"
+                  :key="r"
+                  :label="r"
+                  :value="r"
+                />
+              </el-select>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+                <input
+                  v-model="urlInput"
+                  type="text"
+                  placeholder="粘贴图片直链…"
+                  autocomplete="off"
+                  spellcheck="false"
+                  aria-label="套装图 URL"
+                  class="h-control w-full min-w-0 rounded-md border bg-surface px-input-x text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1"
+                  :class="
+                    urlInvalid
+                      ? 'border-danger focus-visible:outline-danger'
+                      : 'border-line-2 focus-visible:outline-accent'
+                  "
+                  @blur="onUrlBlur"
+                  @keydown="onUrlKeydown"
+                />
+                <Btn class="shrink-0" @click="recognizeUrl">识别</Btn>
+>>>>
+<<<<
+                <el-input
+                  v-model="urlInput"
+                  placeholder="粘贴图片直链…"
+                  autocomplete="off"
+                  spellcheck="false"
+                  aria-label="套装图 URL"
+                  :status="urlInvalid ? 'error' : undefined"
+                  @keydown.enter="recognizeUrl"
+                  @blur="onUrlBlur"
+                />
+                <el-button class="shrink-0" @click="recognizeUrl">识别</el-button>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+            <Field
+              v-model="entry.name"
+              label="名称"
+              placeholder="套装名称"
+              @update:model-value="markDirty"
+            />
+>>>>
+<<<<
+            <div class="grid gap-2">
+              <span class="text-micro text-muted">名称</span>
+              <el-input
+                v-model="entry.name"
+                placeholder="套装名称"
+                class="w-full"
+                @update:model-value="markDirty"
+              />
+            </div>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+              <Seg
+                v-model="entry.type"
+                :options="typeOptions"
+                class="justify-self-start"
+                @update:model-value="markDirty"
+              />
+>>>>
+<<<<
+              <el-segmented
+                v-model="entry.type"
+                :options="typeOptions"
+                @update:model-value="markDirty"
+              />
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+                <button
+                  v-for="name in sortedChars"
+                  :key="name"
+                  type="button"
+                  class="grid cursor-pointer justify-items-center gap-1 rounded-ctl border border-line bg-surface p-1 hover:border-danger focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                  :title="`移除 ${name}`"
+                  :aria-label="`移除 ${name}`"
+                  @click="removeChar(name)"
+                >
+                  <span
+                    class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
+                  >
+                    <span aria-hidden="true">{{ name.charAt(0) }}</span>
+                    <img
+                      v-if="avatarUrl(name)"
+                      :src="avatarUrl(name)"
+                      alt=""
+                      loading="lazy"
+                      class="absolute inset-0 size-full object-cover"
+                      @error="onImgError"
+                    />
+                  </span>
+                  <span class="w-full truncate text-center text-[10px] text-muted">
+                    {{ name }}
+                  </span>
+                </button>
+>>>>
+<<<<
+                <div
+                  v-for="name in sortedChars"
+                  :key="name"
+                  role="button"
+                  tabindex="0"
+                  class="grid cursor-pointer justify-items-center gap-1 rounded-ctl border border-line bg-surface p-1 hover:border-danger focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                  :title="`移除 ${name}`"
+                  :aria-label="`移除 ${name}`"
+                  @click="removeChar(name)"
+                  @keydown.enter.prevent="removeChar(name)"
+                  @keydown.space.prevent="removeChar(name)"
+                >
+                  <span
+                    class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
+                  >
+                    <span aria-hidden="true">{{ name.charAt(0) }}</span>
+                    <img
+                      v-if="avatarUrl(name)"
+                      :src="avatarUrl(name)"
+                      alt=""
+                      loading="lazy"
+                      class="absolute inset-0 size-full object-cover"
+                      @error="onImgError"
+                    />
+                  </span>
+                  <span class="w-full truncate text-center text-[10px] text-muted">
+                    {{ name }}
+                  </span>
+                </div>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+              <Combobox
+                v-model="charQuery"
+                :items="charSuggestions"
+                allow-custom
+                :custom-label="(n) => '＋ 添加角色：' + n"
+                :suppress-when="hasSeparator"
+                aria-label="添加偏好角色"
+                placeholder="输入角色名，多个用逗号 / 空格分隔"
+                @select="onCharSelect"
+                @keydown.enter="onCharEnter"
+                @blur="onCharBlur"
+              />
+>>>>
+<<<<
+              <el-autocomplete
+                v-model="charQuery"
+                :fetch-suggestions="fetchCharSuggestions"
+                :trigger-on-focus="false"
+                placeholder="输入角色名，多个用逗号 / 空格分隔"
+                aria-label="添加偏好角色"
+                @select="onCharSelect"
+                @keydown.enter="onCharEnter"
+                @blur="onCharBlur"
+              />
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+function onCharBlur() {
+  setTimeout(() => commitChars(true), 160)
+}
+>>>>
+<<<<
+function onCharBlur() {
+  setTimeout(() => commitChars(true), 160)
+}
+
+/* el-autocomplete 的联想源：从「尚未选中的角色」里按输入过滤 */
+function fetchCharSuggestions(queryString, cb) {
+  const q = (queryString || '').toLowerCase()
+  const list = q
+    ? charSuggestions.value.filter((n) => n.toLowerCase().includes(q))
+    : charSuggestions.value
+  cb(list.map((value) => ({ value })))
+}
+>>>>
+
+### src/views/GiftSetEditor.vue
 <<<<
     <!-- 底部固定危险区 -->
     <div v-if="entry" class="border-t border-line bg-canvas p-2 safe-bottom">
-      <el-button type="danger" class="w-full" @click="deleteOpen = true">
+      <Btn variant="danger" class="w-full" @click="deleteOpen = true">
+        <template #icon><Icon name="ui.trash" size="sm" /></template>
+        删除此套
+      </Btn>
+    </div>
 >>>>
 <<<<
-    <!-- 底部固定危险区：只有停在表单栏（手机端点进某条后）才出现删除入口 -->
+    <!-- 底部固定危险区：只有停在表单栏（手机端点进某套后）才出现删除入口 -->
     <div
       v-if="entry && mobilePane === 'form'"
       class="border-t border-line bg-canvas p-2 safe-bottom"
     >
       <el-button type="danger" class="w-full" @click="deleteOpen = true">
+        <el-icon><Delete /></el-icon>
+        <span>删除此套</span>
+      </el-button>
+    </div>
 >>>>
 
-### src/views/Tales.vue
+### src/views/GiftSetEditor.vue
 <<<<
-      <el-button type="danger" class="w-full" size="small" @click="confirmClear">
+    <!-- 确认：重载 -->
+    <Modal
+      v-model="reloadOpen"
+      :title="dirty ? '放弃修改' : '重载线上数据'"
+      :message="
+        dirty
+          ? '当前有未导出的修改，重载会丢弃这些改动。'
+          : `将从线上重新拉取 ${FILE_NAME}，覆盖当前编辑内容。`
+      "
+      confirm-text="重载"
+      :danger="dirty"
+      :persistent="dirty"
+      @confirm="doReload"
+    />
 >>>>
 <<<<
-      <el-button type="danger" class="w-full" @click="confirmClear">
+    <!-- 确认：重载 -->
+    <el-dialog
+      v-model="reloadOpen"
+      :title="dirty ? '放弃修改' : '重载线上数据'"
+      width="20rem"
+      :persistent="dirty"
+    >
+      <p class="text-sm text-body">
+        {{
+          dirty
+            ? '当前有未导出的修改，重载会丢弃这些改动。'
+            : `将从线上重新拉取 ${FILE_NAME}，覆盖当前编辑内容。`
+        }}
+      </p>
+      <template #footer>
+        <el-button @click="reloadOpen = false">取消</el-button>
+        <el-button type="danger" @click="doReload">重载</el-button>
+      </template>
+    </el-dialog>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+    <!-- 确认：删除 -->
+    <Modal
+      v-model="deleteOpen"
+      title="删除套装"
+      :message="`确定删除「${entry?.name || '(未命名)'}」吗？此操作不可撤销。`"
+      confirm-text="删除"
+      danger
+      persistent
+      @confirm="confirmDelete"
+    />
+>>>>
+<<<<
+    <!-- 确认：删除 -->
+    <el-dialog
+      v-model="deleteOpen"
+      title="删除套装"
+      width="20rem"
+      persistent
+    >
+      <p class="text-sm text-body">
+        确定删除「{{ entry?.name || '(未命名)' }}」吗？此操作不可撤销。
+      </p>
+      <template #footer>
+        <el-button @click="deleteOpen = false">取消</el-button>
+        <el-button type="danger" @click="confirmDelete">删除</el-button>
+      </template>
+    </el-dialog>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+    <!-- 确认：重排 -->
+    <Modal
+      v-model="renumberOpen"
+      title="重排 id"
+      :message="`将按当前显示顺序重新编号 1 ~ ${setCount}，原有 id 会被覆盖。`"
+      confirm-text="重排"
+      danger
+      persistent
+      @confirm="doRenumber"
+    />
+>>>>
+<<<<
+    <!-- 确认：重排 -->
+    <el-dialog
+      v-model="renumberOpen"
+      title="重排 id"
+      width="20rem"
+      persistent
+    >
+      <p class="text-sm text-body">
+        将按当前显示顺序重新编号 1 ~ {{ setCount }}，原有 id 会被覆盖。
+      </p>
+      <template #footer>
+        <el-button @click="renumberOpen = false">取消</el-button>
+        <el-button type="danger" @click="doRenumber">重排</el-button>
+      </template>
+    </el-dialog>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+    <!-- 导出前检查 -->
+    <Modal v-model="exportOpen" title="导出前检查" confirm-text="继续导出" @confirm="runExport">
+      <p class="text-sm text-body">发现 {{ warnings.length }} 项问题：</p>
+      <ul class="grid max-h-60 list-disc gap-1 overflow-y-auto pl-5 text-xs text-muted">
+        <li v-for="(w, i) in warnings.slice(0, 30)" :key="i">{{ w }}</li>
+      </ul>
+      <p v-if="warnings.length > 30" class="text-xs text-muted">
+        还有 {{ warnings.length - 30 }} 项未列出
+      </p>
+      <p class="text-xs text-body">是否继续导出？</p>
+    </Modal>
+>>>>
+<<<<
+    <!-- 导出前检查 -->
+    <el-dialog v-model="exportOpen" title="导出前检查" width="24rem">
+      <p class="text-sm text-body">发现 {{ warnings.length }} 项问题：</p>
+      <ul class="grid max-h-60 list-disc gap-1 overflow-y-auto pl-5 text-xs text-muted">
+        <li v-for="(w, i) in warnings.slice(0, 30)" :key="i">{{ w }}</li>
+      </ul>
+      <p v-if="warnings.length > 30" class="text-xs text-muted">
+        还有 {{ warnings.length - 30 }} 项未列出
+      </p>
+      <p class="text-xs text-body">是否继续导出？</p>
+      <template #footer>
+        <el-button @click="exportOpen = false">取消</el-button>
+        <el-button type="primary" @click="runExport">继续导出</el-button>
+      </template>
+    </el-dialog>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+  </div>
+</template>
+>>>>
+<<<<
+  </div>
+</template>
+
+<style scoped>
+/* EP 给 .el-select 带了 margin-right:8px（input-group 那条还带 margin:0 -20px），
+   在 grid-cols-2 里会把下拉框推出格子，弹窗跟着偏 */
+.ah-gift-ed :deep(.el-select) {
+  margin: 0;
+}
+
+/* EP input 宽度默认 100%，在「id + 上移/下移」的 flex 行里会挤掉按钮 */
+.ah-gift-ed :deep(.ah-id) {
+  flex: 1;
+  min-width: 0;
+}
+</style>
 >>>>
 
 ### src/views/GiftSet.vue
 <<<<
-      <el-button type="danger" size="small" class="w-full" @click="resetOpen = true">
+            <article
+              v-for="s in recommendations"
+              :key="`r-${s.key}`"
+              class="rounded-panel border border-line bg-surface"
+            >
+              <button
+                type="button"
+                class="flex w-full items-center gap-2 p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                :aria-expanded="expandedKeys.has(s.key)"
+                @click="toggleExpand(s.key)"
+              >
+                <span
+                  class="relative h-9 shrink-0 overflow-hidden rounded-ctl bg-thumb"
+                  style="aspect-ratio: 2 / 1"
+                >
+                  <img
+                    v-if="cardMap.get(s.key)?.thumb"
+                    :src="cardMap.get(s.key).thumb"
+                    alt=""
+                    loading="lazy"
+                    class="size-full object-contain"
+                  />
+                  <el-tag size="small" type="danger" effect="dark" class="absolute left-0 top-0">
+                    推荐
+                  </el-tag>
+                </span>
+                <span class="grid min-w-0 flex-1 gap-1">
+                  <span class="truncate text-sm font-semibold text-ink">
+                    {{ s.name || '(未命名套装)' }}
+                  </span>
+                  <span class="truncate text-xs text-muted">
+                    {{ s.region || '?' }} · {{ typeLabel(s.type) }} ·
+                    {{ (s.preferredCharacters || []).length }} 人
+                  </span>
+                </span>
+                <el-icon class="shrink-0 text-muted">
+                  <ArrowUp v-if="expandedKeys.has(s.key)" />
+                  <ArrowDown v-else />
+                </el-icon>
+              </button>
 >>>>
 <<<<
-      <el-button type="danger" class="w-full" @click="resetOpen = true">
+            <article
+              v-for="s in recommendations"
+              :key="`r-${s.key}`"
+              class="rounded-panel border border-line bg-surface"
+            >
+              <div
+                role="button"
+                tabindex="0"
+                class="flex w-full items-center gap-2 p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                :aria-expanded="expandedKeys.has(s.key)"
+                @click="toggleExpand(s.key)"
+                @keydown.enter.prevent="toggleExpand(s.key)"
+                @keydown.space.prevent="toggleExpand(s.key)"
+              >
+                <span
+                  class="relative h-9 shrink-0 overflow-hidden rounded-ctl bg-thumb"
+                  style="aspect-ratio: 2 / 1"
+                >
+                  <img
+                    v-if="cardMap.get(s.key)?.thumb"
+                    :src="cardMap.get(s.key).thumb"
+                    alt=""
+                    loading="lazy"
+                    class="size-full object-contain"
+                  />
+                  <el-tag size="small" type="danger" effect="dark" class="absolute left-0 top-0">
+                    推荐
+                  </el-tag>
+                </span>
+                <span class="grid min-w-0 flex-1 gap-1">
+                  <span class="truncate text-sm font-semibold text-ink">
+                    {{ s.name || '(未命名套装)' }}
+                  </span>
+                  <span class="truncate text-xs text-muted">
+                    {{ s.region || '?' }} · {{ typeLabel(s.type) }} ·
+                    {{ (s.preferredCharacters || []).length }} 人
+                  </span>
+                </span>
+                <el-icon class="shrink-0 text-muted">
+                  <ArrowUp v-if="expandedKeys.has(s.key)" />
+                  <ArrowDown v-else />
+                </el-icon>
+              </div>
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+            <article
+              v-for="s in filteredSets"
+              :key="s.key"
+              class="rounded-panel border"
+              :class="
+                cardMap.get(s.key)?.progress.completed
+                  ? 'border-accent bg-sunken/50 opacity-70'
+                  : 'border-line bg-surface'
+              "
+            >
+              <button
+                type="button"
+                class="flex w-full items-center gap-2 p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                :aria-expanded="expandedKeys.has(s.key)"
+                @click="toggleExpand(s.key)"
+              >
+                <span
+                  class="h-9 shrink-0 overflow-hidden rounded-ctl bg-thumb"
+                  style="aspect-ratio: 2 / 1"
+                >
+                  <img
+                    v-if="cardMap.get(s.key)?.thumb"
+                    :src="cardMap.get(s.key).thumb"
+                    alt=""
+                    loading="lazy"
+                    class="size-full object-contain"
+                  />
+                </span>
+                <span class="grid min-w-0 flex-1 gap-1">
+                  <span class="truncate text-sm font-semibold text-ink">
+                    {{ s.name || '(未命名套装)' }}
+                  </span>
+                  <span class="truncate text-xs text-muted">
+                    {{ s.region || '?' }} · {{ typeLabel(s.type) }} ·
+                    {{ (s.preferredCharacters || []).length }} 人
+                  </span>
+                </span>
+                <el-icon class="shrink-0 text-muted">
+                  <ArrowUp v-if="expandedKeys.has(s.key)" />
+                  <ArrowDown v-else />
+                </el-icon>
+              </button>
+>>>>
+<<<<
+            <article
+              v-for="s in filteredSets"
+              :key="s.key"
+              class="rounded-panel border"
+              :class="
+                cardMap.get(s.key)?.progress.completed
+                  ? 'border-accent bg-sunken/50 opacity-70'
+                  : 'border-line bg-surface'
+              "
+            >
+              <div
+                role="button"
+                tabindex="0"
+                class="flex w-full items-center gap-2 p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                :aria-expanded="expandedKeys.has(s.key)"
+                @click="toggleExpand(s.key)"
+                @keydown.enter.prevent="toggleExpand(s.key)"
+                @keydown.space.prevent="toggleExpand(s.key)"
+              >
+                <span
+                  class="h-9 shrink-0 overflow-hidden rounded-ctl bg-thumb"
+                  style="aspect-ratio: 2 / 1"
+                >
+                  <img
+                    v-if="cardMap.get(s.key)?.thumb"
+                    :src="cardMap.get(s.key).thumb"
+                    alt=""
+                    loading="lazy"
+                    class="size-full object-contain"
+                  />
+                </span>
+                <span class="grid min-w-0 flex-1 gap-1">
+                  <span class="truncate text-sm font-semibold text-ink">
+                    {{ s.name || '(未命名套装)' }}
+                  </span>
+                  <span class="truncate text-xs text-muted">
+                    {{ s.region || '?' }} · {{ typeLabel(s.type) }} ·
+                    {{ (s.preferredCharacters || []).length }} 人
+                  </span>
+                </span>
+                <el-icon class="shrink-0 text-muted">
+                  <ArrowUp v-if="expandedKeys.has(s.key)" />
+                  <ArrowDown v-else />
+                </el-icon>
+              </div>
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+      <input
+        ref="fileInput"
+        type="file"
+        accept=".json,application/json"
+        class="hidden"
+        @change="onImportFile"
+      />
+>>>>
+<<<<
+      <input
+        ref="fileInput"
+        type="file"
+        accept=".json,application/json"
+        class="hidden"
+        aria-hidden="true"
+        tabindex="-1"
+        @change="onImportFile"
+      />
+>>>>
+
+### src/views/Tales.vue
+<<<<
+        <input
+          ref="fileInput"
+          type="file"
+          accept=".json,application/json"
+          class="hidden"
+          @change="onImportFile"
+        />
+>>>>
+<<<<
+        <input
+          ref="fileInput"
+          type="file"
+          accept=".json,application/json"
+          class="hidden"
+          aria-hidden="true"
+          tabindex="-1"
+          @change="onImportFile"
+        />
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+  <div class="grid h-full grid-rows-[auto_minmax(0,1fr)_auto]">
+>>>>
+<<<<
+  <div class="ah-gift-ed grid h-full grid-rows-[auto_minmax(0,1fr)_auto]">
 >>>>
 
 ### AGENTS.md
@@ -47,7 +976,7 @@
 - **最后合并**：`docs-fix2` —— 小尾巴批：Deploy 排队（concurrency 孤儿 run）写进诊断套路、去掉待办里自相矛盾的「已定未做：无」。
 >>>>
 <<<<
-- **最后合并**：`ep-tales-fix2` —— 旅闻编辑器删除入口改为仅在表单栏出现（手机端返回列表即消失）；游逸旅闻「清空全部记录」、赠礼套装「重置全部数据」去掉 `size="small"`，三页底部危险按钮统一默认高度；同批更新 CHANGELOG 当日条目。
+- **最后合并**：`ep-gift-set-ed` —— 尘歌壶字典编辑器全量换 EP 组件（el-button / el-input / el-select / el-segmented / el-autocomplete / el-dialog），顺带修底部「删除此套」在手机端返回列表后仍显示的问题；GiftSet 页两张卡片头、三个页面的隐藏文件输入一并清掉原生标签；同批更新 CHANGELOG 当日条目。
 >>>>
 
 ### CHANGELOG.md
@@ -59,11 +988,11 @@
 <<<<
 ## 2026 年 11 月
 
-### 2026-11-18 · 旅闻编辑器删除入口修正 · 三页危险按钮高度统一
+### 2026-11-18 · 尘歌壶字典编辑器迁 EP 完成 · 四页原生标签清零
 
-- **起因**：① 手机端点进某条旅闻、再点「返回列表」后，底部「删除此条」仍留在列表页——返回只切了面板，选中项没清，`v-if="entry"` 依然成立。② 三个页面的底部危险按钮高度不统一：编辑器「删除此条」是默认 32px，游逸旅闻「清空全部记录」与赠礼套装「重置全部数据」是 `size="small"`（24px）。
-- **经过**：编辑器底部危险区条件改为 `entry && mobilePane === 'form'`，与「返回列表」一样只在表单栏出现；游逸旅闻与赠礼套装的底部按钮去掉 `size="small"`，与编辑器统一为默认高度。同批按各自格式更新 `AGENTS.md`（最后合并行）与 `CHANGELOG.md`（当日条目）。
-- **结果**：手机端进入编辑表单才出现删除入口，返回列表即消失；三个页面的底部危险按钮同为默认高度，视觉不再跳档。
+- **起因**：尘歌壶字典编辑器还在用自造控件（`Btn` / `Modal` / `Dropdown` / `Combobox` / `Seg` / `Field` / `Icon`），与已完成迁移的旅闻编辑器不是一套；全站四页还留着原生 `button` / `input` 标签。
+- **经过**：编辑器控件全量换 EP —— 工具条与列表脚改 `el-button`，搜索框改 `el-input`（clearable），两个筛选改 `el-select`，地区联想改 `el-select`（允许自建），偏好角色添加器改 `el-autocomplete`（联想源取「未选角色」），室内/室外改 `el-segmented`，图片 URL 与 id 改 `el-input`，四个弹窗改 `el-dialog`（确认后手动关闭），图标改 `@element-plus/icons-vue`；底部「删除此套」改为仅在表单栏出现（与旅闻编辑器同一处手机端 bug）。GiftSet 页两张套装卡片头、GiftSet 编辑器列表项与角色移除格改 `role="button"` 的 `div`（保留键盘激活），三处隐藏文件输入补 `aria-hidden` 与 `tabindex`。
+- **结果**：四个页面自造控件与原生交互标签清零，控件尺寸、焦点环、弹窗行为全站统一走 EP 默认，后续不再有两套样式并存。
 
 ### 2026-11-12 ·
 >>>>
@@ -71,10 +1000,21 @@
 == DELETES ==
 
 == CHECKS ==
-grep -q 'v-if="entry && mobilePane' src/views/TalesEditor.vue
-grep -q 'type="danger" class="w-full" @click="confirmClear"' src/views/Tales.vue
-grep -q 'type="danger" class="w-full" @click="resetOpen = true"' src/views/GiftSet.vue
-! grep -q '<el-button[^>]*type="danger"[^>]*size="small"' src/views/Tales.vue
-! grep -q '<el-button[^>]*type="danger"[^>]*size="small"' src/views/GiftSet.vue
-grep -q 'ep-tales-fix2' AGENTS.md
+grep -q '@element-plus/icons-vue' src/views/GiftSetEditor.vue
+grep -c '<el-button' src/views/GiftSetEditor.vue
+grep -c '<el-dialog' src/views/GiftSetEditor.vue
+grep -c '<el-select' src/views/GiftSetEditor.vue
+grep -q '<el-autocomplete' src/views/GiftSetEditor.vue
+grep -q '<el-segmented' src/views/GiftSetEditor.vue
+! grep -q 'editor-icons' src/views/GiftSetEditor.vue
+! grep -q '<Btn' src/views/GiftSetEditor.vue
+! grep -q '<Modal' src/views/GiftSetEditor.vue
+! grep -q '<Icon' src/views/GiftSetEditor.vue
+! grep -q 'ui\.' src/views/GiftSetEditor.vue
+grep -q 'v-if="entry && mobilePane' src/views/GiftSetEditor.vue
+! grep -q '<button' src/views/GiftSetEditor.vue
+! grep -q '<Btn' src/views/GiftSet.vue
+! grep -q '<button' src/views/GiftSet.vue
+! grep -qE '</(Btn|Modal|Icon|Dropdown|Combobox|Field|Seg)>' src/views/GiftSetEditor.vue
+grep -q 'ep-gift-set-ed' AGENTS.md
 grep -q '2026-11-18' CHANGELOG.md
