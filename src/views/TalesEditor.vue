@@ -650,14 +650,14 @@ onBeforeUnmount(() => {
         </div>
 
         <div class="grid shrink-0 grid-cols-2 gap-2 border-t border-line p-2">
-          <Btn size="sm" @click="addEntry">
-            <template #icon><Icon name="ui.plus" size="sm" /></template>
-            新增
-          </Btn>
-          <Btn size="sm" :disabled="!data" @click="renumberOpen = true">
-            <template #icon><Icon name="ui.reorder" size="sm" /></template>
-            重排 ID
-          </Btn>
+          <el-button size="small" @click="addEntry">
+            <el-icon><Plus /></el-icon>
+            <span>新增</span>
+          </el-button>
+          <el-button size="small" :disabled="!data" @click="renumberOpen = true">
+            <el-icon><Sort /></el-icon>
+            <span>重排 ID</span>
+          </el-button>
         </div>
       </aside>
 
@@ -668,20 +668,20 @@ onBeforeUnmount(() => {
       >
         <div class="grid gap-3">
           <!-- 返回按钮常驻，任何状态都能回列表 -->
-          <Btn
+          <el-button
             v-if="mobilePane === 'form'"
-            size="sm"
+            size="small"
             class="justify-self-start min-[900px]:hidden"
             @click="backToList"
           >
-            <template #icon><Icon name="ui.back" size="sm" /></template>
-            返回列表
-          </Btn>
+            <el-icon><Back /></el-icon>
+            <span>返回列表</span>
+          </el-button>
 
           <p v-if="loading" class="text-sm text-muted">正在载入…</p>
 
           <div v-else-if="!data" class="grid justify-items-center gap-3 p-8 text-center">
-            <Icon name="ui.file" size="lg" class="text-faint" />
+            <el-icon class="text-faint"><Document /></el-icon>
             <p class="text-sm text-muted">数据未加载，请点右上角「重载」或「导入」</p>
           </div>
 
@@ -716,120 +716,144 @@ onBeforeUnmount(() => {
             <div class="grid gap-2">
               <span class="text-xs font-medium text-muted">id · 可手动改，需唯一</span>
               <div class="flex items-center gap-2">
-                <input
+                <el-input
                   v-model="idInput"
-                  type="text"
                   inputmode="numeric"
                   autocomplete="off"
                   aria-label="id"
-                  class="h-control w-full min-w-0 rounded-md border bg-surface px-input-x text-body-md text-ink focus-visible:outline-2 focus-visible:outline-offset-1"
-                  :class="
-                    idInvalid
-                      ? 'border-danger focus-visible:outline-danger'
-                      : 'border-line-2 focus-visible:outline-accent'
-                  "
-                  @input="commitId"
+                  :status="idInvalid ? 'error' : undefined"
+                  class="ah-id"
+                  @update:model-value="commitId"
                 />
-                <Btn class="shrink-0" @click="moveEntry(-1)">
-                  <template #icon><Icon name="ui.arrowUp" size="sm" /></template>
-                  上移
-                </Btn>
-                <Btn class="shrink-0" @click="moveEntry(1)">
-                  <template #icon><Icon name="ui.arrowDown" size="sm" /></template>
-                  下移
-                </Btn>
+                <el-button class="shrink-0" @click="moveEntry(-1)">
+                  <el-icon><ArrowUp /></el-icon>
+                  <span>上移</span>
+                </el-button>
+                <el-button class="shrink-0" @click="moveEntry(1)">
+                  <el-icon><ArrowDown /></el-icon>
+                  <span>下移</span>
+                </el-button>
               </div>
             </div>
 
             <!-- 版本 -->
             <div class="grid gap-2">
               <span class="text-xs font-medium text-muted">版本 · 输入新值会自动加入列表</span>
-              <Combobox
+              <el-select
                 v-model="entry.version"
-                :items="data.versions"
-                aria-label="版本"
+                filterable
+                allow-create
+                default-first-option
                 placeholder="如 5.4"
+                aria-label="版本"
+                class="w-full"
                 @update:model-value="onVersionInput"
-              />
+              >
+                <el-option
+                  v-for="v in data.versions"
+                  :key="v"
+                  :label="v"
+                  :value="v"
+                />
+              </el-select>
             </div>
 
             <!-- 角色 -->
             <div class="grid gap-2">
               <span class="text-xs font-medium text-muted">角色名 · 从字典联想，可自定义</span>
-              <Combobox
-                v-model="entry.character"
-                :items="charList"
-                aria-label="角色名"
-                placeholder="输入角色名"
-                @update:model-value="markDirty"
-              >
-                <template #prefix>
-                  <span
-                    class="pointer-events-none absolute left-1.5 grid size-7 place-items-center overflow-hidden rounded-ctl border border-line bg-surface text-[10px] font-semibold text-muted"
-                  >
-                    <span aria-hidden="true">{{ (entry.character || '?').charAt(0) }}</span>
-                    <img
-                      v-if="avatarUrl(entry.character)"
-                      :src="avatarUrl(entry.character)"
-                      alt=""
-                      class="absolute inset-0 size-full object-cover"
-                      @error="(ev) => ev.target.remove()"
-                    />
-                  </span>
-                </template>
-              </Combobox>
+              <div class="flex items-center gap-2">
+                <span
+                  class="grid size-7 shrink-0 place-items-center overflow-hidden rounded-ctl border border-line bg-surface text-[10px] font-semibold text-muted"
+                >
+                  <span aria-hidden="true">{{ (entry.character || '?').charAt(0) }}</span>
+                  <img
+                    v-if="avatarUrl(entry.character)"
+                    :src="avatarUrl(entry.character)"
+                    alt=""
+                    class="absolute inset-0 size-full object-cover"
+                    @error="(ev) => ev.target.remove()"
+                  />
+                </span>
+                <el-select
+                  v-model="entry.character"
+                  filterable
+                  allow-create
+                  default-first-option
+                  placeholder="输入角色名"
+                  aria-label="角色名"
+                  class="min-w-0"
+                  @update:model-value="markDirty"
+                >
+                  <el-option
+                    v-for="c in charList"
+                    :key="c"
+                    :label="c"
+                    :value="c"
+                  />
+                </el-select>
+              </div>
               <p v-if="showCharWarn" class="text-xs text-danger">
                 字典中无此角色，主界面将显示首字占位
               </p>
             </div>
 
-            <Field
-              v-model="entry.title"
-              label="旅闻名"
-              placeholder="旅闻标题"
-              @update:model-value="markDirty"
-            />
+            <div class="grid gap-2">
+              <span class="text-micro text-muted">旅闻名</span>
+              <el-input
+                v-model="entry.title"
+                placeholder="旅闻标题"
+                class="w-full"
+                @update:model-value="markDirty"
+              />
+            </div>
 
-            <label
+            <div
               class="flex h-control w-fit cursor-pointer items-center gap-2 rounded-md border border-line-2 bg-sunken px-3"
             >
-              <input
-                v-model="entry.hidden"
-                type="checkbox"
-                class="size-4 shrink-0 accent-accent focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-                @change="markDirty"
-              />
+              <el-checkbox v-model="entry.hidden" @change="markDirty" />
               <span class="text-xs text-ink">标记为隐藏旅闻（主界面红色）</span>
-            </label>
+            </div>
 
-            <Field
-              v-model="entry.location"
-              label="地点"
-              placeholder="如 蒙德-晨曦酒庄"
-              @update:model-value="markDirty"
-            />
+            <div class="grid gap-2">
+              <span class="text-micro text-muted">地点</span>
+              <el-input
+                v-model="entry.location"
+                placeholder="如 蒙德-晨曦酒庄"
+                class="w-full"
+                @update:model-value="markDirty"
+              />
+            </div>
 
-            <Field
-              v-model="entry.trigger"
-              label="触发条件"
-              placeholder="留空则不显示"
-              @update:model-value="markDirty"
-            />
+            <div class="grid gap-2">
+              <span class="text-micro text-muted">触发条件</span>
+              <el-input
+                v-model="entry.trigger"
+                placeholder="留空则不显示"
+                class="w-full"
+                @update:model-value="markDirty"
+              />
+            </div>
 
-            <Field
-              v-model="entry.prerequisite"
-              label="前置旅闻 · 只填旅闻名"
-              placeholder="留空则不显示"
-              @update:model-value="markDirty"
-            />
+            <div class="grid gap-2">
+              <span class="text-micro text-muted">前置旅闻 · 只填旅闻名</span>
+              <el-input
+                v-model="entry.prerequisite"
+                placeholder="留空则不显示"
+                class="w-full"
+                @update:model-value="markDirty"
+              />
+            </div>
 
-            <Field
-              v-model="entry.description"
-              type="textarea"
-              label="描述 · 支持换行"
-              :rows="6"
-              @update:model-value="markDirty"
-            />
+            <div class="grid gap-2">
+              <span class="text-micro text-muted">描述 · 支持换行</span>
+              <el-input
+                v-model="entry.description"
+                type="textarea"
+                :rows="6"
+                class="w-full"
+                @update:model-value="markDirty"
+              />
+            </div>
           </template>
         </div>
       </section>
@@ -837,10 +861,10 @@ onBeforeUnmount(() => {
 
     <!-- 底部固定危险区 -->
     <div v-if="entry" class="border-t border-line bg-canvas p-2 safe-bottom">
-      <Btn variant="danger" class="w-full" @click="deleteOpen = true">
-        <template #icon><Icon name="ui.trash" size="sm" /></template>
-        删除此条
-      </Btn>
+      <el-button type="danger" class="w-full" @click="deleteOpen = true">
+        <el-icon><Delete /></el-icon>
+        <span>删除此条</span>
+      </el-button>
     </div>
 
     <!-- 确认：重载 -->
@@ -899,5 +923,11 @@ onBeforeUnmount(() => {
    在 grid-cols-2 里会把下拉框推出格子，弹窗跟着偏 */
 .ah-tales :deep(.el-select) {
   margin: 0;
+}
+
+/* EP input 宽度默认 100%，在「id + 上移/下移」的 flex 行里会挤掉按钮 */
+.ah-tales :deep(.ah-id) {
+  flex: 1;
+  min-width: 0;
 }
 </style>
