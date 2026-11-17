@@ -6,364 +6,59 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-tales-ed-c —— 弹窗全换 el-dialog，清掉剩余原生样式，EP 收尾
+# 最近一批：ep-tales-fix1 —— 角色头像缩略图补 relative，清掉未用的 Close 图标
 
 == MOVES ==
 
 == EDITS ==
 ### src/views/TalesEditor.vue
 <<<<
-async function doReload() {
-  try {
-    applyData(await fetchOnline())
-    selectedId.value = null
+                <span
+                  class="grid size-7 shrink-0 place-items-center overflow-hidden rounded-ctl border border-line bg-surface text-[10px] font-semibold text-muted"
+                >
 >>>>
 <<<<
-async function doReload() {
-  try {
-    applyData(await fetchOnline())
-    reloadOpen.value = false
-    selectedId.value = null
+                <span
+                  class="relative grid size-7 shrink-0 place-items-center overflow-hidden rounded-ctl border border-line bg-surface text-[10px] font-semibold text-muted"
+                >
 >>>>
 
 ### src/views/TalesEditor.vue
 <<<<
-function confirmDelete() {
-  const i = data.value.entries.indexOf(entry.value)
-  if (i >= 0) data.value.entries.splice(i, 1)
-  selectedId.value = null
+import {
+  ArrowDown,
+  ArrowUp,
+  Back,
+  Close,
+  Delete,
+  Document,
+  Download,
+  Plus,
+  Refresh,
+  Search,
+  Sort,
+  Upload,
+} from '@element-plus/icons-vue'
 >>>>
 <<<<
-function confirmDelete() {
-  const i = data.value.entries.indexOf(entry.value)
-  if (i >= 0) data.value.entries.splice(i, 1)
-  deleteOpen.value = false
-  selectedId.value = null
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-  if (sel) {
-    selectedId.value = sel.id
-    idInput.value = String(sel.id)
-  }
-  markDirty()
-  toast.success(`已重排 ${sorted.length} 条 id`)
->>>>
-<<<<
-  if (sel) {
-    selectedId.value = sel.id
-    idInput.value = String(sel.id)
-  }
-  renumberOpen.value = false
-  markDirty()
-  toast.success(`已重排 ${sorted.length} 条 id`)
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-  setTimeout(() => URL.revokeObjectURL(url), 1000)
-
-  clearDirty()
->>>>
-<<<<
-  setTimeout(() => URL.revokeObjectURL(url), 1000)
-
-  exportOpen.value = false
-  clearDirty()
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-    <!-- 确认：重载 -->
-    <Modal
-      v-model="reloadOpen"
-      :title="dirty ? '放弃修改' : '重载线上数据'"
-      :message="
-        dirty
-          ? '当前有未导出的修改，重载会丢弃这些改动。'
-          : `将从线上重新拉取 ${FILE_NAME}，覆盖当前编辑内容。`
-      "
-      confirm-text="重载"
-      :danger="dirty"
-      :persistent="dirty"
-      @confirm="doReload"
-    />
->>>>
-<<<<
-    <!-- 确认：重载 -->
-    <el-dialog
-      v-model="reloadOpen"
-      :title="dirty ? '放弃修改' : '重载线上数据'"
-      width="20rem"
-      :persistent="dirty"
-    >
-      <p class="text-sm text-body">
-        {{
-          dirty
-            ? '当前有未导出的修改，重载会丢弃这些改动。'
-            : `将从线上重新拉取 ${FILE_NAME}，覆盖当前编辑内容。`
-        }}
-      </p>
-      <template #footer>
-        <el-button @click="reloadOpen = false">取消</el-button>
-        <el-button type="danger" @click="doReload">重载</el-button>
-      </template>
-    </el-dialog>
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-    <!-- 确认：删除 -->
-    <Modal
-      v-model="deleteOpen"
-      title="删除条目"
-      :message="`确定删除「${entry?.character || '?'} · ${entry?.title || '?'}」吗？此操作不可撤销。`"
-      confirm-text="删除"
-      danger
-      persistent
-      @confirm="confirmDelete"
-    />
->>>>
-<<<<
-    <!-- 确认：删除 -->
-    <el-dialog
-      v-model="deleteOpen"
-      title="删除条目"
-      width="20rem"
-      persistent
-    >
-      <p class="text-sm text-body">
-        确定删除「{{ entry?.character || '?' }} · {{ entry?.title || '?' }}」吗？此操作不可撤销。
-      </p>
-      <template #footer>
-        <el-button @click="deleteOpen = false">取消</el-button>
-        <el-button type="danger" @click="confirmDelete">删除</el-button>
-      </template>
-    </el-dialog>
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-    <!-- 确认：重排 -->
-    <Modal
-      v-model="renumberOpen"
-      title="重排 id"
-      :message="`将按当前显示顺序重新编号 1 ~ ${entryCount}，原有 id 会被覆盖。`"
-      confirm-text="重排"
-      danger
-      persistent
-      @confirm="doRenumber"
-    />
->>>>
-<<<<
-    <!-- 确认：重排 -->
-    <el-dialog
-      v-model="renumberOpen"
-      title="重排 id"
-      width="20rem"
-      persistent
-    >
-      <p class="text-sm text-body">
-        将按当前显示顺序重新编号 1 ~ {{ entryCount }}，原有 id 会被覆盖。
-      </p>
-      <template #footer>
-        <el-button @click="renumberOpen = false">取消</el-button>
-        <el-button type="danger" @click="doRenumber">重排</el-button>
-      </template>
-    </el-dialog>
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-    <!-- 导出前检查 -->
-    <Modal v-model="exportOpen" title="导出前检查" confirm-text="继续导出" @confirm="runExport">
-      <p class="text-sm text-body">发现 {{ warnings.length }} 项问题：</p>
-      <ul class="grid max-h-60 list-disc gap-1 overflow-y-auto pl-5 text-xs text-muted">
-        <li v-for="(w, i) in warnings.slice(0, 30)" :key="i">{{ w }}</li>
-      </ul>
-      <p v-if="warnings.length > 30" class="text-xs text-muted">
-        还有 {{ warnings.length - 30 }} 项未列出
-      </p>
-      <p class="text-xs text-body">是否继续导出？</p>
-    </Modal>
->>>>
-<<<<
-    <!-- 导出前检查 -->
-    <el-dialog v-model="exportOpen" title="导出前检查" width="24rem">
-      <p class="text-sm text-body">发现 {{ warnings.length }} 项问题：</p>
-      <ul class="grid max-h-60 list-disc gap-1 overflow-y-auto pl-5 text-xs text-muted">
-        <li v-for="(w, i) in warnings.slice(0, 30)" :key="i">{{ w }}</li>
-      </ul>
-      <p v-if="warnings.length > 30" class="text-xs text-muted">
-        还有 {{ warnings.length - 30 }} 项未列出
-      </p>
-      <p class="text-xs text-body">是否继续导出？</p>
-      <template #footer>
-        <el-button @click="exportOpen = false">取消</el-button>
-        <el-button type="primary" @click="runExport">继续导出</el-button>
-      </template>
-    </el-dialog>
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-      <input
-        ref="fileInput"
-        type="file"
-        accept=".js,.txt,text/javascript,application/javascript"
-        class="hidden"
-        @change="onImportFile"
-      />
->>>>
-<<<<
-      <input
-        ref="fileInput"
-        type="file"
-        accept=".js,.txt,text/javascript,application/javascript"
-        class="hidden"
-        aria-hidden="true"
-        tabindex="-1"
-        @change="onImportFile"
-      />
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-          <button
-            v-for="e in filteredEntries"
-            :key="e.id"
-            type="button"
-            class="flex w-full items-center gap-2 rounded-ctl border p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-            :class="
-              e.id === selectedId
-                ? 'border-accent bg-accent-soft'
-                : 'border-transparent hover:bg-hover'
-            "
-            @click="selectEntry(e)"
-          >
-            <span
-              class="relative grid size-8 shrink-0 place-items-center overflow-hidden rounded-ctl bg-thumb text-xs font-semibold text-muted"
-            >
-              <span aria-hidden="true">{{ (e.character || '?').charAt(0) }}</span>
-              <img
-                v-if="avatarUrl(e.character)"
-                :src="avatarUrl(e.character)"
-                alt=""
-                loading="lazy"
-                class="absolute inset-0 size-full object-cover"
-                @error="(ev) => ev.target.remove()"
-              />
-            </span>
-            <span class="grid min-w-0 flex-1 gap-1">
-              <span
-                class="truncate text-xs font-medium"
-                :class="e.hidden ? 'text-danger' : 'text-ink'"
-              >
-                {{ e.title || '(无标题)' }}
-              </span>
-              <span class="truncate text-[10px] text-muted">
-                {{ e.character || '?' }} · {{ e.version || '?' }}
-              </span>
-            </span>
-          </button>
->>>>
-<<<<
-          <div
-            v-for="e in filteredEntries"
-            :key="e.id"
-            role="button"
-            tabindex="0"
-            class="flex w-full items-center gap-2 rounded-ctl border p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-            :class="
-              e.id === selectedId
-                ? 'border-accent bg-accent-soft'
-                : 'border-transparent hover:bg-hover'
-            "
-            @click="selectEntry(e)"
-            @keydown.enter.prevent="selectEntry(e)"
-            @keydown.space.prevent="selectEntry(e)"
-          >
-            <span
-              class="relative grid size-8 shrink-0 place-items-center overflow-hidden rounded-ctl bg-thumb text-xs font-semibold text-muted"
-            >
-              <span aria-hidden="true">{{ (e.character || '?').charAt(0) }}</span>
-              <img
-                v-if="avatarUrl(e.character)"
-                :src="avatarUrl(e.character)"
-                alt=""
-                loading="lazy"
-                class="absolute inset-0 size-full object-cover"
-                @error="(ev) => ev.target.remove()"
-              />
-            </span>
-            <span class="grid min-w-0 flex-1 gap-1">
-              <span
-                class="truncate text-xs font-medium"
-                :class="e.hidden ? 'text-danger' : 'text-ink'"
-              >
-                {{ e.title || '(无标题)' }}
-              </span>
-              <span class="truncate text-[10px] text-muted">
-                {{ e.character || '?' }} · {{ e.version || '?' }}
-              </span>
-            </span>
-          </div>
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-            <div
-              class="flex h-control w-fit cursor-pointer items-center gap-2 rounded-md border border-line-2 bg-sunken px-3"
-            >
-              <el-checkbox v-model="entry.hidden" @change="markDirty" />
-              <span class="text-xs text-ink">标记为隐藏旅闻（主界面红色）</span>
-            </div>
->>>>
-<<<<
-            <div
-              class="flex h-[44px] w-fit cursor-pointer items-center gap-2 rounded-md border border-line-2 bg-sunken px-3"
-            >
-              <el-checkbox v-model="entry.hidden" @change="markDirty" />
-              <span class="text-xs text-ink">标记为隐藏旅闻（主界面红色）</span>
-            </div>
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-.ah-tales :deep(.ah-id) {
-  flex: 1;
-  min-width: 0;
-}
-</style>
->>>>
-<<<<
-.ah-tales :deep(.ah-id) {
-  flex: 1;
-  min-width: 0;
-}
-
-/* 隐藏标记用 el-checkbox 拿语义（空格切换 / aria-checked），
-   外框仍按内容色表达状态，行高对齐控件高度 */
-.ah-tales :deep(.el-checkbox) {
-  margin-right: 8px;
-}
-
-.ah-tales :deep(.el-checkbox__label) {
-  padding-left: 2px;
-  font-size: 12px;
-}
-</style>
+import {
+  ArrowDown,
+  ArrowUp,
+  Back,
+  Delete,
+  Document,
+  Download,
+  Plus,
+  Refresh,
+  Search,
+  Sort,
+  Upload,
+} from '@element-plus/icons-vue'
 >>>>
 
 == DELETES ==
 
 == CHECKS ==
-grep -q '<el-dialog' src/views/TalesEditor.vue
-grep -c '<el-dialog' src/views/TalesEditor.vue
-! grep -q '<Modal' src/views/TalesEditor.vue
-! grep -q 'h-control' src/views/TalesEditor.vue
-! grep -q 'rounded-md border border-line-2 bg-surface pl-10' src/views/TalesEditor.vue
-! grep -q '<Btn' src/views/TalesEditor.vue
-! grep -q '<Icon' src/views/TalesEditor.vue
-! grep -q 'ui\.' src/views/TalesEditor.vue
+grep -q 'class="relative grid size-7 shrink-0' src/views/TalesEditor.vue
+! grep -q '  Close,' src/views/TalesEditor.vue
+grep -c 'relative' src/views/TalesEditor.vue
