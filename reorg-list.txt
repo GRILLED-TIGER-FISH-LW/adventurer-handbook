@@ -241,7 +241,7 @@ import { loadGlobalScript } from '../composables/useData.js'
                 {{ (s.preferredCharacters || []).length }} 人
               </span>
             </span>
-          </div>
+                    </div>
 >>>>
 
 ### src/views/GiftSetEditor.vue
@@ -505,7 +505,7 @@ import { loadGlobalScript } from '../composables/useData.js'
                   <span class="w-full truncate text-center text-[10px] text-muted">
                     {{ name }}
                   </span>
-                </div>
+                                </div>
 >>>>
 
 ### src/views/GiftSetEditor.vue
@@ -565,7 +565,6 @@ function fetchCharSuggestions(queryString, cb) {
         <template #icon><Icon name="ui.trash" size="sm" /></template>
         删除此套
       </Btn>
-    </div>
 >>>>
 <<<<
     <!-- 底部固定危险区：只有停在表单栏（手机端点进某套后）才出现删除入口 -->
@@ -577,7 +576,6 @@ function fetchCharSuggestions(queryString, cb) {
         <el-icon><Delete /></el-icon>
         <span>删除此套</span>
       </el-button>
-    </div>
 >>>>
 
 ### src/views/GiftSetEditor.vue
@@ -765,15 +763,16 @@ function fetchCharSuggestions(queryString, cb) {
                     推荐
                   </el-tag>
                 </span>
+
                 <span class="grid min-w-0 flex-1 gap-1">
-                  <span class="truncate text-sm font-semibold text-ink">
-                    {{ s.name || '(未命名套装)' }}
-                  </span>
-                  <span class="truncate text-xs text-muted">
-                    {{ s.region || '?' }} · {{ typeLabel(s.type) }} ·
-                    {{ (s.preferredCharacters || []).length }} 人
-                  </span>
+                  <span class="truncate text-sm font-medium text-ink">{{ s.name }}</span>
+                  <span class="text-xs text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</span>
                 </span>
+
+                <span class="shrink-0 text-xs tabular-nums text-muted">
+                  {{ cardMap.get(s.key)?.progress.text }}
+                </span>
+
                 <el-icon class="shrink-0 text-muted">
                   <ArrowUp v-if="expandedKeys.has(s.key)" />
                   <ArrowDown v-else />
@@ -795,6 +794,7 @@ function fetchCharSuggestions(queryString, cb) {
                 @keydown.enter.prevent="toggleExpand(s.key)"
                 @keydown.space.prevent="toggleExpand(s.key)"
               >
+
                 <span
                   class="relative h-9 shrink-0 overflow-hidden rounded-ctl bg-thumb"
                   style="aspect-ratio: 2 / 1"
@@ -810,15 +810,16 @@ function fetchCharSuggestions(queryString, cb) {
                     推荐
                   </el-tag>
                 </span>
+
                 <span class="grid min-w-0 flex-1 gap-1">
-                  <span class="truncate text-sm font-semibold text-ink">
-                    {{ s.name || '(未命名套装)' }}
-                  </span>
-                  <span class="truncate text-xs text-muted">
-                    {{ s.region || '?' }} · {{ typeLabel(s.type) }} ·
-                    {{ (s.preferredCharacters || []).length }} 人
-                  </span>
+                  <span class="truncate text-sm font-medium text-ink">{{ s.name }}</span>
+                  <span class="text-xs text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</span>
                 </span>
+
+                <span class="shrink-0 text-xs tabular-nums text-muted">
+                  {{ cardMap.get(s.key)?.progress.text }}
+                </span>
+
                 <el-icon class="shrink-0 text-muted">
                   <ArrowUp v-if="expandedKeys.has(s.key)" />
                   <ArrowDown v-else />
@@ -856,15 +857,23 @@ function fetchCharSuggestions(queryString, cb) {
                     class="size-full object-contain"
                   />
                 </span>
+
                 <span class="grid min-w-0 flex-1 gap-1">
-                  <span class="truncate text-sm font-semibold text-ink">
-                    {{ s.name || '(未命名套装)' }}
+                  <span class="truncate text-sm font-medium text-ink">
+                    {{ s.name || '(未命名)' }}
                   </span>
-                  <span class="truncate text-xs text-muted">
-                    {{ s.region || '?' }} · {{ typeLabel(s.type) }} ·
-                    {{ (s.preferredCharacters || []).length }} 人
-                  </span>
+                  <span class="text-xs text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</span>
                 </span>
+
+                <span
+                  class="shrink-0 text-xs tabular-nums"
+                  :class="
+                    cardMap.get(s.key)?.progress.completed ? 'text-accent-strong' : 'text-muted'
+                  "
+                >
+                  {{ cardMap.get(s.key)?.progress.text }}
+                </span>
+
                 <el-icon class="shrink-0 text-muted">
                   <ArrowUp v-if="expandedKeys.has(s.key)" />
                   <ArrowDown v-else />
@@ -891,6 +900,7 @@ function fetchCharSuggestions(queryString, cb) {
                 @keydown.enter.prevent="toggleExpand(s.key)"
                 @keydown.space.prevent="toggleExpand(s.key)"
               >
+
                 <span
                   class="h-9 shrink-0 overflow-hidden rounded-ctl bg-thumb"
                   style="aspect-ratio: 2 / 1"
@@ -903,15 +913,23 @@ function fetchCharSuggestions(queryString, cb) {
                     class="size-full object-contain"
                   />
                 </span>
+
                 <span class="grid min-w-0 flex-1 gap-1">
-                  <span class="truncate text-sm font-semibold text-ink">
-                    {{ s.name || '(未命名套装)' }}
+                  <span class="truncate text-sm font-medium text-ink">
+                    {{ s.name || '(未命名)' }}
                   </span>
-                  <span class="truncate text-xs text-muted">
-                    {{ s.region || '?' }} · {{ typeLabel(s.type) }} ·
-                    {{ (s.preferredCharacters || []).length }} 人
-                  </span>
+                  <span class="text-xs text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</span>
                 </span>
+
+                <span
+                  class="shrink-0 text-xs tabular-nums"
+                  :class="
+                    cardMap.get(s.key)?.progress.completed ? 'text-accent-strong' : 'text-muted'
+                  "
+                >
+                  {{ cardMap.get(s.key)?.progress.text }}
+                </span>
+
                 <el-icon class="shrink-0 text-muted">
                   <ArrowUp v-if="expandedKeys.has(s.key)" />
                   <ArrowDown v-else />
@@ -973,7 +991,7 @@ function fetchCharSuggestions(queryString, cb) {
 
 ### AGENTS.md
 <<<<
-- **最后合并**：`docs-fix2` —— 小尾巴批：Deploy 排队（concurrency 孤儿 run）写进诊断套路、去掉待办里自相矛盾的「已定未做：无」。
+- **最后合并**：`ep-tales-fix2` —— 旅闻编辑器删除入口改为仅在表单栏出现（手机端返回列表即消失）；游逸旅闻「清空全部记录」、赠礼套装「重置全部数据」去掉 `size="small"`，三页底部危险按钮统一默认高度；同批更新 CHANGELOG 当日条目。
 >>>>
 <<<<
 - **最后合并**：`ep-gift-set-ed` —— 尘歌壶字典编辑器全量换 EP 组件（el-button / el-input / el-select / el-segmented / el-autocomplete / el-dialog），顺带修底部「删除此套」在手机端返回列表后仍显示的问题；GiftSet 页两张卡片头、三个页面的隐藏文件输入一并清掉原生标签；同批更新 CHANGELOG 当日条目。
@@ -983,7 +1001,11 @@ function fetchCharSuggestions(queryString, cb) {
 <<<<
 ## 2026 年 11 月
 
-### 2026-11-12 ·
+### 2026-11-18 · 旅闻编辑器删除入口修正 · 三页危险按钮高度统一
+
+- **起因**：① 手机端点进某条旅闻、再点「返回列表」后，底部「删除此条」仍留在列表页——返回只切了面板，选中项没清，`v-if="entry"` 依然成立。② 三个页面的底部危险按钮高度不统一：编辑器「删除此条」是默认 32px，游逸旅闻「清空全部记录」与赠礼套装「重置全部数据」是 `size="small"`（24px）。
+- **经过**：编辑器底部危险区条件改为 `entry && mobilePane === 'form'`，与「返回列表」一样只在表单栏出现；游逸旅闻与赠礼套装的底部按钮去掉 `size="small"`，与编辑器统一为默认高度。同批按各自格式更新 `AGENTS.md`（最后合并行）与 `CHANGELOG.md`（当日条目）。
+- **结果**：手机端进入编辑表单才出现删除入口，返回列表即消失；三个页面的底部危险按钮同为默认高度，视觉不再跳档。
 >>>>
 <<<<
 ## 2026 年 11 月
@@ -993,8 +1015,6 @@ function fetchCharSuggestions(queryString, cb) {
 - **起因**：尘歌壶字典编辑器还在用自造控件（`Btn` / `Modal` / `Dropdown` / `Combobox` / `Seg` / `Field` / `Icon`），与已完成迁移的旅闻编辑器不是一套；全站四页还留着原生 `button` / `input` 标签。
 - **经过**：编辑器控件全量换 EP —— 工具条与列表脚改 `el-button`，搜索框改 `el-input`（clearable），两个筛选改 `el-select`，地区联想改 `el-select`（允许自建），偏好角色添加器改 `el-autocomplete`（联想源取「未选角色」），室内/室外改 `el-segmented`，图片 URL 与 id 改 `el-input`，四个弹窗改 `el-dialog`（确认后手动关闭），图标改 `@element-plus/icons-vue`；底部「删除此套」改为仅在表单栏出现（与旅闻编辑器同一处手机端 bug）。GiftSet 页两张套装卡片头、GiftSet 编辑器列表项与角色移除格改 `role="button"` 的 `div`（保留键盘激活），三处隐藏文件输入补 `aria-hidden` 与 `tabindex`。
 - **结果**：四个页面自造控件与原生交互标签清零，控件尺寸、焦点环、弹窗行为全站统一走 EP 默认，后续不再有两套样式并存。
-
-### 2026-11-12 ·
 >>>>
 
 == DELETES ==
@@ -1010,11 +1030,11 @@ grep -q '<el-segmented' src/views/GiftSetEditor.vue
 ! grep -q '<Btn' src/views/GiftSetEditor.vue
 ! grep -q '<Modal' src/views/GiftSetEditor.vue
 ! grep -q '<Icon' src/views/GiftSetEditor.vue
+! grep -qE '</(Btn|Modal|Icon|Dropdown|Combobox|Field|Seg)>' src/views/GiftSetEditor.vue
 ! grep -q 'ui\.' src/views/GiftSetEditor.vue
 grep -q 'v-if="entry && mobilePane' src/views/GiftSetEditor.vue
 ! grep -q '<button' src/views/GiftSetEditor.vue
 ! grep -q '<Btn' src/views/GiftSet.vue
 ! grep -q '<button' src/views/GiftSet.vue
-! grep -qE '</(Btn|Modal|Icon|Dropdown|Combobox|Field|Seg)>' src/views/GiftSetEditor.vue
 grep -q 'ep-gift-set-ed' AGENTS.md
 grep -q '2026-11-18' CHANGELOG.md
