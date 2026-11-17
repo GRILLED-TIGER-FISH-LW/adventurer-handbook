@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
-import { ArrowDown, ArrowUp, Delete, Download, Search, Upload } from '@element-plus/icons-vue'
+import { Delete, Download, Search, Upload } from '@element-plus/icons-vue'
 import { useToast } from '../composables/useToast.js'
 import { loadGlobalScript, loadGiftSetData } from '../composables/useData.js'
 
@@ -37,11 +37,23 @@ const regionFilter = ref('all')
 const typeFilter = ref('all')
 const statusFilter = ref('all')
 
-const expandedKeys = reactive(new Set())
-
 const charCollapsed = ref(false)
 const recommendCollapsed = ref(false)
 const allCollapsed = ref(false)
+
+/* el-collapse 用「展开项的 name 数组」表达状态，这里跟上面三个布尔值互转，
+   脚本里那几处 charCollapsed.value = ... 不用改 */
+const COLLAPSE_KEYS = [
+  ['char', charCollapsed],
+  ['recommend', recommendCollapsed],
+  ['all', allCollapsed],
+]
+const activeCollapse = computed(() =>
+  COLLAPSE_KEYS.filter(([, c]) => !c.value).map(([k]) => k),
+)
+function onCollapseChange(names) {
+  for (const [k, c] of COLLAPSE_KEYS) c.value = !names.includes(k)
+}
 
 const resetOpen = ref(false)
 const fileInput = ref(null)
@@ -229,12 +241,6 @@ function toggleOwned(name) {
   saveOwned()
 }
 
-function toggleExpand(key) {
-  if (!key) return
-  if (expandedKeys.has(key)) expandedKeys.delete(key)
-  else expandedKeys.add(key)
-}
-
 function toggleSetChar(set, name) {
   if (!set?.key || !name || EXCLUDED.test(name)) return
 
@@ -371,7 +377,6 @@ function doReset() {
   owned.value = []
   completed.value = {}
   uid.value = ''
-  expandedKeys.clear()
 
   saveOwned()
   saveCompleted()
@@ -470,22 +475,17 @@ onMounted(async () => {
       </div>
 
       <template v-else>
-        <section class="border-b border-line">
-          <button
-            type="button"
-            class="flex w-full items-center gap-2 px-3 py-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-            :aria-expanded="!charCollapsed"
-            @click="charCollapsed = !charCollapsed"
-          >
-            <span class="text-sm font-semibold text-ink">我的角色</span>
-            <span class="text-xs text-muted">{{ owned.length }}</span>
-            <el-icon class="ml-auto text-muted">
-              <ArrowUp v-if="!charCollapsed" />
-              <ArrowDown v-else />
-            </el-icon>
-          </button>
-
-          <div v-if="!charCollapsed" class="grid gap-2 px-2 pb-2">
+        <el-collapse
+          :model-value="activeCollapse"
+          @change="onCollapseChange"
+          class="ah-gift__collapse"
+        >
+          <el-collapse-item name="char">
+            <template #title>
+              <span class="text-sm font-semibold text-ink">我的角色</span>
+              <span class="text-xs text-muted">{{ owned.length }}</span>
+            </template>
+            <div class="grid gap-2">
             <el-input
               v-model="charSearch"
               placeholder="搜索角色"
@@ -501,19 +501,18 @@ onMounted(async () => {
             </el-input>
 
             <div class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
-              <button
+              <el-checkbox
                 v-for="name in visibleCharNames"
                 :key="name"
-                type="button"
-                class="grid justify-items-center gap-1 rounded-ctl border p-1 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                :model-value="owned.includes(name)"
+                class="ah-gift__char"
                 :class="
                   owned.includes(name)
                     ? 'border-accent bg-accent-soft'
                     : 'border-line bg-surface opacity-50'
                 "
-                :aria-pressed="owned.includes(name)"
                 :title="name"
-                @click="toggleOwned(name)"
+                @change="toggleOwned(name)"
               >
                 <span
                   class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
@@ -528,28 +527,20 @@ onMounted(async () => {
                     @error="(ev) => ev.target.remove()"
                   />
                 </span>
-                <span class="w-full truncate text-center text-[10px] text-muted">{{ name }}</span>
-              </button>
+                <span class="w-full truncate text-center text-[10px] text-muted">
+                  {{ name }}
+                </span>
+              </el-checkbox>
             </div>
           </div>
-        </section>
+          </el-collapse-item>
 
-        <section v-if="recommendations.length" class="border-b border-line">
-          <button
-            type="button"
-            class="flex w-full items-center gap-2 px-3 py-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-            :aria-expanded="!recommendCollapsed"
-            @click="recommendCollapsed = !recommendCollapsed"
-          >
-            <span class="text-sm font-semibold text-ink">推荐套装</span>
-            <span class="text-xs text-muted">前 {{ recommendations.length }}</span>
-            <el-icon class="ml-auto text-muted">
-              <ArrowUp v-if="!recommendCollapsed" />
-              <ArrowDown v-else />
-            </el-icon>
-          </button>
-
-          <div v-if="!recommendCollapsed" class="grid gap-2 px-2 pb-2">
+          <el-collapse-item v-if="recommendations.length" name="recommend">
+            <template #title>
+              <span class="text-sm font-semibold text-ink">推荐套装</span>
+              <span class="text-xs text-muted">前 {{ recommendations.length }}</span>
+            </template>
+            <div class="grid gap-2">
             <article
               v-for="s in recommendations"
               :key="`r-${s.key}`"
@@ -558,8 +549,6 @@ onMounted(async () => {
               <button
                 type="button"
                 class="flex w-full items-center gap-2 p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-                :aria-expanded="expandedKeys.has(s.key)"
-                @click="toggleExpand(s.key)"
               >
                 <span
                   class="relative h-9 shrink-0 overflow-hidden rounded-ctl bg-thumb"
@@ -588,19 +577,15 @@ onMounted(async () => {
                   {{ cardMap.get(s.key)?.progress.text }}
                 </span>
 
-                <el-icon class="shrink-0 text-muted">
-                  <ArrowUp v-if="expandedKeys.has(s.key)" />
-                  <ArrowDown v-else />
-                </el-icon>
               </button>
 
-              <div v-if="expandedKeys.has(s.key)" class="grid gap-2 border-t border-line p-2">
+              <div class="grid gap-2 border-t border-line p-2">
                 <div class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
-                  <button
+                  <el-checkbox
                     v-for="name in cardMap.get(s.key)?.chars || []"
                     :key="`${s.key}-${name}`"
-                    type="button"
-                    class="grid justify-items-center gap-1 rounded-ctl border p-1 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                    :model-value="(cardMap.get(s.key)?.done || []).includes(name)"
+                    class="ah-gift__char"
                     :class="
                       !owned.includes(name)
                         ? 'border-line bg-surface opacity-50'
@@ -608,9 +593,8 @@ onMounted(async () => {
                           ? 'border-accent bg-accent-soft'
                           : 'border-line-2 bg-surface'
                     "
-                    :aria-pressed="(cardMap.get(s.key)?.done || []).includes(name)"
                     :title="name"
-                    @click="toggleSetChar(s, name)"
+                    @change="toggleSetChar(s, name)"
                   >
                     <span
                       class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
@@ -628,29 +612,19 @@ onMounted(async () => {
                     <span class="w-full truncate text-center text-[10px] text-muted">
                       {{ name }}
                     </span>
-                  </button>
+                  </el-checkbox>
                 </div>
               </div>
             </article>
           </div>
-        </section>
+          </el-collapse-item>
 
-        <section>
-          <button
-            type="button"
-            class="flex w-full items-center gap-2 px-3 py-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-            :aria-expanded="!allCollapsed"
-            @click="allCollapsed = !allCollapsed"
-          >
-            <span class="text-sm font-semibold text-ink">全部套装</span>
-            <span class="text-xs text-muted">{{ filteredSets.length }} / {{ sets.length }}</span>
-            <el-icon class="ml-auto text-muted">
-              <ArrowUp v-if="!allCollapsed" />
-              <ArrowDown v-else />
-            </el-icon>
-          </button>
-
-          <div v-if="!allCollapsed" class="grid gap-2 px-2 pb-2">
+          <el-collapse-item name="all">
+            <template #title>
+              <span class="text-sm font-semibold text-ink">全部套装</span>
+              <span class="text-xs text-muted">{{ filteredSets.length }} / {{ sets.length }}</span>
+            </template>
+            <div class="grid gap-2">
             <el-input
               v-model="search"
               placeholder="搜索套装名 / 角色名"
@@ -710,8 +684,6 @@ onMounted(async () => {
               <button
                 type="button"
                 class="flex w-full items-center gap-2 p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-                :aria-expanded="expandedKeys.has(s.key)"
-                @click="toggleExpand(s.key)"
               >
                 <span
                   class="h-9 shrink-0 overflow-hidden rounded-ctl bg-thumb"
@@ -742,22 +714,18 @@ onMounted(async () => {
                   {{ cardMap.get(s.key)?.progress.text }}
                 </span>
 
-                <el-icon class="shrink-0 text-muted">
-                  <ArrowUp v-if="expandedKeys.has(s.key)" />
-                  <ArrowDown v-else />
-                </el-icon>
               </button>
 
-              <div v-if="expandedKeys.has(s.key)" class="grid gap-2 border-t border-line p-2">
+              <div class="grid gap-2 border-t border-line p-2">
                 <div v-if="!cardMap.get(s.key)?.chars.length" class="p-2 text-xs text-muted">
                   无偏好角色数据
                 </div>
                 <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
-                  <button
+                  <el-checkbox
                     v-for="name in cardMap.get(s.key).chars"
                     :key="`${s.key}-${name}`"
-                    type="button"
-                    class="grid justify-items-center gap-1 rounded-ctl border p-1 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                    :model-value="cardMap.get(s.key).done.includes(name)"
+                    class="ah-gift__char"
                     :class="
                       !owned.includes(name)
                         ? 'border-line bg-surface opacity-50'
@@ -765,9 +733,8 @@ onMounted(async () => {
                           ? 'border-accent bg-accent-soft'
                           : 'border-line-2 bg-surface'
                     "
-                    :aria-pressed="cardMap.get(s.key).done.includes(name)"
                     :title="name"
-                    @click="toggleSetChar(s, name)"
+                    @change="toggleSetChar(s, name)"
                   >
                     <span
                       class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
@@ -785,12 +752,13 @@ onMounted(async () => {
                     <span class="w-full truncate text-center text-[10px] text-muted">
                       {{ name }}
                     </span>
-                  </button>
+                  </el-checkbox>
                 </div>
               </div>
             </article>
           </div>
-        </section>
+          </el-collapse-item>
+        </el-collapse>
       </template>
     </div>
 
@@ -816,3 +784,30 @@ onMounted(async () => {
     </el-dialog>
   </div>
 </template>
+
+<style scoped>
+/* 角色块用 el-checkbox 拿语义（role=checkbox / aria-checked / 空格切换），
+   外观是头像块：藏掉 EP 自带的勾选框，状态交给外框颜色表达 */
+.ah-gift__char {
+  width: 100%;
+}
+
+.ah-gift__char :deep(.el-checkbox__input) {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ah-gift__char :deep(.el-checkbox__label) {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+/* 勾选框是透明的，焦点环画在整块上，键盘用户才看得见走到哪 */
+.ah-gift__char:focus-within {
+  outline: 2px solid var(--el-color-primary);
+  outline-offset: 1px;
+}
+</style>
