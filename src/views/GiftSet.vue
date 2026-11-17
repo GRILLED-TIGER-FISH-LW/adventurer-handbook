@@ -1,7 +1,6 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
 import Btn from '../components/Btn.vue'
-import Dropdown from '../components/Dropdown.vue'
 import Modal from '../components/Modal.vue'
 import Icon from '../components/Icon.vue'
 import { useToast } from '../composables/useToast.js'
@@ -437,14 +436,14 @@ onMounted(async () => {
         @input="onUidInput"
       />
       <div class="flex flex-1 justify-end gap-2">
-        <Btn size="sm" @click="exportArchive">
-          <template #icon><Icon name="ui.export" size="sm" /></template>
-          导出
-        </Btn>
-        <Btn size="sm" @click="fileInput?.click()">
-          <template #icon><Icon name="ui.import" size="sm" /></template>
-          导入
-        </Btn>
+        <el-button size="small" @click="exportArchive">
+          <el-icon><Download /></el-icon>
+          <span>导出</span>
+        </el-button>
+        <el-button size="small" @click="fileInput?.click()">
+          <el-icon><Upload /></el-icon>
+          <span>导入</span>
+        </el-button>
       </div>
       <input
         ref="fileInput"
@@ -461,7 +460,9 @@ onMounted(async () => {
       <div v-else-if="errorMsg" class="grid justify-items-center gap-3 p-8 text-center">
         <p class="text-sm font-semibold text-danger">数据加载失败</p>
         <p class="text-xs text-muted">{{ errorMsg }}</p>
-        <Btn size="sm" @click="() => location.reload()">重新加载</Btn>
+        <el-button size="small" @click="() => location.reload()">
+          <span>重新加载</span>
+        </el-button>
       </div>
 
       <template v-else>
@@ -483,11 +484,12 @@ onMounted(async () => {
           </button>
 
           <div v-if="!charCollapsed" class="grid gap-2 px-2 pb-2">
-            <input
+            <el-input
               v-model="charSearch"
-              type="text"
-              class="h-control w-full min-w-0 rounded-md border border-line-2 bg-surface px-3 text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
               placeholder="搜索角色"
+              aria-label="搜索角色"
+              clearable
+              class="min-w-0"
               autocomplete="off"
               spellcheck="false"
             />
@@ -649,35 +651,45 @@ onMounted(async () => {
           </button>
 
           <div v-if="!allCollapsed" class="grid gap-2 px-2 pb-2">
-            <div class="relative flex items-center">
-              <Icon
-                name="ui.search"
-                size="sm"
-                class="pointer-events-none absolute left-3 text-muted"
-              />
-              <input
-                v-model="search"
-                type="text"
-                class="h-control w-full min-w-0 rounded-md border border-line-2 bg-surface pl-10 pr-10 text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-                placeholder="搜索套装名 / 角色名"
-                autocomplete="off"
-                spellcheck="false"
-              />
-              <button
-                v-if="search"
-                type="button"
-                class="absolute right-2 grid size-6 place-items-center rounded-full text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-                aria-label="清除搜索"
-                @click="search = ''"
-              >
-                <Icon name="ui.close" size="sm" />
-              </button>
-            </div>
+            <el-input
+              v-model="search"
+              placeholder="搜索套装名 / 角色名"
+              aria-label="搜索套装名 / 角色名"
+              clearable
+              class="min-w-0"
+              autocomplete="off"
+              spellcheck="false"
+            >
+              <template #prefix>
+                <el-icon><Search /></el-icon>
+              </template>
+            </el-input>
 
             <div class="grid grid-cols-3 gap-2">
-              <Dropdown v-model="regionFilter" :options="regionOptions" label="地区" />
-              <Dropdown v-model="typeFilter" :options="typeOptions" label="类型" />
-              <Dropdown v-model="statusFilter" :options="STATUS_OPTIONS" label="状态" />
+              <el-select v-model="regionFilter" placeholder="地区" aria-label="地区" class="w-full">
+                <el-option
+                  v-for="o in regionOptions"
+                  :key="o.value"
+                  :label="o.label"
+                  :value="o.value"
+                />
+              </el-select>
+              <el-select v-model="typeFilter" placeholder="类型" aria-label="类型" class="w-full">
+                <el-option
+                  v-for="o in typeOptions"
+                  :key="o.value"
+                  :label="o.label"
+                  :value="o.value"
+                />
+              </el-select>
+              <el-select v-model="statusFilter" placeholder="状态" aria-label="状态" class="w-full">
+                <el-option
+                  v-for="o in STATUS_OPTIONS"
+                  :key="o.value"
+                  :label="o.label"
+                  :value="o.value"
+                />
+              </el-select>
             </div>
 
             <div v-if="!filteredSets.length" class="grid justify-items-center gap-3 p-8 text-center">
