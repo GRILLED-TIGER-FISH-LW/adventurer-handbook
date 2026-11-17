@@ -6,217 +6,312 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-tales-ed-b —— 表单区控件全换 EP（按钮 / 输入 / 下拉 / 勾选）
+# 最近一批：ep-tales-ed-c —— 弹窗全换 el-dialog，清掉剩余原生样式，EP 收尾
 
 == MOVES ==
 
 == EDITS ==
 ### src/views/TalesEditor.vue
 <<<<
-          <Btn
-            v-if="mobilePane === 'form'"
-            size="sm"
-            class="justify-self-start min-[900px]:hidden"
-            @click="backToList"
+async function doReload() {
+  try {
+    applyData(await fetchOnline())
+    selectedId.value = null
+>>>>
+<<<<
+async function doReload() {
+  try {
+    applyData(await fetchOnline())
+    reloadOpen.value = false
+    selectedId.value = null
+>>>>
+
+### src/views/TalesEditor.vue
+<<<<
+function confirmDelete() {
+  const i = data.value.entries.indexOf(entry.value)
+  if (i >= 0) data.value.entries.splice(i, 1)
+  selectedId.value = null
+>>>>
+<<<<
+function confirmDelete() {
+  const i = data.value.entries.indexOf(entry.value)
+  if (i >= 0) data.value.entries.splice(i, 1)
+  deleteOpen.value = false
+  selectedId.value = null
+>>>>
+
+### src/views/TalesEditor.vue
+<<<<
+  if (sel) {
+    selectedId.value = sel.id
+    idInput.value = String(sel.id)
+  }
+  markDirty()
+  toast.success(`已重排 ${sorted.length} 条 id`)
+>>>>
+<<<<
+  if (sel) {
+    selectedId.value = sel.id
+    idInput.value = String(sel.id)
+  }
+  renumberOpen.value = false
+  markDirty()
+  toast.success(`已重排 ${sorted.length} 条 id`)
+>>>>
+
+### src/views/TalesEditor.vue
+<<<<
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+
+  clearDirty()
+>>>>
+<<<<
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+
+  exportOpen.value = false
+  clearDirty()
+>>>>
+
+### src/views/TalesEditor.vue
+<<<<
+    <!-- 确认：重载 -->
+    <Modal
+      v-model="reloadOpen"
+      :title="dirty ? '放弃修改' : '重载线上数据'"
+      :message="
+        dirty
+          ? '当前有未导出的修改，重载会丢弃这些改动。'
+          : `将从线上重新拉取 ${FILE_NAME}，覆盖当前编辑内容。`
+      "
+      confirm-text="重载"
+      :danger="dirty"
+      :persistent="dirty"
+      @confirm="doReload"
+    />
+>>>>
+<<<<
+    <!-- 确认：重载 -->
+    <el-dialog
+      v-model="reloadOpen"
+      :title="dirty ? '放弃修改' : '重载线上数据'"
+      width="20rem"
+      :persistent="dirty"
+    >
+      <p class="text-sm text-body">
+        {{
+          dirty
+            ? '当前有未导出的修改，重载会丢弃这些改动。'
+            : `将从线上重新拉取 ${FILE_NAME}，覆盖当前编辑内容。`
+        }}
+      </p>
+      <template #footer>
+        <el-button @click="reloadOpen = false">取消</el-button>
+        <el-button type="danger" @click="doReload">重载</el-button>
+      </template>
+    </el-dialog>
+>>>>
+
+### src/views/TalesEditor.vue
+<<<<
+    <!-- 确认：删除 -->
+    <Modal
+      v-model="deleteOpen"
+      title="删除条目"
+      :message="`确定删除「${entry?.character || '?'} · ${entry?.title || '?'}」吗？此操作不可撤销。`"
+      confirm-text="删除"
+      danger
+      persistent
+      @confirm="confirmDelete"
+    />
+>>>>
+<<<<
+    <!-- 确认：删除 -->
+    <el-dialog
+      v-model="deleteOpen"
+      title="删除条目"
+      width="20rem"
+      persistent
+    >
+      <p class="text-sm text-body">
+        确定删除「{{ entry?.character || '?' }} · {{ entry?.title || '?' }}」吗？此操作不可撤销。
+      </p>
+      <template #footer>
+        <el-button @click="deleteOpen = false">取消</el-button>
+        <el-button type="danger" @click="confirmDelete">删除</el-button>
+      </template>
+    </el-dialog>
+>>>>
+
+### src/views/TalesEditor.vue
+<<<<
+    <!-- 确认：重排 -->
+    <Modal
+      v-model="renumberOpen"
+      title="重排 id"
+      :message="`将按当前显示顺序重新编号 1 ~ ${entryCount}，原有 id 会被覆盖。`"
+      confirm-text="重排"
+      danger
+      persistent
+      @confirm="doRenumber"
+    />
+>>>>
+<<<<
+    <!-- 确认：重排 -->
+    <el-dialog
+      v-model="renumberOpen"
+      title="重排 id"
+      width="20rem"
+      persistent
+    >
+      <p class="text-sm text-body">
+        将按当前显示顺序重新编号 1 ~ {{ entryCount }}，原有 id 会被覆盖。
+      </p>
+      <template #footer>
+        <el-button @click="renumberOpen = false">取消</el-button>
+        <el-button type="danger" @click="doRenumber">重排</el-button>
+      </template>
+    </el-dialog>
+>>>>
+
+### src/views/TalesEditor.vue
+<<<<
+    <!-- 导出前检查 -->
+    <Modal v-model="exportOpen" title="导出前检查" confirm-text="继续导出" @confirm="runExport">
+      <p class="text-sm text-body">发现 {{ warnings.length }} 项问题：</p>
+      <ul class="grid max-h-60 list-disc gap-1 overflow-y-auto pl-5 text-xs text-muted">
+        <li v-for="(w, i) in warnings.slice(0, 30)" :key="i">{{ w }}</li>
+      </ul>
+      <p v-if="warnings.length > 30" class="text-xs text-muted">
+        还有 {{ warnings.length - 30 }} 项未列出
+      </p>
+      <p class="text-xs text-body">是否继续导出？</p>
+    </Modal>
+>>>>
+<<<<
+    <!-- 导出前检查 -->
+    <el-dialog v-model="exportOpen" title="导出前检查" width="24rem">
+      <p class="text-sm text-body">发现 {{ warnings.length }} 项问题：</p>
+      <ul class="grid max-h-60 list-disc gap-1 overflow-y-auto pl-5 text-xs text-muted">
+        <li v-for="(w, i) in warnings.slice(0, 30)" :key="i">{{ w }}</li>
+      </ul>
+      <p v-if="warnings.length > 30" class="text-xs text-muted">
+        还有 {{ warnings.length - 30 }} 项未列出
+      </p>
+      <p class="text-xs text-body">是否继续导出？</p>
+      <template #footer>
+        <el-button @click="exportOpen = false">取消</el-button>
+        <el-button type="primary" @click="runExport">继续导出</el-button>
+      </template>
+    </el-dialog>
+>>>>
+
+### src/views/TalesEditor.vue
+<<<<
+      <input
+        ref="fileInput"
+        type="file"
+        accept=".js,.txt,text/javascript,application/javascript"
+        class="hidden"
+        @change="onImportFile"
+      />
+>>>>
+<<<<
+      <input
+        ref="fileInput"
+        type="file"
+        accept=".js,.txt,text/javascript,application/javascript"
+        class="hidden"
+        aria-hidden="true"
+        tabindex="-1"
+        @change="onImportFile"
+      />
+>>>>
+
+### src/views/TalesEditor.vue
+<<<<
+          <button
+            v-for="e in filteredEntries"
+            :key="e.id"
+            type="button"
+            class="flex w-full items-center gap-2 rounded-ctl border p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+            :class="
+              e.id === selectedId
+                ? 'border-accent bg-accent-soft'
+                : 'border-transparent hover:bg-hover'
+            "
+            @click="selectEntry(e)"
           >
-            <template #icon><Icon name="ui.back" size="sm" /></template>
-            返回列表
-          </Btn>
->>>>
-<<<<
-          <el-button
-            v-if="mobilePane === 'form'"
-            size="small"
-            class="justify-self-start min-[900px]:hidden"
-            @click="backToList"
-          >
-            <el-icon><Back /></el-icon>
-            <span>返回列表</span>
-          </el-button>
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-            <Icon name="ui.file" size="lg" class="text-faint" />
->>>>
-<<<<
-            <el-icon class="text-faint"><Document /></el-icon>
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-          <Btn size="sm" @click="addEntry">
-            <template #icon><Icon name="ui.plus" size="sm" /></template>
-            新增
-          </Btn>
-          <Btn size="sm" :disabled="!data" @click="renumberOpen = true">
-            <template #icon><Icon name="ui.reorder" size="sm" /></template>
-            重排 ID
-          </Btn>
->>>>
-<<<<
-          <el-button size="small" @click="addEntry">
-            <el-icon><Plus /></el-icon>
-            <span>新增</span>
-          </el-button>
-          <el-button size="small" :disabled="!data" @click="renumberOpen = true">
-            <el-icon><Sort /></el-icon>
-            <span>重排 ID</span>
-          </el-button>
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-              <div class="flex items-center gap-2">
-                <input
-                  v-model="idInput"
-                  type="text"
-                  inputmode="numeric"
-                  autocomplete="off"
-                  aria-label="id"
-                  class="h-control w-full min-w-0 rounded-md border bg-surface px-input-x text-body-md text-ink focus-visible:outline-2 focus-visible:outline-offset-1"
-                  :class="
-                    idInvalid
-                      ? 'border-danger focus-visible:outline-danger'
-                      : 'border-line-2 focus-visible:outline-accent'
-                  "
-                  @input="commitId"
-                />
-                <Btn class="shrink-0" @click="moveEntry(-1)">
-                  <template #icon><Icon name="ui.arrowUp" size="sm" /></template>
-                  上移
-                </Btn>
-                <Btn class="shrink-0" @click="moveEntry(1)">
-                  <template #icon><Icon name="ui.arrowDown" size="sm" /></template>
-                  下移
-                </Btn>
-              </div>
->>>>
-<<<<
-              <div class="flex items-center gap-2">
-                <el-input
-                  v-model="idInput"
-                  inputmode="numeric"
-                  autocomplete="off"
-                  aria-label="id"
-                  :status="idInvalid ? 'error' : undefined"
-                  class="ah-id"
-                  @update:model-value="commitId"
-                />
-                <el-button class="shrink-0" @click="moveEntry(-1)">
-                  <el-icon><ArrowUp /></el-icon>
-                  <span>上移</span>
-                </el-button>
-                <el-button class="shrink-0" @click="moveEntry(1)">
-                  <el-icon><ArrowDown /></el-icon>
-                  <span>下移</span>
-                </el-button>
-              </div>
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-              <Combobox
-                v-model="entry.version"
-                :items="data.versions"
-                aria-label="版本"
-                placeholder="如 5.4"
-                @update:model-value="onVersionInput"
-              />
->>>>
-<<<<
-              <el-select
-                v-model="entry.version"
-                filterable
-                allow-create
-                default-first-option
-                placeholder="如 5.4"
-                aria-label="版本"
-                class="w-full"
-                @update:model-value="onVersionInput"
-              >
-                <el-option
-                  v-for="v in data.versions"
-                  :key="v"
-                  :label="v"
-                  :value="v"
-                />
-              </el-select>
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-              <Combobox
-                v-model="entry.character"
-                :items="charList"
-                aria-label="角色名"
-                placeholder="输入角色名"
-                @update:model-value="markDirty"
-              >
-                <template #prefix>
-                  <span
-                    class="pointer-events-none absolute left-1.5 grid size-7 place-items-center overflow-hidden rounded-ctl border border-line bg-surface text-[10px] font-semibold text-muted"
-                  >
-                    <span aria-hidden="true">{{ (entry.character || '?').charAt(0) }}</span>
-                    <img
-                      v-if="avatarUrl(entry.character)"
-                      :src="avatarUrl(entry.character)"
-                      alt=""
-                      class="absolute inset-0 size-full object-cover"
-                      @error="(ev) => ev.target.remove()"
-                    />
-                  </span>
-                </template>
-              </Combobox>
->>>>
-<<<<
-              <div class="flex items-center gap-2">
-                <span
-                  class="grid size-7 shrink-0 place-items-center overflow-hidden rounded-ctl border border-line bg-surface text-[10px] font-semibold text-muted"
-                >
-                  <span aria-hidden="true">{{ (entry.character || '?').charAt(0) }}</span>
-                  <img
-                    v-if="avatarUrl(entry.character)"
-                    :src="avatarUrl(entry.character)"
-                    alt=""
-                    class="absolute inset-0 size-full object-cover"
-                    @error="(ev) => ev.target.remove()"
-                  />
-                </span>
-                <el-select
-                  v-model="entry.character"
-                  filterable
-                  allow-create
-                  default-first-option
-                  placeholder="输入角色名"
-                  aria-label="角色名"
-                  class="min-w-0"
-                  @update:model-value="markDirty"
-                >
-                  <el-option
-                    v-for="c in charList"
-                    :key="c"
-                    :label="c"
-                    :value="c"
-                  />
-                </el-select>
-              </div>
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-            <label
-              class="flex h-control w-fit cursor-pointer items-center gap-2 rounded-md border border-line-2 bg-sunken px-3"
+            <span
+              class="relative grid size-8 shrink-0 place-items-center overflow-hidden rounded-ctl bg-thumb text-xs font-semibold text-muted"
             >
-              <input
-                v-model="entry.hidden"
-                type="checkbox"
-                class="size-4 shrink-0 accent-accent focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-                @change="markDirty"
+              <span aria-hidden="true">{{ (e.character || '?').charAt(0) }}</span>
+              <img
+                v-if="avatarUrl(e.character)"
+                :src="avatarUrl(e.character)"
+                alt=""
+                loading="lazy"
+                class="absolute inset-0 size-full object-cover"
+                @error="(ev) => ev.target.remove()"
               />
-              <span class="text-xs text-ink">标记为隐藏旅闻（主界面红色）</span>
-            </label>
+            </span>
+            <span class="grid min-w-0 flex-1 gap-1">
+              <span
+                class="truncate text-xs font-medium"
+                :class="e.hidden ? 'text-danger' : 'text-ink'"
+              >
+                {{ e.title || '(无标题)' }}
+              </span>
+              <span class="truncate text-[10px] text-muted">
+                {{ e.character || '?' }} · {{ e.version || '?' }}
+              </span>
+            </span>
+          </button>
 >>>>
+<<<<
+          <div
+            v-for="e in filteredEntries"
+            :key="e.id"
+            role="button"
+            tabindex="0"
+            class="flex w-full items-center gap-2 rounded-ctl border p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+            :class="
+              e.id === selectedId
+                ? 'border-accent bg-accent-soft'
+                : 'border-transparent hover:bg-hover'
+            "
+            @click="selectEntry(e)"
+            @keydown.enter.prevent="selectEntry(e)"
+            @keydown.space.prevent="selectEntry(e)"
+          >
+            <span
+              class="relative grid size-8 shrink-0 place-items-center overflow-hidden rounded-ctl bg-thumb text-xs font-semibold text-muted"
+            >
+              <span aria-hidden="true">{{ (e.character || '?').charAt(0) }}</span>
+              <img
+                v-if="avatarUrl(e.character)"
+                :src="avatarUrl(e.character)"
+                alt=""
+                loading="lazy"
+                class="absolute inset-0 size-full object-cover"
+                @error="(ev) => ev.target.remove()"
+              />
+            </span>
+            <span class="grid min-w-0 flex-1 gap-1">
+              <span
+                class="truncate text-xs font-medium"
+                :class="e.hidden ? 'text-danger' : 'text-ink'"
+              >
+                {{ e.title || '(无标题)' }}
+              </span>
+              <span class="truncate text-[10px] text-muted">
+                {{ e.character || '?' }} · {{ e.version || '?' }}
+              </span>
+            </span>
+          </div>
+>>>>
+
+### src/views/TalesEditor.vue
 <<<<
             <div
               class="flex h-control w-fit cursor-pointer items-center gap-2 rounded-md border border-line-2 bg-sunken px-3"
@@ -225,144 +320,38 @@
               <span class="text-xs text-ink">标记为隐藏旅闻（主界面红色）</span>
             </div>
 >>>>
-
-### src/views/TalesEditor.vue
 <<<<
-            <Field
-              v-model="entry.title"
-              label="旅闻名"
-              placeholder="旅闻标题"
-              @update:model-value="markDirty"
-            />
->>>>
-<<<<
-            <div class="grid gap-2">
-              <span class="text-micro text-muted">旅闻名</span>
-              <el-input
-                v-model="entry.title"
-                placeholder="旅闻标题"
-                class="w-full"
-                @update:model-value="markDirty"
-              />
+            <div
+              class="flex h-[44px] w-fit cursor-pointer items-center gap-2 rounded-md border border-line-2 bg-sunken px-3"
+            >
+              <el-checkbox v-model="entry.hidden" @change="markDirty" />
+              <span class="text-xs text-ink">标记为隐藏旅闻（主界面红色）</span>
             </div>
 >>>>
 
 ### src/views/TalesEditor.vue
 <<<<
-            <Field
-              v-model="entry.location"
-              label="地点"
-              placeholder="如 蒙德-晨曦酒庄"
-              @update:model-value="markDirty"
-            />
->>>>
-<<<<
-            <div class="grid gap-2">
-              <span class="text-micro text-muted">地点</span>
-              <el-input
-                v-model="entry.location"
-                placeholder="如 蒙德-晨曦酒庄"
-                class="w-full"
-                @update:model-value="markDirty"
-              />
-            </div>
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-            <Field
-              v-model="entry.trigger"
-              label="触发条件"
-              placeholder="留空则不显示"
-              @update:model-value="markDirty"
-            />
->>>>
-<<<<
-            <div class="grid gap-2">
-              <span class="text-micro text-muted">触发条件</span>
-              <el-input
-                v-model="entry.trigger"
-                placeholder="留空则不显示"
-                class="w-full"
-                @update:model-value="markDirty"
-              />
-            </div>
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-            <Field
-              v-model="entry.prerequisite"
-              label="前置旅闻 · 只填旅闻名"
-              placeholder="留空则不显示"
-              @update:model-value="markDirty"
-            />
->>>>
-<<<<
-            <div class="grid gap-2">
-              <span class="text-micro text-muted">前置旅闻 · 只填旅闻名</span>
-              <el-input
-                v-model="entry.prerequisite"
-                placeholder="留空则不显示"
-                class="w-full"
-                @update:model-value="markDirty"
-              />
-            </div>
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-            <Field
-              v-model="entry.description"
-              type="textarea"
-              label="描述 · 支持换行"
-              :rows="6"
-              @update:model-value="markDirty"
-            />
->>>>
-<<<<
-            <div class="grid gap-2">
-              <span class="text-micro text-muted">描述 · 支持换行</span>
-              <el-input
-                v-model="entry.description"
-                type="textarea"
-                :rows="6"
-                class="w-full"
-                @update:model-value="markDirty"
-              />
-            </div>
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-      <Btn variant="danger" class="w-full" @click="deleteOpen = true">
-        <template #icon><Icon name="ui.trash" size="sm" /></template>
-        删除此条
-      </Btn>
->>>>
-<<<<
-      <el-button type="danger" class="w-full" @click="deleteOpen = true">
-        <el-icon><Delete /></el-icon>
-        <span>删除此条</span>
-      </el-button>
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-.ah-tales :deep(.el-select) {
-  margin: 0;
+.ah-tales :deep(.ah-id) {
+  flex: 1;
+  min-width: 0;
 }
 </style>
 >>>>
 <<<<
-.ah-tales :deep(.el-select) {
-  margin: 0;
-}
-
-/* EP input 宽度默认 100%，在「id + 上移/下移」的 flex 行里会挤掉按钮 */
 .ah-tales :deep(.ah-id) {
   flex: 1;
   min-width: 0;
+}
+
+/* 隐藏标记用 el-checkbox 拿语义（空格切换 / aria-checked），
+   外框仍按内容色表达状态，行高对齐控件高度 */
+.ah-tales :deep(.el-checkbox) {
+  margin-right: 8px;
+}
+
+.ah-tales :deep(.el-checkbox__label) {
+  padding-left: 2px;
+  font-size: 12px;
 }
 </style>
 >>>>
@@ -370,11 +359,11 @@
 == DELETES ==
 
 == CHECKS ==
-grep -c '<el-button' src/views/TalesEditor.vue
-grep -c '<el-input' src/views/TalesEditor.vue
-grep -c '<el-select' src/views/TalesEditor.vue
-grep -c '<el-checkbox' src/views/TalesEditor.vue
-! grep -q '<Combobox' src/views/TalesEditor.vue
-! grep -q '<Field' src/views/TalesEditor.vue
+grep -q '<el-dialog' src/views/TalesEditor.vue
+grep -c '<el-dialog' src/views/TalesEditor.vue
+! grep -q '<Modal' src/views/TalesEditor.vue
+! grep -q 'h-control' src/views/TalesEditor.vue
+! grep -q 'rounded-md border border-line-2 bg-surface pl-10' src/views/TalesEditor.vue
+! grep -q '<Btn' src/views/TalesEditor.vue
 ! grep -q '<Icon' src/views/TalesEditor.vue
 ! grep -q 'ui\.' src/views/TalesEditor.vue
