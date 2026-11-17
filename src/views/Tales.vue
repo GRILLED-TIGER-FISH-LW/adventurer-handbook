@@ -373,7 +373,7 @@ onMounted(async () => {
           v-model="uid"
           aria-label="UID"
           placeholder="UID"
-          class="ah-tales__uid shrink-0"
+          class="ah-uid shrink-0"
           @input="onUidInput"
         />
         <div class="flex flex-1 justify-end gap-2">
@@ -539,8 +539,5 @@ onMounted(async () => {
   max-width: calc((100% - 16px) / 3 * 2 + 8px);
 }
 
-.ah-tales__uid {
-  width: calc((100% - 16px) / 3);
-  flex: none;
-}
+
 </style>

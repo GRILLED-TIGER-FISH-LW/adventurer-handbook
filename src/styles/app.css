@@ -72,3 +72,12 @@ html.dark {
      掺 faint 抬到约 1.9:1 才和白天观感相当 */
   --el-border-color: color-mix(in srgb, var(--color-faint) 40%, var(--color-line-2));
 }
+
+/* UID 输入框：旅闻 / 赠礼套装两个页面共用同一个宽度，必须永远一致
+   一个下拉框宽 = (100% - 16px) / 3（那行 3 个 el-select 是 grid-cols-3 gap-2，两条缝各 8px）
+   写在全局而不是各页 scoped：两边不能各改各的。
+   也不能写 Tailwind 的 w-*：EP 的 CSS 不带 @layer，非分层会盖掉 @layer utilities */
+.ah-uid {
+  width: calc((100% - 16px) / 3);
+  flex: none;
+}

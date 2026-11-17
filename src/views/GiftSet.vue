@@ -426,16 +426,15 @@ onMounted(async () => {
 <template>
   <div class="grid h-full grid-rows-[auto_minmax(0,1fr)_auto]">
     <header class="flex items-center gap-2 border-b border-line bg-canvas p-2">
-      <input
-        :value="uid"
-        type="text"
+      <el-input
+        v-model="uid"
         aria-label="UID"
         placeholder="UID"
         inputmode="numeric"
         maxlength="15"
         spellcheck="false"
-        class="h-control w-24 shrink-0 rounded-md border border-line-2 bg-surface px-3 text-center text-body-md text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-        @input="onUidInput($event.target.value)"
+        class="ah-uid shrink-0"
+        @input="onUidInput"
       />
       <div class="flex flex-1 justify-end gap-2">
         <Btn size="sm" @click="exportArchive">
