@@ -61,7 +61,7 @@ function go(path) {
         <el-menu :default-active="route.path" class="ah-drawer__menu" @select="go">
           <el-menu-item v-for="item in items" :key="item.path" :index="item.path">
             <span
-              class="grid size-5 shrink-0 place-items-center"
+              class="grid size-5 mr-2 shrink-0 place-items-center"
               :class="isActive(item.path) ? 'text-accent-strong' : 'text-muted'"
               aria-hidden="true"
             >
@@ -89,7 +89,6 @@ function go(path) {
 }
 
 .ah-drawer__menu {
-  --el-menu-item-height: var(--el-input-height, 32px);
   --el-menu-bg-color: transparent;
   --el-menu-text-color: var(--color-body);
   --el-menu-hover-bg-color: var(--color-hover);
@@ -98,19 +97,16 @@ function go(path) {
   background: transparent;
 }
 
+/* 行高不再覆盖：EP 默认 56px，比硬压到 32px 宽松，跟官方演示一致 */
 .ah-drawer__menu :deep(.el-menu-item) {
-  height: var(--el-input-height, 32px);
-  line-height: var(--el-input-height, 32px);
   border-radius: var(--el-border-radius-base);
   color: var(--color-body);
 }
 
-.ah-drawer__menu :deep(.el-menu-item:hover) {
-  background-color: var(--color-hover);
-}
-
 .ah-drawer__menu :deep(.el-menu-item.is-active) {
-  background-color: var(--color-surface);
+  /* 垫色：--color-surface 跟 --color-canvas 只差 5/255，肉眼等于没有；
+     改用 accent-soft（陶土橙 12%/18%），跟汇总条、首页图标同一套路 */
+  background-color: var(--color-accent-soft);
   color: var(--color-ink);
   font-weight: 600;
 }
