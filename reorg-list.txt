@@ -6,59 +6,75 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-tales-fix1 —— 角色头像缩略图补 relative，清掉未用的 Close 图标
+# 最近一批：ep-tales-fix2 —— 删除入口仅在表单栏出现；三页底部危险按钮统一默认 32px
 
 == MOVES ==
 
 == EDITS ==
 ### src/views/TalesEditor.vue
 <<<<
-                <span
-                  class="grid size-7 shrink-0 place-items-center overflow-hidden rounded-ctl border border-line bg-surface text-[10px] font-semibold text-muted"
-                >
+    <!-- 底部固定危险区 -->
+    <div v-if="entry" class="border-t border-line bg-canvas p-2 safe-bottom">
+      <el-button type="danger" class="w-full" @click="deleteOpen = true">
 >>>>
 <<<<
-                <span
-                  class="relative grid size-7 shrink-0 place-items-center overflow-hidden rounded-ctl border border-line bg-surface text-[10px] font-semibold text-muted"
-                >
+    <!-- 底部固定危险区：只有停在表单栏（手机端点进某条后）才出现删除入口 -->
+    <div
+      v-if="entry && mobilePane === 'form'"
+      class="border-t border-line bg-canvas p-2 safe-bottom"
+    >
+      <el-button type="danger" class="w-full" @click="deleteOpen = true">
 >>>>
 
-### src/views/TalesEditor.vue
+### src/views/Tales.vue
 <<<<
-import {
-  ArrowDown,
-  ArrowUp,
-  Back,
-  Close,
-  Delete,
-  Document,
-  Download,
-  Plus,
-  Refresh,
-  Search,
-  Sort,
-  Upload,
-} from '@element-plus/icons-vue'
+      <el-button type="danger" class="w-full" size="small" @click="confirmClear">
 >>>>
 <<<<
-import {
-  ArrowDown,
-  ArrowUp,
-  Back,
-  Delete,
-  Document,
-  Download,
-  Plus,
-  Refresh,
-  Search,
-  Sort,
-  Upload,
-} from '@element-plus/icons-vue'
+      <el-button type="danger" class="w-full" @click="confirmClear">
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+      <el-button type="danger" size="small" class="w-full" @click="resetOpen = true">
+>>>>
+<<<<
+      <el-button type="danger" class="w-full" @click="resetOpen = true">
+>>>>
+
+### AGENTS.md
+<<<<
+- **最后合并**：`docs-fix2` —— 小尾巴批：Deploy 排队（concurrency 孤儿 run）写进诊断套路、去掉待办里自相矛盾的「已定未做：无」。
+>>>>
+<<<<
+- **最后合并**：`ep-tales-fix2` —— 旅闻编辑器删除入口改为仅在表单栏出现（手机端返回列表即消失）；游逸旅闻「清空全部记录」、赠礼套装「重置全部数据」去掉 `size="small"`，三页底部危险按钮统一默认高度；同批更新 CHANGELOG 当日条目。
+>>>>
+
+### CHANGELOG.md
+<<<<
+## 2026 年 11 月
+
+### 2026-11-12 ·
+>>>>
+<<<<
+## 2026 年 11 月
+
+### 2026-11-18 · 旅闻编辑器删除入口修正 · 三页危险按钮高度统一
+
+- **起因**：① 手机端点进某条旅闻、再点「返回列表」后，底部「删除此条」仍留在列表页——返回只切了面板，选中项没清，`v-if="entry"` 依然成立。② 三个页面的底部危险按钮高度不统一：编辑器「删除此条」是默认 32px，游逸旅闻「清空全部记录」与赠礼套装「重置全部数据」是 `size="small"`（24px）。
+- **经过**：编辑器底部危险区条件改为 `entry && mobilePane === 'form'`，与「返回列表」一样只在表单栏出现；游逸旅闻与赠礼套装的底部按钮去掉 `size="small"`，与编辑器统一为默认高度。同批按各自格式更新 `AGENTS.md`（最后合并行）与 `CHANGELOG.md`（当日条目）。
+- **结果**：手机端进入编辑表单才出现删除入口，返回列表即消失；三个页面的底部危险按钮同为默认高度，视觉不再跳档。
+
+### 2026-11-12 ·
 >>>>
 
 == DELETES ==
 
 == CHECKS ==
-grep -q 'class="relative grid size-7 shrink-0' src/views/TalesEditor.vue
-! grep -q '  Close,' src/views/TalesEditor.vue
-grep -c 'relative' src/views/TalesEditor.vue
+grep -q 'v-if="entry && mobilePane' src/views/TalesEditor.vue
+grep -q 'type="danger" class="w-full" @click="confirmClear"' src/views/Tales.vue
+grep -q 'type="danger" class="w-full" @click="resetOpen = true"' src/views/GiftSet.vue
+! grep -q '<el-button[^>]*type="danger"[^>]*size="small"' src/views/Tales.vue
+! grep -q '<el-button[^>]*type="danger"[^>]*size="small"' src/views/GiftSet.vue
+grep -q 'ep-tales-fix2' AGENTS.md
+grep -q '2026-11-18' CHANGELOG.md
