@@ -368,6 +368,7 @@ function addEntry() {
 function confirmDelete() {
   const i = data.value.entries.indexOf(entry.value)
   if (i >= 0) data.value.entries.splice(i, 1)
+  deleteOpen.value = false
   selectedId.value = null
   isNew.value = false
   mobilePane.value = 'list'
@@ -385,6 +386,7 @@ function doRenumber() {
     selectedId.value = sel.id
     idInput.value = String(sel.id)
   }
+  renumberOpen.value = false
   markDirty()
   toast.success(`已重排 ${sorted.length} 条 id`)
 }
@@ -392,6 +394,7 @@ function doRenumber() {
 async function doReload() {
   try {
     applyData(await fetchOnline())
+    reloadOpen.value = false
     selectedId.value = null
     isNew.value = false
     mobilePane.value = 'list'
@@ -458,6 +461,7 @@ function runExport() {
   a.remove()
   setTimeout(() => URL.revokeObjectURL(url), 1000)
 
+  exportOpen.value = false
   clearDirty()
   clearDraft()
   toast.success(`已导出 ${FILE_NAME}`)
@@ -559,6 +563,8 @@ onBeforeUnmount(() => {
         type="file"
         accept=".js,.txt,text/javascript,application/javascript"
         class="hidden"
+        aria-hidden="true"
+        tabindex="-1"
         @change="onImportFile"
       />
     </div>
@@ -610,10 +616,11 @@ onBeforeUnmount(() => {
             没有匹配的条目
           </p>
 
-          <button
+          <div
             v-for="e in filteredEntries"
             :key="e.id"
-            type="button"
+            role="button"
+            tabindex="0"
             class="flex w-full items-center gap-2 rounded-ctl border p-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
             :class="
               e.id === selectedId
@@ -621,6 +628,8 @@ onBeforeUnmount(() => {
                 : 'border-transparent hover:bg-hover'
             "
             @click="selectEntry(e)"
+            @keydown.enter.prevent="selectEntry(e)"
+            @keydown.space.prevent="selectEntry(e)"
           >
             <span
               class="relative grid size-8 shrink-0 place-items-center overflow-hidden rounded-ctl bg-thumb text-xs font-semibold text-muted"
@@ -646,7 +655,7 @@ onBeforeUnmount(() => {
                 {{ e.character || '?' }} · {{ e.version || '?' }}
               </span>
             </span>
-          </button>
+          </div>
         </div>
 
         <div class="grid shrink-0 grid-cols-2 gap-2 border-t border-line p-2">
@@ -808,7 +817,7 @@ onBeforeUnmount(() => {
             </div>
 
             <div
-              class="flex h-control w-fit cursor-pointer items-center gap-2 rounded-md border border-line-2 bg-sunken px-3"
+              class="flex h-[44px] w-fit cursor-pointer items-center gap-2 rounded-md border border-line-2 bg-sunken px-3"
             >
               <el-checkbox v-model="entry.hidden" @change="markDirty" />
               <span class="text-xs text-ink">标记为隐藏旅闻（主界面红色）</span>
@@ -868,44 +877,59 @@ onBeforeUnmount(() => {
     </div>
 
     <!-- 确认：重载 -->
-    <Modal
+    <el-dialog
       v-model="reloadOpen"
       :title="dirty ? '放弃修改' : '重载线上数据'"
-      :message="
-        dirty
-          ? '当前有未导出的修改，重载会丢弃这些改动。'
-          : `将从线上重新拉取 ${FILE_NAME}，覆盖当前编辑内容。`
-      "
-      confirm-text="重载"
-      :danger="dirty"
+      width="20rem"
       :persistent="dirty"
-      @confirm="doReload"
-    />
+    >
+      <p class="text-sm text-body">
+        {{
+          dirty
+            ? '当前有未导出的修改，重载会丢弃这些改动。'
+            : `将从线上重新拉取 ${FILE_NAME}，覆盖当前编辑内容。`
+        }}
+      </p>
+      <template #footer>
+        <el-button @click="reloadOpen = false">取消</el-button>
+        <el-button type="danger" @click="doReload">重载</el-button>
+      </template>
+    </el-dialog>
 
     <!-- 确认：删除 -->
-    <Modal
+    <el-dialog
       v-model="deleteOpen"
       title="删除条目"
-      :message="`确定删除「${entry?.character || '?'} · ${entry?.title || '?'}」吗？此操作不可撤销。`"
-      confirm-text="删除"
-      danger
+      width="20rem"
       persistent
-      @confirm="confirmDelete"
-    />
+    >
+      <p class="text-sm text-body">
+        确定删除「{{ entry?.character || '?' }} · {{ entry?.title || '?' }}」吗？此操作不可撤销。
+      </p>
+      <template #footer>
+        <el-button @click="deleteOpen = false">取消</el-button>
+        <el-button type="danger" @click="confirmDelete">删除</el-button>
+      </template>
+    </el-dialog>
 
     <!-- 确认：重排 -->
-    <Modal
+    <el-dialog
       v-model="renumberOpen"
       title="重排 id"
-      :message="`将按当前显示顺序重新编号 1 ~ ${entryCount}，原有 id 会被覆盖。`"
-      confirm-text="重排"
-      danger
+      width="20rem"
       persistent
-      @confirm="doRenumber"
-    />
+    >
+      <p class="text-sm text-body">
+        将按当前显示顺序重新编号 1 ~ {{ entryCount }}，原有 id 会被覆盖。
+      </p>
+      <template #footer>
+        <el-button @click="renumberOpen = false">取消</el-button>
+        <el-button type="danger" @click="doRenumber">重排</el-button>
+      </template>
+    </el-dialog>
 
     <!-- 导出前检查 -->
-    <Modal v-model="exportOpen" title="导出前检查" confirm-text="继续导出" @confirm="runExport">
+    <el-dialog v-model="exportOpen" title="导出前检查" width="24rem">
       <p class="text-sm text-body">发现 {{ warnings.length }} 项问题：</p>
       <ul class="grid max-h-60 list-disc gap-1 overflow-y-auto pl-5 text-xs text-muted">
         <li v-for="(w, i) in warnings.slice(0, 30)" :key="i">{{ w }}</li>
@@ -914,7 +938,11 @@ onBeforeUnmount(() => {
         还有 {{ warnings.length - 30 }} 项未列出
       </p>
       <p class="text-xs text-body">是否继续导出？</p>
-    </Modal>
+      <template #footer>
+        <el-button @click="exportOpen = false">取消</el-button>
+        <el-button type="primary" @click="runExport">继续导出</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -929,5 +957,16 @@ onBeforeUnmount(() => {
 .ah-tales :deep(.ah-id) {
   flex: 1;
   min-width: 0;
+}
+
+/* 隐藏标记用 el-checkbox 拿语义（空格切换 / aria-checked），
+   外框仍按内容色表达状态，行高对齐控件高度 */
+.ah-tales :deep(.el-checkbox) {
+  margin-right: 8px;
+}
+
+.ah-tales :deep(.el-checkbox__label) {
+  padding-left: 2px;
+  font-size: 12px;
 }
 </style>
