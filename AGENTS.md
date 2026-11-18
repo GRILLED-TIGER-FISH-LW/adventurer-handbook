@@ -245,7 +245,7 @@ https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js
 
 ### 当前状态（每批合并后更新；下一轮开工先读这段，别去现场探索）
 
-- **最后合并**：`ep-collapse-scroll` —— 赠礼套装三栏的滚动条从外层收进各栏内容区，内容超出各自独立滚动。
+- **最后合并**：`ep-scroll-fix` —— 赠礼套装、游逸旅闻中间滚动区由 `h-full` 改 `flex-1`，底部按钮不再被透出、内容超高时栏内滚动。
 - **设计系统已对齐**（唯一真源是 `src/styles/tokens.css`）：颜色 = Claude 全量；字号 / 间距 / 圆角 / 控件高度 / 组件规格 = Notion 全量。刻度 → 9 个组件 → 四个页面 / 编辑器 / Home 都已落地。
 - **已定未做 ①**：字体族换 Notion Sans（= Inter）—— 会牵动一图流 / 视频封面的文字度量，必须单独一批，排在最后。
 - **已定未做 ②**：主仓库 `genshin-guide` 的 `tokens.css` / `base.css` 要跑同一份刻度（两个文件本该逐字节相同，现在分叉了）。
