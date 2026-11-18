@@ -6,39 +6,59 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-collapse-rollback —— 移除每栏固定高度，改回三栏整体滚动
+# 最近一批：ep-scroll-fix —— 中间滚动区 h-full 改 flex-1，底部按钮不再被透出
 
 == MOVES ==
 
 == EDITS ==
 ### src/views/GiftSet.vue
 <<<<
-.ah-gift__collapse :deep(.el-collapse-item__content) {
-  padding: 12px 16px;
-  max-height: 40vh;
-  overflow-y: auto;
-}
+<div class="min-h-0 h-full overflow-y-auto">
 >>>>
 <<<<
-.ah-gift__collapse :deep(.el-collapse-item__content) {
-  padding: 12px 16px;
-}
+<div class="min-h-0 flex-1 overflow-y-auto">
+>>>>
+
+### src/views/Tales.vue
+<<<<
+<div class="min-h-0 h-full overflow-y-auto p-2">
+>>>>
+<<<<
+<div class="min-h-0 flex-1 overflow-y-auto p-2">
 >>>>
 
 ### CHANGELOG.md
 <<<<
-### 2026-11-18 · 全站 UI 统一到 Element Plus
+### 2026-11-18 · 全站 UI 统一到 EP · 滚动条收栏 · 文档合并
+
+- **起因**：四页两编辑器的交互控件与文本虽已迁 EP，仍有两处收尾缺口——两个编辑器的主内容区还在用原生 `<main>`（与「全用 EP」的约定不符）；内容滚动条落在整块上（如赠礼套装展开内容超高时，滚动条贴在页面边缘而非栏内）；当日 CHANGELOG 因分批提交而出现重复条目。
+- **经过**：两个编辑器主区由原生 `<main>` 换为 `el-main`（沿用 `.ah-shell > .el-main` 的覆盖，压掉 EP 默认 20px 内边距）；`el-main` 设 `overflow:hidden`、滚动交由各内容栏的 `overflow-y-auto` 接管，并给栏补 `h-full` 撑满，滚动条收进栏内；将当日多条重复的 CHANGELOG 合并为一条。
+- **结果**：页面骨架、交互控件、文本全部统一走 EP；滚动条随内容栏走、不再贴整页边缘；文档按天合并，单日一条。
 >>>>
 <<<<
-### 2026-11-18 · 全站 UI 统一到 Element Plus
+### 2026-11-18 · 全站 UI 统一到 EP · 滚动条收栏 · 文档合并
 
-（滚动条采用三栏整体滚动方案，不固定单栏高度，内容不足不留白、多栏叠加不透出底部）
+- **起因**：四页两编辑器的交互控件与文本虽已迁 EP，仍有两处收尾缺口——两个编辑器的主内容区还在用原生 `<main>`（与「全用 EP」的约定不符）；内容滚动条落在整块上（如赠礼套装展开内容超高时，滚动条贴在页面边缘而非栏内）；当日 CHANGELOG 因分批提交而出现重复条目。
+- **经过**：两个编辑器主区由原生 `<main>` 换为 `el-main`（沿用 `.ah-shell > .el-main` 的覆盖，压掉 EP 默认 20px 内边距）；`el-main` 设 `overflow:hidden`、滚动交由各内容栏的 `overflow-y-auto` 接管，并给栏补 `h-full` 撑满，滚动条收进栏内；将当日多条重复的 CHANGELOG 合并为一条。
+- **结果**：页面骨架、交互控件、文本全部统一走 EP；滚动条随内容栏走、不再贴整页边缘；文档按天合并，单日一条。
 
-### 2026-11-18 · 全站 UI 统一到 Element Plus
+**滚动修复**：赠礼套装、游逸旅闻中间滚动区原用 `h-full` 撑满容器，多栏展开时把底部「重置全部数据」「清空全部记录」挤出视口；改为 `flex-1` 占据顶栏与底栏之间的剩余空间，底部按钮常驻、内容超高时在栏内滚动。
+>>>>
+
+### AGENTS.md
+<<<<
+- **最后合并**：`ep-main` —— 两个编辑器主区原生 `<main>` 换 `el-main`；`el-main` 关闭全局滚动、滚动条收进内容栏；合并当日重复的 CHANGELOG 条目。
+>>>>
+<<<<
+- **最后合并**：`ep-scroll-fix` —— 赠礼套装、游逸旅闻中间滚动区由 `h-full` 改 `flex-1`，底部按钮不再被透出、内容超高时栏内滚动。
 >>>>
 
 == DELETES ==
 
 == CHECKS ==
-! grep -q "max-height: 40vh" src/views/GiftSet.vue
-! grep -q "overflow-y: auto" src/views/GiftSet.vue
+! grep -q "h-full overflow-y-auto" src/views/GiftSet.vue
+grep -q "flex-1 overflow-y-auto" src/views/GiftSet.vue
+! grep -q "h-full overflow-y-auto" src/views/Tales.vue
+grep -q "flex-1 overflow-y-auto" src/views/Tales.vue
+grep -q "ep-scroll-fix" AGENTS.md
+grep -q "flex-1" src/views/GiftSet.vue src/views/Tales.vue
