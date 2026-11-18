@@ -6,72 +6,31 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-main —— 编辑器主区换 el-main、滚动条收栏内、合并当日 CHANGELOG
+# 最近一批：ep-collapse-scroll —— 赠礼套装三栏滚动条收进各栏，各自独立
 
 == MOVES ==
 
 == EDITS ==
-### src/styles/app.css
-<<<<
-.ah-shell > .el-main {
-  padding: 0;
-  min-height: 0;
-}
->>>>
-<<<<
-.ah-shell > .el-main {
-  padding: 0;
-  min-height: 0;
-  overflow: hidden;
-}
->>>>
-
 ### src/views/GiftSet.vue
 <<<<
 <div class="min-h-0 overflow-y-auto">
 >>>>
 <<<<
-<div class="min-h-0 h-full overflow-y-auto">
+<div class="min-h-0">
 >>>>
 
-### src/views/Tales.vue
+### src/views/GiftSet.vue
 <<<<
-<div class="min-h-0 overflow-y-auto p-2">
+.ah-gift__collapse :deep(.el-collapse-item__content) {
+  padding: 12px 16px;
+}
 >>>>
 <<<<
-<div class="min-h-0 h-full overflow-y-auto p-2">
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-<main class="grid min-h-0 grid-cols-1 min-[900px]:grid-cols-[20rem_minmax(0,1fr)]">
->>>>
-<<<<
-<el-main class="grid min-h-0 grid-cols-1 min-[900px]:grid-cols-[20rem_minmax(0,1fr)]">
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-</main>
->>>>
-<<<<
-</el-main>
->>>>
-
-### src/views/GiftSetEditor.vue
-<<<<
-<main class="grid min-h-0 grid-cols-1 min-[900px]:grid-cols-[20rem_minmax(0,1fr)]">
->>>>
-<<<<
-<el-main class="grid min-h-0 grid-cols-1 min-[900px]:grid-cols-[20rem_minmax(0,1fr)]">
->>>>
-
-### src/views/GiftSetEditor.vue
-<<<<
-</main>
->>>>
-<<<<
-</el-main>
+.ah-gift__collapse :deep(.el-collapse-item__content) {
+  padding: 12px 16px;
+  max-height: 40vh;
+  overflow-y: auto;
+}
 >>>>
 
 ### CHANGELOG.md
@@ -89,11 +48,11 @@
 - **结果**：四个页面自造控件与原生交互标签清零，控件尺寸、焦点环、弹窗行为全站统一走 EP 默认，后续不再有两套样式并存。
 >>>>
 <<<<
-### 2026-11-18 · 全站 UI 统一到 EP · 滚动条收栏 · 文档合并
+### 2026-11-18 · 全站 UI 统一到 Element Plus
 
-- **起因**：四页两编辑器的交互控件与文本虽已迁 EP，仍有两处收尾缺口——两个编辑器的主内容区还在用原生 `<main>`（与「全用 EP」的约定不符）；内容滚动条落在整块上（如赠礼套装展开内容超高时，滚动条贴在页面边缘而非栏内）；当日 CHANGELOG 因分批提交而出现重复条目。
-- **经过**：两个编辑器主区由原生 `<main>` 换为 `el-main`（沿用 `.ah-shell > .el-main` 的覆盖，压掉 EP 默认 20px 内边距）；`el-main` 设 `overflow:hidden`、滚动交由各内容栏的 `overflow-y-auto` 接管，并给栏补 `h-full` 撑满，滚动条收进栏内；将当日多条重复的 CHANGELOG 合并为一条。
-- **结果**：页面骨架、交互控件、文本全部统一走 EP；滚动条随内容栏走、不再贴整页边缘；文档按天合并，单日一条。
+- **起因**：四个页面和两个字典编辑器此前各用一套自造控件与原生标签，控件尺寸、焦点环、弹窗行为不统一，不便维护。
+- **经过**：全站交互控件与文本统一迁到 Element Plus——按钮、输入、下拉、弹窗、分段、自动补全、勾选等全部换 EP 组件，功能图标改 `@element-plus/icons-vue`，删除全部自造控件与图标表；页面骨架用 `el-container` / `el-header` / `el-footer` / `el-main`，文本用 `el-text`；逐一修正标题数字间距、角色格竖格与列数自适应、弹窗确认后关闭、内容滚动条收进各栏等细节。
+- **结果**：全站 UI 由 Element Plus 统一驱动，样式与行为一致，后续维护只面对一套组件。
 >>>>
 
 ### AGENTS.md
@@ -101,20 +60,14 @@
 - **最后合并**：`ep-cleanup` —— 通知条关闭按钮迁 el-button；删除全部零引用旧控件（Btn / Dropdown / Combobox / Field / Seg / Modal / Tabs / Icon、图标注册表与编辑器图标表）；README 补「技术栈」节并更新项目结构。
 >>>>
 <<<<
-- **最后合并**：`ep-main` —— 两个编辑器主区原生 `<main>` 换 `el-main`；`el-main` 关闭全局滚动、滚动条收进内容栏；合并当日重复的 CHANGELOG 条目。
+- **最后合并**：`ep-collapse-scroll` —— 赠礼套装三栏的滚动条从外层收进各栏内容区，内容超出各自独立滚动；合并当日重复的 CHANGELOG 条目。
 >>>>
 
 == DELETES ==
 
 == CHECKS ==
-grep -q "overflow: hidden" src/styles/app.css
-grep -q "min-h-0 h-full overflow-y-auto" src/views/GiftSet.vue
-grep -q "min-h-0 h-full overflow-y-auto p-2" src/views/Tales.vue
-grep -q "<el-main" src/views/TalesEditor.vue
-grep -q "</el-main>" src/views/TalesEditor.vue
-grep -q "<el-main" src/views/GiftSetEditor.vue
-grep -q "</el-main>" src/views/GiftSetEditor.vue
-! grep -q "<main " src/views/TalesEditor.vue
-! grep -q "<main " src/views/GiftSetEditor.vue
-grep -c "2026-11-18 · " CHANGELOG.md | grep -qx 1
-grep -q "ep-main" AGENTS.md
+grep -q "overflow-y: auto" src/views/GiftSet.vue
+grep -q "max-height: 40vh" src/views/GiftSet.vue
+! grep -q "min-h-0 overflow-y-auto" src/views/GiftSet.vue
+grep -q "ep-collapse-scroll" AGENTS.md
+grep -c "2026-11-18" CHANGELOG.md | grep -qx 1
