@@ -788,7 +788,7 @@ onBeforeUnmount(() => {
         role="status"
         aria-label="有未导出的修改"
       ></span>
-      <span class="text-xs text-muted">{{ data ? `${setCount} 条` : '数据未加载' }}</span>
+      <el-text class="el-text el-text--small ah-text-muted">{{ data ? `${setCount} 条` : '数据未加载' }}</el-text>
 
       <div class="min-w-0 flex-1"></div>
 
@@ -935,7 +935,7 @@ onBeforeUnmount(() => {
             <span>返回列表</span>
           </el-button>
 
-          <p v-if="loading" class="text-sm text-muted">正在载入…</p>
+          <el-text v-if="loading" class="el-text el-text--default ah-text-muted ah-text-block">正在载入…</el-text>
 
           <el-empty
             v-else-if="!data"
@@ -943,9 +943,9 @@ onBeforeUnmount(() => {
             description="数据未加载，请点右上角「重载」或「导入」"
           />
 
-          <p v-else-if="!entry" class="text-sm text-muted">
+          <el-text v-else-if="!entry" class="el-text el-text--default ah-text-muted ah-text-block">
             从列表选择套装开始编辑，或点「新增套装」
-          </p>
+          </el-text>
 
           <template v-else>
             <!-- 预览 -->
@@ -967,13 +967,13 @@ onBeforeUnmount(() => {
                 <span class="truncate text-sm font-semibold text-ink">
                   {{ entry.name || '(未命名套装)' }}
                 </span>
-                <span class="text-xs text-muted">{{ previewSub }}</span>
+                <el-text class="el-text el-text--small ah-text-muted">{{ previewSub }}</el-text>
               </span>
             </div>
 
             <!-- id -->
             <div class="grid gap-2">
-              <span class="text-xs font-medium text-muted">id · 可手动改，需唯一</span>
+              <el-text class="el-text el-text--small ah-text-muted font-medium">id · 可手动改，需唯一</el-text>
               <div class="flex items-center gap-2">
                 <el-input
                   v-model="idInput"
@@ -997,7 +997,7 @@ onBeforeUnmount(() => {
 
             <!-- 地区 -->
             <div class="grid gap-2">
-              <span class="text-xs font-medium text-muted">地区 · 输入新值会自动加入列表</span>
+              <el-text class="el-text el-text--small ah-text-muted font-medium">地区 · 输入新值会自动加入列表</el-text>
               <el-select
                 v-model="entry.region"
                 filterable
@@ -1019,9 +1019,9 @@ onBeforeUnmount(() => {
 
             <!-- 图片 URL -->
             <div class="grid gap-2">
-              <span class="text-xs font-medium text-muted">
+              <el-text class="el-text el-text--small ah-text-muted font-medium">
                 套装图 URL · 粘贴后自动识别 key / 类型 / 地区
-              </span>
+              </el-text>
               <div class="flex items-center gap-2">
                 <el-input
                   v-model="urlInput"
@@ -1035,13 +1035,13 @@ onBeforeUnmount(() => {
                 />
                 <el-button class="shrink-0" @click="recognizeUrl">识别</el-button>
               </div>
-              <p v-if="urlHint" class="text-xs" :class="urlInvalid ? 'text-danger' : 'text-muted'">
+              <el-text v-if="urlHint" class="el-text el-text--small ah-text-block" :class="urlInvalid ? 'text-danger' : 'text-muted'">
                 {{ urlHint }}
-              </p>
+              </el-text>
             </div>
 
             <div class="grid gap-2">
-              <span class="text-micro text-muted">名称</span>
+              <el-text class="el-text el-text--small ah-text-muted">名称</el-text>
               <el-input
                 v-model="entry.name"
                 placeholder="套装名称"
@@ -1052,7 +1052,7 @@ onBeforeUnmount(() => {
 
             <!-- 室内 / 室外：只占内容宽度 -->
             <div class="grid gap-2">
-              <span class="text-xs font-medium text-muted">室内 / 室外</span>
+              <el-text class="el-text el-text--small ah-text-muted font-medium">室内 / 室外</el-text>
               <el-segmented
                 v-model="entry.type"
                 :options="typeOptions"
@@ -1062,9 +1062,9 @@ onBeforeUnmount(() => {
 
             <!-- 偏好角色 -->
             <div class="grid gap-2">
-              <span class="text-xs font-medium text-muted">
+              <el-text class="el-text el-text--small ah-text-muted font-medium">
                 偏好角色 · 支持逗号 / 空格 / 顿号批量输入，点格子可移除
-              </span>
+              </el-text>
 
               <div
                 v-if="sortedChars.length"
@@ -1135,13 +1135,13 @@ onBeforeUnmount(() => {
       width="20rem"
       :persistent="dirty"
     >
-      <p class="text-sm text-body">
+      <el-text class="el-text el-text--large ah-text-block">
         {{
           dirty
             ? '当前有未导出的修改，重载会丢弃这些改动。'
             : `将从线上重新拉取 ${FILE_NAME}，覆盖当前编辑内容。`
         }}
-      </p>
+      </el-text>
       <template #footer>
         <el-button @click="reloadOpen = false">取消</el-button>
         <el-button type="danger" @click="doReload">重载</el-button>
@@ -1155,9 +1155,9 @@ onBeforeUnmount(() => {
       width="20rem"
       persistent
     >
-      <p class="text-sm text-body">
+      <el-text class="el-text el-text--large ah-text-block">
         确定删除「{{ entry?.name || '(未命名)' }}」吗？此操作不可撤销。
-      </p>
+      </el-text>
       <template #footer>
         <el-button @click="deleteOpen = false">取消</el-button>
         <el-button type="danger" @click="confirmDelete">删除</el-button>
@@ -1171,9 +1171,9 @@ onBeforeUnmount(() => {
       width="20rem"
       persistent
     >
-      <p class="text-sm text-body">
+      <el-text class="el-text el-text--large ah-text-block">
         将按当前显示顺序重新编号 1 ~ {{ setCount }}，原有 id 会被覆盖。
-      </p>
+      </el-text>
       <template #footer>
         <el-button @click="renumberOpen = false">取消</el-button>
         <el-button type="danger" @click="doRenumber">重排</el-button>
@@ -1182,14 +1182,14 @@ onBeforeUnmount(() => {
 
     <!-- 导出前检查 -->
     <el-dialog v-model="exportOpen" title="导出前检查" width="24rem">
-      <p class="text-sm text-body">发现 {{ warnings.length }} 项问题：</p>
+      <el-text class="el-text el-text--large ah-text-block">发现 {{ warnings.length }} 项问题：</el-text>
       <ul class="grid max-h-60 list-disc gap-1 overflow-y-auto pl-5 text-xs text-muted">
         <li v-for="(w, i) in warnings.slice(0, 30)" :key="i">{{ w }}</li>
       </ul>
       <p v-if="warnings.length > 30" class="text-xs text-muted">
         还有 {{ warnings.length - 30 }} 项未列出
       </p>
-      <p class="text-xs text-body">是否继续导出？</p>
+      <el-text class="el-text el-text--large ah-text-block">是否继续导出？</el-text>
       <template #footer>
         <el-button @click="exportOpen = false">取消</el-button>
         <el-button type="primary" @click="runExport">继续导出</el-button>
