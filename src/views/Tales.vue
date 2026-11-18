@@ -402,8 +402,8 @@ onMounted(async () => {
       <div v-if="loading" class="p-3 text-sm text-muted">正在加载旅闻数据…</div>
 
       <div v-else-if="errorMsg" class="grid justify-items-center gap-3 p-8 text-center">
-        <p class="text-sm font-semibold text-danger">数据加载失败</p>
-        <p class="text-xs text-muted">{{ errorMsg }}</p>
+        <el-text class="el-text el-text--default ah-text-danger font-semibold ah-text-block">数据加载失败</el-text>
+        <el-text class="el-text el-text--small ah-text-muted ah-text-block">{{ errorMsg }}</el-text>
         <el-button size="small" @click="() => location.reload()">
           <el-icon><Refresh /></el-icon>
           <span>重新加载</span>
