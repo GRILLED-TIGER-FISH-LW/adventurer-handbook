@@ -124,6 +124,9 @@ html.dark {
 .ah-text-accent { --el-text-color: var(--color-accent-strong); }
 .ah-text-block { display: block; }
 
+/* 标题与右侧数字的分隔间距（ml-2 在 el-text 下被 EP 样式顶掉，改用自定义类） */
+.ah-text-gap { margin-left: 8px; }
+
 .ah-uid {
   width: calc((100% - 16px) / 3);
   flex: none;

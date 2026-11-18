@@ -438,6 +438,7 @@ function confirmDelete() {
   isNew.value = false
   mobilePane.value = 'list'
   markDirty()
+  deleteOpen.value = false
   toast.success('已删除')
 }
 
@@ -457,6 +458,7 @@ function doRenumber() {
     idInput.value = String(sel.id)
   }
   markDirty()
+  renumberOpen.value = false
   toast.success(`已重排 ${n} 条 id`)
 }
 
@@ -466,6 +468,7 @@ async function doReload() {
     selectedId.value = null
     isNew.value = false
     mobilePane.value = 'list'
+    reloadOpen.value = false
     clearDirty()
     clearDraft()
     toast.success(`已重载 ${setCount.value} 条`)
@@ -529,6 +532,7 @@ function runExport() {
   a.remove()
   setTimeout(() => URL.revokeObjectURL(url), 1000)
 
+  exportOpen.value = false
   clearDirty()
   clearDraft()
   toast.success(`已导出 ${FILE_NAME}`)
@@ -1070,17 +1074,13 @@ onBeforeUnmount(() => {
                 v-if="sortedChars.length"
                 class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2 rounded-ctl border border-line-2 bg-sunken p-2"
               >
-                <div
+                <el-checkbox
                   v-for="name in sortedChars"
                   :key="name"
-                  role="button"
-                  tabindex="0"
-                  class="grid cursor-pointer justify-items-center gap-1 rounded-ctl border border-line bg-surface p-1 hover:border-danger focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                  class="ah-ed-char"
                   :title="`移除 ${name}`"
                   :aria-label="`移除 ${name}`"
-                  @click="removeChar(name)"
-                  @keydown.enter.prevent="removeChar(name)"
-                  @keydown.space.prevent="removeChar(name)"
+                  @change="removeChar(name)"
                 >
                   <span
                     class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
@@ -1098,7 +1098,7 @@ onBeforeUnmount(() => {
                   <span class="w-full truncate text-center text-[10px] text-muted">
                     {{ name }}
                   </span>
-                                </div>
+                </el-checkbox>
               </div>
 
               <el-autocomplete
@@ -1210,4 +1210,35 @@ onBeforeUnmount(() => {
   flex: 1;
   min-width: 0;
 }
+/* 偏好角色格：el-checkbox 竖格外观，与 GiftSet 页面角色格一致 */
+.ah-ed-char {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  justify-self: stretch;
+  min-width: 0;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 4px 0;
+}
+
+.ah-ed-char :deep(.el-checkbox__input) {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ah-ed-char :deep(.el-checkbox__label) {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+}
+
+.ah-ed-char:hover {
+  border-color: var(--color-danger);
+}
+
 </style>
