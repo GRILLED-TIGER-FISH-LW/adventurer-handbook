@@ -494,7 +494,7 @@ onMounted(async () => {
           <el-collapse-item name="char">
             <template #title>
               <el-text class="el-text el-text--default ah-text-ink font-semibold">我的角色</el-text>
-              <el-text class="el-text el-text--small ah-text-muted ml-2">{{ owned.length }}</el-text>
+              <el-text class="el-text el-text--small ah-text-muted ah-text-gap">{{ owned.length }}</el-text>
             </template>
             <div class="grid gap-2">
             <el-input
@@ -511,7 +511,7 @@ onMounted(async () => {
               </template>
             </el-input>
 
-            <div class="grid grid-cols-[repeat(auto-fill,minmax(56px,1fr))] gap-2">
+            <div class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
               <el-checkbox
                 v-for="name in visibleCharNames"
                 :key="name"
@@ -549,7 +549,7 @@ onMounted(async () => {
           <el-collapse-item v-if="recommendations.length" name="recommend">
             <template #title>
               <el-text class="el-text el-text--default ah-text-ink font-semibold">推荐套装</el-text>
-              <el-text class="el-text el-text--small ah-text-muted ml-2">前 {{ recommendations.length }}</el-text>
+              <el-text class="el-text el-text--small ah-text-muted ah-text-gap">前 {{ recommendations.length }}</el-text>
             </template>
             <div class="grid gap-2">
             <article
@@ -599,7 +599,7 @@ onMounted(async () => {
               </div>
 
               <div v-if="expandedKeys.has(s.key)" class="grid gap-2 border-t border-line p-2">
-                <div class="grid grid-cols-[repeat(auto-fill,minmax(56px,1fr))] gap-2">
+                <div class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
                   <el-checkbox
                     v-for="name in cardMap.get(s.key)?.chars || []"
                     :key="`${s.key}-${name}`"
@@ -641,7 +641,7 @@ onMounted(async () => {
           <el-collapse-item name="all">
             <template #title>
               <el-text class="el-text el-text--default ah-text-ink font-semibold">全部套装</el-text>
-              <el-text class="el-text el-text--small ah-text-muted ml-2">{{ filteredSets.length }} / {{ sets.length }}</el-text>
+              <el-text class="el-text el-text--small ah-text-muted ah-text-gap">{{ filteredSets.length }} / {{ sets.length }}</el-text>
             </template>
             <div class="grid gap-2">
             <el-input
@@ -749,7 +749,7 @@ onMounted(async () => {
                 <div v-if="!cardMap.get(s.key)?.chars.length" class="p-2 text-xs text-muted">
                   无偏好角色数据
                 </div>
-                <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(56px,1fr))] gap-2">
+                <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
                   <el-checkbox
                     v-for="name in cardMap.get(s.key).chars"
                     :key="`${s.key}-${name}`"
@@ -851,7 +851,12 @@ onMounted(async () => {
   height: auto;
   min-height: 0;
   margin: 0;
-  padding: 2px 0;
+  padding: 4px 0;
+}
+
+/* 与编辑器偏好角色格一致：悬浮提示可移除 */
+.ah-gift__char:hover {
+  border-color: var(--color-danger);
 }
 
 .ah-gift__char :deep(.el-checkbox__label) {
