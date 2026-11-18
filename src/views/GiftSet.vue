@@ -511,7 +511,7 @@ onMounted(async () => {
               </template>
             </el-input>
 
-            <div class="grid grid-cols-[repeat(auto-fill,48px)] gap-2">
+            <div class="grid grid-cols-[repeat(auto-fit,minmax(48px,1fr))] gap-2">
               <el-checkbox
                 v-for="name in visibleCharNames"
                 :key="name"
@@ -599,7 +599,7 @@ onMounted(async () => {
               </div>
 
               <div v-if="expandedKeys.has(s.key)" class="grid gap-2 border-t border-line p-2">
-                <div class="grid grid-cols-[repeat(auto-fill,48px)] gap-2">
+                <div class="grid grid-cols-[repeat(auto-fit,minmax(48px,1fr))] gap-2">
                   <el-checkbox
                     v-for="name in cardMap.get(s.key)?.chars || []"
                     :key="`${s.key}-${name}`"
@@ -749,7 +749,7 @@ onMounted(async () => {
                 <div v-if="!cardMap.get(s.key)?.chars.length" class="p-2 text-xs text-muted">
                   无偏好角色数据
                 </div>
-                <div v-else class="grid grid-cols-[repeat(auto-fill,48px)] gap-2">
+                <div v-else class="grid grid-cols-[repeat(auto-fit,minmax(48px,1fr))] gap-2">
                   <el-checkbox
                     v-for="name in cardMap.get(s.key).chars"
                     :key="`${s.key}-${name}`"
