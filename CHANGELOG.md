@@ -19,6 +19,12 @@
 
 ## 2026 年 11 月
 
+### 2026-11-18 · 旧控件清场 · README 技术栈更新
+
+- **起因**：两个编辑器迁 EP 后，自造控件（Btn / Modal / Dropdown / Combobox / Seg / Field / Icon / Tabs）与编辑器图标表全部零引用，只剩文件本身；通知条的关闭按钮还在用自造 Icon；README 的技术栈徽章与项目结构还停留在迁移前。
+- **经过**：通知条关闭按钮换 el-button（图标改 EP Close）；删除 8 个旧组件与 `src/icons/index.js`、`editor-icons.js`；README 徽章改为 Element Plus，新增「技术栈」节，项目结构描述同步。
+- **结果**：仓库不再有两套控件，交互控件全部由 Element Plus 提供，README 与代码实际一致。
+
 ### 2026-11-18 · 尘歌壶字典编辑器迁 EP 完成 · 四页原生标签清零
 
 - **起因**：尘歌壶字典编辑器还在用自造控件（`Btn` / `Modal` / `Dropdown` / `Combobox` / `Seg` / `Field` / `Icon`），与已完成迁移的旅闻编辑器不是一套；全站四页还留着原生 `button` / `input` 标签。

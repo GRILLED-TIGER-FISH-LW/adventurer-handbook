@@ -245,7 +245,7 @@ https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js
 
 ### 当前状态（每批合并后更新；下一轮开工先读这段，别去现场探索）
 
-- **最后合并**：`ep-gift-set-ed` —— 尘歌壶字典编辑器全量换 EP 组件（el-button / el-input / el-select / el-segmented / el-autocomplete / el-dialog），顺带修底部「删除此套」在手机端返回列表后仍显示的问题；GiftSet 页两张卡片头、三个页面的隐藏文件输入一并清掉原生标签；同批更新 CHANGELOG 当日条目。
+- **最后合并**：`ep-cleanup` —— 通知条关闭按钮迁 el-button；删除全部零引用旧控件（Btn / Dropdown / Combobox / Field / Seg / Modal / Tabs / Icon、图标注册表与编辑器图标表）；README 补「技术栈」节并更新项目结构。
 - **设计系统已对齐**（唯一真源是 `src/styles/tokens.css`）：颜色 = Claude 全量；字号 / 间距 / 圆角 / 控件高度 / 组件规格 = Notion 全量。刻度 → 9 个组件 → 四个页面 / 编辑器 / Home 都已落地。
 - **已定未做 ①**：字体族换 Notion Sans（= Inter）—— 会牵动一图流 / 视频封面的文字度量，必须单独一批，排在最后。
 - **已定未做 ②**：主仓库 `genshin-guide` 的 `tokens.css` / `base.css` 要跑同一份刻度（两个文件本该逐字节相同，现在分叉了）。
