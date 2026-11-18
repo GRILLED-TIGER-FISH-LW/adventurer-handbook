@@ -6,100 +6,59 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-gift-char-fix —— 角色格列宽固定、label 竖向排列，角色框变竖长长方形
+# 最近一批：ep-gift-char-grid —— 角色格改 auto-fit 按容器宽度自动列数，无留白
 
 == MOVES ==
 
 == EDITS ==
 ### src/views/GiftSet.vue
 <<<<
-            <div class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
+<div class="grid grid-cols-[repeat(auto-fill,48px)] gap-2">
               <el-checkbox
+                v-for="name in visibleCharNames
 >>>>
 <<<<
-            <div class="grid grid-cols-[repeat(auto-fill,48px)] gap-2">
+<div class="grid grid-cols-[repeat(auto-fit,minmax(48px,1fr))] gap-2">
               <el-checkbox
+                v-for="name in visibleCharNames
 >>>>
 
 ### src/views/GiftSet.vue
 <<<<
-                <div class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
+<div class="grid grid-cols-[repeat(auto-fill,48px)] gap-2">
                   <el-checkbox
-                    v-for="name in cardMap.get(s.key)?.chars
+                    v-for="name in cardMap.get(s.key)?.chars || []
 >>>>
 <<<<
-                <div class="grid grid-cols-[repeat(auto-fill,48px)] gap-2">
+<div class="grid grid-cols-[repeat(auto-fit,minmax(48px,1fr))] gap-2">
                   <el-checkbox
-                    v-for="name in cardMap.get(s.key)?.chars
+                    v-for="name in cardMap.get(s.key)?.chars || []
 >>>>
 
 ### src/views/GiftSet.vue
 <<<<
-                <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
+<div v-else class="grid grid-cols-[repeat(auto-fill,48px)] gap-2">
                   <el-checkbox
                     v-for="name in cardMap.get(s.key).chars
 >>>>
 <<<<
-                <div v-else class="grid grid-cols-[repeat(auto-fill,48px)] gap-2">
+<div v-else class="grid grid-cols-[repeat(auto-fit,minmax(48px,1fr))] gap-2">
                   <el-checkbox
                     v-for="name in cardMap.get(s.key).chars
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-.ah-gift__char :deep(.el-checkbox__label) {
-  display: grid;
-  justify-items: center;
-  gap: 4px;
-  width: 100%;
-}
->>>>
-<<<<
-.ah-gift__char :deep(.el-checkbox__label) {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  width: 100%;
-}
 >>>>
 
 ### src/views/GiftSetEditor.vue
-<<<<
-class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2 rounded-ctl border border-line-2 bg-sunken p-2"
->>>>
 <<<<
 class="grid grid-cols-[repeat(auto-fill,48px)] gap-2 rounded-ctl border border-line-2 bg-sunken p-2"
 >>>>
-
-### src/views/GiftSetEditor.vue
 <<<<
-.ah-ed-char :deep(.el-checkbox__label) {
-  display: grid;
-  justify-items: center;
-  gap: 6px;
-  width: 100%;
-  padding: 0;
-}
->>>>
-<<<<
-.ah-ed-char :deep(.el-checkbox__label) {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  width: 100%;
-  padding: 0;
-}
+class="grid grid-cols-[repeat(auto-fit,minmax(48px,1fr))] gap-2 rounded-ctl border border-line-2 bg-sunken p-2"
 >>>>
 
 == DELETES ==
 
 == CHECKS ==
-! grep -q "minmax(48px,1fr)" src/views/GiftSet.vue
-grep -q "repeat(auto-fill,48px)" src/views/GiftSet.vue
-! grep -q "justify-items: center" src/views/GiftSet.vue
-grep -q "flex-direction: column" src/views/GiftSet.vue
-grep -q "flex-direction: column" src/views/GiftSetEditor.vue
-! grep -q "minmax(48px,1fr)" src/views/GiftSetEditor.vue
-grep -q "repeat(auto-fill,48px)" src/views/GiftSetEditor.vue
+! grep -q "repeat(auto-fill,48px)" src/views/GiftSet.vue
+! grep -q "repeat(auto-fill,48px)" src/views/GiftSetEditor.vue
+grep -q "repeat(auto-fit,minmax(48px,1fr))" src/views/GiftSet.vue
+grep -q "repeat(auto-fit,minmax(48px,1fr))" src/views/GiftSetEditor.vue
