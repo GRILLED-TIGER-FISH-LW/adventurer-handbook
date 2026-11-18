@@ -474,7 +474,7 @@ onMounted(async () => {
       />
     </el-header>
 
-    <div class="min-h-0 h-full">
+    <div class="min-h-0 flex-1 overflow-y-auto">
       <div v-if="loading" class="p-3 text-sm text-muted">正在加载套装数据…</div>
 
       <div v-else-if="errorMsg" class="grid justify-items-center gap-3 p-8 text-center">
