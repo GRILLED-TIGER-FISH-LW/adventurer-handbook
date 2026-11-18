@@ -6,59 +6,115 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-gift-char-grid —— 角色格改 auto-fit 按容器宽度自动列数，无留白
+# 最近一批：ep-main —— 编辑器主区换 el-main、滚动条收栏内、合并当日 CHANGELOG
 
 == MOVES ==
 
 == EDITS ==
-### src/views/GiftSet.vue
+### src/styles/app.css
 <<<<
-<div class="grid grid-cols-[repeat(auto-fill,48px)] gap-2">
-              <el-checkbox
-                v-for="name in visibleCharNames
+.ah-shell > .el-main {
+  padding: 0;
+  min-height: 0;
+}
 >>>>
 <<<<
-<div class="grid grid-cols-[repeat(auto-fit,minmax(48px,1fr))] gap-2">
-              <el-checkbox
-                v-for="name in visibleCharNames
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-<div class="grid grid-cols-[repeat(auto-fill,48px)] gap-2">
-                  <el-checkbox
-                    v-for="name in cardMap.get(s.key)?.chars || []
->>>>
-<<<<
-<div class="grid grid-cols-[repeat(auto-fit,minmax(48px,1fr))] gap-2">
-                  <el-checkbox
-                    v-for="name in cardMap.get(s.key)?.chars || []
+.ah-shell > .el-main {
+  padding: 0;
+  min-height: 0;
+  overflow: hidden;
+}
 >>>>
 
 ### src/views/GiftSet.vue
 <<<<
-<div v-else class="grid grid-cols-[repeat(auto-fill,48px)] gap-2">
-                  <el-checkbox
-                    v-for="name in cardMap.get(s.key).chars
+<div class="min-h-0 overflow-y-auto">
 >>>>
 <<<<
-<div v-else class="grid grid-cols-[repeat(auto-fit,minmax(48px,1fr))] gap-2">
-                  <el-checkbox
-                    v-for="name in cardMap.get(s.key).chars
+<div class="min-h-0 h-full overflow-y-auto">
+>>>>
+
+### src/views/Tales.vue
+<<<<
+<div class="min-h-0 overflow-y-auto p-2">
+>>>>
+<<<<
+<div class="min-h-0 h-full overflow-y-auto p-2">
+>>>>
+
+### src/views/TalesEditor.vue
+<<<<
+<main class="grid min-h-0 grid-cols-1 min-[900px]:grid-cols-[20rem_minmax(0,1fr)]">
+>>>>
+<<<<
+<el-main class="grid min-h-0 grid-cols-1 min-[900px]:grid-cols-[20rem_minmax(0,1fr)]">
+>>>>
+
+### src/views/TalesEditor.vue
+<<<<
+</main>
+>>>>
+<<<<
+</el-main>
 >>>>
 
 ### src/views/GiftSetEditor.vue
 <<<<
-class="grid grid-cols-[repeat(auto-fill,48px)] gap-2 rounded-ctl border border-line-2 bg-sunken p-2"
+<main class="grid min-h-0 grid-cols-1 min-[900px]:grid-cols-[20rem_minmax(0,1fr)]">
 >>>>
 <<<<
-class="grid grid-cols-[repeat(auto-fit,minmax(48px,1fr))] gap-2 rounded-ctl border border-line-2 bg-sunken p-2"
+<el-main class="grid min-h-0 grid-cols-1 min-[900px]:grid-cols-[20rem_minmax(0,1fr)]">
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+</main>
+>>>>
+<<<<
+</el-main>
+>>>>
+
+### CHANGELOG.md
+<<<<
+### 2026-11-18 · 旧控件清场 · README 技术栈更新
+
+- **起因**：两个编辑器迁 EP 后，自造控件（Btn / Modal / Dropdown / Combobox / Seg / Field / Icon / Tabs）与编辑器图标表全部零引用，只剩文件本身；通知条的关闭按钮还在用自造 Icon；README 的技术栈徽章与项目结构还停留在迁移前。
+- **经过**：通知条关闭按钮换 el-button（图标改 EP Close）；删除 8 个旧组件与 `src/icons/index.js`、`editor-icons.js`；README 徽章改为 Element Plus，新增「技术栈」节，项目结构描述同步。
+- **结果**：仓库不再有两套控件，交互控件全部由 Element Plus 提供，README 与代码实际一致。
+
+### 2026-11-18 · 尘歌壶字典编辑器迁 EP 完成 · 四页原生标签清零
+
+- **起因**：尘歌壶字典编辑器还在用自造控件（`Btn` / `Modal` / `Dropdown` / `Combobox` / `Seg` / `Field` / `Icon`），与已完成迁移的旅闻编辑器不是一套；全站四页还留着原生 `button` / `input` 标签。
+- **经过**：编辑器控件全量换 EP —— 工具条与列表脚改 `el-button`，搜索框改 `el-input`（clearable），两个筛选改 `el-select`，地区联想改 `el-select`（允许自建），偏好角色添加器改 `el-autocomplete`（联想源取「未选角色」），室内/室外改 `el-segmented`，图片 URL 与 id 改 `el-input`，四个弹窗改 `el-dialog`（确认后手动关闭），图标改 `@element-plus/icons-vue`；底部「删除此套」改为仅在表单栏出现（与旅闻编辑器同一处手机端 bug）。GiftSet 页两张套装卡片头、GiftSet 编辑器列表项与角色移除格改 `role="button"` 的 `div`（保留键盘激活），三处隐藏文件输入补 `aria-hidden` 与 `tabindex`。
+- **结果**：四个页面自造控件与原生交互标签清零，控件尺寸、焦点环、弹窗行为全站统一走 EP 默认，后续不再有两套样式并存。
+>>>>
+<<<<
+### 2026-11-18 · 全站 UI 统一到 EP · 滚动条收栏 · 文档合并
+
+- **起因**：四页两编辑器的交互控件与文本虽已迁 EP，仍有两处收尾缺口——两个编辑器的主内容区还在用原生 `<main>`（与「全用 EP」的约定不符）；内容滚动条落在整块上（如赠礼套装展开内容超高时，滚动条贴在页面边缘而非栏内）；当日 CHANGELOG 因分批提交而出现重复条目。
+- **经过**：两个编辑器主区由原生 `<main>` 换为 `el-main`（沿用 `.ah-shell > .el-main` 的覆盖，压掉 EP 默认 20px 内边距）；`el-main` 设 `overflow:hidden`、滚动交由各内容栏的 `overflow-y-auto` 接管，并给栏补 `h-full` 撑满，滚动条收进栏内；将当日多条重复的 CHANGELOG 合并为一条。
+- **结果**：页面骨架、交互控件、文本全部统一走 EP；滚动条随内容栏走、不再贴整页边缘；文档按天合并，单日一条。
+>>>>
+
+### AGENTS.md
+<<<<
+- **最后合并**：`ep-cleanup` —— 通知条关闭按钮迁 el-button；删除全部零引用旧控件（Btn / Dropdown / Combobox / Field / Seg / Modal / Tabs / Icon、图标注册表与编辑器图标表）；README 补「技术栈」节并更新项目结构。
+>>>>
+<<<<
+- **最后合并**：`ep-main` —— 两个编辑器主区原生 `<main>` 换 `el-main`；`el-main` 关闭全局滚动、滚动条收进内容栏；合并当日重复的 CHANGELOG 条目。
 >>>>
 
 == DELETES ==
 
 == CHECKS ==
-! grep -q "repeat(auto-fill,48px)" src/views/GiftSet.vue
-! grep -q "repeat(auto-fill,48px)" src/views/GiftSetEditor.vue
-grep -q "repeat(auto-fit,minmax(48px,1fr))" src/views/GiftSet.vue
-grep -q "repeat(auto-fit,minmax(48px,1fr))" src/views/GiftSetEditor.vue
+grep -q "overflow: hidden" src/styles/app.css
+grep -q "min-h-0 h-full overflow-y-auto" src/views/GiftSet.vue
+grep -q "min-h-0 h-full overflow-y-auto p-2" src/views/Tales.vue
+grep -q "<el-main" src/views/TalesEditor.vue
+grep -q "</el-main>" src/views/TalesEditor.vue
+grep -q "<el-main" src/views/GiftSetEditor.vue
+grep -q "</el-main>" src/views/GiftSetEditor.vue
+! grep -q "<main " src/views/TalesEditor.vue
+! grep -q "<main " src/views/GiftSetEditor.vue
+grep -c "2026-11-18 · " CHANGELOG.md | grep -qx 1
+grep -q "ep-main" AGENTS.md
