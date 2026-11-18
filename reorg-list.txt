@@ -6,150 +6,183 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-cleanup —— 通知条迁 EP，删全部零引用旧控件，README 补技术栈
+# 最近一批：ep-layout —— 四页外壳换 el-container/el-header/el-main，压掉 EP 默认 60px/20px
 
 == MOVES ==
 
 == EDITS ==
-### src/components/ToastHost.vue
+### src/views/Tales.vue
 <<<<
-<script setup>
-import Icon from './Icon.vue'
-import { useToast } from '../composables/useToast.js'
+  <div class="grid h-full grid-rows-[auto_minmax(0,1fr)_auto]">
+    <header class="grid gap-2 border-b border-line bg-canvas p-2">
 >>>>
 <<<<
-<script setup>
-import { Close } from '@element-plus/icons-vue'
-import { useToast } from '../composables/useToast.js'
+  <el-container class="ah-shell" direction="vertical">
+    <el-header class="ah-shell__bar grid gap-2">
 >>>>
 
-### src/components/ToastHost.vue
+### src/views/Tales.vue
 <<<<
-          <button
-            type="button"
-            class="grid size-icon-btn shrink-0 place-items-center rounded-md text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-            aria-label="关闭通知"
-            @click="remove(t.id)"
-          >
-            <Icon name="ui.close" size="sm" />
-          </button>
+    <div class="border-t border-line bg-canvas p-2 safe-bottom">
 >>>>
 <<<<
-          <el-button
-            class="grid size-icon-btn shrink-0 place-items-center rounded-md text-muted hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-            aria-label="关闭通知"
-            @click="remove(t.id)"
-          >
-            <el-icon><Close /></el-icon>
-          </el-button>
+    <el-footer class="ah-shell__bar ah-shell__bar--bottom safe-bottom">
 >>>>
 
-### README.md
+### src/views/Tales.vue
 <<<<
-[![Tech Stack](https://img.shields.io/badge/Tech-Vue%203%20%7C%20Vite%20%7C%20Tailwind-f5f0e8?style=flat-square)]()
+      </el-button>
+    </div>
+</template>
 >>>>
 <<<<
-[![Tech Stack](https://img.shields.io/badge/Tech-Vue%203%20%7C%20Vite%20%7C%20Element%20Plus-f5f0e8?style=flat-square)]()
+      </el-button>
+    </el-footer>
+</template>
 >>>>
 
-### README.md
+### src/views/GiftSet.vue
 <<<<
-## 📑 页面导航
+  <div class="grid h-full grid-rows-[auto_minmax(0,1fr)_auto]">
+    <header class="flex items-center gap-2 border-b border-line bg-canvas p-2">
 >>>>
 <<<<
-## 🧱 技术栈
-
-- **Vue 3 + Vite**：单页应用，hash 路由，无后端。
-- **Element Plus**：全站交互控件统一使用（按钮、输入、下拉、弹窗、分段、自动补全等），功能图标走 `@element-plus/icons-vue`。
-- **Tailwind CSS 4**：只做布局与主题类（网格、间距、颜色），不写组件样式。
-- **设计令牌**：颜色 / 字号 / 间距 / 圆角 / 控件高度集中在 `src/styles/tokens.css`，深浅两套。
-- **内容标识图标**：`@solar-icons/vue`，在 `src/icons/solar.js` 注册。
-
-## 📑 页面导航
+  <el-container class="ah-shell" direction="vertical">
+    <el-header class="ah-shell__bar ah-shell__bar--row">
 >>>>
 
-### README.md
+### src/views/GiftSet.vue
 <<<<
-    adventurer-handbook/
-    ├── index.html                    入口（主题预置 + 加载守卫）
-    ├── src/
-    │   ├── components/               可复用控件（按钮 / 输入 / 抽屉 / 弹窗 / 页签…）
-    │   ├── composables/              主题 / 通知队列 / 数据加载
-    │   ├── icons/                    UI 图标（内联 SVG）
-    │   ├── styles/                   设计令牌 + 全局基线
-    │   └── views/                    页面（首页 / 旅闻 / 套装 / 两个编辑器）
-    ├── public/
-    │   └── data/                     游戏数据（tales.js / gift-set.js，运行时加载）
-    └── .github/workflows/            构建检查 + 部署
+    <div class="border-t border-line bg-canvas p-2 safe-bottom">
 >>>>
 <<<<
-    adventurer-handbook/
-    ├── index.html                    入口（主题预置 + 加载守卫）
-    ├── src/
-    │   ├── components/               布局与导航（抽屉 / 导航 / 通知），交互控件统一走 Element Plus
-    │   ├── composables/              主题 / 通知队列 / 数据加载
-    │   ├── icons/                    内容标识图标（Solar 图标注册）
-    │   ├── styles/                   设计令牌 + 全局基线
-    │   └── views/                    页面（首页 / 旅闻 / 套装 / 两个编辑器）
-    ├── public/
-    │   └── data/                     游戏数据（tales.js / gift-set.js，运行时加载）
-    └── .github/workflows/            构建检查 + 部署 + 清单式改动工作流
+    <el-footer class="ah-shell__bar ah-shell__bar--bottom safe-bottom">
 >>>>
 
-### AGENTS.md
+### src/views/TalesEditor.vue
 <<<<
-- **最后合并**：`ep-gift-set-ed` —— 尘歌壶字典编辑器全量换 EP 组件（el-button / el-input / el-select / el-segmented / el-autocomplete / el-dialog），顺带修底部「删除此套」在手机端返回列表后仍显示的问题；GiftSet 页两张卡片头、三个页面的隐藏文件输入一并清掉原生标签；同批更新 CHANGELOG 当日条目。
+  <div class="ah-tales grid h-full grid-rows-[auto_minmax(0,1fr)_auto]">
 >>>>
 <<<<
-- **最后合并**：`ep-cleanup` —— 通知条关闭按钮迁 el-button；删除全部零引用旧控件（Btn / Dropdown / Combobox / Field / Seg / Modal / Tabs / Icon、图标注册表与编辑器图标表）；README 补「技术栈」节并更新项目结构。
+  <el-container class="ah-tales ah-shell" direction="vertical">
 >>>>
 
-### CHANGELOG.md
+### src/views/GiftSetEditor.vue
 <<<<
-## 2026 年 11 月
-
-### 2026-11-18 · 尘歌壶字典编辑器迁 EP 完成
+  <div class="ah-gift-ed grid h-full grid-rows-[auto_minmax(0,1fr)_auto]">
 >>>>
 <<<<
-## 2026 年 11 月
+  <el-container class="ah-gift-ed ah-shell" direction="vertical">
+>>>>
 
-### 2026-11-18 · 旧控件清场 · README 技术栈更新
+### src/views/TalesEditor.vue
+<<<<
+          <p v-if="!data" class="p-3 text-xs text-muted">数据未加载，点「重载」或「导入」</p>
+          <p v-else-if="!filteredEntries.length" class="p-3 text-xs text-muted">
+            没有匹配的条目
+          </p>
+>>>>
+<<<<
+          <el-empty
+            v-if="!data"
+            :image-size="56"
+            description="数据未加载，点「重载」或「导入」"
+          />
+          <el-empty v-else-if="!filteredEntries.length" :image-size="56" description="没有匹配的条目" />
+>>>>
 
-- **起因**：两个编辑器迁 EP 后，自造控件（Btn / Modal / Dropdown / Combobox / Seg / Field / Icon / Tabs）与编辑器图标表全部零引用，只剩文件本身；通知条的关闭按钮还在用自造 Icon；README 的技术栈徽章与项目结构还停留在迁移前。
-- **经过**：通知条关闭按钮换 el-button（图标改 EP Close）；删除 8 个旧组件与 `src/icons/index.js`、`editor-icons.js`；README 徽章改为 Element Plus，新增「技术栈」节，项目结构描述同步。
-- **结果**：仓库不再有两套控件，交互控件全部由 Element Plus 提供，README 与代码实际一致。
+### src/views/TalesEditor.vue
+<<<<
+          <div v-else-if="!data" class="grid justify-items-center gap-3 p-8 text-center">
+            <el-icon class="text-faint"><Document /></el-icon>
+            <p class="text-sm text-muted">数据未加载，请点右上角「重载」或「导入」</p>
+          </div>
+>>>>
+<<<<
+          <el-empty
+            v-else-if="!data"
+            :image-size="80"
+            description="数据未加载，请点右上角「重载」或「导入」"
+          />
+>>>>
 
-### 2026-11-18 · 尘歌壶字典编辑器迁 EP 完成
+### src/views/GiftSetEditor.vue
+<<<<
+          <p v-if="!data" class="p-3 text-xs text-muted">数据未加载，点「重载」或「导入」</p>
+          <p v-else-if="!sortedSets.length" class="p-3 text-xs text-muted">
+            {{ setCount ? '没有匹配的套装' : '暂无套装，点下方「新增套装」' }}
+          </p>
+>>>>
+<<<<
+          <el-empty
+            v-if="!data"
+            :image-size="56"
+            description="数据未加载，点「重载」或「导入」"
+          />
+          <el-empty
+            v-else-if="!sortedSets.length"
+            :image-size="56"
+            :description="setCount ? '没有匹配的套装' : '暂无套装，点下方「新增套装」'"
+          />
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+            <p class="text-sm text-muted">数据未加载，请点右上角「重载」或「导入」</p>
+>>>>
+<<<<
+            <el-empty :image-size="80" description="数据未加载，请点右上角「重载」或「导入」" />
+>>>>
+
+### src/styles/app.css
+<<<<
+.ah-uid {
+>>>>
+<<<<
+/* ===== EP 页面骨架：压掉 el-header 的 60px / 0 20px 与 el-footer 的同样默认值，
+   改用我们的 32px 工具条 + 8px 内边距，三段布局与原来的 grid-rows 完全等价 ===== */
+.ah-shell {
+  height: 100%;
+  min-height: 0;
+}
+
+.ah-shell > .el-header,
+.ah-shell > .el-footer {
+  height: auto;
+  padding: 8px;
+  border-bottom: 1px solid var(--color-line);
+  background: var(--color-canvas);
+}
+
+.ah-shell > .el-footer {
+  border-bottom: 0;
+  border-top: 1px solid var(--color-line);
+}
+
+/* GiftSet 顶部是一条横排工具条：保持 flex 横排、居中、8px 间距 */
+.ah-shell__bar--row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* el-main 默认 padding:20px，这里归零，内边距由各页自己给 */
+.ah-shell > .el-main {
+  padding: 0;
+  min-height: 0;
+}
+
+.ah-uid {
 >>>>
 
 == DELETES ==
-src/components/Btn.vue
-src/components/Dropdown.vue
-src/components/Combobox.vue
-src/components/Field.vue
-src/components/Seg.vue
-src/components/Modal.vue
-src/components/Icon.vue
-src/components/Tabs.vue
-src/icons/index.js
-src/icons/editor-icons.js
 
 == CHECKS ==
-grep -q '<el-button' src/components/ToastHost.vue
-grep -q '<el-icon><Close />' src/components/ToastHost.vue
-! grep -q 'import Icon' src/components/ToastHost.vue
-grep -q '## 🧱 技术栈' README.md
-grep -q 'Element%20Plus' README.md
-grep -q 'ep-cleanup' AGENTS.md
-grep -q '旧控件清场' CHANGELOG.md
-test ! -e src/components/Btn.vue
-test ! -e src/components/Dropdown.vue
-test ! -e src/components/Combobox.vue
-test ! -e src/components/Field.vue
-test ! -e src/components/Seg.vue
-test ! -e src/components/Modal.vue
-test ! -e src/components/Icon.vue
-test ! -e src/components/Tabs.vue
-test ! -e src/icons/index.js
-test ! -e src/icons/editor-icons.js
-! grep -rqE 'components/(Btn|Dropdown|Combobox|Field|Seg|Modal|Icon|Tabs)\.vue' src/
+grep -c '<el-container' src/views/Tales.vue src/views/GiftSet.vue src/views/TalesEditor.vue src/views/GiftSetEditor.vue
+grep -c '<el-empty' src/views/TalesEditor.vue
+grep -c '<el-empty' src/views/GiftSetEditor.vue
+! grep -q 'grid h-full grid-rows-\[auto_minmax' src/views/Tales.vue
+! grep -q 'grid h-full grid-rows-\[auto_minmax' src/views/GiftSet.vue
+grep -q '.ah-shell' src/styles/app.css
+grep -q '<el-footer' src/views/Tales.vue
+grep -q '<el-footer' src/views/GiftSet.vue
