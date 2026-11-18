@@ -398,7 +398,7 @@ onMounted(async () => {
       </div>
     </el-header>
 
-    <div class="min-h-0 overflow-y-auto p-2">
+    <div class="min-h-0 h-full overflow-y-auto p-2">
       <div v-if="loading" class="p-3 text-sm text-muted">正在加载旅闻数据…</div>
 
       <div v-else-if="errorMsg" class="grid justify-items-center gap-3 p-8 text-center">
