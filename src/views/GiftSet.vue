@@ -441,8 +441,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="grid h-full grid-rows-[auto_minmax(0,1fr)_auto]">
-    <header class="flex items-center gap-2 border-b border-line bg-canvas p-2">
+  <el-container class="ah-shell" direction="vertical">
+    <el-header class="ah-shell__bar ah-shell__bar--row">
       <el-input
         v-model="uid"
         aria-label="UID"
@@ -472,7 +472,7 @@ onMounted(async () => {
         tabindex="-1"
         @change="onImportFile"
       />
-    </header>
+    </el-header>
 
     <div class="min-h-0 overflow-y-auto">
       <div v-if="loading" class="p-3 text-sm text-muted">正在加载套装数据…</div>
@@ -791,12 +791,12 @@ onMounted(async () => {
       </template>
     </div>
 
-    <div class="border-t border-line bg-canvas p-2 safe-bottom">
+    <el-footer class="ah-shell__bar ah-shell__bar--bottom safe-bottom">
       <el-button type="danger" class="w-full" @click="resetOpen = true">
         <el-icon><Delete /></el-icon>
         <span>重置全部数据</span>
       </el-button>
-    </div>
+    </el-footer>
 
     <el-dialog
       v-model="resetOpen"
@@ -811,7 +811,7 @@ onMounted(async () => {
         <el-button type="danger" @click="confirmReset">重置</el-button>
       </template>
     </el-dialog>
-  </div>
+  </el-container>
 </template>
 
 <style scoped>

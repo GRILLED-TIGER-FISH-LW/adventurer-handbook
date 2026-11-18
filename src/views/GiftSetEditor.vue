@@ -779,7 +779,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="ah-gift-ed grid h-full grid-rows-[auto_minmax(0,1fr)_auto]">
+  <el-container class="ah-gift-ed ah-shell" direction="vertical">
     <!-- 工具条 -->
     <div class="flex items-center gap-2 border-b border-line bg-canvas p-2">
       <span
@@ -860,10 +860,12 @@ onBeforeUnmount(() => {
         </div>
 
         <div class="grid min-h-0 flex-1 content-start gap-1 overflow-y-auto p-2">
-          <p v-if="!data" class="p-3 text-xs text-muted">数据未加载，点「重载」或「导入」</p>
-          <p v-else-if="!sortedSets.length" class="p-3 text-xs text-muted">
-            {{ setCount ? '没有匹配的套装' : '暂无套装，点下方「新增套装」' }}
-          </p>
+          <el-empty v-if="!data" :image-size="56" description="数据未加载，点「重载」或「导入」" />
+          <el-empty
+            v-else-if="!sortedSets.length"
+            :image-size="56"
+            :description="setCount ? '没有匹配的套装' : '暂无套装，点下方「新增套装」'"
+          />
 
           <div
             v-for="s in sortedSets"
@@ -935,10 +937,11 @@ onBeforeUnmount(() => {
 
           <p v-if="loading" class="text-sm text-muted">正在载入…</p>
 
-          <div v-else-if="!data" class="grid justify-items-center gap-3 p-8 text-center">
-            <el-icon class="text-faint"><Document /></el-icon>
-            <p class="text-sm text-muted">数据未加载，请点右上角「重载」或「导入」</p>
-          </div>
+          <el-empty
+            v-else-if="!data"
+            :image-size="80"
+            description="数据未加载，请点右上角「重载」或「导入」"
+          />
 
           <p v-else-if="!entry" class="text-sm text-muted">
             从列表选择套装开始编辑，或点「新增套装」
@@ -1192,7 +1195,7 @@ onBeforeUnmount(() => {
         <el-button type="primary" @click="runExport">继续导出</el-button>
       </template>
     </el-dialog>
-  </div>
+  </el-container>
 </template>
 
 <style scoped>

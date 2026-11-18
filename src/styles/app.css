@@ -77,6 +77,44 @@ html.dark {
    一个下拉框宽 = (100% - 16px) / 3（那行 3 个 el-select 是 grid-cols-3 gap-2，两条缝各 8px）
    写在全局而不是各页 scoped：两边不能各改各的。
    也不能写 Tailwind 的 w-*：EP 的 CSS 不带 @layer，非分层会盖掉 @layer utilities */
+/* ===== EP 页面骨架：el-header / el-footer 默认 60px 高 + 0 20px 内边距，
+   这里压回 auto + 8px，三段布局与原来的 grid-rows 等价 ===== */
+.ah-shell {
+  height: 100%;
+  min-height: 0;
+}
+
+.ah-shell > .el-header,
+.ah-shell > .el-footer {
+  height: auto;
+  padding: 8px;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--color-line);
+  background: var(--color-canvas);
+}
+
+.ah-shell > .el-footer {
+  border-bottom: 0;
+  border-top: 1px solid var(--color-line);
+}
+
+/* 顶栏默认 grid 竖排（Tales）；GiftSet 用 --row 改成横排一行 */
+.ah-shell__bar {
+  display: grid;
+  gap: 8px;
+}
+
+.ah-shell__bar--row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ah-shell > .el-main {
+  padding: 0;
+  min-height: 0;
+}
+
 .ah-uid {
   width: calc((100% - 16px) / 3);
   flex: none;
