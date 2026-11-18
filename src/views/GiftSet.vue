@@ -474,7 +474,7 @@ onMounted(async () => {
       />
     </el-header>
 
-    <div class="min-h-0 h-full overflow-y-auto">
+    <div class="min-h-0 h-full">
       <div v-if="loading" class="p-3 text-sm text-muted">正在加载套装数据…</div>
 
       <div v-else-if="errorMsg" class="grid justify-items-center gap-3 p-8 text-center">
@@ -873,6 +873,8 @@ onMounted(async () => {
 
 .ah-gift__collapse :deep(.el-collapse-item__content) {
   padding: 12px 16px;
+  max-height: 40vh;
+  overflow-y: auto;
 }
 
 /* EP 给 .el-select 带了 margin-right:8px（input-group 那条还带 margin:0 -20px），
