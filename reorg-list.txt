@@ -6,269 +6,140 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-layout —— 四页外壳换 el-container/el-header/el-footer，压掉 EP 默认 60px/20px
+# 最近一批：ep-text —— app.css 桥接 + Tales/GiftSet 文本改 el-text
 
 == MOVES ==
 
 == EDITS ==
-### src/views/Tales.vue
-<<<<
-  <div class="grid h-full grid-rows-[auto_minmax(0,1fr)_auto]">
-    <header class="grid gap-2 border-b border-line bg-canvas p-2">
->>>>
-<<<<
-  <el-container class="ah-shell" direction="vertical">
-    <el-header class="ah-shell__bar">
->>>>
-
-### src/views/Tales.vue
-<<<<
-    </header>
->>>>
-<<<<
-    </el-header>
->>>>
-
-### src/views/Tales.vue
-<<<<
-    <div class="border-t border-line bg-canvas p-2 safe-bottom">
->>>>
-<<<<
-    <el-footer class="ah-shell__bar ah-shell__bar--bottom safe-bottom">
->>>>
-
-### src/views/Tales.vue
-<<<<
-      </el-button>
-    </div>
-
-  </div>
-</template>
->>>>
-<<<<
-      </el-button>
-    </el-footer>
-
-  </el-container>
-</template>
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-  <div class="grid h-full grid-rows-[auto_minmax(0,1fr)_auto]">
-    <header class="flex items-center gap-2 border-b border-line bg-canvas p-2">
->>>>
-<<<<
-  <el-container class="ah-shell" direction="vertical">
-    <el-header class="ah-shell__bar ah-shell__bar--row">
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-    </header>
->>>>
-<<<<
-    </el-header>
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-    <div class="border-t border-line bg-canvas p-2 safe-bottom">
->>>>
-<<<<
-    <el-footer class="ah-shell__bar ah-shell__bar--bottom safe-bottom">
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-        <span>重置全部数据</span>
-      </el-button>
-    </div>
->>>>
-<<<<
-        <span>重置全部数据</span>
-      </el-button>
-    </el-footer>
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-    </el-dialog>
-  </div>
-</template>
->>>>
-<<<<
-    </el-dialog>
-  </el-container>
-</template>
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-  <div class="ah-tales grid h-full grid-rows-[auto_minmax(0,1fr)_auto]">
->>>>
-<<<<
-  <el-container class="ah-tales ah-shell" direction="vertical">
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-    </el-dialog>
-  </div>
-</template>
->>>>
-<<<<
-    </el-dialog>
-  </el-container>
-</template>
->>>>
-
-### src/views/GiftSetEditor.vue
-<<<<
-  <div class="ah-gift-ed grid h-full grid-rows-[auto_minmax(0,1fr)_auto]">
->>>>
-<<<<
-  <el-container class="ah-gift-ed ah-shell" direction="vertical">
->>>>
-
-### src/views/GiftSetEditor.vue
-<<<<
-    </el-dialog>
-  </div>
-</template>
->>>>
-<<<<
-    </el-dialog>
-  </el-container>
-</template>
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-          <p v-if="!data" class="p-3 text-xs text-muted">数据未加载，点「重载」或「导入」</p>
-          <p v-else-if="!filteredEntries.length" class="p-3 text-xs text-muted">
-            没有匹配的条目
-          </p>
->>>>
-<<<<
-          <el-empty v-if="!data" :image-size="56" description="数据未加载，点「重载」或「导入」" />
-          <el-empty
-            v-else-if="!filteredEntries.length"
-            :image-size="56"
-            description="没有匹配的条目"
-          />
->>>>
-
-### src/views/TalesEditor.vue
-<<<<
-          <div v-else-if="!data" class="grid justify-items-center gap-3 p-8 text-center">
-            <el-icon class="text-faint"><Document /></el-icon>
-            <p class="text-sm text-muted">数据未加载，请点右上角「重载」或「导入」</p>
-          </div>
->>>>
-<<<<
-          <el-empty
-            v-else-if="!data"
-            :image-size="80"
-            description="数据未加载，请点右上角「重载」或「导入」"
-          />
->>>>
-
-### src/views/GiftSetEditor.vue
-<<<<
-          <p v-if="!data" class="p-3 text-xs text-muted">数据未加载，点「重载」或「导入」</p>
-          <p v-else-if="!sortedSets.length" class="p-3 text-xs text-muted">
-            {{ setCount ? '没有匹配的套装' : '暂无套装，点下方「新增套装」' }}
-          </p>
->>>>
-<<<<
-          <el-empty v-if="!data" :image-size="56" description="数据未加载，点「重载」或「导入」" />
-          <el-empty
-            v-else-if="!sortedSets.length"
-            :image-size="56"
-            :description="setCount ? '没有匹配的套装' : '暂无套装，点下方「新增套装」'"
-          />
->>>>
-
-### src/views/GiftSetEditor.vue
-<<<<
-          <div v-else-if="!data" class="grid justify-items-center gap-3 p-8 text-center">
-            <el-icon class="text-faint"><Document /></el-icon>
-            <p class="text-sm text-muted">数据未加载，请点右上角「重载」或「导入」</p>
-          </div>
->>>>
-<<<<
-          <el-empty
-            v-else-if="!data"
-            :image-size="80"
-            description="数据未加载，请点右上角「重载」或「导入」"
-          />
->>>>
-
 ### src/styles/app.css
 <<<<
 .ah-uid {
 >>>>
 <<<<
-/* ===== EP 页面骨架：el-header / el-footer 默认 60px 高 + 0 20px 内边距，
-   这里压回 auto + 8px，三段布局与原来的 grid-rows 等价 ===== */
-.ah-shell {
-  height: 100%;
-  min-height: 0;
-}
-
-.ah-shell > .el-header,
-.ah-shell > .el-footer {
-  height: auto;
-  padding: 8px;
-  box-sizing: border-box;
-  border-bottom: 1px solid var(--color-line);
-  background: var(--color-canvas);
-}
-
-.ah-shell > .el-footer {
-  border-bottom: 0;
-  border-top: 1px solid var(--color-line);
-}
-
-/* 顶栏默认 grid 竖排（Tales）；GiftSet 用 --row 改成横排一行 */
-.ah-shell__bar {
-  display: grid;
-  gap: 8px;
-}
-
-.ah-shell__bar--row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.ah-shell > .el-main {
-  padding: 0;
-  min-height: 0;
-}
+/* ===== el-text 桥接：EP 语义色映射到本站令牌；ah-text-block 让弹窗段落保持块级 ===== */
+.ah-text-muted { --el-text-color: var(--color-muted); }
+.ah-text-ink { --el-text-color: var(--color-ink); }
+.ah-text-faint { --el-text-color: var(--color-faint); }
+.ah-text-danger { --el-text-color: var(--color-danger); }
+.ah-text-gold { --el-text-color: var(--color-gold); }
+.ah-text-accent { --el-text-color: var(--color-accent-strong); }
+.ah-text-block { display: block; }
 
 .ah-uid {
+>>>>
+
+### src/views/Tales.vue
+<<<<
+<p class="text-sm font-semibold text-danger">数据加载失败</p>
+>>>>
+<<<<
+<el-text class="el-text el-text--default ah-text-danger font-semibold ah-text-block">数据加载失败</el-text>
+>>>>
+
+### src/views/Tales.vue
+<<<<
+<p class="text-xs text-muted">{{ errorMsg }}</p>
+>>>>
+<<<<
+<el-text class="el-text el-text--small ah-text-muted ah-text-block">{{ errorMsg }}</el-text>
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+<p class="text-sm font-semibold text-danger">数据加载失败</p>
+>>>>
+<<<<
+<el-text class="el-text el-text--default ah-text-danger font-semibold ah-text-block">数据加载失败</el-text>
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+<p class="text-xs text-muted">{{ errorMsg }}</p>
+>>>>
+<<<<
+<el-text class="el-text el-text--small ah-text-muted ah-text-block">{{ errorMsg }}</el-text>
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+<span class="text-sm font-semibold text-ink">我的角色</span>
+>>>>
+<<<<
+<el-text class="el-text el-text--default ah-text-ink font-semibold">我的角色</el-text>
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+<span class="text-xs text-muted ml-2">{{ owned.length }}</span>
+>>>>
+<<<<
+<el-text class="el-text el-text--small ah-text-muted ml-2">{{ owned.length }}</el-text>
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+<span class="text-sm font-semibold text-ink">推荐套装</span>
+>>>>
+<<<<
+<el-text class="el-text el-text--default ah-text-ink font-semibold">推荐套装</el-text>
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+<span class="text-xs text-muted ml-2">前 {{ recommendations.length }}</span>
+>>>>
+<<<<
+<el-text class="el-text el-text--small ah-text-muted ml-2">前 {{ recommendations.length }}</el-text>
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+                  <span class="truncate text-sm font-medium text-ink">{{ s.name }}</span>
+                  <span class="text-xs text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</span>
+>>>>
+<<<<
+                  <span class="truncate text-sm font-medium text-ink">{{ s.name }}</span>
+                  <el-text class="el-text el-text--small ah-text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</el-text>
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+<span class="text-sm font-semibold text-ink">全部套装</span>
+>>>>
+<<<<
+<el-text class="el-text el-text--default ah-text-ink font-semibold">全部套装</el-text>
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+<span class="text-xs text-muted ml-2">{{ filteredSets.length }} / {{ sets.length }}</span>
+>>>>
+<<<<
+<el-text class="el-text el-text--small ah-text-muted ml-2">{{ filteredSets.length }} / {{ sets.length }}</el-text>
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+                  </span>
+                  <span class="text-xs text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</span>
+>>>>
+<<<<
+                  </span>
+                  <el-text class="el-text el-text--small ah-text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</el-text>
+>>>>
+
+### src/views/GiftSet.vue
+<<<<
+<p class="text-sm text-body">将清空「我拥有的角色」和所有完成记录，此操作不可撤销。</p>
+>>>>
+<<<<
+<el-text class="el-text el-text--large ah-text-block">将清空「我拥有的角色」和所有完成记录，此操作不可撤销。</el-text>
 >>>>
 
 == DELETES ==
 
 == CHECKS ==
-grep -q '<el-container class="ah-shell"' src/views/Tales.vue
-grep -q '<el-container class="ah-shell"' src/views/GiftSet.vue
-grep -q '<el-container class="ah-tales ah-shell"' src/views/TalesEditor.vue
-grep -q '<el-container class="ah-gift-ed ah-shell"' src/views/GiftSetEditor.vue
-grep -q '<el-header' src/views/Tales.vue
-grep -q '<el-footer' src/views/Tales.vue
-grep -q '<el-header' src/views/GiftSet.vue
-grep -q '<el-footer' src/views/GiftSet.vue
-! grep -q '<header' src/views/Tales.vue
-! grep -q '<header' src/views/GiftSet.vue
-! grep -q '</header>' src/views/Tales.vue
-! grep -q '</header>' src/views/GiftSet.vue
-! grep -q 'grid h-full grid-rows-\[auto_minmax' src/views/Tales.vue
-! grep -q 'grid h-full grid-rows-\[auto_minmax' src/views/GiftSet.vue
-! grep -q 'grid h-full grid-rows-\[auto_minmax' src/views/TalesEditor.vue
-! grep -q 'grid h-full grid-rows-\[auto_minmax' src/views/GiftSetEditor.vue
-grep -q 'ah-shell' src/styles/app.css
-grep -q 'ah-shell__bar--row' src/styles/app.css
+grep -q 'ah-text-muted' src/styles/app.css
+grep -q 'ah-text-block' src/styles/app.css
+grep -c '<el-text' src/views/Tales.vue
+grep -c '<el-text' src/views/GiftSet.vue
