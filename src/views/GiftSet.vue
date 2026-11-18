@@ -478,8 +478,8 @@ onMounted(async () => {
       <div v-if="loading" class="p-3 text-sm text-muted">正在加载套装数据…</div>
 
       <div v-else-if="errorMsg" class="grid justify-items-center gap-3 p-8 text-center">
-        <p class="text-sm font-semibold text-danger">数据加载失败</p>
-        <p class="text-xs text-muted">{{ errorMsg }}</p>
+        <el-text class="el-text el-text--default ah-text-danger font-semibold ah-text-block">数据加载失败</el-text>
+        <el-text class="el-text el-text--small ah-text-muted ah-text-block">{{ errorMsg }}</el-text>
         <el-button size="small" @click="() => location.reload()">
           <span>重新加载</span>
         </el-button>
@@ -493,8 +493,8 @@ onMounted(async () => {
         >
           <el-collapse-item name="char">
             <template #title>
-              <span class="text-sm font-semibold text-ink">我的角色</span>
-              <span class="text-xs text-muted ml-2">{{ owned.length }}</span>
+              <el-text class="el-text el-text--default ah-text-ink font-semibold">我的角色</el-text>
+              <el-text class="el-text el-text--small ah-text-muted ml-2">{{ owned.length }}</el-text>
             </template>
             <div class="grid gap-2">
             <el-input
@@ -548,8 +548,8 @@ onMounted(async () => {
 
           <el-collapse-item v-if="recommendations.length" name="recommend">
             <template #title>
-              <span class="text-sm font-semibold text-ink">推荐套装</span>
-              <span class="text-xs text-muted ml-2">前 {{ recommendations.length }}</span>
+              <el-text class="el-text el-text--default ah-text-ink font-semibold">推荐套装</el-text>
+              <el-text class="el-text el-text--small ah-text-muted ml-2">前 {{ recommendations.length }}</el-text>
             </template>
             <div class="grid gap-2">
             <article
@@ -585,7 +585,7 @@ onMounted(async () => {
 
                 <span class="grid min-w-0 flex-1 gap-1">
                   <span class="truncate text-sm font-medium text-ink">{{ s.name }}</span>
-                  <span class="text-xs text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</span>
+                  <el-text class="el-text el-text--small ah-text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</el-text>
                 </span>
 
                 <span class="shrink-0 text-xs tabular-nums text-muted">
@@ -640,8 +640,8 @@ onMounted(async () => {
 
           <el-collapse-item name="all">
             <template #title>
-              <span class="text-sm font-semibold text-ink">全部套装</span>
-              <span class="text-xs text-muted ml-2">{{ filteredSets.length }} / {{ sets.length }}</span>
+              <el-text class="el-text el-text--default ah-text-ink font-semibold">全部套装</el-text>
+              <el-text class="el-text el-text--small ah-text-muted ml-2">{{ filteredSets.length }} / {{ sets.length }}</el-text>
             </template>
             <div class="grid gap-2">
             <el-input
@@ -727,7 +727,7 @@ onMounted(async () => {
                   <span class="truncate text-sm font-medium text-ink">
                     {{ s.name || '(未命名)' }}
                   </span>
-                  <span class="text-xs text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</span>
+                  <el-text class="el-text el-text--small ah-text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</el-text>
                 </span>
 
                 <span
@@ -805,7 +805,7 @@ onMounted(async () => {
       :close-on-click-modal="false"
       :close-on-press-escape="false"
     >
-      <p class="text-sm text-body">将清空「我拥有的角色」和所有完成记录，此操作不可撤销。</p>
+      <el-text class="el-text el-text--large ah-text-block">将清空「我拥有的角色」和所有完成记录，此操作不可撤销。</el-text>
       <template #footer>
         <el-button @click="resetOpen = false">取消</el-button>
         <el-button type="danger" @click="confirmReset">重置</el-button>
