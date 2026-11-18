@@ -6,235 +6,74 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-gift-char —— 标题数字间距、角色格竖格统一、编辑器角色换 el-checkbox、弹窗确认后关闭
+# 最近一批：ep-gift-char-fix —— 角色格列宽固定、label 竖向排列，角色框变竖长长方形
 
 == MOVES ==
 
 == EDITS ==
-### src/styles/app.css
-<<<<
-.ah-text-block { display: block; }
->>>>
-<<<<
-.ah-text-block { display: block; }
-
-/* 标题与右侧数字的分隔间距（ml-2 在 el-text 下被 EP 样式顶掉，改用自定义类） */
-.ah-text-gap { margin-left: 8px; }
->>>>
-
 ### src/views/GiftSet.vue
-<<<<
-<el-text class="el-text el-text--small ah-text-muted ml-2">{{ owned.length }}</el-text>
->>>>
-<<<<
-<el-text class="el-text el-text--small ah-text-muted ah-text-gap">{{ owned.length }}</el-text>
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-<el-text class="el-text el-text--small ah-text-muted ml-2">前 {{ recommendations.length }}</el-text>
->>>>
-<<<<
-<el-text class="el-text el-text--small ah-text-muted ah-text-gap">前 {{ recommendations.length }}</el-text>
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-<el-text class="el-text el-text--small ah-text-muted ml-2">{{ filteredSets.length }} / {{ sets.length }}</el-text>
->>>>
-<<<<
-<el-text class="el-text el-text--small ah-text-muted ah-text-gap">{{ filteredSets.length }} / {{ sets.length }}</el-text>
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-            <div class="grid grid-cols-[repeat(auto-fill,minmax(56px,1fr))] gap-2">
-              <el-checkbox
-                v-for="name in visibleCharNames"
->>>>
 <<<<
             <div class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
               <el-checkbox
-                v-for="name in visibleCharNames"
+>>>>
+<<<<
+            <div class="grid grid-cols-[repeat(auto-fill,48px)] gap-2">
+              <el-checkbox
 >>>>
 
 ### src/views/GiftSet.vue
-<<<<
-                <div class="grid grid-cols-[repeat(auto-fill,minmax(56px,1fr))] gap-2">
-                  <el-checkbox
-                    v-for="name in cardMap.get(s.key)?.chars || []"
->>>>
 <<<<
                 <div class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
                   <el-checkbox
-                    v-for="name in cardMap.get(s.key)?.chars || []"
+                    v-for="name in cardMap.get(s.key)?.chars
+>>>>
+<<<<
+                <div class="grid grid-cols-[repeat(auto-fill,48px)] gap-2">
+                  <el-checkbox
+                    v-for="name in cardMap.get(s.key)?.chars
 >>>>
 
 ### src/views/GiftSet.vue
-<<<<
-                <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(56px,1fr))] gap-2">
-                  <el-checkbox
-                    v-for="name in cardMap.get(s.key).chars
->>>>
 <<<<
                 <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
                   <el-checkbox
                     v-for="name in cardMap.get(s.key).chars
 >>>>
+<<<<
+                <div v-else class="grid grid-cols-[repeat(auto-fill,48px)] gap-2">
+                  <el-checkbox
+                    v-for="name in cardMap.get(s.key).chars
+>>>>
 
 ### src/views/GiftSet.vue
 <<<<
-  height: auto;
-  min-height: 0;
-  margin: 0;
-  padding: 2px 0;
-}
->>>>
-<<<<
-  height: auto;
-  min-height: 0;
-  margin: 0;
-  padding: 4px 0;
-}
-
-/* 与编辑器偏好角色格一致：悬浮提示可移除 */
-.ah-gift__char:hover {
-  border-color: var(--color-danger);
-}
->>>>
-
-### src/views/GiftSetEditor.vue
-<<<<
-    clearDirty()
-    clearDraft()
-    toast.success(`已重载 ${setCount.value} 条`)
->>>>
-<<<<
-    reloadOpen.value = false
-    clearDirty()
-    clearDraft()
-    toast.success(`已重载 ${setCount.value} 条`)
->>>>
-
-### src/views/GiftSetEditor.vue
-<<<<
-  markDirty()
-  toast.success('已删除')
->>>>
-<<<<
-  markDirty()
-  deleteOpen.value = false
-  toast.success('已删除')
->>>>
-
-### src/views/GiftSetEditor.vue
-<<<<
-  markDirty()
-  toast.success(`已重排 ${n} 条 id`)
->>>>
-<<<<
-  markDirty()
-  renumberOpen.value = false
-  toast.success(`已重排 ${n} 条 id`)
->>>>
-
-### src/views/GiftSetEditor.vue
-<<<<
-  clearDirty()
-  clearDraft()
-  toast.success(`已导出 ${FILE_NAME}`)
->>>>
-<<<<
-  exportOpen.value = false
-  clearDirty()
-  clearDraft()
-  toast.success(`已导出 ${FILE_NAME}`)
->>>>
-
-### src/views/GiftSetEditor.vue
-<<<<
-                <div
-                  v-for="name in sortedChars"
-                  :key="name"
-                  role="button"
-                  tabindex="0"
-                  class="grid cursor-pointer justify-items-center gap-1 rounded-ctl border border-line bg-surface p-1 hover:border-danger focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-                  :title="`移除 ${name}`"
-                  :aria-label="`移除 ${name}`"
-                  @click="removeChar(name)"
-                  @keydown.enter.prevent="removeChar(name)"
-                  @keydown.space.prevent="removeChar(name)"
-                >
-                  <span
-                    class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
-                  >
-                    <span aria-hidden="true">{{ name.charAt(0) }}</span>
-                    <img
-                      v-if="avatarUrl(name)"
-                      :src="avatarUrl(name)"
-                      alt=""
-                      loading="lazy"
-                      class="absolute inset-0 size-full object-cover"
-                      @error="onImgError"
-                    />
-                  </span>
-                  <span class="w-full truncate text-center text-[10px] text-muted">
-                    {{ name }}
-                  </span>
-                                </div>
->>>>
-<<<<
-                <el-checkbox
-                  v-for="name in sortedChars"
-                  :key="name"
-                  class="ah-ed-char"
-                  :title="`移除 ${name}`"
-                  :aria-label="`移除 ${name}`"
-                  @change="removeChar(name)"
-                >
-                  <span
-                    class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
-                  >
-                    <span aria-hidden="true">{{ name.charAt(0) }}</span>
-                    <img
-                      v-if="avatarUrl(name)"
-                      :src="avatarUrl(name)"
-                      alt=""
-                      loading="lazy"
-                      class="absolute inset-0 size-full object-cover"
-                      @error="onImgError"
-                    />
-                  </span>
-                  <span class="w-full truncate text-center text-[10px] text-muted">
-                    {{ name }}
-                  </span>
-                </el-checkbox>
->>>>
-
-### src/views/GiftSetEditor.vue
-<<<<
-</style>
->>>>
-<<<<
-/* 偏好角色格：el-checkbox 竖格外观，与 GiftSet 页面角色格一致 */
-.ah-ed-char {
-  display: block;
+.ah-gift__char :deep(.el-checkbox__label) {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
   width: 100%;
-  box-sizing: border-box;
-  justify-self: stretch;
-  min-width: 0;
-  height: auto;
-  min-height: 0;
-  margin: 0;
-  padding: 4px 0;
 }
-
-.ah-ed-char :deep(.el-checkbox__input) {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
+>>>>
+<<<<
+.ah-gift__char :deep(.el-checkbox__label) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
 }
+>>>>
 
+### src/views/GiftSetEditor.vue
+<<<<
+class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2 rounded-ctl border border-line-2 bg-sunken p-2"
+>>>>
+<<<<
+class="grid grid-cols-[repeat(auto-fill,48px)] gap-2 rounded-ctl border border-line-2 bg-sunken p-2"
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
 .ah-ed-char :deep(.el-checkbox__label) {
   display: grid;
   justify-items: center;
@@ -242,23 +81,25 @@
   width: 100%;
   padding: 0;
 }
-
-.ah-ed-char:hover {
-  border-color: var(--color-danger);
+>>>>
+<<<<
+.ah-ed-char :deep(.el-checkbox__label) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
 }
-
-</style>
 >>>>
 
 == DELETES ==
 
 == CHECKS ==
-grep -q 'ah-text-gap' src/styles/app.css
-! grep -q 'ah-text-muted ml-2' src/views/GiftSet.vue
-! grep -q 'minmax(56px,1fr)' src/views/GiftSet.vue
-grep -q 'ah-ed-char' src/views/GiftSetEditor.vue
-grep -c 'reloadOpen.value = false' src/views/GiftSetEditor.vue
-grep -c 'deleteOpen.value = false' src/views/GiftSetEditor.vue
-grep -c 'renumberOpen.value = false' src/views/GiftSetEditor.vue
-grep -c 'exportOpen.value = false' src/views/GiftSetEditor.vue
-grep -q 'ah-text-gap' src/views/GiftSet.vue
+! grep -q "minmax(48px,1fr)" src/views/GiftSet.vue
+grep -q "repeat(auto-fill,48px)" src/views/GiftSet.vue
+! grep -q "justify-items: center" src/views/GiftSet.vue
+grep -q "flex-direction: column" src/views/GiftSet.vue
+grep -q "flex-direction: column" src/views/GiftSetEditor.vue
+! grep -q "minmax(48px,1fr)" src/views/GiftSetEditor.vue
+grep -q "repeat(auto-fill,48px)" src/views/GiftSetEditor.vue
