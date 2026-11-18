@@ -819,7 +819,7 @@ onBeforeUnmount(() => {
       />
     </div>
 
-    <main class="grid min-h-0 grid-cols-1 min-[900px]:grid-cols-[20rem_minmax(0,1fr)]">
+    <el-main class="grid min-h-0 grid-cols-1 min-[900px]:grid-cols-[20rem_minmax(0,1fr)]">
       <!-- 左：列表 -->
       <aside
         class="flex min-h-0 flex-col bg-surface-2"
@@ -1115,7 +1115,7 @@ onBeforeUnmount(() => {
           </template>
         </div>
       </section>
-    </main>
+    </el-main>
 
     <!-- 底部固定危险区：只有停在表单栏（手机端点进某套后）才出现删除入口 -->
     <div
