@@ -6,13 +6,21 @@
 
 [![在线访问](https://img.shields.io/badge/在线访问-打开网站-cc785c?style=flat-square&logo=googlechrome&logoColor=white)](https://grilled-tiger-fish-lw.github.io/adventurer-handbook/)
 [![最后更新](https://img.shields.io/github/last-commit/GRILLED-TIGER-FISH-LW/adventurer-handbook?style=flat-square&label=最后更新&color=cc785c&logo=github&logoColor=white)]()
-[![Tech Stack](https://img.shields.io/badge/Tech-Vue%203%20%7C%20Vite%20%7C%20Tailwind-f5f0e8?style=flat-square)]()
+[![Tech Stack](https://img.shields.io/badge/Tech-Vue%203%20%7C%20Vite%20%7C%20Element%20Plus-f5f0e8?style=flat-square)]()
 
 [开始使用](#start) · [游逸旅闻](#tales) · [赠礼套装](#giftset) · [数据保存](#save) · [常见问题](#faq) · [项目结构](#structure)
 
 </div>
 
 ---
+
+## 🧱 技术栈
+
+- **Vue 3 + Vite**：单页应用，hash 路由，无后端。
+- **Element Plus**：全站交互控件统一使用（按钮、输入、下拉、弹窗、分段、自动补全等），功能图标走 `@element-plus/icons-vue`。
+- **Tailwind CSS 4**：只做布局与主题类（网格、间距、颜色），不写组件样式。
+- **设计令牌**：颜色 / 字号 / 间距 / 圆角 / 控件高度集中在 `src/styles/tokens.css`，深浅两套。
+- **内容标识图标**：`@solar-icons/vue`，在 `src/icons/solar.js` 注册。
 
 ## 📑 页面导航
 
@@ -213,14 +221,14 @@
     adventurer-handbook/
     ├── index.html                    入口（主题预置 + 加载守卫）
     ├── src/
-    │   ├── components/               可复用控件（按钮 / 输入 / 抽屉 / 弹窗 / 页签…）
+    │   ├── components/               布局与导航（抽屉 / 导航 / 通知），交互控件统一走 Element Plus
     │   ├── composables/              主题 / 通知队列 / 数据加载
-    │   ├── icons/                    UI 图标（内联 SVG）
+    │   ├── icons/                    内容标识图标（Solar 图标注册）
     │   ├── styles/                   设计令牌 + 全局基线
     │   └── views/                    页面（首页 / 旅闻 / 套装 / 两个编辑器）
     ├── public/
     │   └── data/                     游戏数据（tales.js / gift-set.js，运行时加载）
-    └── .github/workflows/            构建检查 + 部署
+    └── .github/workflows/            构建检查 + 部署 + 清单式改动工作流
 
 > 想改代码的话，先看 [AGENTS.md](./AGENTS.md)（协作流程、实现约定、诊断套路）和 [CHANGELOG](./CHANGELOG.md)（里程碑）。
 
