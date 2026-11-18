@@ -6,140 +6,367 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-text —— app.css 桥接 + Tales/GiftSet 文本改 el-text
+
+# 最近一批：ep-text-ed —— 两个编辑器文本改 el-text
 
 == MOVES ==
 
 == EDITS ==
-### src/styles/app.css
+### src/views/TalesEditor.vue
 <<<<
-.ah-uid {
+<span class="text-xs text-muted">
+        {{ data ? `${entryCount} 条` : '数据未加载' }}
+      </span>
 >>>>
 <<<<
-/* ===== el-text 桥接：EP 语义色映射到本站令牌；ah-text-block 让弹窗段落保持块级 ===== */
-.ah-text-muted { --el-text-color: var(--color-muted); }
-.ah-text-ink { --el-text-color: var(--color-ink); }
-.ah-text-faint { --el-text-color: var(--color-faint); }
-.ah-text-danger { --el-text-color: var(--color-danger); }
-.ah-text-gold { --el-text-color: var(--color-gold); }
-.ah-text-accent { --el-text-color: var(--color-accent-strong); }
-.ah-text-block { display: block; }
-
-.ah-uid {
+<el-text class="el-text el-text--small ah-text-muted">
+        {{ data ? `${entryCount} 条` : '数据未加载' }}
+      </el-text>
 >>>>
 
-### src/views/Tales.vue
+### src/views/TalesEditor.vue
 <<<<
-<p class="text-sm font-semibold text-danger">数据加载失败</p>
+<p v-if="loading" class="text-sm text-muted">正在载入…</p>
 >>>>
 <<<<
-<el-text class="el-text el-text--default ah-text-danger font-semibold ah-text-block">数据加载失败</el-text>
->>>>
-
-### src/views/Tales.vue
-<<<<
-<p class="text-xs text-muted">{{ errorMsg }}</p>
->>>>
-<<<<
-<el-text class="el-text el-text--small ah-text-muted ah-text-block">{{ errorMsg }}</el-text>
+<el-text v-if="loading" class="el-text el-text--default ah-text-muted ah-text-block">正在载入…</el-text>
 >>>>
 
-### src/views/GiftSet.vue
+### src/views/TalesEditor.vue
 <<<<
-<p class="text-sm font-semibold text-danger">数据加载失败</p>
+<p v-else-if="!entry" class="text-sm text-muted">
+            从列表选择条目开始编辑，或点「新增」
+          </p>
 >>>>
 <<<<
-<el-text class="el-text el-text--default ah-text-danger font-semibold ah-text-block">数据加载失败</el-text>
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-<p class="text-xs text-muted">{{ errorMsg }}</p>
->>>>
-<<<<
-<el-text class="el-text el-text--small ah-text-muted ah-text-block">{{ errorMsg }}</el-text>
+<el-text v-else-if="!entry" class="el-text el-text--default ah-text-muted ah-text-block">
+            从列表选择条目开始编辑，或点「新增」
+          </el-text>
 >>>>
 
-### src/views/GiftSet.vue
+### src/views/TalesEditor.vue
 <<<<
-<span class="text-sm font-semibold text-ink">我的角色</span>
+<span class="text-xs text-muted">{{ headingSub }}</span>
 >>>>
 <<<<
-<el-text class="el-text el-text--default ah-text-ink font-semibold">我的角色</el-text>
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-<span class="text-xs text-muted ml-2">{{ owned.length }}</span>
->>>>
-<<<<
-<el-text class="el-text el-text--small ah-text-muted ml-2">{{ owned.length }}</el-text>
+<el-text class="el-text el-text--small ah-text-muted">{{ headingSub }}</el-text>
 >>>>
 
-### src/views/GiftSet.vue
+### src/views/TalesEditor.vue
 <<<<
-<span class="text-sm font-semibold text-ink">推荐套装</span>
+<span class="text-xs font-medium text-muted">id · 可手动改，需唯一</span>
 >>>>
 <<<<
-<el-text class="el-text el-text--default ah-text-ink font-semibold">推荐套装</el-text>
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-<span class="text-xs text-muted ml-2">前 {{ recommendations.length }}</span>
->>>>
-<<<<
-<el-text class="el-text el-text--small ah-text-muted ml-2">前 {{ recommendations.length }}</el-text>
+<el-text class="el-text el-text--small ah-text-muted font-medium">id · 可手动改，需唯一</el-text>
 >>>>
 
-### src/views/GiftSet.vue
+### src/views/TalesEditor.vue
 <<<<
-                  <span class="truncate text-sm font-medium text-ink">{{ s.name }}</span>
-                  <span class="text-xs text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</span>
+<span class="text-xs font-medium text-muted">版本 · 输入新值会自动加入列表</span>
 >>>>
 <<<<
-                  <span class="truncate text-sm font-medium text-ink">{{ s.name }}</span>
-                  <el-text class="el-text el-text--small ah-text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</el-text>
+<el-text class="el-text el-text--small ah-text-muted font-medium">版本 · 输入新值会自动加入列表</el-text>
 >>>>
 
-### src/views/GiftSet.vue
+### src/views/TalesEditor.vue
 <<<<
-<span class="text-sm font-semibold text-ink">全部套装</span>
+<span class="text-xs font-medium text-muted">角色名 · 从字典联想，可自定义</span>
 >>>>
 <<<<
-<el-text class="el-text el-text--default ah-text-ink font-semibold">全部套装</el-text>
->>>>
-
-### src/views/GiftSet.vue
-<<<<
-<span class="text-xs text-muted ml-2">{{ filteredSets.length }} / {{ sets.length }}</span>
->>>>
-<<<<
-<el-text class="el-text el-text--small ah-text-muted ml-2">{{ filteredSets.length }} / {{ sets.length }}</el-text>
+<el-text class="el-text el-text--small ah-text-muted font-medium">角色名 · 从字典联想，可自定义</el-text>
 >>>>
 
-### src/views/GiftSet.vue
+### src/views/TalesEditor.vue
 <<<<
-                  </span>
-                  <span class="text-xs text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</span>
+<p v-if="showCharWarn" class="text-xs text-danger">
+                字典中无此角色，主界面将显示首字占位
+              </p>
 >>>>
 <<<<
-                  </span>
-                  <el-text class="el-text el-text--small ah-text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</el-text>
+<el-text v-if="showCharWarn" class="el-text el-text--small ah-text-danger ah-text-block">
+                字典中无此角色，主界面将显示首字占位
+              </el-text>
 >>>>
 
-### src/views/GiftSet.vue
+### src/views/TalesEditor.vue
 <<<<
-<p class="text-sm text-body">将清空「我拥有的角色」和所有完成记录，此操作不可撤销。</p>
+<span class="text-micro text-muted">旅闻名</span>
 >>>>
 <<<<
-<el-text class="el-text el-text--large ah-text-block">将清空「我拥有的角色」和所有完成记录，此操作不可撤销。</el-text>
+<el-text class="el-text el-text--small ah-text-muted">旅闻名</el-text>
+>>>>
+
+### src/views/TalesEditor.vue
+<<<<
+<span class="text-xs text-ink">标记为隐藏旅闻（主界面红色）</span>
+>>>>
+<<<<
+<el-text class="el-text el-text--small ah-text-ink">标记为隐藏旅闻（主界面红色）</el-text>
+>>>>
+
+### src/views/TalesEditor.vue
+<<<<
+<span class="text-micro text-muted">地点</span>
+>>>>
+<<<<
+<el-text class="el-text el-text--small ah-text-muted">地点</el-text>
+>>>>
+
+### src/views/TalesEditor.vue
+<<<<
+<span class="text-micro text-muted">触发条件</span>
+>>>>
+<<<<
+<el-text class="el-text el-text--small ah-text-muted">触发条件</el-text>
+>>>>
+
+### src/views/TalesEditor.vue
+<<<<
+<span class="text-micro text-muted">前置旅闻 · 只填旅闻名</span>
+>>>>
+<<<<
+<el-text class="el-text el-text--small ah-text-muted">前置旅闻 · 只填旅闻名</el-text>
+>>>>
+
+### src/views/TalesEditor.vue
+<<<<
+<span class="text-micro text-muted">描述 · 支持换行</span>
+>>>>
+<<<<
+<el-text class="el-text el-text--small ah-text-muted">描述 · 支持换行</el-text>
+>>>>
+
+### src/views/TalesEditor.vue
+<<<<
+<p class="text-sm text-body">
+        {{
+          dirty
+            ? '当前有未导出的修改，重载会丢弃这些改动。'
+            : `将从线上重新拉取 ${FILE_NAME}，覆盖当前编辑内容。`
+        }}
+      </p>
+>>>>
+<<<<
+<el-text class="el-text el-text--large ah-text-block">
+        {{
+          dirty
+            ? '当前有未导出的修改，重载会丢弃这些改动。'
+            : `将从线上重新拉取 ${FILE_NAME}，覆盖当前编辑内容。`
+        }}
+      </el-text>
+>>>>
+
+### src/views/TalesEditor.vue
+<<<<
+<p class="text-sm text-body">
+        确定删除「{{ entry?.character || '?' }} · {{ entry?.title || '?' }}」吗？此操作不可撤销。
+      </p>
+>>>>
+<<<<
+<el-text class="el-text el-text--large ah-text-block">
+        确定删除「{{ entry?.character || '?' }} · {{ entry?.title || '?' }}」吗？此操作不可撤销。
+      </el-text>
+>>>>
+
+### src/views/TalesEditor.vue
+<<<<
+<p class="text-sm text-body">
+        将按当前显示顺序重新编号 1 ~ {{ entryCount }}，原有 id 会被覆盖。
+      </p>
+>>>>
+<<<<
+<el-text class="el-text el-text--large ah-text-block">
+        将按当前显示顺序重新编号 1 ~ {{ entryCount }}，原有 id 会被覆盖。
+      </el-text>
+>>>>
+
+### src/views/TalesEditor.vue
+<<<<
+<p class="text-sm text-body">发现 {{ warnings.length }} 项问题：</p>
+>>>>
+<<<<
+<el-text class="el-text el-text--large ah-text-block">发现 {{ warnings.length }} 项问题：</el-text>
+>>>>
+
+### src/views/TalesEditor.vue
+<<<<
+<p class="text-xs text-body">是否继续导出？</p>
+>>>>
+<<<<
+<el-text class="el-text el-text--large ah-text-block">是否继续导出？</el-text>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+<span class="text-xs text-muted">{{ data ? `${setCount} 条` : '数据未加载' }}</span>
+>>>>
+<<<<
+<el-text class="el-text el-text--small ah-text-muted">{{ data ? `${setCount} 条` : '数据未加载' }}</el-text>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+<p v-if="loading" class="text-sm text-muted">正在载入…</p>
+>>>>
+<<<<
+<el-text v-if="loading" class="el-text el-text--default ah-text-muted ah-text-block">正在载入…</el-text>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+<p v-else-if="!entry" class="text-sm text-muted">
+            从列表选择套装开始编辑，或点「新增套装」
+          </p>
+>>>>
+<<<<
+<el-text v-else-if="!entry" class="el-text el-text--default ah-text-muted ah-text-block">
+            从列表选择套装开始编辑，或点「新增套装」
+          </el-text>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+<span class="text-xs text-muted">{{ previewSub }}</span>
+>>>>
+<<<<
+<el-text class="el-text el-text--small ah-text-muted">{{ previewSub }}</el-text>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+<span class="text-xs font-medium text-muted">id · 可手动改，需唯一</span>
+>>>>
+<<<<
+<el-text class="el-text el-text--small ah-text-muted font-medium">id · 可手动改，需唯一</el-text>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+<span class="text-xs font-medium text-muted">地区 · 输入新值会自动加入列表</span>
+>>>>
+<<<<
+<el-text class="el-text el-text--small ah-text-muted font-medium">地区 · 输入新值会自动加入列表</el-text>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+<span class="text-xs font-medium text-muted">
+                套装图 URL · 粘贴后自动识别 key / 类型 / 地区
+              </span>
+>>>>
+<<<<
+<el-text class="el-text el-text--small ah-text-muted font-medium">
+                套装图 URL · 粘贴后自动识别 key / 类型 / 地区
+              </el-text>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+<p v-if="urlHint" class="text-xs" :class="urlInvalid ? 'text-danger' : 'text-muted'">
+                {{ urlHint }}
+              </p>
+>>>>
+<<<<
+<el-text v-if="urlHint" class="el-text el-text--small ah-text-block" :class="urlInvalid ? 'text-danger' : 'text-muted'">
+                {{ urlHint }}
+              </el-text>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+<span class="text-micro text-muted">名称</span>
+>>>>
+<<<<
+<el-text class="el-text el-text--small ah-text-muted">名称</el-text>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+<span class="text-xs font-medium text-muted">室内 / 室外</span>
+>>>>
+<<<<
+<el-text class="el-text el-text--small ah-text-muted font-medium">室内 / 室外</el-text>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+<span class="text-xs font-medium text-muted">
+                偏好角色 · 支持逗号 / 空格 / 顿号批量输入，点格子可移除
+              </span>
+>>>>
+<<<<
+<el-text class="el-text el-text--small ah-text-muted font-medium">
+                偏好角色 · 支持逗号 / 空格 / 顿号批量输入，点格子可移除
+              </el-text>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+<p class="text-sm text-body">
+        {{
+          dirty
+            ? '当前有未导出的修改，重载会丢弃这些改动。'
+            : `将从线上重新拉取 ${FILE_NAME}，覆盖当前编辑内容。`
+        }}
+      </p>
+>>>>
+<<<<
+<el-text class="el-text el-text--large ah-text-block">
+        {{
+          dirty
+            ? '当前有未导出的修改，重载会丢弃这些改动。'
+            : `将从线上重新拉取 ${FILE_NAME}，覆盖当前编辑内容。`
+        }}
+      </el-text>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+<p class="text-sm text-body">
+        确定删除「{{ entry?.name || '(未命名)' }}」吗？此操作不可撤销。
+      </p>
+>>>>
+<<<<
+<el-text class="el-text el-text--large ah-text-block">
+        确定删除「{{ entry?.name || '(未命名)' }}」吗？此操作不可撤销。
+      </el-text>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+<p class="text-sm text-body">
+        将按当前显示顺序重新编号 1 ~ {{ setCount }}，原有 id 会被覆盖。
+      </p>
+>>>>
+<<<<
+<el-text class="el-text el-text--large ah-text-block">
+        将按当前显示顺序重新编号 1 ~ {{ setCount }}，原有 id 会被覆盖。
+      </el-text>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+<p class="text-sm text-body">发现 {{ warnings.length }} 项问题：</p>
+>>>>
+<<<<
+<el-text class="el-text el-text--large ah-text-block">发现 {{ warnings.length }} 项问题：</el-text>
+>>>>
+
+### src/views/GiftSetEditor.vue
+<<<<
+<p class="text-xs text-body">是否继续导出？</p>
+>>>>
+<<<<
+<el-text class="el-text el-text--large ah-text-block">是否继续导出？</el-text>
 >>>>
 
 == DELETES ==
 
 == CHECKS ==
-grep -q 'ah-text-muted' src/styles/app.css
+grep -c '<el-text' src/views/TalesEditor.vue
+grep -c '<el-text' src/views/GiftSetEditor.vue
+! grep -q '<span class="text-xs text-muted">' src/views/TalesEditor.vue
+! grep -q '<span class="text-xs text-muted">' src/views/GiftSetEditor.vue
+! grep -q '<p class="text-sm text-muted">正在载入' src/views/TalesEditor.vue
+! grep -q '<p class="text-sm text-muted">正在载入' src/views/GiftSetEditor.vue
 grep -q 'ah-text-block' src/styles/app.css
-grep -c '<el-text' src/views/Tales.vue
-grep -c '<el-text' src/views/GiftSet.vue
