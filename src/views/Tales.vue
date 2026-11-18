@@ -333,8 +333,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="grid h-full grid-rows-[auto_minmax(0,1fr)_auto]">
-    <header class="grid gap-2 border-b border-line bg-canvas p-2">
+  <el-container class="ah-shell" direction="vertical">
+    <el-header class="ah-shell__bar">
       <div class="flex items-center gap-2">
         <el-input
           v-model="search"
@@ -396,7 +396,7 @@ onMounted(async () => {
           @change="onImportFile"
         />
       </div>
-    </header>
+    </el-header>
 
     <div class="min-h-0 overflow-y-auto p-2">
       <div v-if="loading" class="p-3 text-sm text-muted">正在加载旅闻数据…</div>
@@ -487,14 +487,14 @@ onMounted(async () => {
       </div>
     </div>
 
-    <div class="border-t border-line bg-canvas p-2 safe-bottom">
+    <el-footer class="ah-shell__bar ah-shell__bar--bottom safe-bottom">
       <el-button type="danger" class="w-full" @click="confirmClear">
         <el-icon><Delete /></el-icon>
         <span>清空全部记录</span>
       </el-button>
-    </div>
+    </el-footer>
 
-  </div>
+  </el-container>
 </template>
 
 <style scoped>
