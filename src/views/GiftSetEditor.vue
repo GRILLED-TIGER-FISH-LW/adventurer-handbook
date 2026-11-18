@@ -1072,7 +1072,7 @@ onBeforeUnmount(() => {
 
               <div
                 v-if="sortedChars.length"
-                class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2 rounded-ctl border border-line-2 bg-sunken p-2"
+                class="grid grid-cols-[repeat(auto-fill,48px)] gap-2 rounded-ctl border border-line-2 bg-sunken p-2"
               >
                 <el-checkbox
                   v-for="name in sortedChars"
@@ -1230,8 +1230,9 @@ onBeforeUnmount(() => {
 }
 
 .ah-ed-char :deep(.el-checkbox__label) {
-  display: grid;
-  justify-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 6px;
   width: 100%;
   padding: 0;
