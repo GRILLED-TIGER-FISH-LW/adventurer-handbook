@@ -49,14 +49,10 @@ function go(path) {
       v-model="open"
       direction="ltr"
       size="256px"
-      :with-header="false"
+      title="功能导航"
       aria-label="功能导航"
       class="ah-drawer"
     >
-      <div class="flex h-14 shrink-0 items-center border-b border-line px-4">
-        <h2 class="text-heading-5 text-ink">功能导航</h2>
-      </div>
-
       <nav class="ah-drawer__nav" aria-label="功能菜单">
         <el-menu :default-active="route.path" class="ah-drawer__menu" @select="go">
           <el-menu-item v-for="item in items" :key="item.path" :index="item.path">

@@ -8,32 +8,38 @@ const tools = router.options.routes.filter((r) => r.meta?.label)
 </script>
 
 <template>
-  <el-row class="ah-home">
-    <el-col v-for="t in tools" :key="t.path" :xs="24" :sm="12" :md="8" :lg="6">
-      <RouterLink :to="t.path" class="ah-home__link">
-        <el-card shadow="never" class="ah-home__card">
-          <span class="ah-home__icon" aria-hidden="true">
-            <SolarIcon :name="t.meta.icon" :size="18" />
-          </span>
+  <el-scrollbar class="ah-home__scroll">
+    <el-row class="ah-home" :gutter="[12, 12]">
+      <el-col v-for="t in tools" :key="t.path" :span="12">
+        <RouterLink :to="t.path" class="ah-home__link">
+          <el-card shadow="never" class="ah-home__card">
+            <div class="ah-home__inner">
+              <span class="ah-home__icon" aria-hidden="true">
+                <SolarIcon :name="t.meta.icon" :size="18" />
+              </span>
 
-          <div class="ah-home__body">
-            <div class="ah-home__title">{{ t.meta.label }}</div>
-            <div class="ah-home__desc">{{ t.meta.desc }}</div>
-          </div>
-        </el-card>
-      </RouterLink>
-    </el-col>
-  </el-row>
+              <div class="ah-home__body">
+                <div class="ah-home__title">{{ t.meta.label }}</div>
+                <div class="ah-home__desc">{{ t.meta.desc }}</div>
+              </div>
+            </div>
+          </el-card>
+        </RouterLink>
+      </el-col>
+    </el-row>
+  </el-scrollbar>
 </template>
 
 <style scoped>
-/* 这里只写 Element Plus 不提供的排版细节；
-   颜色、圆角、字号、控件尺寸全部走 EP 变量 */
+/* 只写 Element Plus 不提供的三件事：卡片固定高度、图标块尺寸、两行截断。
+   宽度固定半栏由 el-col 的 :span="12" 决定，框间距由 el-row 的 gutter [12, 12] 决定，
+   圆角 / 内边距 / 字号 / 颜色全部走 EP 默认值与站点令牌。 */
+.ah-home__scroll {
+  height: 100%;
+}
+
 .ah-home {
   padding: 12px;
-  /* el-row 的 gutter 会给 el-row 加负外边距造成横向溢出，改用 column-gap，换行堆叠时的上下间距要自己给 */
-  column-gap: 12px;
-  row-gap: 12px;
 }
 
 .ah-home__link {
@@ -47,7 +53,9 @@ const tools = router.options.routes.filter((r) => r.meta?.label)
   outline-offset: 2px;
 }
 
+/* 固定高度：卡片不再随标题长短高低不齐 */
 .ah-home__card {
+  height: 104px;
   color: inherit;
   transition: background-color var(--el-transition-duration-fast);
 }
@@ -57,10 +65,17 @@ const tools = router.options.routes.filter((r) => r.meta?.label)
   background-color: var(--el-fill-color-dark);
 }
 
+/* EP 的 card 体默认不撑满，固定高度必须补这一行 */
 .ah-home__card :deep(.el-card__body) {
+  box-sizing: border-box;
+  height: 100%;
+}
+
+.ah-home__inner {
   display: flex;
   gap: 12px;
-  align-items: flex-start;
+  align-items: center;
+  height: 100%;
 }
 
 .ah-home__icon {
@@ -70,14 +85,11 @@ const tools = router.options.routes.filter((r) => r.meta?.label)
   height: 32px;
   border-radius: var(--el-border-radius-base);
   place-items: center;
-  /* 垫色白天黑夜各一色 —— 原版 bg-accent-soft 本来就是这样：
-     白天 12% 陶土橙叠 #faf9f5 = #f4e9e3；黑夜 18% 叠 #1f1e1b = #3e2e27。
-     图标色跟主题走 = 改版前的 accent-strong（白天 #a9583e，黑夜 #cc785c） */
+  /* 垫色昼夜各一档：白天 12% 陶土橙叠 #faf9f5，黑夜 18% 叠 #1f1e1b */
   background-color: color-mix(in srgb, var(--color-accent) 12%, #faf9f5);
   color: var(--color-accent-strong);
 }
 
-/* 黑夜垫色单独一档，不能跟白天共用 */
 [data-theme='dark'] .ah-home__icon {
   background-color: color-mix(in srgb, var(--color-accent) 18%, #1f1e1b);
 }

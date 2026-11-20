@@ -427,7 +427,6 @@ onMounted(async () => {
       charDescNames.value = Array.from(tmp.entries())
         .sort((a, b) => a[1].order - b[1].order)
         .map(([name]) => name)
-        .reverse()
     }
 
     loadStored()
@@ -817,10 +816,6 @@ onMounted(async () => {
 <style scoped>
 /* 角色块用 el-checkbox 拿语义（role=checkbox / aria-checked / 空格切换），
    外观是头像块：藏掉 EP 自带的勾选框，状态交给外框颜色表达 */
-.ah-gift__char {
-  width: 100%;
-}
-
 .ah-gift__char :deep(.el-checkbox__input) {
   position: absolute;
   opacity: 0;
