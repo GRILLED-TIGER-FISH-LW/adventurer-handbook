@@ -816,7 +816,7 @@ onBeforeUnmount(() => {
       />
     </div>
 
-    <el-main class="grid min-h-0 grid-cols-1 min-[900px]:grid-cols-[20rem_minmax(0,1fr)]">
+    <el-main class="grid min-h-0 grid-rows-[minmax(0,1fr)] grid-cols-1 min-[900px]:grid-cols-[20rem_minmax(0,1fr)]">
       <!-- 左：列表 -->
       <aside
         class="flex min-h-0 flex-col bg-surface-2"
@@ -1095,7 +1095,7 @@ onBeforeUnmount(() => {
                       @error="onImgError"
                     />
                   </span>
-                  <span class="w-full truncate text-center text-[10px] text-muted">
+                  <span class="w-full break-all text-center text-[10px] leading-tight text-muted">
                     {{ name }}
                   </span>
                 </el-check-tag>

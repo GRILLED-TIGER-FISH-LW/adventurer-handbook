@@ -57,7 +57,8 @@ const tools = router.options.routes.filter((r) => r.meta?.label)
 
 /* 固定高度：卡片不再随标题长短高低不齐 */
 .ah-home__card {
-  height: 104px;
+  /* 半栏宽度下「尘歌壶赠礼套装」要折两行，104px 装不下，加到 132px（仍是固定高度） */
+  height: 132px;
   color: inherit;
   transition: background-color var(--el-transition-duration-fast);
 }
@@ -76,7 +77,8 @@ const tools = router.options.routes.filter((r) => r.meta?.label)
 .ah-home__inner {
   display: flex;
   gap: 12px;
-  align-items: center;
+  /* 顶部对齐：标题折两行时图标不会跟着上下浮动，所有卡片的图标落在同一水平线 */
+  align-items: flex-start;
   height: 100%;
 }
 
@@ -103,12 +105,16 @@ const tools = router.options.routes.filter((r) => r.meta?.label)
 }
 
 .ah-home__title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
   color: var(--el-text-color-primary);
   font-size: var(--el-font-size-base);
   font-weight: 500;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /* 半栏放不下 7 个字（「尘歌壶赠礼套装」），折到第二行而不是省略成 … */
+  word-break: break-word;
 }
 
 .ah-home__desc {

@@ -424,6 +424,8 @@ onMounted(async () => {
       charDescNames.value = Array.from(tmp.entries())
         .sort((a, b) => a[1].order - b[1].order)
         .map(([name]) => name)
+        /* 倒序：新角色排在前面（字典 order 是升序，老角色在前） */
+        .reverse()
     }
 
     loadStored()
@@ -531,7 +533,7 @@ onMounted(async () => {
                     @error="(ev) => ev.target.remove()"
                   />
                 </span>
-                <span class="w-full truncate text-center text-[10px] text-muted">
+                <span class="w-full break-all text-center text-[10px] leading-tight text-muted">
                   {{ name }}
                 </span>
               </el-check-tag>
@@ -615,7 +617,7 @@ onMounted(async () => {
                         @error="(ev) => ev.target.remove()"
                       />
                     </span>
-                    <span class="w-full truncate text-center text-[10px] text-muted">
+                    <span class="w-full break-all text-center text-[10px] leading-tight text-muted">
                       {{ name }}
                     </span>
                   </el-check-tag>
@@ -759,7 +761,7 @@ onMounted(async () => {
                         @error="(ev) => ev.target.remove()"
                       />
                     </span>
-                    <span class="w-full truncate text-center text-[10px] text-muted">
+                    <span class="w-full break-all text-center text-[10px] leading-tight text-muted">
                       {{ name }}
                     </span>
                   </el-check-tag>
