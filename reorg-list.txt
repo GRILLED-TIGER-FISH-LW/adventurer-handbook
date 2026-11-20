@@ -7,13 +7,13 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：palette-fix —— ①令牌对齐 Claude 官方七色（Dark/Light/Mid Gray/Light Gray/Orange/Blue/Green）：
-#   accent 由手调的 #cc785c 改成 Orange #d97757、success 换 Green #788c5d、新增 info Blue #6a9bcc；
-#   中性色改成「两个纯色之间对半混」，删掉手调的 #f5f0e8 / #e8e0d2 / #efe9de 与临时造的 --color-well；
-#   暗色 canvas 用 Dark #141413、sunken 提到 #302d27（原来与卡片同值，凹槽看不见）。
-#   ②选中态统一：accent-soft 垫色（12%→16%）+ accent-strong 文字（抽屉菜单加左侧 2px 竖条），
-#   el-segmented 轨道用 sunken、选中项用 accent-soft —— 修「选中的菜单看着发灰」。
-#   ③（仅本仓库）视频封面 7 个滑块改成 拖动条 + 数字框 + 单位。
+# 最近一批：palette-fix（基于 fill-fix4 之后的线上现状）——
+#   ①令牌对齐 Claude 官方七色：Dark #141413 / Light #faf9f5 / Mid Gray #b0aea5 / Light Gray #e8e6dc /
+#     Orange #d97757 / Blue #6a9bcc / Green #788c5d。accent 由手调的 #cc785c 换成 Orange、
+#     success 换 Green、新增 info Blue；中性色只在两个纯色之间对半混，不再手调色相；
+#     暗色 canvas 用 Dark、sunken → #302d27。删掉调色板外的 accent-teal / accent-amber。
+#   ②选中态统一：accent-soft 垫色（12% → 16%）+ accent-strong 文字（抽屉菜单加左侧 2px 竖条），
+#     el-segmented 轨道用 sunken、选中项用 accent-soft —— 修「选中的菜单看着发灰」。
 
 == MOVES ==
 
@@ -35,7 +35,7 @@
   /* ---------- 表面 ----------
      只用 Claude 官方调色板的四个中性：Dark #141413 · Light #faf9f5 · Mid Gray #b0aea5 · Light Gray #e8e6dc。
      两档之间不够用时，在这两个纯色之间对半混（注释里标比例），**不再手调色相** ——
-     之前手调的那几个中间色（比官方 Light Gray 更黄一档）就是「看着发灰、发黄」的来源。 */
+     手调出来的中间色（比官方 Light Gray 更黄一档）就是「看着发灰、发黄」的来源。 */
   --color-canvas: #f1f0e8;      /* Light + Light Gray 对半：页面底 */
   --color-surface: #faf9f5;     /* Light：卡片 / 输入框 / 弹窗 */
   --color-surface-2: #e8e6dc;   /* Light Gray：微妙背景（浮层按钮、说明块） */
@@ -48,19 +48,41 @@
 >>>>
 ### src/styles/tokens.css
 <<<<
+  /* 凹槽类表面（分段菜单轨道 / 选中项 / hover / 已完成底色）一律用它，
+     所以暗色下必须比 surface 亮一档 —— 原来的 #1f1e1b 与 surface 同值，这些地方全看不见 */
+  --color-sunken: #2f2b24;
+>>>>
+<<<<
+  /* 凹槽类表面（滑块轨道 / 分段菜单轨道 / 卡片 hover / 折叠底）一律用它，
+     暗色下必须比 surface 亮一档 —— 与 surface 同值时这些地方整片看不见 */
+  --color-sunken: #302d27;
+>>>>
+### src/styles/tokens.css
+<<<<
   --color-canvas: #181715;
-  --color-surface: #1f1e1b;
-  --color-surface-2: #252320;
-  --color-sunken: #1f1e1b;
-  --color-hover: #252320;
-  --color-thumb: #252320;
 >>>>
 <<<<
   --color-canvas: #141413;      /* Dark：深色页面底 */
-  --color-surface: #1f1e1b;     /* 比页面亮一档：卡片（其余中性都在 Dark 与 Light 之间取档） */
+>>>>
+### src/styles/tokens.css
+<<<<
+  --color-surface-2: #252320;
+>>>>
+<<<<
   --color-surface-2: #2a2823;
-  --color-sunken: #302d27;      /* 凹槽必须比卡片亮一档 —— 与卡片同值时滑块轨道 / 选中项整片看不见 */
+>>>>
+### src/styles/tokens.css
+<<<<
+  --color-hover: #252320;
+>>>>
+<<<<
   --color-hover: #2a2823;
+>>>>
+### src/styles/tokens.css
+<<<<
+  --color-thumb: #252320;
+>>>>
+<<<<
   --color-thumb: #2a2823;
 >>>>
 ### src/styles/tokens.css
@@ -160,21 +182,18 @@
 >>>>
 ### src/styles/app.css
 <<<<
-@media (min-width: 900px) {
-  .ah-shell--split > .el-main {
-    grid-template-columns: 20rem minmax(0, 1fr);
-  }
+/* el-segmented 的垫色：EP 在 .el-segmented 自己的选择器里定义过这些变量，
+   写在 :root 会被它遮住，暗色 css-vars 还会再盖一次，所以直接盖在组件上。
+   容器用卡片色（与下面的大框一致），选中项反过来用凹槽色 --color-sunken，靠底色差区分。 */
+.el-segmented {
+  --el-segmented-bg-color: var(--color-surface);
+  --el-segmented-item-selected-bg-color: var(--color-sunken);
+  --el-segmented-item-selected-color: var(--color-ink);
 }
 >>>>
 <<<<
-@media (min-width: 900px) {
-  .ah-shell--split > .el-main {
-    grid-template-columns: 20rem minmax(0, 1fr);
-  }
-}
-
-/* 分段菜单：轨道用凹槽色（sunken），选中项用 accent-soft + accent 文字。
-   别拿 sunken 当「选中色」—— 那看起来就是一块灰底，跟没选中一样。
+/* 分段菜单：轨道用凹槽色，选中项用 accent-soft + accent 文字 —— 与抽屉菜单同一套「选中」语言。
+   别拿 sunken 当选中色，那看起来就是一块灰底、像没选中。
    这些是 EP 的组件级变量，写在 :root 会被遮住，必须盖在组件上。 */
 .el-segmented {
   --el-segmented-bg-color: var(--color-sunken);
@@ -228,48 +247,42 @@
   | Blue | `#6a9bcc` | 次强调 `info` |
   | Green | `#788c5d` | `success` |
 
-- **两个纯色之间不够用的档，只能在这两个纯色之间混**（注释里标比例，如 `canvas` = Light + Light Gray 对半）。手调色相出来的色会发灰发黄，已经全部清掉。
+- **两个纯色之间不够用的档，只能在这两个纯色之间混**（注释里标比例，如 `canvas` = Light + Light Gray 对半）。手调色相出来的中间色会发灰发黄，已经全部清掉。
 - 调色板没有的两支语义色自己留：`danger` 红（危险操作）、`warning` 黄（取 Orange 的色相压暗），别和 accent 混用。
-- **选中态全站一套**：`accent-soft` 垫色 + `accent-strong` 文字（抽屉菜单再加左侧 2px `accent` 竖条）。别拿 `sunken` 当选中色 —— 那是一块灰底，看着像没选中。
+- **选中态全站一套**：`accent-soft` 垫色 + `accent-strong` 文字（抽屉菜单再加左侧 2px `accent` 竖条），`el-segmented` 的轨道用 `sunken`、选中项用 `accent-soft`。别拿 `sunken` 当选中色 —— 那是一块灰底，看着像没选中。
 >>>>
 ### AGENTS.md
 <<<<
-- **最后合并**：
+- **最后合并**：`fill-fix4`
 >>>>
 <<<<
-- **最后合并**：`palette-fix` —— 令牌对齐 Claude 官方七色：`accent` `#cc785c` → `#d97757`（Orange，`accent-soft` 12% → 16%）、`success` → Green `#788c5d`、新增 `info` Blue `#6a9bcc`；中性色不再手调，`canvas` = Light+Light Gray 对半、`surface-2`/`sunken`/`line` = Light Gray `#e8e6dc`、`line-2` = Light Gray+Mid Gray 对半；暗色 `canvas` → `#141413`、`sunken` 提到 `#302d27`（比卡片亮一档）。删掉临时造的 `--color-well(-strong)`。**选中态统一成 accent-soft 垫色 + accent-strong 文字**（抽屉菜单加左侧 2px 竖条），修「选中项看着发灰」；`el-segmented` 轨道用 sunken、选中项用 accent-soft。
-- **上一批**：
+- **最后合并**：`palette-fix` —— 令牌对齐 Claude 官方七色：`accent` 由手调的 `#cc785c` 换成 Orange `#d97757`（`accent-soft` 12% → 16%）、`success` 换 Green `#788c5d`、新增 `info` Blue `#6a9bcc`；中性色改成「两个纯色之间对半混」（`canvas` = Light+Light Gray、`surface-2`/`sunken`/`line` = Light Gray、`line-2` = Light Gray+Mid Gray），暗色 `canvas` → Dark `#141413`、`sunken` → `#302d27`；删掉调色板外的 `accent-teal` / `accent-amber`。**选中态统一成 accent-soft 垫色 + accent-strong 文字**（抽屉菜单加左侧 2px 竖条），修「选中项看着发灰」；`el-segmented` 轨道用 sunken、选中项用 accent-soft。
+- **上一批**：`fill-fix4`
 >>>>
 ### CHANGELOG.md
 <<<<
-## 2026 年 11 月
-
-
+### 2026-11-19 · 
 >>>>
 <<<<
-## 2026 年 11 月
+- **补充（同批 · 配色对齐官方色板）**：侧边菜单选中的那一项看着发灰，对照 Claude 官方调色板一查，令牌里不少是手调的中间色 —— 强调写的是 `#cc785c`（官方 Orange 是 `#d97757`）、凹槽 `#e8e0d2`（官方 Light Gray 是 `#e8e6dc`）、页面底 `#f5f0e8`、hover `#efe9de`、success 是亮绿 `#5db872`（官方 Green 是 `#788c5d`），官方 Blue `#6a9bcc` 干脆没有。改法：① 令牌全量对齐七色，中性色只在两个纯色之间对半混（不再手调色相），暗色 `canvas` 用 Dark、`sunken` 提到 `#302d27`；调色板没有的红 / 黄留作 `danger` / `warning`；删掉调色板外的 `accent-teal` / `accent-amber`。② **选中态定成一套**：`accent-soft` 垫色（12% → 16%，原来太淡等于灰底）+ `accent-strong` 文字 + 抽屉菜单左侧 2px `accent` 竖条，`el-menu` 的 `active-color` 同步；`el-segmented` 轨道改回 `sunken`、选中项改用 `accent-soft` + `accent-strong`。结果：全站只剩官方七色（加红 / 黄两支语义色），抽屉与分段菜单的选中项一眼能看出是橙色调选中状态。约定写进 `AGENTS.md`。
 
-### 2026-11-21 · 配色对齐 Claude 官方七色；选中态不再发灰；滑块换成「拖动条 + 数字框 + 单位」
-
-- **起因**：侧边菜单里选中的那一项看着发灰，不像被选中；对照 Claude 官方调色板一查，令牌里不少值是手调的中间色 —— 强调色写的是 `#cc785c`（官方 Orange 是 `#d97757`）、凹槽色 `#e8e0d2`（官方 Light Gray 是 `#e8e6dc`）、页面底 `#f5f0e8`、hover `#efe9de`、success 是亮绿 `#5db872`（官方 Green 是 `#788c5d`），而官方的 Blue `#6a9bcc` 干脆没有。
-- **经过**：① 令牌全量对齐七色 —— `accent` / `accent-strong` / `accent-solid` / `accent-hover` / `accent-soft` 全部按 Orange 重算，`success` 换 Green，新增 `info` / `info-soft`（Blue）；`canvas` 用 Light + Light Gray 对半，`surface-2` / `sunken` / `line` 用 Light Gray，`line-2` 用 Light Gray + Mid Gray 对半，暗色 `canvas` 用 Dark、`sunken` 提到 `#302d27`（原来和卡片同值，凹槽整片看不见）。调色板没有的红 / 黄留作 `danger` / `warning` 两支。② 选中态固定成一套：`accent-soft` 垫色（12% → 16%，原来太淡等于灰底）+ `accent-strong` 文字 + 抽屉菜单左侧 2px `accent` 竖条；`el-menu` 的 `active-color` 同步；`el-segmented` 轨道用 `sunken`、选中项用 `accent-soft` + `accent-strong`。③ 视频封面 7 个滑块弃用 `show-input`，改「`el-slider` + `el-input-number`（88px）+ 单位文字」三项一行，标签去掉「（px）」「（%）」。
-- **结果**：全站强调色、深浅中性、语义色只剩官方七色（外加红黄两支语义色），不再有手调的中间色；侧边菜单、分段菜单的选中项一眼能看出是橙色调的选中状态；凹槽（滑块轨道、分段轨道、折叠底）昼夜都看得见；7 个滑块能直接打字输数值、单位单独显示。约定写进 `AGENTS.md`。
-
-
+### 2026-11-19 · 
 >>>>
 
 == DELETES ==
 
 == CHECKS ==
-! grep -rq "color-well" src
 grep -q "accent: #d97757" src/styles/tokens.css
 grep -q "accent-soft: rgba(217, 119, 87, 0.16)" src/styles/tokens.css
 grep -q "info: #6a9bcc" src/styles/tokens.css
 grep -q "success: #788c5d" src/styles/tokens.css
 grep -q "sunken: #e8e6dc" src/styles/tokens.css
 grep -q "sunken: #302d27" src/styles/tokens.css
-! grep -q "#cc785c\|#e8e0d2\|#f5f0e8\|#efe9de" src/styles/tokens.css
+grep -q "canvas: #141413" src/styles/tokens.css
+! grep -q "#cc785c\|#e8e0d2\|#f5f0e8\|#efe9de\|#5db872" src/styles/tokens.css
+! grep -q "accent-teal\|accent-amber" src/styles/tokens.css
 grep -q "el-segmented-item-selected-bg-color: var(--color-accent-soft)" src/styles/app.css
 grep -q "el-menu-active-color: var(--color-accent-strong)" src/components/AppDrawer.vue
-grep -q "2026-11-21" CHANGELOG.md
+grep -q "inset 2px 0 0 var(--color-accent)" src/components/AppDrawer.vue
 grep -q "Orange" AGENTS.md
+[ "$(grep -c '^### 2026-11-21' CHANGELOG.md)" -eq 1 ]
