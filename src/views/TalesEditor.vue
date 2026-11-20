@@ -565,7 +565,7 @@ onBeforeUnmount(() => {
       />
     </div>
 
-    <el-main class="grid min-h-0 grid-cols-1 min-[900px]:grid-cols-[20rem_minmax(0,1fr)]">
+    <el-main class="grid min-h-0 grid-rows-[minmax(0,1fr)] grid-cols-1 min-[900px]:grid-cols-[20rem_minmax(0,1fr)]">
       <!-- 左：列表 -->
       <aside
         class="flex min-h-0 flex-col bg-surface-2"
