@@ -1,8 +1,7 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
-import { ElMessageBox } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { Delete, Download, Refresh, Search, Upload } from '@element-plus/icons-vue'
-import { useToast } from '../composables/useToast.js'
 import { loadGlobalScript, loadTalesData } from '../composables/useData.js'
 
 const STORAGE_KEY = 'genshin_travelers_tales_completed_v2'
@@ -12,7 +11,6 @@ const UID_KEY = 'genshin_travelers_tales_uid_v1'
 const IMAGE_DICT_URL =
   'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
 
-const toast = useToast()
 
 const loading = ref(true)
 const errorMsg = ref('')
@@ -171,7 +169,7 @@ function exportArchive() {
   a.click()
   a.remove()
   setTimeout(() => URL.revokeObjectURL(url), 1000)
-  toast.success(`已导出 ${done.size} 条记录`)
+  ElMessage.success(`已导出 ${done.size} 条记录`)
 }
 
 const fileInput = ref(null)
@@ -211,9 +209,9 @@ function onImportFile(ev) {
       done.clear()
       next.forEach((k) => done.add(k))
       saveDone()
-      toast.success('存档导入成功')
+      ElMessage.success('存档导入成功')
     } catch {
-      toast.error('导入失败：文件格式不正确')
+      ElMessage.error('导入失败：文件格式不正确')
     }
     ev.target.value = ''
   }
@@ -244,7 +242,7 @@ function moveRow(delta) {
 
 function confirmClear() {
   if (done.size === 0) {
-    toast.show('暂无已完成的旅闻')
+    ElMessage('暂无已完成的旅闻')
     return
   }
   ElMessageBox.confirm(
@@ -267,7 +265,7 @@ function doClear() {
     localStorage.removeItem(STORAGE_KEY)
     localStorage.removeItem(LEGACY_KEY)
   } catch {}
-  toast.success('已清空完成记录')
+  ElMessage.success('已清空完成记录')
 }
 
 function onUidInput(val) {

@@ -12,7 +12,7 @@ import {
   Sort,
   Upload,
 } from '@element-plus/icons-vue'
-import { useToast } from '../composables/useToast.js'
+import { ElMessage } from 'element-plus'
 import { loadGlobalScript } from '../composables/useData.js'
 
 const DRAFT_KEY = 'genshin_homeworld_gift_sets_editor_draft_v1'
@@ -25,7 +25,6 @@ const IMAGE_DICT_URL =
 const CHAR_SPLIT_RE = /[\s，,、;；]+/
 const CHAR_SPLIT_TEST = /[\s，,、;；]/
 
-const toast = useToast()
 
 /* ---------- 状态 ---------- */
 const loading = ref(true)
@@ -410,7 +409,7 @@ function moveSet(delta) {
 
 function addSet() {
   if (!data.value) {
-    toast.error('数据未加载')
+    ElMessage.error('数据未加载')
     return
   }
   const newId = data.value.sets.reduce((m, x) => Math.max(m, x.id || 0), 0) + 1
@@ -438,13 +437,13 @@ function confirmDelete() {
   mobilePane.value = 'list'
   markDirty()
   deleteOpen.value = false
-  toast.success('已删除')
+  ElMessage.success('已删除')
 }
 
 function doRenumber() {
   const n = data.value.sets.length
   if (!n) {
-    toast.error('没有套装可重排')
+    ElMessage.error('没有套装可重排')
     return
   }
   const sel = entry.value
@@ -458,7 +457,7 @@ function doRenumber() {
   }
   markDirty()
   renumberOpen.value = false
-  toast.success(`已重排 ${n} 条 id`)
+  ElMessage.success(`已重排 ${n} 条 id`)
 }
 
 async function doReload() {
@@ -470,9 +469,9 @@ async function doReload() {
     reloadOpen.value = false
     clearDirty()
     clearDraft()
-    toast.success(`已重载 ${setCount.value} 条`)
+    ElMessage.success(`已重载 ${setCount.value} 条`)
   } catch (err) {
-    toast.error('重载失败：' + err.message)
+    ElMessage.error('重载失败：' + err.message)
   }
 }
 
@@ -488,9 +487,9 @@ function onImportFile(ev) {
       mobilePane.value = 'list'
       clearDirty()
       saveDraft()
-      toast.success(`已导入 ${setCount.value} 条`)
+      ElMessage.success(`已导入 ${setCount.value} 条`)
     } catch (err) {
-      toast.error('导入失败：' + err.message)
+      ElMessage.error('导入失败：' + err.message)
     }
     ev.target.value = ''
   }
@@ -499,7 +498,7 @@ function onImportFile(ev) {
 
 function startExport() {
   if (!data.value) {
-    toast.error('数据未加载')
+    ElMessage.error('数据未加载')
     return
   }
   const list = []
@@ -534,7 +533,7 @@ function runExport() {
   exportOpen.value = false
   clearDirty()
   clearDraft()
-  toast.success(`已导出 ${FILE_NAME}`)
+  ElMessage.success(`已导出 ${FILE_NAME}`)
 }
 
 /* ---------- URL 识别 ---------- */
@@ -607,7 +606,7 @@ function onUrlKeydown(e) {
 function recognizeUrl() {
   const v = urlInput.value.trim()
   if (!v) {
-    toast.error('请先粘贴图片链接')
+    ElMessage.error('请先粘贴图片链接')
     return
   }
   const key = parseSetUrl(v)
@@ -616,7 +615,7 @@ function recognizeUrl() {
     return
   }
   if (key === entry.value?.key) {
-    toast.show('URL 未变化，无需重新识别')
+    ElMessage('URL 未变化，无需重新识别')
     return
   }
   tryApplyUrl(v)
@@ -684,7 +683,7 @@ function commitChars(blur) {
 
   charQuery.value = remaining
   markDirty()
-  if (bad.length) toast.error('字典中未找到：' + bad.join('、'))
+  if (bad.length) ElMessage.error('字典中未找到：' + bad.join('、'))
 }
 
 watch(charQuery, (v) => {
@@ -756,12 +755,12 @@ onMounted(async () => {
     if (draft?.sets) {
       applyData(normalizeData(draft))
       dirty.value = true
-      toast.show('已恢复草稿（尚未导出）', { duration: 3000 })
+      ElMessage({ message: '已恢复草稿（尚未导出）', duration: 3000 })
     } else {
       try {
         applyData(await fetchOnline())
       } catch (err) {
-        toast.error(`数据加载失败：${err.message}，可用「导入」`)
+        ElMessage.error(`数据加载失败：${err.message}，可用「导入」`)
         applyData(normalizeData(null))
       }
     }
@@ -771,7 +770,7 @@ onMounted(async () => {
   } catch (e) {
     loading.value = false
     applyData(normalizeData(null))
-    toast.error('初始化失败：' + (e?.message || e))
+    ElMessage.error('初始化失败：' + (e?.message || e))
   }
 })
 

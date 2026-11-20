@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 import AppNav from './components/AppNav.vue'
 import AppDrawer from './components/AppDrawer.vue'
-import ToastHost from './components/ToastHost.vue'
 
 const drawerOpen = ref(false)
 </script>
@@ -19,7 +18,5 @@ const drawerOpen = ref(false)
         </KeepAlive>
       </RouterView>
     </main>
-
-    <ToastHost />
   </div>
 </template>
