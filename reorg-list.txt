@@ -7,95 +7,241 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 这批：boot-guard —— 修「页面未能加载」误报。
-#   根因：首屏要下约 1 MB 脚本，守卫 4 秒就判死；国内访问 GitHub Pages 的 CDN 又常被限速。
-#   改法：4 秒定时改成「每 500ms 看 #app，挂载即停、12 秒才报错」；文案改成网络优先；
-#         加一个能点的「重新加载」按钮。
+# 最近一批：ep-fix-ui —— 你报的四个问题一起修：
+#   ① 首页标题被省略成 … → 卡片 104→132px，标题允许折两行，图标改顶部对齐（不再随标题行数浮动）
+#   ② 套装「我的角色」要倒序 → 恢复 .reverse()；角色名 4 处不再 truncate，长名字折行显示
+#   ③ 两个编辑器内容超高却没有滚动条 → el-main 的 grid 补 grid-rows-[minmax(0,1fr)]，
+#      行高被容器约束后 el-scrollbar 才能算出可滚高度
 
 == MOVES ==
 
 == EDITS ==
-### index.html
+### src/views/Home.vue
 <<<<
-            .concat([
-              "",
-              "加载失败的脚本：",
-              failed.length ? "  " + failed.join("\n  ") : "  （没有捕获到失败事件）",
-              "",
-              "如果你的脚本路径里没有 /adventurer-handbook/，说明打包的 base 配错了。",
-              "如果路径正确但仍然失败，说明文件没有真正部署上去。",
-              "",
-              "请截图本页反馈。",
-            ]);
+.ah-home__card {
+  height: 104px;
 >>>>
 <<<<
-            .concat([
-              "",
-              "最常见的原因不是代码，而是网络：GitHub Pages 的 CDN 在国内经常被限速或阻断，",
-              "本站首次打开要下载约 1 MB 的脚本，网速一慢就会卡在这里。",
-              "",
-              "请依次尝试：",
-              "  1. 开代理 / VPN 后点下面「重新加载」（一开就好 = 网络问题）",
-              "  2. 换 Wi-Fi 或移动数据再试",
-              "  3. 等一两分钟再刷新（CDN 边缘节点有时会自己恢复）",
-              "",
-              "加载失败的脚本：",
-              failed.length ? "  " + failed.join("\n  ") : "  （脚本可能还在下载或被中断，浏览器不会报 error）",
-              "",
-              "开了代理仍然这样才算真问题：确认脚本路径里有 /adventurer-handbook/（没有 = base 配错），",
-              "再看 Actions 的 Deploy 是不是最后一次构建成功。",
-            ]);
+.ah-home__card {
+  /* 半栏宽度下「尘歌壶赠礼套装」要折两行，104px 装不下，加到 132px（仍是固定高度） */
+  height: 132px;
 >>>>
-### index.html
+### src/views/Home.vue
 <<<<
-          pre.textContent = lines.join("\n");
-          el.appendChild(pre);
+.ah-home__inner {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  height: 100%;
+}
 >>>>
 <<<<
-          pre.textContent = lines.join("\n");
-
-          /* 光提示没用：给一个能点的重试按钮（原来只能手动改地址栏） */
-          var retry = document.createElement("button");
-          retry.textContent = "重新加载";
-          retry.style.cssText =
-            "margin-top:16px;padding:10px 18px;border:1px solid #57534e;border-radius:8px;" +
-            "background:#292524;color:#faf9f5;font:14px system-ui;cursor:pointer";
-          retry.onclick = function () {
-            var base0 = location.href.split("#")[0].split("?")[0];
-            location.replace(base0 + "?t=" + Date.now() + location.hash);
-          };
-          pre.appendChild(retry);
-
-          el.appendChild(pre);
+.ah-home__inner {
+  display: flex;
+  gap: 12px;
+  /* 顶部对齐：标题折两行时图标不会跟着上下浮动，所有卡片的图标落在同一水平线 */
+  align-items: flex-start;
+  height: 100%;
+}
 >>>>
-### index.html
+### src/views/Home.vue
 <<<<
-        setTimeout(recover, 4000);
+.ah-home__title {
+  color: var(--el-text-color-primary);
+  font-size: var(--el-font-size-base);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 >>>>
 <<<<
-        /* 首屏要下约 1 MB 脚本，4 秒在慢网下根本不够，会把「慢」误报成「失败」。
-           改成每 500ms 看一眼 #app：挂载了就立刻停，12 秒还没内容才报错 */
-        var waited = 0;
-        var watch = setInterval(function () {
-          waited += 500;
-          var el = document.getElementById("app");
-          if (el && el.children.length > 0 && !el.dataset.fatal) {
-            clearInterval(watch);
-            return;
-          }
-          if (waited >= 12000) {
-            clearInterval(watch);
-            recover();
-          }
-        }, 500);
+.ah-home__title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  color: var(--el-text-color-primary);
+  font-size: var(--el-font-size-base);
+  font-weight: 500;
+  overflow: hidden;
+  /* 半栏放不下 7 个字（「尘歌壶赠礼套装」），折到第二行而不是省略成 … */
+  word-break: break-word;
+}
+>>>>
+### src/views/GiftSet.vue
+<<<<
+      charDescNames.value = Array.from(tmp.entries())
+        .sort((a, b) => a[1].order - b[1].order)
+        .map(([name]) => name)
+>>>>
+<<<<
+      charDescNames.value = Array.from(tmp.entries())
+        .sort((a, b) => a[1].order - b[1].order)
+        .map(([name]) => name)
+        /* 倒序：新角色排在前面（字典 order 是升序，老角色在前） */
+        .reverse()
+>>>>
+### src/views/GiftSet.vue
+<<<<
+                    alt=""
+                    loading="lazy"
+                    class="absolute inset-0 size-full object-cover"
+                    @error="(ev) => ev.target.remove()"
+                  />
+                </span>
+                <span class="w-full truncate text-center text-[10px] text-muted">
+                  {{ name }}
+>>>>
+<<<<
+                    alt=""
+                    loading="lazy"
+                    class="absolute inset-0 size-full object-cover"
+                    @error="(ev) => ev.target.remove()"
+                  />
+                </span>
+                <span class="w-full break-all text-center text-[10px] leading-tight text-muted">
+                  {{ name }}
+>>>>
+### src/views/GiftSet.vue
+<<<<
+                    :checked="(cardMap.get(s.key)?.done || []).includes(name)"
+                    class="ah-gift__char"
+                    :class="{ 'opacity-50': !owned.includes(name) }"
+                    :title="name"
+                    @change="toggleSetChar(s, name)"
+                  >
+                    <span
+                      class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
+                    >
+                      <span aria-hidden="true">{{ name.charAt(0) }}</span>
+                      <img
+                        v-if="charAvatar.get(name)"
+                        :src="charAvatar.get(name)"
+                        alt=""
+                        loading="lazy"
+                        class="absolute inset-0 size-full object-cover"
+                        @error="(ev) => ev.target.remove()"
+                      />
+                    </span>
+                    <span class="w-full truncate text-center text-[10px] text-muted">
+                      {{ name }}
+>>>>
+<<<<
+                    :checked="(cardMap.get(s.key)?.done || []).includes(name)"
+                    class="ah-gift__char"
+                    :class="{ 'opacity-50': !owned.includes(name) }"
+                    :title="name"
+                    @change="toggleSetChar(s, name)"
+                  >
+                    <span
+                      class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
+                    >
+                      <span aria-hidden="true">{{ name.charAt(0) }}</span>
+                      <img
+                        v-if="charAvatar.get(name)"
+                        :src="charAvatar.get(name)"
+                        alt=""
+                        loading="lazy"
+                        class="absolute inset-0 size-full object-cover"
+                        @error="(ev) => ev.target.remove()"
+                      />
+                    </span>
+                    <span class="w-full break-all text-center text-[10px] leading-tight text-muted">
+                      {{ name }}
+>>>>
+### src/views/GiftSet.vue
+<<<<
+                    :checked="cardMap.get(s.key).done.includes(name)"
+                    class="ah-gift__char"
+                    :class="{ 'opacity-50': !owned.includes(name) }"
+                    :title="name"
+                    @change="toggleSetChar(s, name)"
+                  >
+                    <span
+                      class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
+                    >
+                      <span aria-hidden="true">{{ name.charAt(0) }}</span>
+                      <img
+                        v-if="charAvatar.get(name)"
+                        :src="charAvatar.get(name)"
+                        alt=""
+                        loading="lazy"
+                        class="absolute inset-0 size-full object-cover"
+                        @error="(ev) => ev.target.remove()"
+                      />
+                    </span>
+                    <span class="w-full truncate text-center text-[10px] text-muted">
+                      {{ name }}
+>>>>
+<<<<
+                    :checked="cardMap.get(s.key).done.includes(name)"
+                    class="ah-gift__char"
+                    :class="{ 'opacity-50': !owned.includes(name) }"
+                    :title="name"
+                    @change="toggleSetChar(s, name)"
+                  >
+                    <span
+                      class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
+                    >
+                      <span aria-hidden="true">{{ name.charAt(0) }}</span>
+                      <img
+                        v-if="charAvatar.get(name)"
+                        :src="charAvatar.get(name)"
+                        alt=""
+                        loading="lazy"
+                        class="absolute inset-0 size-full object-cover"
+                        @error="(ev) => ev.target.remove()"
+                      />
+                    </span>
+                    <span class="w-full break-all text-center text-[10px] leading-tight text-muted">
+                      {{ name }}
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+                      alt=""
+                      loading="lazy"
+                      class="absolute inset-0 size-full object-cover"
+                      @error="onImgError"
+                    />
+                  </span>
+                  <span class="w-full truncate text-center text-[10px] text-muted">
+                    {{ name }}
+>>>>
+<<<<
+                      alt=""
+                      loading="lazy"
+                      class="absolute inset-0 size-full object-cover"
+                      @error="onImgError"
+                    />
+                  </span>
+                  <span class="w-full break-all text-center text-[10px] leading-tight text-muted">
+                    {{ name }}
+>>>>
+### src/views/TalesEditor.vue
+<<<<
+<el-main class="grid min-h-0 grid-cols-1 min-[900px]:grid-cols-[20rem_minmax(0,1fr)]">
+>>>>
+<<<<
+<el-main class="grid min-h-0 grid-rows-[minmax(0,1fr)] grid-cols-1 min-[900px]:grid-cols-[20rem_minmax(0,1fr)]">
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+<el-main class="grid min-h-0 grid-cols-1 min-[900px]:grid-cols-[20rem_minmax(0,1fr)]">
+>>>>
+<<<<
+<el-main class="grid min-h-0 grid-rows-[minmax(0,1fr)] grid-cols-1 min-[900px]:grid-cols-[20rem_minmax(0,1fr)]">
 >>>>
 
 == DELETES ==
 
 == CHECKS ==
-grep -q "12 秒还没内容才报错" index.html
-! grep -q "setTimeout(recover, 4000)" index.html
-grep -q "重新加载" index.html
-grep -q "1 MB 的脚本" index.html
-! grep -q "说明打包的 base 配错了" index.html
-grep -q "waited >= 12000" index.html
+grep -q "height: 132px" src/views/Home.vue
+grep -q "align-items: flex-start" src/views/Home.vue
+! grep -q "white-space: nowrap" src/views/Home.vue
+grep -q ".reverse()" src/views/GiftSet.vue
+[ "$(grep -c "break-all text-center" src/views/GiftSet.vue)" -eq 3 ]
+[ "$(grep -c "break-all text-center" src/views/GiftSetEditor.vue)" -eq 1 ]
+! grep -rq "w-full truncate text-center" src/views
+[ "$(grep -c "grid-rows-\[minmax(0,1fr)\]" src/views/TalesEditor.vue)" -eq 1 ]
+[ "$(grep -c "grid-rows-\[minmax(0,1fr)\]" src/views/GiftSetEditor.vue)" -eq 1 ]
