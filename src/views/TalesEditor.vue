@@ -538,7 +538,7 @@ onBeforeUnmount(() => {
         role="status"
         aria-label="有未导出的修改"
       ></span>
-      <el-text class="el-text el-text--small ah-text-muted">
+      <el-text size="small" class="ah-text-muted">
         {{ data ? `${entryCount} 条` : '数据未加载' }}
       </el-text>
 
@@ -687,7 +687,7 @@ onBeforeUnmount(() => {
             <span>返回列表</span>
           </el-button>
 
-          <el-text v-if="loading" class="el-text el-text--default ah-text-muted ah-text-block">正在载入…</el-text>
+          <el-text v-if="loading" class="ah-text-muted ah-text-block">正在载入…</el-text>
 
           <el-empty
             v-else-if="!data"
@@ -695,7 +695,7 @@ onBeforeUnmount(() => {
             description="数据未加载，请点右上角「重载」或「导入」"
           />
 
-          <el-text v-else-if="!entry" class="el-text el-text--default ah-text-muted ah-text-block">
+          <el-text v-else-if="!entry" class="ah-text-muted ah-text-block">
             从列表选择条目开始编辑，或点「新增」
           </el-text>
 
@@ -718,13 +718,13 @@ onBeforeUnmount(() => {
                 <span class="truncate text-sm font-semibold text-ink">
                   {{ entry.character || '(未命名角色)' }} · {{ entry.title || '(无标题)' }}
                 </span>
-                <el-text class="el-text el-text--small ah-text-muted">{{ headingSub }}</el-text>
+                <el-text size="small" class="ah-text-muted">{{ headingSub }}</el-text>
               </span>
             </div>
 
             <!-- id -->
             <div class="grid gap-2">
-              <el-text class="el-text el-text--small ah-text-muted font-medium">id · 可手动改，需唯一</el-text>
+              <el-text size="small" class="ah-text-muted font-medium">id · 可手动改，需唯一</el-text>
               <div class="flex items-center gap-2">
                 <el-input
                   v-model="idInput"
@@ -748,7 +748,7 @@ onBeforeUnmount(() => {
 
             <!-- 版本 -->
             <div class="grid gap-2">
-              <el-text class="el-text el-text--small ah-text-muted font-medium">版本 · 输入新值会自动加入列表</el-text>
+              <el-text size="small" class="ah-text-muted font-medium">版本 · 输入新值会自动加入列表</el-text>
               <el-select
                 v-model="entry.version"
                 filterable
@@ -770,7 +770,7 @@ onBeforeUnmount(() => {
 
             <!-- 角色 -->
             <div class="grid gap-2">
-              <el-text class="el-text el-text--small ah-text-muted font-medium">角色名 · 从字典联想，可自定义</el-text>
+              <el-text size="small" class="ah-text-muted font-medium">角色名 · 从字典联想，可自定义</el-text>
               <div class="flex items-center gap-2">
                 <span
                   class="relative grid size-7 shrink-0 place-items-center overflow-hidden rounded-ctl border border-line bg-surface text-[10px] font-semibold text-muted"
@@ -802,13 +802,13 @@ onBeforeUnmount(() => {
                   />
                 </el-select>
               </div>
-              <el-text v-if="showCharWarn" class="el-text el-text--small ah-text-danger ah-text-block">
+              <el-text v-if="showCharWarn" size="small" class="ah-text-danger ah-text-block">
                 字典中无此角色，主界面将显示首字占位
               </el-text>
             </div>
 
             <div class="grid gap-2">
-              <el-text class="el-text el-text--small ah-text-muted">旅闻名</el-text>
+              <el-text size="small" class="ah-text-muted">旅闻名</el-text>
               <el-input
                 v-model="entry.title"
                 placeholder="旅闻标题"
@@ -821,11 +821,11 @@ onBeforeUnmount(() => {
               class="flex h-[44px] w-fit cursor-pointer items-center gap-2 rounded-md border border-line-2 bg-sunken px-3"
             >
               <el-checkbox v-model="entry.hidden" @change="markDirty" />
-              <el-text class="el-text el-text--small ah-text-ink">标记为隐藏旅闻（主界面红色）</el-text>
+              <el-text size="small" class="ah-text-ink">标记为隐藏旅闻（主界面红色）</el-text>
             </div>
 
             <div class="grid gap-2">
-              <el-text class="el-text el-text--small ah-text-muted">地点</el-text>
+              <el-text size="small" class="ah-text-muted">地点</el-text>
               <el-input
                 v-model="entry.location"
                 placeholder="如 蒙德-晨曦酒庄"
@@ -835,7 +835,7 @@ onBeforeUnmount(() => {
             </div>
 
             <div class="grid gap-2">
-              <el-text class="el-text el-text--small ah-text-muted">触发条件</el-text>
+              <el-text size="small" class="ah-text-muted">触发条件</el-text>
               <el-input
                 v-model="entry.trigger"
                 placeholder="留空则不显示"
@@ -845,7 +845,7 @@ onBeforeUnmount(() => {
             </div>
 
             <div class="grid gap-2">
-              <el-text class="el-text el-text--small ah-text-muted">前置旅闻 · 只填旅闻名</el-text>
+              <el-text size="small" class="ah-text-muted">前置旅闻 · 只填旅闻名</el-text>
               <el-input
                 v-model="entry.prerequisite"
                 placeholder="留空则不显示"
@@ -855,7 +855,7 @@ onBeforeUnmount(() => {
             </div>
 
             <div class="grid gap-2">
-              <el-text class="el-text el-text--small ah-text-muted">描述 · 支持换行</el-text>
+              <el-text size="small" class="ah-text-muted">描述 · 支持换行</el-text>
               <el-input
                 v-model="entry.description"
                 type="textarea"
@@ -888,7 +888,7 @@ onBeforeUnmount(() => {
       :close-on-click-modal="false"
       :close-on-press-escape="false"
     >
-      <el-text class="el-text el-text--large ah-text-block">
+      <el-text size="large" class="ah-text-block">
         {{
           dirty
             ? '当前有未导出的修改，重载会丢弃这些改动。'
@@ -909,7 +909,7 @@ onBeforeUnmount(() => {
       :close-on-click-modal="false"
       :close-on-press-escape="false"
     >
-      <el-text class="el-text el-text--large ah-text-block">
+      <el-text size="large" class="ah-text-block">
         确定删除「{{ entry?.character || '?' }} · {{ entry?.title || '?' }}」吗？此操作不可撤销。
       </el-text>
       <template #footer>
@@ -926,7 +926,7 @@ onBeforeUnmount(() => {
       :close-on-click-modal="false"
       :close-on-press-escape="false"
     >
-      <el-text class="el-text el-text--large ah-text-block">
+      <el-text size="large" class="ah-text-block">
         将按当前显示顺序重新编号 1 ~ {{ entryCount }}，原有 id 会被覆盖。
       </el-text>
       <template #footer>
@@ -937,14 +937,14 @@ onBeforeUnmount(() => {
 
     <!-- 导出前检查 -->
     <el-dialog v-model="exportOpen" title="导出前检查" width="24rem">
-      <el-text class="el-text el-text--large ah-text-block">发现 {{ warnings.length }} 项问题：</el-text>
+      <el-text size="large" class="ah-text-block">发现 {{ warnings.length }} 项问题：</el-text>
       <ul class="grid max-h-60 list-disc gap-1 overflow-y-auto pl-5 text-xs text-muted">
         <li v-for="(w, i) in warnings.slice(0, 30)" :key="i">{{ w }}</li>
       </ul>
       <p v-if="warnings.length > 30" class="text-xs text-muted">
         还有 {{ warnings.length - 30 }} 项未列出
       </p>
-      <el-text class="el-text el-text--large ah-text-block">是否继续导出？</el-text>
+      <el-text size="large" class="ah-text-block">是否继续导出？</el-text>
       <template #footer>
         <el-button @click="exportOpen = false">取消</el-button>
         <el-button type="primary" @click="runExport">继续导出</el-button>
