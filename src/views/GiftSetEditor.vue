@@ -5,7 +5,6 @@ import {
   ArrowUp,
   Back,
   Delete,
-  Document,
   Download,
   Plus,
   Refresh,
@@ -1133,7 +1132,8 @@ onBeforeUnmount(() => {
       v-model="reloadOpen"
       :title="dirty ? '放弃修改' : '重载线上数据'"
       width="20rem"
-      :persistent="dirty"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
     >
       <el-text class="el-text el-text--large ah-text-block">
         {{
@@ -1153,7 +1153,8 @@ onBeforeUnmount(() => {
       v-model="deleteOpen"
       title="删除套装"
       width="20rem"
-      persistent
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
     >
       <el-text class="el-text el-text--large ah-text-block">
         确定删除「{{ entry?.name || '(未命名)' }}」吗？此操作不可撤销。
@@ -1169,7 +1170,8 @@ onBeforeUnmount(() => {
       v-model="renumberOpen"
       title="重排 id"
       width="20rem"
-      persistent
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
     >
       <el-text class="el-text el-text--large ah-text-block">
         将按当前显示顺序重新编号 1 ~ {{ setCount }}，原有 id 会被覆盖。

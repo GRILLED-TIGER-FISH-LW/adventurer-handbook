@@ -12,7 +12,7 @@ const drawerOpen = ref(false)
     <AppNav @open-menu="drawerOpen = true" />
     <AppDrawer v-model="drawerOpen" />
 
-    <main class="min-h-0 overflow-y-auto">
+    <main class="min-h-0 overflow-hidden">
       <RouterView v-slot="{ Component }">
         <KeepAlive :max="3">
           <component :is="Component" />

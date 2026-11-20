@@ -19,15 +19,14 @@ const themeLabel = computed(() =>
 
 <template>
   <header class="flex h-14 shrink-0 items-center gap-2 border-b border-line bg-canvas px-3">
-    <button
+    <el-button
       v-if="showMenu"
-      type="button"
-      class="grid size-icon-btn shrink-0 place-items-center rounded-md border border-line-2 bg-surface text-ink hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+      circle
       aria-label="打开菜单"
       @click="$emit('open-menu')"
     >
       <SolarIcon name="hamburger-menu" size="20" aria-hidden="true" />
-    </button>
+    </el-button>
 
     <span
       v-if="titleIcon"
@@ -39,13 +38,8 @@ const themeLabel = computed(() =>
 
     <h1 class="min-w-0 flex-1 truncate text-heading-5 text-ink">{{ title }}</h1>
 
-    <button
-      type="button"
-      class="grid size-icon-btn shrink-0 place-items-center rounded-md border border-line-2 bg-surface text-ink hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-      :aria-label="themeLabel"
-      @click="toggleTheme"
-    >
+    <el-button circle :aria-label="themeLabel" @click="toggleTheme">
       <SolarIcon :name="theme === 'dark' ? 'moon' : 'sun-2'" :bold="true" size="20" aria-hidden="true" />
-    </button>
+    </el-button>
   </header>
 </template>

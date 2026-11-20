@@ -430,6 +430,7 @@ onMounted(async () => {
             :aria-pressed="row.isDone"
             :aria-label="`${row.e.character} ${row.e.version} ${row.e.title}`"
             :class="row.isDone ? 'opacity-70' : ''"
+            @click="toggle(row)"
             @keydown.enter.prevent="toggle(row)"
             @keydown.space.prevent="toggle(row)"
           >
@@ -464,6 +465,7 @@ onMounted(async () => {
           <el-checkbox
             class="ah-tales__row-check"
             :model-value="row.isDone"
+            @click.stop
             @change="toggle(row)"
             aria-hidden="true"
           />
@@ -505,11 +507,6 @@ onMounted(async () => {
 
 .ah-tales__row-body {
   padding: 12px;
-}
-
-/* 整列只有容器一个 Tab 位：checkbox 是装饰，不单独占 Tab、也不进无障碍树 */
-.ah-tales__row-check :deep(input) {
-  tab-index: -1;
 }
 
 .ah-tales__row-body:focus-visible {
