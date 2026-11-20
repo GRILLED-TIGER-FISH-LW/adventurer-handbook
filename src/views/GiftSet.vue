@@ -472,8 +472,9 @@ onMounted(async () => {
       />
     </el-header>
 
-    <div class="min-h-0 flex-1 overflow-y-auto">
-      <div v-if="loading" class="p-3 text-sm text-muted">正在加载套装数据…</div>
+    <el-scrollbar class="min-h-0 flex-1">
+      <div>
+      <el-skeleton v-if="loading" class="p-3" :rows="3" animated />
 
       <div v-else-if="errorMsg" class="grid justify-items-center gap-3 p-8 text-center">
         <el-text class="ah-text-danger font-semibold ah-text-block">数据加载失败</el-text>
@@ -510,16 +511,12 @@ onMounted(async () => {
             </el-input>
 
             <div class="grid grid-cols-[repeat(auto-fit,minmax(48px,1fr))] gap-2">
-              <el-checkbox
+              <el-check-tag
                 v-for="name in visibleCharNames"
                 :key="name"
-                :model-value="owned.includes(name)"
+                :checked="owned.includes(name)"
                 class="ah-gift__char"
-                :class="
-                  owned.includes(name)
-                    ? 'border-accent bg-accent-soft'
-                    : 'border-line bg-surface opacity-50'
-                "
+                :class="{ 'opacity-50': !owned.includes(name) }"
                 :title="name"
                 @change="toggleOwned(name)"
               >
@@ -539,7 +536,7 @@ onMounted(async () => {
                 <span class="w-full truncate text-center text-[10px] text-muted">
                   {{ name }}
                 </span>
-              </el-checkbox>
+              </el-check-tag>
             </div>
           </div>
           </el-collapse-item>
@@ -598,18 +595,12 @@ onMounted(async () => {
 
               <div v-if="expandedKeys.has(s.key)" class="grid gap-2 border-t border-line p-2">
                 <div class="grid grid-cols-[repeat(auto-fit,minmax(48px,1fr))] gap-2">
-                  <el-checkbox
+                  <el-check-tag
                     v-for="name in cardMap.get(s.key)?.chars || []"
                     :key="`${s.key}-${name}`"
-                    :model-value="(cardMap.get(s.key)?.done || []).includes(name)"
+                    :checked="(cardMap.get(s.key)?.done || []).includes(name)"
                     class="ah-gift__char"
-                    :class="
-                      !owned.includes(name)
-                        ? 'border-line bg-surface opacity-50'
-                        : (cardMap.get(s.key)?.done || []).includes(name)
-                          ? 'border-accent bg-accent-soft'
-                          : 'border-line-2 bg-surface'
-                    "
+                    :class="{ 'opacity-50': !owned.includes(name) }"
                     :title="name"
                     @change="toggleSetChar(s, name)"
                   >
@@ -629,7 +620,7 @@ onMounted(async () => {
                     <span class="w-full truncate text-center text-[10px] text-muted">
                       {{ name }}
                     </span>
-                  </el-checkbox>
+                  </el-check-tag>
                 </div>
               </div>
             </article>
@@ -748,18 +739,12 @@ onMounted(async () => {
                   无偏好角色数据
                 </div>
                 <div v-else class="grid grid-cols-[repeat(auto-fit,minmax(48px,1fr))] gap-2">
-                  <el-checkbox
+                  <el-check-tag
                     v-for="name in cardMap.get(s.key).chars"
                     :key="`${s.key}-${name}`"
-                    :model-value="cardMap.get(s.key).done.includes(name)"
+                    :checked="cardMap.get(s.key).done.includes(name)"
                     class="ah-gift__char"
-                    :class="
-                      !owned.includes(name)
-                        ? 'border-line bg-surface opacity-50'
-                        : cardMap.get(s.key).done.includes(name)
-                          ? 'border-accent bg-accent-soft'
-                          : 'border-line-2 bg-surface'
-                    "
+                    :class="{ 'opacity-50': !owned.includes(name) }"
                     :title="name"
                     @change="toggleSetChar(s, name)"
                   >
@@ -779,7 +764,7 @@ onMounted(async () => {
                     <span class="w-full truncate text-center text-[10px] text-muted">
                       {{ name }}
                     </span>
-                  </el-checkbox>
+                  </el-check-tag>
                 </div>
               </div>
             </article>
@@ -788,6 +773,7 @@ onMounted(async () => {
         </el-collapse>
       </template>
     </div>
+    </el-scrollbar>
 
     <el-footer class="ah-shell__bar ah-shell__bar--bottom safe-bottom">
       <el-button type="danger" class="w-full" @click="resetOpen = true">
@@ -813,50 +799,30 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-/* 角色块用 el-checkbox 拿语义（role=checkbox / aria-checked / 空格切换），
-   外观是头像块：藏掉 EP 自带的勾选框，状态交给外框颜色表达 */
-.ah-gift__char :deep(.el-checkbox__input) {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.ah-gift__char :deep(.el-checkbox__label) {
+/* 角色格：el-check-tag 天生就是「可点亮的块」（button + aria-pressed + 空格切换），
+   这里只把它从「文字胶囊」改成「头像 + 名字」的竖格；选中底色走站点强调色 */
+.ah-gift__char {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   width: 100%;
+  padding: 4px 0;
+  background-color: transparent;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
 }
 
-/* 勾选框是透明的，焦点环画在整块上，键盘用户才看得见走到哪 */
-.ah-gift__char:focus-within {
+.ah-gift__char.is-checked {
+  background-color: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+}
+
+.ah-gift__char:focus-visible {
   outline: 2px solid var(--el-color-primary);
   outline-offset: 1px;
-}
-
-/* 修复：EP checkbox 固定 32px 高会把头像块（32px 图标 + 名字）挤爆，
-   放开高度、去掉 inline-flex 的 30px 右边距，让格子按内容撑成竖长方形 */
-.ah-gift__char {
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
-  justify-self: stretch;
-  min-width: 0;
-  height: auto;
-  min-height: 0;
-  margin: 0;
-  padding: 4px 0;
-}
-
-/* 与编辑器偏好角色格一致：悬浮提示可移除 */
-.ah-gift__char:hover {
-  border-color: var(--color-danger);
-}
-
-.ah-gift__char :deep(.el-checkbox__label) {
-  padding: 0;
-  gap: 6px;
 }
 
 /* EP collapse 内容默认只有 padding-bottom:25px，没有左右内边距，
