@@ -2,6 +2,7 @@
 #   MOVES    一行一条：旧路径 -> 新路径
 #   EDITS    一条一个块：### 文件路径，然后 <<<< 原文 >>>>，再 <<<< 新文 >>>>（原文逐字、在该文件里唯一）
 #            —— 这一段里不要写 # 注释行（会被当成文件路径）
+#            —— 一个 ### 只能跟一对块；同一文件要改多处，就重复写几遍 ### 路径
 #   DELETES  一行一个路径（文件或目录都行）
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
@@ -59,6 +60,7 @@
   </el-scrollbar>
 </template>
 >>>>
+### src/views/Home.vue
 <<<<
 <style scoped>
 /* 这里只写 Element Plus 不提供的排版细节；
@@ -250,6 +252,7 @@
             @click="toggle(row)"
             @keydown.enter.prevent="toggle(row)"
 >>>>
+### src/views/Tales.vue
 <<<<
             class="ah-tales__row-check"
             :model-value="row.isDone"
@@ -261,6 +264,7 @@
             @click.stop
             @change="toggle(row)"
 >>>>
+### src/views/Tales.vue
 <<<<
 /* 整列只有容器一个 Tab 位：checkbox 是装饰，不单独占 Tab、也不进无障碍树 */
 .ah-tales__row-check :deep(input) {
@@ -280,6 +284,7 @@
 <<<<
         .map(([name]) => name)
 >>>>
+### src/views/GiftSet.vue
 <<<<
 .ah-gift__char {
   width: 100%;
@@ -300,6 +305,17 @@
   Delete,
   Download,
 >>>>
+### src/views/GiftSetEditor.vue
+<<<<
+  Delete,
+  Document,
+  Download,
+>>>>
+<<<<
+  Delete,
+  Download,
+>>>>
+### src/views/TalesEditor.vue
 <<<<
       :title="dirty ? '放弃修改' : '重载线上数据'"
       width="20rem"
@@ -311,6 +327,7 @@
       :close-on-click-modal="false"
       :close-on-press-escape="false"
 >>>>
+### src/views/TalesEditor.vue
 <<<<
       v-model="deleteOpen"
       title="删除条目"
@@ -324,6 +341,7 @@
       :close-on-click-modal="false"
       :close-on-press-escape="false"
 >>>>
+### src/views/TalesEditor.vue
 <<<<
       v-model="renumberOpen"
       title="重排 id"
@@ -339,15 +357,6 @@
 >>>>
 ### src/views/GiftSetEditor.vue
 <<<<
-  Delete,
-  Document,
-  Download,
->>>>
-<<<<
-  Delete,
-  Download,
->>>>
-<<<<
       :title="dirty ? '放弃修改' : '重载线上数据'"
       width="20rem"
       :persistent="dirty"
@@ -358,6 +367,7 @@
       :close-on-click-modal="false"
       :close-on-press-escape="false"
 >>>>
+### src/views/GiftSetEditor.vue
 <<<<
       v-model="deleteOpen"
       title="删除套装"
@@ -371,6 +381,7 @@
       :close-on-click-modal="false"
       :close-on-press-escape="false"
 >>>>
+### src/views/GiftSetEditor.vue
 <<<<
       v-model="renumberOpen"
       title="重排 id"
@@ -417,6 +428,7 @@
       <SolarIcon name="hamburger-menu" size="20" aria-hidden="true" />
     </el-button>
 >>>>
+### src/components/AppNav.vue
 <<<<
     <button
       type="button"
@@ -458,7 +470,7 @@
 
 == CHECKS ==
 grep -q 'gutter="\[12, 12\]"' src/views/Home.vue
-grep -q '<el-col v-for="t in tools" :key="t.path" :span="12">' src/views/Home.vue
+grep -q ':span="12"' src/views/Home.vue
 ! grep -q "column-gap" src/views/Home.vue
 grep -q "height: 104px" src/views/Home.vue
 grep -q "ah-home__scroll" src/views/Home.vue
