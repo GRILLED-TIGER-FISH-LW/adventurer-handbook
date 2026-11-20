@@ -7,485 +7,670 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-default-1 —— 全站回归 EP 默认：首页卡片固定高度 + 恒定半栏（el-col span=12、gutter [12,12]），
-#           顶栏菜单 / 主题按钮改 el-button circle，抽屉回到 EP 默认头部（自带关闭按钮），
-#           el-dialog 的 persistent 换成 EP 的 close-on-click-modal / close-on-press-escape，
-#           另修：首页 el-row 溢出、旅闻点整行无反应、无效 CSS tab-index、角色列表倒序、CHANGELOG 重复条目。
+# 最近一批：ep-default-2 —— el-text 回到 EP 真 API：删掉不存在的 el-text / el-text--small / --large / --default
+#           修饰类（EP 2.x 是 size prop，这些类一直没生效，全站「小字」其实都是 14px），
+#           按语义改成 size="small" / size="large"，默认档不写 size；颜色仍由 ah-text-* 桥接令牌。
 
 == MOVES ==
 
 == EDITS ==
-### src/views/Home.vue
+### src/views/GiftSet.vue
 <<<<
-<template>
-  <el-row class="ah-home">
-    <el-col v-for="t in tools" :key="t.path" :xs="24" :sm="12" :md="8" :lg="6">
-      <RouterLink :to="t.path" class="ah-home__link">
-        <el-card shadow="never" class="ah-home__card">
-          <span class="ah-home__icon" aria-hidden="true">
-            <SolarIcon :name="t.meta.icon" :size="18" />
-          </span>
 
-          <div class="ah-home__body">
-            <div class="ah-home__title">{{ t.meta.label }}</div>
-            <div class="ah-home__desc">{{ t.meta.desc }}</div>
-          </div>
-        </el-card>
-      </RouterLink>
-    </el-col>
-  </el-row>
-</template>
+      <div v-else-if="errorMsg" class="grid justify-items-center gap-3 p-8 text-center">
+        <el-text class="el-text el-text--default ah-text-danger font-semibold ah-text-block">数据加载失败</el-text>
+        <el-text class="el-text el-text--small ah-text-muted ah-text-block">{{ errorMsg }}</el-text>
+        <el-button size="small" @click="() => location.reload()">
+          <span>重新加载</span>
 >>>>
 <<<<
-<template>
-  <el-scrollbar class="ah-home__scroll">
-    <el-row class="ah-home" :gutter="[12, 12]">
-      <el-col v-for="t in tools" :key="t.path" :span="12">
-        <RouterLink :to="t.path" class="ah-home__link">
-          <el-card shadow="never" class="ah-home__card">
-            <div class="ah-home__inner">
-              <span class="ah-home__icon" aria-hidden="true">
-                <SolarIcon :name="t.meta.icon" :size="18" />
+
+      <div v-else-if="errorMsg" class="grid justify-items-center gap-3 p-8 text-center">
+        <el-text class="ah-text-danger font-semibold ah-text-block">数据加载失败</el-text>
+        <el-text size="small" class="ah-text-muted ah-text-block">{{ errorMsg }}</el-text>
+        <el-button size="small" @click="() => location.reload()">
+          <span>重新加载</span>
+>>>>
+### src/views/GiftSet.vue
+<<<<
+          <el-collapse-item name="char">
+            <template #title>
+              <el-text class="el-text el-text--default ah-text-ink font-semibold">我的角色</el-text>
+              <el-text class="el-text el-text--small ah-text-muted ah-text-gap">{{ owned.length }}</el-text>
+            </template>
+            <div class="grid gap-2">
+>>>>
+<<<<
+          <el-collapse-item name="char">
+            <template #title>
+              <el-text class="ah-text-ink font-semibold">我的角色</el-text>
+              <el-text size="small" class="ah-text-muted ah-text-gap">{{ owned.length }}</el-text>
+            </template>
+            <div class="grid gap-2">
+>>>>
+### src/views/GiftSet.vue
+<<<<
+          <el-collapse-item v-if="recommendations.length" name="recommend">
+            <template #title>
+              <el-text class="el-text el-text--default ah-text-ink font-semibold">推荐套装</el-text>
+              <el-text class="el-text el-text--small ah-text-muted ah-text-gap">前 {{ recommendations.length }}</el-text>
+            </template>
+            <div class="grid gap-2">
+>>>>
+<<<<
+          <el-collapse-item v-if="recommendations.length" name="recommend">
+            <template #title>
+              <el-text class="ah-text-ink font-semibold">推荐套装</el-text>
+              <el-text size="small" class="ah-text-muted ah-text-gap">前 {{ recommendations.length }}</el-text>
+            </template>
+            <div class="grid gap-2">
+>>>>
+### src/views/GiftSet.vue
+<<<<
+                <span class="grid min-w-0 flex-1 gap-1">
+                  <span class="truncate text-sm font-medium text-ink">{{ s.name }}</span>
+                  <el-text class="el-text el-text--small ah-text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</el-text>
+                </span>
+
+>>>>
+<<<<
+                <span class="grid min-w-0 flex-1 gap-1">
+                  <span class="truncate text-sm font-medium text-ink">{{ s.name }}</span>
+                  <el-text size="small" class="ah-text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</el-text>
+                </span>
+
+>>>>
+### src/views/GiftSet.vue
+<<<<
+          <el-collapse-item name="all">
+            <template #title>
+              <el-text class="el-text el-text--default ah-text-ink font-semibold">全部套装</el-text>
+              <el-text class="el-text el-text--small ah-text-muted ah-text-gap">{{ filteredSets.length }} / {{ sets.length }}</el-text>
+            </template>
+            <div class="grid gap-2">
+>>>>
+<<<<
+          <el-collapse-item name="all">
+            <template #title>
+              <el-text class="ah-text-ink font-semibold">全部套装</el-text>
+              <el-text size="small" class="ah-text-muted ah-text-gap">{{ filteredSets.length }} / {{ sets.length }}</el-text>
+            </template>
+            <div class="grid gap-2">
+>>>>
+### src/views/GiftSet.vue
+<<<<
+                    {{ s.name || '(未命名)' }}
+                  </span>
+                  <el-text class="el-text el-text--small ah-text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</el-text>
+                </span>
+
+>>>>
+<<<<
+                    {{ s.name || '(未命名)' }}
+                  </span>
+                  <el-text size="small" class="ah-text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</el-text>
+                </span>
+
+>>>>
+### src/views/GiftSet.vue
+<<<<
+      :close-on-press-escape="false"
+    >
+      <el-text class="el-text el-text--large ah-text-block">将清空「我拥有的角色」和所有完成记录，此操作不可撤销。</el-text>
+      <template #footer>
+        <el-button @click="resetOpen = false">取消</el-button>
+>>>>
+<<<<
+      :close-on-press-escape="false"
+    >
+      <el-text size="large" class="ah-text-block">将清空「我拥有的角色」和所有完成记录，此操作不可撤销。</el-text>
+      <template #footer>
+        <el-button @click="resetOpen = false">取消</el-button>
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+        aria-label="有未导出的修改"
+      ></span>
+      <el-text class="el-text el-text--small ah-text-muted">{{ data ? `${setCount} 条` : '数据未加载' }}</el-text>
+
+      <div class="min-w-0 flex-1"></div>
+>>>>
+<<<<
+        aria-label="有未导出的修改"
+      ></span>
+      <el-text size="small" class="ah-text-muted">{{ data ? `${setCount} 条` : '数据未加载' }}</el-text>
+
+      <div class="min-w-0 flex-1"></div>
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+          </el-button>
+
+          <el-text v-if="loading" class="el-text el-text--default ah-text-muted ah-text-block">正在载入…</el-text>
+
+          <el-empty
+>>>>
+<<<<
+          </el-button>
+
+          <el-text v-if="loading" class="ah-text-muted ah-text-block">正在载入…</el-text>
+
+          <el-empty
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+          />
+
+          <el-text v-else-if="!entry" class="el-text el-text--default ah-text-muted ah-text-block">
+            从列表选择套装开始编辑，或点「新增套装」
+          </el-text>
+>>>>
+<<<<
+          />
+
+          <el-text v-else-if="!entry" class="ah-text-muted ah-text-block">
+            从列表选择套装开始编辑，或点「新增套装」
+          </el-text>
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+                  {{ entry.name || '(未命名套装)' }}
+                </span>
+                <el-text class="el-text el-text--small ah-text-muted">{{ previewSub }}</el-text>
               </span>
-
-              <div class="ah-home__body">
-                <div class="ah-home__title">{{ t.meta.label }}</div>
-                <div class="ah-home__desc">{{ t.meta.desc }}</div>
-              </div>
             </div>
-          </el-card>
-        </RouterLink>
-      </el-col>
-    </el-row>
-  </el-scrollbar>
-</template>
->>>>
-### src/views/Home.vue
-<<<<
-<style scoped>
-/* 这里只写 Element Plus 不提供的排版细节；
-   颜色、圆角、字号、控件尺寸全部走 EP 变量 */
-.ah-home {
-  padding: 12px;
-  /* el-row 的 gutter 会给 el-row 加负外边距造成横向溢出，改用 column-gap，换行堆叠时的上下间距要自己给 */
-  column-gap: 12px;
-  row-gap: 12px;
-}
-
-.ah-home__link {
-  display: block;
-  color: inherit;
-  text-decoration: none;
-}
-
-.ah-home__link:focus-visible {
-  outline: 2px solid var(--el-color-primary);
-  outline-offset: 2px;
-}
-
-.ah-home__card {
-  color: inherit;
-  transition: background-color var(--el-transition-duration-fast);
-}
-
-.ah-home__link:hover .ah-home__card,
-.ah-home__link:focus-visible .ah-home__card {
-  background-color: var(--el-fill-color-dark);
-}
-
-.ah-home__card :deep(.el-card__body) {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-}
-
-.ah-home__icon {
-  display: grid;
-  flex: none;
-  width: 32px;
-  height: 32px;
-  border-radius: var(--el-border-radius-base);
-  place-items: center;
-  /* 垫色白天黑夜各一色 —— 原版 bg-accent-soft 本来就是这样：
-     白天 12% 陶土橙叠 #faf9f5 = #f4e9e3；黑夜 18% 叠 #1f1e1b = #3e2e27。
-     图标色跟主题走 = 改版前的 accent-strong（白天 #a9583e，黑夜 #cc785c） */
-  background-color: color-mix(in srgb, var(--color-accent) 12%, #faf9f5);
-  color: var(--color-accent-strong);
-}
-
-/* 黑夜垫色单独一档，不能跟白天共用 */
-[data-theme='dark'] .ah-home__icon {
-  background-color: color-mix(in srgb, var(--color-accent) 18%, #1f1e1b);
-}
-
-.ah-home__body {
-  display: grid;
-  min-width: 0;
-  gap: 2px;
-}
-
-.ah-home__title {
-  color: var(--el-text-color-primary);
-  font-size: var(--el-font-size-base);
-  font-weight: 500;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.ah-home__desc {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  color: var(--el-text-color-secondary);
-  font-size: var(--el-font-size-small);
-  overflow: hidden;
-}
-</style>
 >>>>
 <<<<
-<style scoped>
-/* 只写 Element Plus 不提供的三件事：卡片固定高度、图标块尺寸、两行截断。
-   宽度固定半栏由 el-col 的 :span="12" 决定，框间距由 el-row 的 gutter [12, 12] 决定，
-   圆角 / 内边距 / 字号 / 颜色全部走 EP 默认值与站点令牌。 */
-.ah-home__scroll {
-  height: 100%;
-}
-
-.ah-home {
-  padding: 12px;
-}
-
-.ah-home__link {
-  display: block;
-  color: inherit;
-  text-decoration: none;
-}
-
-.ah-home__link:focus-visible {
-  outline: 2px solid var(--el-color-primary);
-  outline-offset: 2px;
-}
-
-/* 固定高度：卡片不再随标题长短高低不齐 */
-.ah-home__card {
-  height: 104px;
-  color: inherit;
-  transition: background-color var(--el-transition-duration-fast);
-}
-
-.ah-home__link:hover .ah-home__card,
-.ah-home__link:focus-visible .ah-home__card {
-  background-color: var(--el-fill-color-dark);
-}
-
-/* EP 的 card 体默认不撑满，固定高度必须补这一行 */
-.ah-home__card :deep(.el-card__body) {
-  box-sizing: border-box;
-  height: 100%;
-}
-
-.ah-home__inner {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  height: 100%;
-}
-
-.ah-home__icon {
-  display: grid;
-  flex: none;
-  width: 32px;
-  height: 32px;
-  border-radius: var(--el-border-radius-base);
-  place-items: center;
-  /* 垫色昼夜各一档：白天 12% 陶土橙叠 #faf9f5，黑夜 18% 叠 #1f1e1b */
-  background-color: color-mix(in srgb, var(--color-accent) 12%, #faf9f5);
-  color: var(--color-accent-strong);
-}
-
-[data-theme='dark'] .ah-home__icon {
-  background-color: color-mix(in srgb, var(--color-accent) 18%, #1f1e1b);
-}
-
-.ah-home__body {
-  display: grid;
-  min-width: 0;
-  gap: 2px;
-}
-
-.ah-home__title {
-  color: var(--el-text-color-primary);
-  font-size: var(--el-font-size-base);
-  font-weight: 500;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.ah-home__desc {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  color: var(--el-text-color-secondary);
-  font-size: var(--el-font-size-small);
-  overflow: hidden;
-}
-</style>
+                  {{ entry.name || '(未命名套装)' }}
+                </span>
+                <el-text size="small" class="ah-text-muted">{{ previewSub }}</el-text>
+              </span>
+            </div>
 >>>>
-### src/App.vue
+### src/views/GiftSetEditor.vue
 <<<<
-    <main class="min-h-0 overflow-y-auto">
+            <!-- id -->
+            <div class="grid gap-2">
+              <el-text class="el-text el-text--small ah-text-muted font-medium">id · 可手动改，需唯一</el-text>
+              <div class="flex items-center gap-2">
+                <el-input
 >>>>
 <<<<
-    <main class="min-h-0 overflow-hidden">
+            <!-- id -->
+            <div class="grid gap-2">
+              <el-text size="small" class="ah-text-muted font-medium">id · 可手动改，需唯一</el-text>
+              <div class="flex items-center gap-2">
+                <el-input
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+            <!-- 地区 -->
+            <div class="grid gap-2">
+              <el-text class="el-text el-text--small ah-text-muted font-medium">地区 · 输入新值会自动加入列表</el-text>
+              <el-select
+                v-model="entry.region"
+>>>>
+<<<<
+            <!-- 地区 -->
+            <div class="grid gap-2">
+              <el-text size="small" class="ah-text-muted font-medium">地区 · 输入新值会自动加入列表</el-text>
+              <el-select
+                v-model="entry.region"
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+            <!-- 图片 URL -->
+            <div class="grid gap-2">
+              <el-text class="el-text el-text--small ah-text-muted font-medium">
+                套装图 URL · 粘贴后自动识别 key / 类型 / 地区
+              </el-text>
+>>>>
+<<<<
+            <!-- 图片 URL -->
+            <div class="grid gap-2">
+              <el-text size="small" class="ah-text-muted font-medium">
+                套装图 URL · 粘贴后自动识别 key / 类型 / 地区
+              </el-text>
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+                <el-button class="shrink-0" @click="recognizeUrl">识别</el-button>
+              </div>
+              <el-text v-if="urlHint" class="el-text el-text--small ah-text-block" :class="urlInvalid ? 'text-danger' : 'text-muted'">
+                {{ urlHint }}
+              </el-text>
+>>>>
+<<<<
+                <el-button class="shrink-0" @click="recognizeUrl">识别</el-button>
+              </div>
+              <el-text v-if="urlHint" size="small" class="ah-text-block" :class="urlInvalid ? 'text-danger' : 'text-muted'">
+                {{ urlHint }}
+              </el-text>
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+
+            <div class="grid gap-2">
+              <el-text class="el-text el-text--small ah-text-muted">名称</el-text>
+              <el-input
+                v-model="entry.name"
+>>>>
+<<<<
+
+            <div class="grid gap-2">
+              <el-text size="small" class="ah-text-muted">名称</el-text>
+              <el-input
+                v-model="entry.name"
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+            <!-- 室内 / 室外：只占内容宽度 -->
+            <div class="grid gap-2">
+              <el-text class="el-text el-text--small ah-text-muted font-medium">室内 / 室外</el-text>
+              <el-segmented
+                v-model="entry.type"
+>>>>
+<<<<
+            <!-- 室内 / 室外：只占内容宽度 -->
+            <div class="grid gap-2">
+              <el-text size="small" class="ah-text-muted font-medium">室内 / 室外</el-text>
+              <el-segmented
+                v-model="entry.type"
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+            <!-- 偏好角色 -->
+            <div class="grid gap-2">
+              <el-text class="el-text el-text--small ah-text-muted font-medium">
+                偏好角色 · 支持逗号 / 空格 / 顿号批量输入，点格子可移除
+              </el-text>
+>>>>
+<<<<
+            <!-- 偏好角色 -->
+            <div class="grid gap-2">
+              <el-text size="small" class="ah-text-muted font-medium">
+                偏好角色 · 支持逗号 / 空格 / 顿号批量输入，点格子可移除
+              </el-text>
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+      :close-on-press-escape="false"
+    >
+      <el-text class="el-text el-text--large ah-text-block">
+        {{
+          dirty
+>>>>
+<<<<
+      :close-on-press-escape="false"
+    >
+      <el-text size="large" class="ah-text-block">
+        {{
+          dirty
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+      :close-on-press-escape="false"
+    >
+      <el-text class="el-text el-text--large ah-text-block">
+        确定删除「{{ entry?.name || '(未命名)' }}」吗？此操作不可撤销。
+      </el-text>
+>>>>
+<<<<
+      :close-on-press-escape="false"
+    >
+      <el-text size="large" class="ah-text-block">
+        确定删除「{{ entry?.name || '(未命名)' }}」吗？此操作不可撤销。
+      </el-text>
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+      :close-on-press-escape="false"
+    >
+      <el-text class="el-text el-text--large ah-text-block">
+        将按当前显示顺序重新编号 1 ~ {{ setCount }}，原有 id 会被覆盖。
+      </el-text>
+>>>>
+<<<<
+      :close-on-press-escape="false"
+    >
+      <el-text size="large" class="ah-text-block">
+        将按当前显示顺序重新编号 1 ~ {{ setCount }}，原有 id 会被覆盖。
+      </el-text>
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+    <!-- 导出前检查 -->
+    <el-dialog v-model="exportOpen" title="导出前检查" width="24rem">
+      <el-text class="el-text el-text--large ah-text-block">发现 {{ warnings.length }} 项问题：</el-text>
+      <ul class="grid max-h-60 list-disc gap-1 overflow-y-auto pl-5 text-xs text-muted">
+        <li v-for="(w, i) in warnings.slice(0, 30)" :key="i">{{ w }}</li>
+>>>>
+<<<<
+    <!-- 导出前检查 -->
+    <el-dialog v-model="exportOpen" title="导出前检查" width="24rem">
+      <el-text size="large" class="ah-text-block">发现 {{ warnings.length }} 项问题：</el-text>
+      <ul class="grid max-h-60 list-disc gap-1 overflow-y-auto pl-5 text-xs text-muted">
+        <li v-for="(w, i) in warnings.slice(0, 30)" :key="i">{{ w }}</li>
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+        还有 {{ warnings.length - 30 }} 项未列出
+      </p>
+      <el-text class="el-text el-text--large ah-text-block">是否继续导出？</el-text>
+      <template #footer>
+        <el-button @click="exportOpen = false">取消</el-button>
+>>>>
+<<<<
+        还有 {{ warnings.length - 30 }} 项未列出
+      </p>
+      <el-text size="large" class="ah-text-block">是否继续导出？</el-text>
+      <template #footer>
+        <el-button @click="exportOpen = false">取消</el-button>
 >>>>
 ### src/views/Tales.vue
 <<<<
-            :class="row.isDone ? 'opacity-70' : ''"
-            @keydown.enter.prevent="toggle(row)"
->>>>
-<<<<
-            :class="row.isDone ? 'opacity-70' : ''"
-            @click="toggle(row)"
-            @keydown.enter.prevent="toggle(row)"
->>>>
-### src/views/Tales.vue
-<<<<
-            class="ah-tales__row-check"
-            :model-value="row.isDone"
-            @change="toggle(row)"
->>>>
-<<<<
-            class="ah-tales__row-check"
-            :model-value="row.isDone"
-            @click.stop
-            @change="toggle(row)"
->>>>
-### src/views/Tales.vue
-<<<<
-/* 整列只有容器一个 Tab 位：checkbox 是装饰，不单独占 Tab、也不进无障碍树 */
-.ah-tales__row-check :deep(input) {
-  tab-index: -1;
-}
 
-
+      <div v-else-if="errorMsg" class="grid justify-items-center gap-3 p-8 text-center">
+        <el-text class="el-text el-text--default ah-text-danger font-semibold ah-text-block">数据加载失败</el-text>
+        <el-text class="el-text el-text--small ah-text-muted ah-text-block">{{ errorMsg }}</el-text>
+        <el-button size="small" @click="() => location.reload()">
+          <el-icon><Refresh /></el-icon>
 >>>>
 <<<<
 
->>>>
-### src/views/GiftSet.vue
-<<<<
-        .map(([name]) => name)
-        .reverse()
->>>>
-<<<<
-        .map(([name]) => name)
->>>>
-### src/views/GiftSet.vue
-<<<<
-.ah-gift__char {
-  width: 100%;
-}
-
-.ah-gift__char :deep(.el-checkbox__input) {
->>>>
-<<<<
-.ah-gift__char :deep(.el-checkbox__input) {
+      <div v-else-if="errorMsg" class="grid justify-items-center gap-3 p-8 text-center">
+        <el-text class="ah-text-danger font-semibold ah-text-block">数据加载失败</el-text>
+        <el-text size="small" class="ah-text-muted ah-text-block">{{ errorMsg }}</el-text>
+        <el-button size="small" @click="() => location.reload()">
+          <el-icon><Refresh /></el-icon>
 >>>>
 ### src/views/TalesEditor.vue
 <<<<
-  Delete,
-  Document,
-  Download,
+        aria-label="有未导出的修改"
+      ></span>
+      <el-text class="el-text el-text--small ah-text-muted">
+        {{ data ? `${entryCount} 条` : '数据未加载' }}
+      </el-text>
 >>>>
 <<<<
-  Delete,
-  Download,
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-  Delete,
-  Document,
-  Download,
->>>>
-<<<<
-  Delete,
-  Download,
+        aria-label="有未导出的修改"
+      ></span>
+      <el-text size="small" class="ah-text-muted">
+        {{ data ? `${entryCount} 条` : '数据未加载' }}
+      </el-text>
 >>>>
 ### src/views/TalesEditor.vue
 <<<<
-      :title="dirty ? '放弃修改' : '重载线上数据'"
-      width="20rem"
-      :persistent="dirty"
+          </el-button>
+
+          <el-text v-if="loading" class="el-text el-text--default ah-text-muted ah-text-block">正在载入…</el-text>
+
+          <el-empty
 >>>>
 <<<<
-      :title="dirty ? '放弃修改' : '重载线上数据'"
-      width="20rem"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
+          </el-button>
+
+          <el-text v-if="loading" class="ah-text-muted ah-text-block">正在载入…</el-text>
+
+          <el-empty
 >>>>
 ### src/views/TalesEditor.vue
 <<<<
-      v-model="deleteOpen"
-      title="删除条目"
-      width="20rem"
-      persistent
+          />
+
+          <el-text v-else-if="!entry" class="el-text el-text--default ah-text-muted ah-text-block">
+            从列表选择条目开始编辑，或点「新增」
+          </el-text>
 >>>>
 <<<<
-      v-model="deleteOpen"
-      title="删除条目"
-      width="20rem"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
+          />
+
+          <el-text v-else-if="!entry" class="ah-text-muted ah-text-block">
+            从列表选择条目开始编辑，或点「新增」
+          </el-text>
 >>>>
 ### src/views/TalesEditor.vue
 <<<<
-      v-model="renumberOpen"
-      title="重排 id"
-      width="20rem"
-      persistent
+                  {{ entry.character || '(未命名角色)' }} · {{ entry.title || '(无标题)' }}
+                </span>
+                <el-text class="el-text el-text--small ah-text-muted">{{ headingSub }}</el-text>
+              </span>
+            </div>
 >>>>
 <<<<
-      v-model="renumberOpen"
-      title="重排 id"
-      width="20rem"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
+                  {{ entry.character || '(未命名角色)' }} · {{ entry.title || '(无标题)' }}
+                </span>
+                <el-text size="small" class="ah-text-muted">{{ headingSub }}</el-text>
+              </span>
+            </div>
 >>>>
-### src/views/GiftSetEditor.vue
+### src/views/TalesEditor.vue
 <<<<
-      :title="dirty ? '放弃修改' : '重载线上数据'"
-      width="20rem"
-      :persistent="dirty"
->>>>
-<<<<
-      :title="dirty ? '放弃修改' : '重载线上数据'"
-      width="20rem"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-      v-model="deleteOpen"
-      title="删除套装"
-      width="20rem"
-      persistent
+            <!-- id -->
+            <div class="grid gap-2">
+              <el-text class="el-text el-text--small ah-text-muted font-medium">id · 可手动改，需唯一</el-text>
+              <div class="flex items-center gap-2">
+                <el-input
 >>>>
 <<<<
-      v-model="deleteOpen"
-      title="删除套装"
-      width="20rem"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
+            <!-- id -->
+            <div class="grid gap-2">
+              <el-text size="small" class="ah-text-muted font-medium">id · 可手动改，需唯一</el-text>
+              <div class="flex items-center gap-2">
+                <el-input
 >>>>
-### src/views/GiftSetEditor.vue
+### src/views/TalesEditor.vue
 <<<<
-      v-model="renumberOpen"
-      title="重排 id"
-      width="20rem"
-      persistent
+            <!-- 版本 -->
+            <div class="grid gap-2">
+              <el-text class="el-text el-text--small ah-text-muted font-medium">版本 · 输入新值会自动加入列表</el-text>
+              <el-select
+                v-model="entry.version"
 >>>>
 <<<<
-      v-model="renumberOpen"
-      title="重排 id"
-      width="20rem"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
+            <!-- 版本 -->
+            <div class="grid gap-2">
+              <el-text size="small" class="ah-text-muted font-medium">版本 · 输入新值会自动加入列表</el-text>
+              <el-select
+                v-model="entry.version"
 >>>>
-### CHANGELOG.md
+### src/views/TalesEditor.vue
 <<<<
-### 2026-11-18 · 全站 UI 统一到 Element Plus
+            <!-- 角色 -->
+            <div class="grid gap-2">
+              <el-text class="el-text el-text--small ah-text-muted font-medium">角色名 · 从字典联想，可自定义</el-text>
+              <div class="flex items-center gap-2">
+                <span
+>>>>
+<<<<
+            <!-- 角色 -->
+            <div class="grid gap-2">
+              <el-text size="small" class="ah-text-muted font-medium">角色名 · 从字典联想，可自定义</el-text>
+              <div class="flex items-center gap-2">
+                <span
+>>>>
+### src/views/TalesEditor.vue
+<<<<
+                </el-select>
+              </div>
+              <el-text v-if="showCharWarn" class="el-text el-text--small ah-text-danger ah-text-block">
+                字典中无此角色，主界面将显示首字占位
+              </el-text>
+>>>>
+<<<<
+                </el-select>
+              </div>
+              <el-text v-if="showCharWarn" size="small" class="ah-text-danger ah-text-block">
+                字典中无此角色，主界面将显示首字占位
+              </el-text>
+>>>>
+### src/views/TalesEditor.vue
+<<<<
 
-（滚动条采用三栏整体滚动方案，不固定单栏高度，内容不足不留白、多栏叠加不透出底部）
+            <div class="grid gap-2">
+              <el-text class="el-text el-text--small ah-text-muted">旅闻名</el-text>
+              <el-input
+                v-model="entry.title"
+>>>>
+<<<<
 
-### 2026-11-18 · 全站 UI 统一到 Element Plus
+            <div class="grid gap-2">
+              <el-text size="small" class="ah-text-muted">旅闻名</el-text>
+              <el-input
+                v-model="entry.title"
 >>>>
+### src/views/TalesEditor.vue
 <<<<
-### 2026-11-18 · 全站 UI 统一到 Element Plus
->>>>
-### src/components/AppNav.vue
-<<<<
-    <button
-      v-if="showMenu"
-      type="button"
-      class="grid size-icon-btn shrink-0 place-items-center rounded-md border border-line-2 bg-surface text-ink hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-      aria-label="打开菜单"
-      @click="$emit('open-menu')"
-    >
-      <SolarIcon name="hamburger-menu" size="20" aria-hidden="true" />
-    </button>
->>>>
-<<<<
-    <el-button
-      v-if="showMenu"
-      circle
-      aria-label="打开菜单"
-      @click="$emit('open-menu')"
-    >
-      <SolarIcon name="hamburger-menu" size="20" aria-hidden="true" />
-    </el-button>
->>>>
-### src/components/AppNav.vue
-<<<<
-    <button
-      type="button"
-      class="grid size-icon-btn shrink-0 place-items-center rounded-md border border-line-2 bg-surface text-ink hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
-      :aria-label="themeLabel"
-      @click="toggleTheme"
-    >
-      <SolarIcon :name="theme === 'dark' ? 'moon' : 'sun-2'" :bold="true" size="20" aria-hidden="true" />
-    </button>
->>>>
-<<<<
-    <el-button circle :aria-label="themeLabel" @click="toggleTheme">
-      <SolarIcon :name="theme === 'dark' ? 'moon' : 'sun-2'" :bold="true" size="20" aria-hidden="true" />
-    </el-button>
->>>>
-### src/components/AppDrawer.vue
-<<<<
-      size="256px"
-      :with-header="false"
-      aria-label="功能导航"
-      class="ah-drawer"
-    >
-      <div class="flex h-14 shrink-0 items-center border-b border-line px-4">
-        <h2 class="text-heading-5 text-ink">功能导航</h2>
-      </div>
+            >
+              <el-checkbox v-model="entry.hidden" @change="markDirty" />
+              <el-text class="el-text el-text--small ah-text-ink">标记为隐藏旅闻（主界面红色）</el-text>
+            </div>
 
-      <nav class="ah-drawer__nav" aria-label="功能菜单">
+            <div class="grid gap-2">
+              <el-text class="el-text el-text--small ah-text-muted">地点</el-text>
+              <el-input
+                v-model="entry.location"
 >>>>
 <<<<
-      size="256px"
-      title="功能导航"
-      aria-label="功能导航"
-      class="ah-drawer"
+            >
+              <el-checkbox v-model="entry.hidden" @change="markDirty" />
+              <el-text size="small" class="ah-text-ink">标记为隐藏旅闻（主界面红色）</el-text>
+            </div>
+
+            <div class="grid gap-2">
+              <el-text size="small" class="ah-text-muted">地点</el-text>
+              <el-input
+                v-model="entry.location"
+>>>>
+### src/views/TalesEditor.vue
+<<<<
+
+            <div class="grid gap-2">
+              <el-text class="el-text el-text--small ah-text-muted">触发条件</el-text>
+              <el-input
+                v-model="entry.trigger"
+>>>>
+<<<<
+
+            <div class="grid gap-2">
+              <el-text size="small" class="ah-text-muted">触发条件</el-text>
+              <el-input
+                v-model="entry.trigger"
+>>>>
+### src/views/TalesEditor.vue
+<<<<
+
+            <div class="grid gap-2">
+              <el-text class="el-text el-text--small ah-text-muted">前置旅闻 · 只填旅闻名</el-text>
+              <el-input
+                v-model="entry.prerequisite"
+>>>>
+<<<<
+
+            <div class="grid gap-2">
+              <el-text size="small" class="ah-text-muted">前置旅闻 · 只填旅闻名</el-text>
+              <el-input
+                v-model="entry.prerequisite"
+>>>>
+### src/views/TalesEditor.vue
+<<<<
+
+            <div class="grid gap-2">
+              <el-text class="el-text el-text--small ah-text-muted">描述 · 支持换行</el-text>
+              <el-input
+                v-model="entry.description"
+>>>>
+<<<<
+
+            <div class="grid gap-2">
+              <el-text size="small" class="ah-text-muted">描述 · 支持换行</el-text>
+              <el-input
+                v-model="entry.description"
+>>>>
+### src/views/TalesEditor.vue
+<<<<
+      :close-on-press-escape="false"
     >
-      <nav class="ah-drawer__nav" aria-label="功能菜单">
+      <el-text class="el-text el-text--large ah-text-block">
+        {{
+          dirty
+>>>>
+<<<<
+      :close-on-press-escape="false"
+    >
+      <el-text size="large" class="ah-text-block">
+        {{
+          dirty
+>>>>
+### src/views/TalesEditor.vue
+<<<<
+      :close-on-press-escape="false"
+    >
+      <el-text class="el-text el-text--large ah-text-block">
+        确定删除「{{ entry?.character || '?' }} · {{ entry?.title || '?' }}」吗？此操作不可撤销。
+      </el-text>
+>>>>
+<<<<
+      :close-on-press-escape="false"
+    >
+      <el-text size="large" class="ah-text-block">
+        确定删除「{{ entry?.character || '?' }} · {{ entry?.title || '?' }}」吗？此操作不可撤销。
+      </el-text>
+>>>>
+### src/views/TalesEditor.vue
+<<<<
+      :close-on-press-escape="false"
+    >
+      <el-text class="el-text el-text--large ah-text-block">
+        将按当前显示顺序重新编号 1 ~ {{ entryCount }}，原有 id 会被覆盖。
+      </el-text>
+>>>>
+<<<<
+      :close-on-press-escape="false"
+    >
+      <el-text size="large" class="ah-text-block">
+        将按当前显示顺序重新编号 1 ~ {{ entryCount }}，原有 id 会被覆盖。
+      </el-text>
+>>>>
+### src/views/TalesEditor.vue
+<<<<
+    <!-- 导出前检查 -->
+    <el-dialog v-model="exportOpen" title="导出前检查" width="24rem">
+      <el-text class="el-text el-text--large ah-text-block">发现 {{ warnings.length }} 项问题：</el-text>
+      <ul class="grid max-h-60 list-disc gap-1 overflow-y-auto pl-5 text-xs text-muted">
+        <li v-for="(w, i) in warnings.slice(0, 30)" :key="i">{{ w }}</li>
+>>>>
+<<<<
+    <!-- 导出前检查 -->
+    <el-dialog v-model="exportOpen" title="导出前检查" width="24rem">
+      <el-text size="large" class="ah-text-block">发现 {{ warnings.length }} 项问题：</el-text>
+      <ul class="grid max-h-60 list-disc gap-1 overflow-y-auto pl-5 text-xs text-muted">
+        <li v-for="(w, i) in warnings.slice(0, 30)" :key="i">{{ w }}</li>
+>>>>
+### src/views/TalesEditor.vue
+<<<<
+        还有 {{ warnings.length - 30 }} 项未列出
+      </p>
+      <el-text class="el-text el-text--large ah-text-block">是否继续导出？</el-text>
+      <template #footer>
+        <el-button @click="exportOpen = false">取消</el-button>
+>>>>
+<<<<
+        还有 {{ warnings.length - 30 }} 项未列出
+      </p>
+      <el-text size="large" class="ah-text-block">是否继续导出？</el-text>
+      <template #footer>
+        <el-button @click="exportOpen = false">取消</el-button>
 >>>>
 
 == DELETES ==
 
 == CHECKS ==
-grep -q 'gutter="\[12, 12\]"' src/views/Home.vue
-grep -q ':span="12"' src/views/Home.vue
-! grep -q "column-gap" src/views/Home.vue
-grep -q "height: 104px" src/views/Home.vue
-grep -q "ah-home__scroll" src/views/Home.vue
-grep -q "overflow-hidden" src/App.vue
-! grep -q "overflow-y-auto" src/App.vue
-grep -q '@click="toggle(row)"' src/views/Tales.vue
-grep -q "@click.stop" src/views/Tales.vue
-! grep -q "tab-index" src/views/Tales.vue
-! grep -q ".reverse()" src/views/GiftSet.vue
-! grep -q "Document," src/views/TalesEditor.vue
-! grep -q "Document," src/views/GiftSetEditor.vue
-! grep -q "persistent" src/views/TalesEditor.vue
-! grep -q "persistent" src/views/GiftSetEditor.vue
-[ "$(grep -c '2026-11-18' CHANGELOG.md)" -eq 1 ]
-! grep -q "<button" src/components/AppNav.vue
-[ "$(grep -c "<el-button" src/components/AppNav.vue)" -eq 2 ]
-grep -q 'title="功能导航"' src/components/AppDrawer.vue
-! grep -q "with-header" src/components/AppDrawer.vue
+! grep -rq "el-text--" src
+! grep -rEq 'class="el-text[ "]' src
+grep -q 'size="small"' src/views/Tales.vue
+grep -q 'size="large"' src/views/TalesEditor.vue
+grep -q 'size="large"' src/views/GiftSetEditor.vue
+grep -q 'size="small"' src/views/GiftSet.vue
+grep -q "ah-text-muted" src/views/GiftSet.vue
+grep -q "ah-text-ink" src/views/TalesEditor.vue
