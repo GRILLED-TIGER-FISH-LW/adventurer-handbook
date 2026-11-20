@@ -245,8 +245,9 @@ https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js
 
 ### 当前状态（每批合并后更新；下一轮开工先读这段，别去现场探索）
 
-- **最后合并**：`ep-fix-scroll` —— 两个编辑器的滚动区回退原生 `overflow-y: auto`（`el-scrollbar` 在 grid item 里 `height:100%` 会解析成 `auto`，`<section>` 的高度是 stretch 来的 `auto`，wrap 高度永远等于内容高度，所以「内容超了也不出条」）；顺手把首页卡片加到 132px、标题允许折两行、图标改顶部对齐；套装「我的角色」恢复倒序、角色名折行不再省略。
-- **滚动容器选型（血泪）**：`el-scrollbar` 只在「父级高度确定」时可靠——flex item（`flex: 1`）可以，grid item（stretch 出来的 `height: auto`）不行；后者一律用原生 `overflow-y: auto`（`overflow` 用的是 used height，不依赖百分比）。旅闻 / 套装页是 flex 布局，所以它们的 `el-scrollbar` 正常。
+- **最后合并**：`ep-fix-grid` —— 编辑器滚不动的**真根因**修好：EP 的 `.el-main` 自带 `display: block`，而 **EP 的 CSS 不带 `@layer`**，会把 `<el-main class="grid grid-cols-…">` 上的栅格类全部压掉（栏位高度跟着内容走、`main` 又 `overflow: hidden`，于是超出被裁且拖不动）。两栏骨架写进 `app.css` 的非分层规则 `.ah-shell--split > .el-main`；左右两栏滚动用原生 `overflow-y: auto`。
+- **滚动容器选型（血泪）**：`el-scrollbar` 只在「父级高度确定」时可靠——flex item（`flex: 1`）可以，grid 栏位不一定；grid 里一律用原生 `overflow-y: auto`（`overflow` 用 used height，不依赖百分比）。旅闻 / 套装页是 flex 布局，所以它们的 `el-scrollbar` 正常。
+- **Tailwind 在 EP 组件上不生效（同一个坑踩了两次）**：EP 的 CSS 不带 `@layer`，非分层规则会压掉 `@layer utilities`。`el-main` 自带 `display: block`，写 `<el-main class="grid grid-cols-…">` 完全没用。第一次是 `.ah-uid` 的宽度不能用 `w-*`，第二次是编辑器的栅格。**给 EP 组件加任何布局类之前，先想一遍它自己有没有同属性。**
 - **EP 无对应物、故意自造的三处（别再硬套）**：①套装卡 / 编辑器列表项的「可展开卡片」——`el-collapse` 外层已在用，嵌套会叠两层内边距；`el-menu` 的 `default-active` 不响应式；②编辑器工具栏「未导出修改」的红点——`el-badge` 是绝对定位的 `sup`，必须依附宿主元素；③隐藏 `<input type="file">`——`el-upload` 自带按钮 / 列表 / 进度，只用「读一个文件」时是负偏离。
 - **设计系统已对齐**（唯一真源是 `src/styles/tokens.css`）：颜色 = Claude 全量；字号 / 间距 / 圆角 / 控件高度 / 组件规格 = Notion 全量。刻度 → 9 个组件 → 四个页面 / 编辑器 / Home 都已落地。
 - **已定未做 ①**：字体族换 Notion Sans（= Inter）—— 会牵动一图流 / 视频封面的文字度量，必须单独一批，排在最后。

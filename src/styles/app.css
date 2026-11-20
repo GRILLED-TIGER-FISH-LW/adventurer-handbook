@@ -132,3 +132,28 @@ html.dark {
   width: calc((100% - 16px) / 3);
   flex: none;
 }
+
+/* ===== 编辑器两栏骨架 =====
+   EP 的 .el-main 自带 display: block，而 EP 的 CSS 不带 @layer ——
+   非分层规则会压掉 @layer utilities，所以 <el-main class="grid grid-cols-…"> 里的
+   grid / grid-cols / grid-rows 全部无效：栏位高度跟着内容走，main 又是 overflow: hidden，
+   结果就是「内容超了被裁、还拖不动」。骨架必须写在这里（非分层）。
+   （同类教训：上面 .ah-uid 的宽度也不能用 Tailwind 的 w-*。） */
+.ah-shell--split > .el-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  padding: 0;
+  overflow: hidden;
+}
+
+.ah-shell--split > .el-main > * {
+  min-width: 0;
+  min-height: 0;
+}
+
+@media (min-width: 900px) {
+  .ah-shell--split > .el-main {
+    grid-template-columns: 20rem minmax(0, 1fr);
+  }
+}
