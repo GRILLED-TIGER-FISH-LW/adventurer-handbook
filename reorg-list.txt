@@ -7,142 +7,108 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-fix-scroll —— 编辑器滚动条（第三次尝试，这次是根因）。
-#   el-scrollbar 的 height:100% 在 grid item 里解析成 auto（section 的高度是 stretch 来的），
-#   wrap 高度永远等于内容 → 永远不滚。两个编辑器的左右两栏全部回退原生 overflow-y:auto，
-#   el-main 的 grid-rows-[minmax(0,1fr)] 保留（行高约束还得靠它）。
+# 最近一批：ep-fix-grid —— 接 ep-fix-scroll（那批只把滚动回退成原生，栅格仍是死的）。
+#   真根因：EP 的 .el-main 自带 display: block，而 EP 的 CSS 不带 @layer，
+#   会压掉 @layer utilities —— <el-main class="grid grid-cols-… grid-rows-…"> 里
+#   grid / grid-cols / grid-rows 全部无效，栏位高度跟着内容走，main 又是 overflow: hidden，
+#   所以超出被裁、拖不动。修法：骨架写进 app.css 的非分层规则 .ah-shell--split > .el-main。
 
 == MOVES ==
 
 == EDITS ==
-### src/views/TalesEditor.vue
+### src/styles/app.css
 <<<<
-        <el-scrollbar class="min-h-0 flex-1">
-          <div class="grid content-start gap-1 p-2">
+.ah-uid {
+  width: calc((100% - 16px) / 3);
+  flex: none;
+}
 >>>>
 <<<<
-        <div class="min-h-0 flex-1 overflow-y-auto">
-          <div class="grid content-start gap-1 p-2">
->>>>
-### src/views/TalesEditor.vue
-<<<<
-        </div>
-        </el-scrollbar>
+.ah-uid {
+  width: calc((100% - 16px) / 3);
+  flex: none;
+}
 
-        <div class="grid shrink-0 grid-cols-2 gap-2 border-t border-line p-2">
->>>>
-<<<<
-        </div>
-        </div>
+/* ===== 编辑器两栏骨架 =====
+   EP 的 .el-main 自带 display: block，而 EP 的 CSS 不带 @layer ——
+   非分层规则会压掉 @layer utilities，所以 <el-main class="grid grid-cols-…"> 里的
+   grid / grid-cols / grid-rows 全部无效：栏位高度跟着内容走，main 又是 overflow: hidden，
+   结果就是「内容超了被裁、还拖不动」。骨架必须写在这里（非分层）。
+   （同类教训：上面 .ah-uid 的宽度也不能用 Tailwind 的 w-*。） */
+.ah-shell--split > .el-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  padding: 0;
+  overflow: hidden;
+}
 
-        <div class="grid shrink-0 grid-cols-2 gap-2 border-t border-line p-2">
+.ah-shell--split > .el-main > * {
+  min-width: 0;
+  min-height: 0;
+}
+
+@media (min-width: 900px) {
+  .ah-shell--split > .el-main {
+    grid-template-columns: 20rem minmax(0, 1fr);
+  }
+}
 >>>>
 ### src/views/TalesEditor.vue
 <<<<
-      <section
-        class="min-h-0"
-        :class="mobilePane === 'list' ? 'hidden min-[900px]:block' : 'block'"
-      >
-        <el-scrollbar class="h-full">
-        <div class="grid gap-3 p-3">
+<el-container class="ah-tales ah-shell" direction="vertical">
 >>>>
 <<<<
-      <section
-        class="min-h-0 overflow-y-auto"
-        :class="mobilePane === 'list' ? 'hidden min-[900px]:block' : 'block'"
-      >
-        <div class="grid gap-3 p-3">
+<el-container class="ah-tales ah-shell ah-shell--split" direction="vertical">
 >>>>
 ### src/views/TalesEditor.vue
 <<<<
-        </div>
-        </el-scrollbar>
-      </section>
-    </el-main>
+<el-main class="grid min-h-0 grid-rows-[minmax(0,1fr)] grid-cols-1 min-[900px]:grid-cols-[20rem_minmax(0,1fr)]">
 >>>>
 <<<<
-        </div>
-      </section>
-    </el-main>
+<el-main>
 >>>>
 ### src/views/GiftSetEditor.vue
 <<<<
-        <el-scrollbar class="min-h-0 flex-1">
-          <div class="grid content-start gap-1 p-2">
+<el-container class="ah-gift-ed ah-shell" direction="vertical">
 >>>>
 <<<<
-        <div class="min-h-0 flex-1 overflow-y-auto">
-          <div class="grid content-start gap-1 p-2">
+<el-container class="ah-gift-ed ah-shell ah-shell--split" direction="vertical">
 >>>>
 ### src/views/GiftSetEditor.vue
 <<<<
-        </div>
-        </el-scrollbar>
-
-        <div class="grid shrink-0 grid-cols-2 gap-2 border-t border-line p-2">
+<el-main class="grid min-h-0 grid-rows-[minmax(0,1fr)] grid-cols-1 min-[900px]:grid-cols-[20rem_minmax(0,1fr)]">
 >>>>
 <<<<
-        </div>
-        </div>
-
-        <div class="grid shrink-0 grid-cols-2 gap-2 border-t border-line p-2">
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-      <section
-        class="min-h-0"
-        :class="mobilePane === 'list' ? 'hidden min-[900px]:block' : 'block'"
-      >
-        <el-scrollbar class="h-full">
-        <div class="grid gap-3 p-3">
->>>>
-<<<<
-      <section
-        class="min-h-0 overflow-y-auto"
-        :class="mobilePane === 'list' ? 'hidden min-[900px]:block' : 'block'"
-      >
-        <div class="grid gap-3 p-3">
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-        </div>
-        </el-scrollbar>
-      </section>
-    </el-main>
->>>>
-<<<<
-        </div>
-      </section>
-    </el-main>
+<el-main>
 >>>>
 ### AGENTS.md
-<<<<
-- **最后合并**：`ep-default-4` —— 全站回归 EP 默认：`el-text` 按语义改 `size`（原来 48 处写的是 EP 不存在的修饰类，等于没生效）、抽屉回默认头部（自带关闭按钮）、`el-dialog` 的 `persistent` 换成 `close-on-click-modal` / `close-on-press-escape`、通知条下线换 `ElMessage`（删 `ToastHost.vue` / `useToast.js`）、6 个滚动区换 `el-scrollbar`、4 处加载态换 `el-skeleton`、角色格换 `el-check-tag`；首页卡片固定 104px + 恒半栏。
->>>>
 <<<<
 - **最后合并**：`ep-fix-scroll` —— 两个编辑器的滚动区回退原生 `overflow-y: auto`（`el-scrollbar` 在 grid item 里 `height:100%` 会解析成 `auto`，`<section>` 的高度是 stretch 来的 `auto`，wrap 高度永远等于内容高度，所以「内容超了也不出条」）；顺手把首页卡片加到 132px、标题允许折两行、图标改顶部对齐；套装「我的角色」恢复倒序、角色名折行不再省略。
 - **滚动容器选型（血泪）**：`el-scrollbar` 只在「父级高度确定」时可靠——flex item（`flex: 1`）可以，grid item（stretch 出来的 `height: auto`）不行；后者一律用原生 `overflow-y: auto`（`overflow` 用的是 used height，不依赖百分比）。旅闻 / 套装页是 flex 布局，所以它们的 `el-scrollbar` 正常。
 >>>>
+<<<<
+- **最后合并**：`ep-fix-grid` —— 编辑器滚不动的**真根因**修好：EP 的 `.el-main` 自带 `display: block`，而 **EP 的 CSS 不带 `@layer`**，会把 `<el-main class="grid grid-cols-…">` 上的栅格类全部压掉（栏位高度跟着内容走、`main` 又 `overflow: hidden`，于是超出被裁且拖不动）。两栏骨架写进 `app.css` 的非分层规则 `.ah-shell--split > .el-main`；左右两栏滚动用原生 `overflow-y: auto`。
+- **滚动容器选型（血泪）**：`el-scrollbar` 只在「父级高度确定」时可靠——flex item（`flex: 1`）可以，grid 栏位不一定；grid 里一律用原生 `overflow-y: auto`（`overflow` 用 used height，不依赖百分比）。旅闻 / 套装页是 flex 布局，所以它们的 `el-scrollbar` 正常。
+- **Tailwind 在 EP 组件上不生效（同一个坑踩了两次）**：EP 的 CSS 不带 `@layer`，非分层规则会压掉 `@layer utilities`。`el-main` 自带 `display: block`，写 `<el-main class="grid grid-cols-…">` 完全没用。第一次是 `.ah-uid` 的宽度不能用 `w-*`，第二次是编辑器的栅格。**给 EP 组件加任何布局类之前，先想一遍它自己有没有同属性。**
+>>>>
 ### CHANGELOG.md
 <<<<
-- **结果**：全站控件只剩 EP 原生 + 三处 EP 确实没有的东西（可展开卡片、独立状态点、隐藏 file input）；无效类名 / 无效 prop / 不存在的 CSS 属性清零；首页卡片不再随标题长短高低不齐，旅闻点整行即可切换，窄屏弹窗不再顶边。
+；③两个编辑器手机上「内容超了却没有滚动条」——`el-scrollbar` 的 `height: 100%` 需要父级有确定高度，而 `<section>` 是 grid item（`height: auto` 由 stretch 得到），百分比解析成 `auto`，`wrap` 高度等于内容高度，永远不会滚；改回原生 `overflow-y: auto`（`overflow` 用 used height），`el-main` 的 `grid-rows-[minmax(0,1fr)]` 保留。
 >>>>
 <<<<
-- **结果**：全站控件只剩 EP 原生 + 三处 EP 确实没有的东西（可展开卡片、独立状态点、隐藏 file input）；无效类名 / 无效 prop / 不存在的 CSS 属性清零；首页卡片不再随标题长短高低不齐，旅闻点整行即可切换，窄屏弹窗不再顶边。
-
-**补丁（同日）**：①首页卡片固定高度 104 → 132px、标题允许折两行（半栏放不下「尘歌壶赠礼套装」，原来直接省略成 …）、图标改顶部对齐（标题折行后图标不再上下浮动）；②套装「我的角色」恢复倒序（新角色在前），角色名 4 处改成折行显示；③两个编辑器手机上「内容超了却没有滚动条」——`el-scrollbar` 的 `height: 100%` 需要父级有确定高度，而 `<section>` 是 grid item（`height: auto` 由 stretch 得到），百分比解析成 `auto`，`wrap` 高度等于内容高度，永远不会滚；改回原生 `overflow-y: auto`（`overflow` 用 used height），`el-main` 的 `grid-rows-[minmax(0,1fr)]` 保留。
+；③两个编辑器手机上「内容超了却没有滚动条、拖都拖不动」——真根因是 EP 的 `.el-main` 带 `display: block`，而 **EP 的 CSS 不带 `@layer`**，把 `<el-main class="grid grid-cols-…">` 上的 `grid` / `grid-cols` / `grid-rows` 全压掉了：栏位高度跟着内容走，`main` 又是 `overflow: hidden`，超出部分被裁且无法滚动。两栏骨架改到 `app.css` 的非分层规则 `.ah-shell--split > .el-main`，左右两栏的滚动用原生 `overflow-y: auto`。
 >>>>
 
 == DELETES ==
 
 == CHECKS ==
-! grep -q "<el-scrollbar" src/views/TalesEditor.vue
-! grep -q "<el-scrollbar" src/views/GiftSetEditor.vue
-grep -q "min-h-0 overflow-y-auto" src/views/TalesEditor.vue
-grep -q "min-h-0 overflow-y-auto" src/views/GiftSetEditor.vue
-[ "$(grep -c "overflow-y-auto" src/views/TalesEditor.vue)" -ge 2 ]
-[ "$(grep -c "overflow-y-auto" src/views/GiftSetEditor.vue)" -ge 2 ]
-grep -q "grid-rows-\[minmax(0,1fr)\]" src/views/TalesEditor.vue
-grep -q "ep-fix-scroll" AGENTS.md
-grep -q "补丁（同日）" CHANGELOG.md
-[ "$(grep -c "### 2026-11-19" CHANGELOG.md)" -eq 1 ]
+grep -q ".ah-shell--split > .el-main" src/styles/app.css
+grep -q "grid-template-rows: minmax(0, 1fr)" src/styles/app.css
+grep -q "ah-shell--split" src/views/TalesEditor.vue
+grep -q "ah-shell--split" src/views/GiftSetEditor.vue
+! grep -q "grid-rows-\[minmax" src/views/TalesEditor.vue
+! grep -q "grid-rows-\[minmax" src/views/GiftSetEditor.vue
+! grep -q "min-\[900px\]:grid-cols" src/views/TalesEditor.vue
+grep -q "ep-fix-grid" AGENTS.md
+grep -q "Tailwind 在 EP 组件上不生效" AGENTS.md
