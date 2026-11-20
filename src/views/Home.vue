@@ -9,7 +9,7 @@ const tools = router.options.routes.filter((r) => r.meta?.label)
 
 <template>
   <el-scrollbar class="ah-home__scroll">
-    <el-row class="ah-home" :gutter="[12, 12]">
+    <el-row class="ah-home" :gutter="12">
       <el-col v-for="t in tools" :key="t.path" :span="12">
         <RouterLink :to="t.path" class="ah-home__link">
           <el-card shadow="never" class="ah-home__card">
@@ -32,7 +32,8 @@ const tools = router.options.routes.filter((r) => r.meta?.label)
 
 <style scoped>
 /* 只写 Element Plus 不提供的三件事：卡片固定高度、图标块尺寸、两行截断。
-   宽度固定半栏由 el-col 的 :span="12" 决定，框间距由 el-row 的 gutter [12, 12] 决定，
+   宽度固定半栏由 el-col 的 :span="12" 决定，水平间距由 el-row 的 gutter 决定；
+   垂直间距 EP 不提供，只能给 el-row 补 row-gap（gutter 只吃 number，写成数组会变 NaN）。
    圆角 / 内边距 / 字号 / 颜色全部走 EP 默认值与站点令牌。 */
 .ah-home__scroll {
   height: 100%;
@@ -40,6 +41,7 @@ const tools = router.options.routes.filter((r) => r.meta?.label)
 
 .ah-home {
   padding: 12px;
+  row-gap: 12px;
 }
 
 .ah-home__link {
