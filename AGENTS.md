@@ -245,7 +245,8 @@ https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js
 
 ### 当前状态（每批合并后更新；下一轮开工先读这段，别去现场探索）
 
-- **最后合并**：`ep-default-4` —— 全站回归 EP 默认：`el-text` 按语义改 `size`（原来 48 处写的是 EP 不存在的修饰类，等于没生效）、抽屉回默认头部（自带关闭按钮）、`el-dialog` 的 `persistent` 换成 `close-on-click-modal` / `close-on-press-escape`、通知条下线换 `ElMessage`（删 `ToastHost.vue` / `useToast.js`）、6 个滚动区换 `el-scrollbar`、4 处加载态换 `el-skeleton`、角色格换 `el-check-tag`；首页卡片固定 104px + 恒半栏。
+- **最后合并**：`ep-fix-scroll` —— 两个编辑器的滚动区回退原生 `overflow-y: auto`（`el-scrollbar` 在 grid item 里 `height:100%` 会解析成 `auto`，`<section>` 的高度是 stretch 来的 `auto`，wrap 高度永远等于内容高度，所以「内容超了也不出条」）；顺手把首页卡片加到 132px、标题允许折两行、图标改顶部对齐；套装「我的角色」恢复倒序、角色名折行不再省略。
+- **滚动容器选型（血泪）**：`el-scrollbar` 只在「父级高度确定」时可靠——flex item（`flex: 1`）可以，grid item（stretch 出来的 `height: auto`）不行；后者一律用原生 `overflow-y: auto`（`overflow` 用的是 used height，不依赖百分比）。旅闻 / 套装页是 flex 布局，所以它们的 `el-scrollbar` 正常。
 - **EP 无对应物、故意自造的三处（别再硬套）**：①套装卡 / 编辑器列表项的「可展开卡片」——`el-collapse` 外层已在用，嵌套会叠两层内边距；`el-menu` 的 `default-active` 不响应式；②编辑器工具栏「未导出修改」的红点——`el-badge` 是绝对定位的 `sup`，必须依附宿主元素；③隐藏 `<input type="file">`——`el-upload` 自带按钮 / 列表 / 进度，只用「读一个文件」时是负偏离。
 - **设计系统已对齐**（唯一真源是 `src/styles/tokens.css`）：颜色 = Claude 全量；字号 / 间距 / 圆角 / 控件高度 / 组件规格 = Notion 全量。刻度 → 9 个组件 → 四个页面 / 编辑器 / Home 都已落地。
 - **已定未做 ①**：字体族换 Notion Sans（= Inter）—— 会牵动一图流 / 视频封面的文字度量，必须单独一批，排在最后。

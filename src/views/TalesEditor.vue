@@ -606,7 +606,7 @@ onBeforeUnmount(() => {
           </div>
         </div>
 
-        <el-scrollbar class="min-h-0 flex-1">
+        <div class="min-h-0 flex-1 overflow-y-auto">
           <div class="grid content-start gap-1 p-2">
           <el-empty v-if="!data" :image-size="56" description="数据未加载，点「重载」或「导入」" />
           <el-empty
@@ -656,7 +656,7 @@ onBeforeUnmount(() => {
             </span>
           </div>
         </div>
-        </el-scrollbar>
+        </div>
 
         <div class="grid shrink-0 grid-cols-2 gap-2 border-t border-line p-2">
           <el-button size="small" @click="addEntry">
@@ -672,10 +672,9 @@ onBeforeUnmount(() => {
 
       <!-- 右：表单 -->
       <section
-        class="min-h-0"
+        class="min-h-0 overflow-y-auto"
         :class="mobilePane === 'list' ? 'hidden min-[900px]:block' : 'block'"
       >
-        <el-scrollbar class="h-full">
         <div class="grid gap-3 p-3">
           <!-- 返回按钮常驻，任何状态都能回列表 -->
           <el-button
@@ -867,7 +866,6 @@ onBeforeUnmount(() => {
             </div>
           </template>
         </div>
-        </el-scrollbar>
       </section>
     </el-main>
 
