@@ -3,13 +3,11 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { ArrowDown, ArrowUp, Delete, Download, Search, Upload } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { loadGlobalScript, loadGiftSetData } from '../composables/useData.js'
+import { IMAGE_DICT_URL } from '../config.js'
 
 const KEY_OWNED = 'genshin_homeworld_gift_sets_owned_v1'
 const KEY_COMPLETED = 'genshin_homeworld_gift_sets_completed_v1'
 const KEY_UID = 'genshin_homeworld_gift_sets_uid_v1'
-
-const IMAGE_DICT_URL =
-  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
 
 /* 旅行者一家（本体 + 冰 / 火 / 雷 …各元素变体）不进这个页面。
    字典里 order === 1 的就是它们（见下方枚举 dict.characters 那行），

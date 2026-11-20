@@ -3,13 +3,11 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Delete, Download, Refresh, Search, Upload } from '@element-plus/icons-vue'
 import { loadGlobalScript, loadTalesData } from '../composables/useData.js'
+import { IMAGE_DICT_URL } from '../config.js'
 
 const STORAGE_KEY = 'genshin_travelers_tales_completed_v2'
 const LEGACY_KEY = 'genshin_travelers_tales_completed_v1'
 const UID_KEY = 'genshin_travelers_tales_uid_v1'
-
-const IMAGE_DICT_URL =
-  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
 
 
 const loading = ref(true)
