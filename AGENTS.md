@@ -67,6 +67,22 @@
 - **`CHECKS` 查"终态"而不是名字**：`test "$(grep -c 'x' f)" = 0` 这种断言真的抓到过漏项（三组相同的字符格漏了中间一组）。也别让自检的字符串出现在自己新文的注释里（会自己撞自己）。
 - **不要用 `--spacing-<名字>` 定义间距令牌**：`xs/sm/md/lg/xl` 与 Tailwind 的 `--container-*` 撞名，会把 `max-w-md` / `max-w-sm` 打成 16px / 12px（出过"弹窗变竖条"事故）。间距一律用数值刻度（Notion 的刻度 = Tailwind 数字刻度）。
 - **改值不要改语义**：颜色可以保留本地叫法，但每个取值都要能指回 Claude 表里的某一项；自造值（`#8b432c`、`#ded6c6`、`#121110`）一律换成表内的。
+
+**Claude 官方七色（唯一色源）**
+
+  | 角色 | 色值 | 用在哪 |
+  |---|---|---|
+  | Dark | `#141413` | 主文字（白天）/ 深色页面底（夜间） |
+  | Light | `#faf9f5` | 卡片、浅色底 / 夜间主文字 |
+  | Mid Gray | `#b0aea5` | 次级元素：需要看得见的边、次要图标 |
+  | Light Gray | `#e8e6dc` | 微妙背景：凹槽 `sunken`、`surface-2`、默认分隔线 |
+  | Orange | `#d97757` | 主强调 `accent`（按钮、选中态、链接） |
+  | Blue | `#6a9bcc` | 次强调 `info` |
+  | Green | `#788c5d` | `success` |
+
+- **两个纯色之间不够用的档，只能在这两个纯色之间混**（注释里标比例，如 `canvas` = Light + Light Gray 对半）。手调色相出来的中间色会发灰发黄，已经全部清掉。
+- 调色板没有的两支语义色自己留：`danger` 红（危险操作）、`warning` 黄（取 Orange 的色相压暗），别和 accent 混用。
+- **选中态全站一套**：`accent-soft` 垫色 + `accent-strong` 文字（抽屉菜单再加左侧 2px `accent` 竖条），`el-segmented` 的轨道用 `sunken`、选中项用 `accent-soft`。别拿 `sunken` 当选中色 —— 那是一块灰底，看着像没选中。
 - **每批只做一件事、块数 ~30 以内**：一次中止 = 一轮往返，小批多次比大批一次稳。
 - **组件层的"一次性值"优先收编**：`rounded-br-ctl`、`text-[10px]`、`leading-4`、`border-2` 这类只出现一次的值，是漂移的源头。
 - **别猜仓库名**：先用 GitHub API 确认 owner/repo，再动手。
@@ -245,7 +261,8 @@ https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js
 
 ### 当前状态（每批合并后更新；下一轮开工先读这段，别去现场探索）
 
-- **最后合并**：`fill-fix4` —— 凹槽类表面统一复用 `--color-sunken`：暗色值 `#1f1e1b`（与卡片同值，凹陷处看不见）改成 `#2f2b24`（比卡片亮一档）；`el-segmented` 的垫色改成「容器卡片色 + 选中项凹槽色 + 字用 ink」，变量盖在组件上（写 `:root` 会被 EP 遮住）。与攻略工具集同步。
+- **最后合并**：`palette-fix` —— 令牌对齐 Claude 官方七色：`accent` 由手调的 `#cc785c` 换成 Orange `#d97757`（`accent-soft` 12% → 16%）、`success` 换 Green `#788c5d`、新增 `info` Blue `#6a9bcc`；中性色改成「两个纯色之间对半混」（`canvas` = Light+Light Gray、`surface-2`/`sunken`/`line` = Light Gray、`line-2` = Light Gray+Mid Gray），暗色 `canvas` → Dark `#141413`、`sunken` → `#302d27`；删掉调色板外的 `accent-teal` / `accent-amber`。**选中态统一成 accent-soft 垫色 + accent-strong 文字**（抽屉菜单加左侧 2px 竖条），修「选中项看着发灰」；`el-segmented` 轨道用 sunken、选中项用 accent-soft。
+- **上一批**：`fill-fix4` —— 凹槽类表面统一复用 `--color-sunken`：暗色值 `#1f1e1b`（与卡片同值，凹陷处看不见）改成 `#2f2b24`（比卡片亮一档）；`el-segmented` 的垫色改成「容器卡片色 + 选中项凹槽色 + 字用 ink」，变量盖在组件上（写 `:root` 会被 EP 遮住）。与攻略工具集同步。
 - **上一批**：`ep-fix-grid` —— 编辑器滚不动的**真根因**修好：EP 的 `.el-main` 自带 `display: block`，而 **EP 的 CSS 不带 `@layer`**，会把 `<el-main class="grid grid-cols-…">` 上的栅格类全部压掉（栏位高度跟着内容走、`main` 又 `overflow: hidden`，于是超出被裁且拖不动）。两栏骨架写进 `app.css` 的非分层规则 `.ah-shell--split > .el-main`；左右两栏滚动用原生 `overflow-y: auto`。
 - **滚动容器选型（血泪）**：`el-scrollbar` 只在「父级高度确定」时可靠——flex item（`flex: 1`）可以，grid 栏位不一定；grid 里一律用原生 `overflow-y: auto`（`overflow` 用 used height，不依赖百分比）。旅闻 / 套装页是 flex 布局，所以它们的 `el-scrollbar` 正常。
 - **Tailwind 在 EP 组件上不生效（同一个坑踩了两次）**：EP 的 CSS 不带 `@layer`，非分层规则会压掉 `@layer utilities`。`el-main` 自带 `display: block`，写 `<el-main class="grid grid-cols-…">` 完全没用。第一次是 `.ah-uid` 的宽度不能用 `w-*`，第二次是编辑器的栅格。**给 EP 组件加任何布局类之前，先想一遍它自己有没有同属性。**

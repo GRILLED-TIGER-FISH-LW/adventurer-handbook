@@ -25,6 +25,8 @@
 - **经过**：`--color-sunken` 的暗色值 `#1f1e1b` → `#2f2b24`（比卡片亮一档，与攻略工具集同一套）；`el-segmented` 的垫色改成「容器用卡片色 `--color-surface`、选中项反过来用 `--color-sunken`、选中文字用 `--color-ink`」，靠底色差区分。这几条变量是 EP 在组件自己的选择器上定义的，写在 `:root` 会被遮住，所以盖在 `.el-segmented` 上。
 - **结果**：夜间模式下分段菜单轨道、选中项、hover、已完成底色都看得见，分段菜单与下面的大框有明确分界；样式约定（凹陷色复用 sunken、EP 组件级变量怎么盖）写进 `AGENTS.md`。
 
+- **补充（同批 · 配色对齐官方色板）**：侧边菜单选中的那一项看着发灰，对照 Claude 官方调色板一查，令牌里不少是手调的中间色 —— 强调写的是 `#cc785c`（官方 Orange 是 `#d97757`）、凹槽 `#e8e0d2`（官方 Light Gray 是 `#e8e6dc`）、页面底 `#f5f0e8`、hover `#efe9de`、success 是亮绿 `#5db872`（官方 Green 是 `#788c5d`），官方 Blue `#6a9bcc` 干脆没有。改法：① 令牌全量对齐七色，中性色只在两个纯色之间对半混（不再手调色相），暗色 `canvas` 用 Dark、`sunken` 提到 `#302d27`；调色板没有的红 / 黄留作 `danger` / `warning`；删掉调色板外的 `accent-teal` / `accent-amber`。② **选中态定成一套**：`accent-soft` 垫色（12% → 16%，原来太淡等于灰底）+ `accent-strong` 文字 + 抽屉菜单左侧 2px `accent` 竖条，`el-menu` 的 `active-color` 同步；`el-segmented` 轨道改回 `sunken`、选中项改用 `accent-soft` + `accent-strong`。结果：全站只剩官方七色（加红 / 黄两支语义色），抽屉与分段菜单的选中项一眼能看出是橙色调选中状态。约定写进 `AGENTS.md`。
+
 ### 2026-11-19 · 全站回归 Element Plus 默认
 
 - **起因**：11-18 那轮只换了组件外壳，很多地方仍按老习惯拧 EP——`el-text` 上写着 EP 2.x 根本不存在的 `el-text--small`（48 处，等于全站小字从来没变小）、`el-dialog` 上写着 Vuetify 的 `persistent`（弹窗照样能被遮罩误关）、`el-row` 不用 `:gutter` 反而手写 `column-gap`（桌面三列时第三列被裁）、顶栏图标按钮用原生 `<button>` 绕开 el-button、通知条是 120 行自造队列。
