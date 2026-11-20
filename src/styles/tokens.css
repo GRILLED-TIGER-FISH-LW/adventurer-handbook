@@ -167,7 +167,9 @@
   --color-canvas: #181715;
   --color-surface: #1f1e1b;
   --color-surface-2: #252320;
-  --color-sunken: #1f1e1b;
+  /* 凹槽类表面（分段菜单轨道 / 选中项 / hover / 已完成底色）一律用它，
+     所以暗色下必须比 surface 亮一档 —— 原来的 #1f1e1b 与 surface 同值，这些地方全看不见 */
+  --color-sunken: #2f2b24;
   --color-hover: #252320;
   --color-thumb: #252320;
 

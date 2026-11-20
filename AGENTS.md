@@ -128,7 +128,7 @@ https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js
 - **间距只用数值刻度**：4 / 8 / 12 / 16 / 20 / 24 / 32 / 40 / 48 / 64 / 96 / 120（= `p-1 p-2 p-3 p-4 p-5 p-6 p-8 p-10 p-12 p-16 p-24 p-30`）。**不要写 `--spacing-<名字>`**：`xs/sm/md/lg/xl` 会和 Tailwind 的 `--container-*` 撞名，把 `max-w-md` / `max-w-sm` 打成 16px / 12px（出过"弹窗变竖条"事故）。
 - 字号只用 Notion 的档：`text-micro`(12) / `text-caption`(13) / `text-body-sm`(14) / `text-body-md`(16) / `text-heading-5`(18) / `text-button`(14/500)。`text-[10px]` 是历史豁免（GiftSet 字符格、编辑器列表副行），**别再新增**。
 - 深色模式**靠变量覆盖**，不用 `dark:` 前缀。
-- 图像衬底用 `--color-thumb`（深色下比卡片**亮**）；`--color-sunken` 只用于凹陷（分段轨道、已完成底色）；图片 / 视频预览底用 `--color-preview`（= Claude `surface-dark`）。
+- 图像衬底用 `--color-thumb`（深色下比卡片**亮**）；`--color-sunken` 只用于凹陷（分段轨道 / 选中项、已完成底色、hover、collapse 底），**不要再为凹陷新造第二个令牌**；图片 / 视频预览底用 `--color-preview`（= Claude `surface-dark`）。暗色下 `--color-sunken` 必须比 `--color-surface` 亮一档（`#2f2b24` vs `#1f1e1b`），否则凹陷处整片看不见。EP 组件自己的变量（`--el-segmented-*` 等）要盖在**组件选择器**上，写 `:root` 会被遮住。
 - `--radius-ctl` / `--radius-panel` 是**语义别名**（值分别等于 `radius-md` / `radius-lg`），保留使用。
 
 ### 控件高度
@@ -245,7 +245,8 @@ https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js
 
 ### 当前状态（每批合并后更新；下一轮开工先读这段，别去现场探索）
 
-- **最后合并**：`ep-fix-grid` —— 编辑器滚不动的**真根因**修好：EP 的 `.el-main` 自带 `display: block`，而 **EP 的 CSS 不带 `@layer`**，会把 `<el-main class="grid grid-cols-…">` 上的栅格类全部压掉（栏位高度跟着内容走、`main` 又 `overflow: hidden`，于是超出被裁且拖不动）。两栏骨架写进 `app.css` 的非分层规则 `.ah-shell--split > .el-main`；左右两栏滚动用原生 `overflow-y: auto`。
+- **最后合并**：`fill-fix4` —— 凹槽类表面统一复用 `--color-sunken`：暗色值 `#1f1e1b`（与卡片同值，凹陷处看不见）改成 `#2f2b24`（比卡片亮一档）；`el-segmented` 的垫色改成「容器卡片色 + 选中项凹槽色 + 字用 ink」，变量盖在组件上（写 `:root` 会被 EP 遮住）。与攻略工具集同步。
+- **上一批**：`ep-fix-grid` —— 编辑器滚不动的**真根因**修好：EP 的 `.el-main` 自带 `display: block`，而 **EP 的 CSS 不带 `@layer`**，会把 `<el-main class="grid grid-cols-…">` 上的栅格类全部压掉（栏位高度跟着内容走、`main` 又 `overflow: hidden`，于是超出被裁且拖不动）。两栏骨架写进 `app.css` 的非分层规则 `.ah-shell--split > .el-main`；左右两栏滚动用原生 `overflow-y: auto`。
 - **滚动容器选型（血泪）**：`el-scrollbar` 只在「父级高度确定」时可靠——flex item（`flex: 1`）可以，grid 栏位不一定；grid 里一律用原生 `overflow-y: auto`（`overflow` 用 used height，不依赖百分比）。旅闻 / 套装页是 flex 布局，所以它们的 `el-scrollbar` 正常。
 - **Tailwind 在 EP 组件上不生效（同一个坑踩了两次）**：EP 的 CSS 不带 `@layer`，非分层规则会压掉 `@layer utilities`。`el-main` 自带 `display: block`，写 `<el-main class="grid grid-cols-…">` 完全没用。第一次是 `.ah-uid` 的宽度不能用 `w-*`，第二次是编辑器的栅格。**给 EP 组件加任何布局类之前，先想一遍它自己有没有同属性。**
 - **EP 无对应物、故意自造的三处（别再硬套）**：①套装卡 / 编辑器列表项的「可展开卡片」——`el-collapse` 外层已在用，嵌套会叠两层内边距；`el-menu` 的 `default-active` 不响应式；②编辑器工具栏「未导出修改」的红点——`el-badge` 是绝对定位的 `sup`，必须依附宿主元素；③隐藏 `<input type="file">`——`el-upload` 自带按钮 / 列表 / 进度，只用「读一个文件」时是负偏离。
