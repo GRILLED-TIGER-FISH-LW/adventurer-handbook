@@ -7,699 +7,602 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-default-3 —— 自造通知条下线，全站改用 Element Plus 的 ElMessage
-#           （删除 ToastHost.vue / useToast.js，4 个页面 37 处调用改成 ElMessage / .success / .error，
-#            「已恢复草稿」这类带 duration 的走对象写法），位置、动画、关闭按钮交给 EP 默认。
+# 最近一批：ep-default-3bc —— 3b + 3c 合并
+#           3b：4 个页面/编辑器的 6 个滚动区由 div.overflow-y-auto 换成 el-scrollbar，
+#               加载态 4 处纯文本换成 el-skeleton；
+#           3c：角色格由「藏掉勾选框的 el-checkbox」换成 el-check-tag（EP 自带的可点亮块），
+#               旅闻汇总条 el-tag 去掉硬写的高度/内边距，改用 size="large"。
 
 == MOVES ==
 
 == EDITS ==
-### src/App.vue
+### src/views/Tales.vue
 <<<<
-import AppDrawer from './components/AppDrawer.vue'
-import ToastHost from './components/ToastHost.vue'
-
+    <div class="min-h-0 flex-1 overflow-y-auto p-2">
+      <div v-if="loading" class="p-3 text-sm text-muted">正在加载旅闻数据…</div>
 >>>>
 <<<<
-import AppDrawer from './components/AppDrawer.vue'
-
->>>>
-### src/App.vue
-<<<<
-    </main>
-
-    <ToastHost />
-  </div>
->>>>
-<<<<
-    </main>
-  </div>
+    <el-scrollbar class="min-h-0 flex-1">
+      <div class="p-2">
+      <el-skeleton v-if="loading" class="p-3" :rows="3" animated />
 >>>>
 ### src/views/Tales.vue
 <<<<
-<script setup>
-import { computed, onMounted, reactive, ref } from 'vue'
-import { ElMessageBox } from 'element-plus'
-import { Delete, Download, Refresh, Search, Upload } from '@element-plus/icons-vue'
-import { useToast } from '../composables/useToast.js'
-import { loadGlobalScript, loadTalesData } from '../composables/useData.js'
+      </div>
+    </div>
 
+    <el-footer class="ah-shell__bar ah-shell__bar--bottom safe-bottom">
+      <el-button type="danger" class="w-full" @click="confirmClear">
 >>>>
 <<<<
-<script setup>
-import { computed, onMounted, reactive, ref } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Delete, Download, Refresh, Search, Upload } from '@element-plus/icons-vue'
-import { loadGlobalScript, loadTalesData } from '../composables/useData.js'
+      </div>
+      </div>
+    </el-scrollbar>
 
+    <el-footer class="ah-shell__bar ah-shell__bar--bottom safe-bottom">
+      <el-button type="danger" class="w-full" @click="confirmClear">
 >>>>
 ### src/views/Tales.vue
 <<<<
-  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
-
-const toast = useToast()
-
-const loading = ref(true)
+        <el-tag class="ah-tales__summary">
 >>>>
 <<<<
-  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
-
-
-const loading = ref(true)
+        <el-tag class="ah-tales__summary" size="large">
 >>>>
 ### src/views/Tales.vue
 <<<<
-  a.remove()
-  setTimeout(() => URL.revokeObjectURL(url), 1000)
-  toast.success(`已导出 ${done.size} 条记录`)
+.ah-tales__summary {
+  --el-tag-bg-color: var(--color-accent-soft);
+  --el-tag-border-color: transparent;
+  --el-tag-text-color: var(--color-accent-strong);
+  flex: none;
+  margin-left: auto;
+  height: var(--el-input-height, 32px);
+  padding: 0 8px;
+  white-space: nowrap;
 }
-
 >>>>
 <<<<
-  a.remove()
-  setTimeout(() => URL.revokeObjectURL(url), 1000)
-  ElMessage.success(`已导出 ${done.size} 条记录`)
+.ah-tales__summary {
+  --el-tag-bg-color: var(--color-accent-soft);
+  --el-tag-border-color: transparent;
+  --el-tag-text-color: var(--color-accent-strong);
+  flex: none;
+  margin-left: auto;
+  white-space: nowrap;
 }
-
->>>>
-### src/views/Tales.vue
-<<<<
-      next.forEach((k) => done.add(k))
-      saveDone()
-      toast.success('存档导入成功')
-    } catch {
-      toast.error('导入失败：文件格式不正确')
-    }
-    ev.target.value = ''
->>>>
-<<<<
-      next.forEach((k) => done.add(k))
-      saveDone()
-      ElMessage.success('存档导入成功')
-    } catch {
-      ElMessage.error('导入失败：文件格式不正确')
-    }
-    ev.target.value = ''
->>>>
-### src/views/Tales.vue
-<<<<
-function confirmClear() {
-  if (done.size === 0) {
-    toast.show('暂无已完成的旅闻')
-    return
-  }
->>>>
-<<<<
-function confirmClear() {
-  if (done.size === 0) {
-    ElMessage('暂无已完成的旅闻')
-    return
-  }
->>>>
-### src/views/Tales.vue
-<<<<
-    localStorage.removeItem(LEGACY_KEY)
-  } catch {}
-  toast.success('已清空完成记录')
-}
-
->>>>
-<<<<
-    localStorage.removeItem(LEGACY_KEY)
-  } catch {}
-  ElMessage.success('已清空完成记录')
-}
-
 >>>>
 ### src/views/GiftSet.vue
 <<<<
-import { computed, onMounted, reactive, ref } from 'vue'
-import { ArrowDown, ArrowUp, Delete, Download, Search, Upload } from '@element-plus/icons-vue'
-import { useToast } from '../composables/useToast.js'
-import { loadGlobalScript, loadGiftSetData } from '../composables/useData.js'
-
+    <div class="min-h-0 flex-1 overflow-y-auto">
+      <div v-if="loading" class="p-3 text-sm text-muted">正在加载套装数据…</div>
 >>>>
 <<<<
-import { computed, onMounted, reactive, ref } from 'vue'
-import { ArrowDown, ArrowUp, Delete, Download, Search, Upload } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
-import { loadGlobalScript, loadGiftSetData } from '../composables/useData.js'
-
+    <el-scrollbar class="min-h-0 flex-1">
+      <div>
+      <el-skeleton v-if="loading" class="p-3" :rows="3" animated />
 >>>>
 ### src/views/GiftSet.vue
 <<<<
-   这里按名字前缀兜底 —— 存档里可能还留着旧的「旅行者·冰」，得一并滤掉。 */
-const EXCLUDED = /^旅行者/
-const toast = useToast()
+    </div>
 
-const loading = ref(true)
+    <el-footer class="ah-shell__bar ah-shell__bar--bottom safe-bottom">
 >>>>
 <<<<
-   这里按名字前缀兜底 —— 存档里可能还留着旧的「旅行者·冰」，得一并滤掉。 */
-const EXCLUDED = /^旅行者/
+    </div>
+    </el-scrollbar>
 
-const loading = ref(true)
+    <el-footer class="ah-shell__bar ah-shell__bar--bottom safe-bottom">
 >>>>
 ### src/views/GiftSet.vue
 <<<<
-
-  if (!owned.value.includes(name)) {
-    toast.error(`未拥有「${name}」，先去上面的角色栏勾选`)
-    return
-  }
+              <el-checkbox
+                v-for="name in visibleCharNames"
+                :key="name"
+                :model-value="owned.includes(name)"
+                class="ah-gift__char"
+                :class="
+                  owned.includes(name)
+                    ? 'border-accent bg-accent-soft'
+                    : 'border-line bg-surface opacity-50'
+                "
+                :title="name"
+                @change="toggleOwned(name)"
+              >
+                <span
+                  class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
+                >
+                  <span aria-hidden="true">{{ name.charAt(0) }}</span>
+                  <img
+                    v-if="charAvatar.get(name)"
+                    :src="charAvatar.get(name)"
+                    alt=""
+                    loading="lazy"
+                    class="absolute inset-0 size-full object-cover"
+                    @error="(ev) => ev.target.remove()"
+                  />
+                </span>
+                <span class="w-full truncate text-center text-[10px] text-muted">
+                  {{ name }}
+                </span>
+              </el-checkbox>
 >>>>
 <<<<
-
-  if (!owned.value.includes(name)) {
-    ElMessage.error(`未拥有「${name}」，先去上面的角色栏勾选`)
-    return
-  }
->>>>
-### src/views/GiftSet.vue
-<<<<
-function exportArchive() {
-  if (!owned.value.length && !Object.keys(completed.value).length) {
-    toast.error('还没有可导出的记录')
-    return
-  }
->>>>
-<<<<
-function exportArchive() {
-  if (!owned.value.length && !Object.keys(completed.value).length) {
-    ElMessage.error('还没有可导出的记录')
-    return
-  }
->>>>
-### src/views/GiftSet.vue
-<<<<
-  setTimeout(() => URL.revokeObjectURL(url), 1000)
-
-  toast.success('已导出存档')
-}
-
->>>>
-<<<<
-  setTimeout(() => URL.revokeObjectURL(url), 1000)
-
-  ElMessage.success('已导出存档')
-}
-
->>>>
-### src/views/GiftSet.vue
-<<<<
-  charCollapsed.value = owned.value.length > 0
-
-  toast.success(`已导入：${owned.value.length} 个角色`)
-}
-
->>>>
-<<<<
-  charCollapsed.value = owned.value.length > 0
-
-  ElMessage.success(`已导入：${owned.value.length} 个角色`)
-}
-
->>>>
-### src/views/GiftSet.vue
-<<<<
-      importData(reader.result)
-    } catch (err) {
-      toast.error(`导入失败：${err.message}`)
-    }
-    ev.target.value = ''
->>>>
-<<<<
-      importData(reader.result)
-    } catch (err) {
-      ElMessage.error(`导入失败：${err.message}`)
-    }
-    ev.target.value = ''
+              <el-check-tag
+                v-for="name in visibleCharNames"
+                :key="name"
+                :checked="owned.includes(name)"
+                class="ah-gift__char"
+                :class="{ 'opacity-50': !owned.includes(name) }"
+                :title="name"
+                @change="toggleOwned(name)"
+              >
+                <span
+                  class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
+                >
+                  <span aria-hidden="true">{{ name.charAt(0) }}</span>
+                  <img
+                    v-if="charAvatar.get(name)"
+                    :src="charAvatar.get(name)"
+                    alt=""
+                    loading="lazy"
+                    class="absolute inset-0 size-full object-cover"
+                    @error="(ev) => ev.target.remove()"
+                  />
+                </span>
+                <span class="w-full truncate text-center text-[10px] text-muted">
+                  {{ name }}
+                </span>
+              </el-check-tag>
 >>>>
 ### src/views/GiftSet.vue
 <<<<
-  charCollapsed.value = false
-
-  toast.success('已重置')
-}
-
+                  <el-checkbox
+                    v-for="name in cardMap.get(s.key)?.chars || []"
+                    :key="`${s.key}-${name}`"
+                    :model-value="(cardMap.get(s.key)?.done || []).includes(name)"
+                    class="ah-gift__char"
+                    :class="
+                      !owned.includes(name)
+                        ? 'border-line bg-surface opacity-50'
+                        : (cardMap.get(s.key)?.done || []).includes(name)
+                          ? 'border-accent bg-accent-soft'
+                          : 'border-line-2 bg-surface'
+                    "
+                    :title="name"
+                    @change="toggleSetChar(s, name)"
+                  >
+                    <span
+                      class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
+                    >
+                      <span aria-hidden="true">{{ name.charAt(0) }}</span>
+                      <img
+                        v-if="charAvatar.get(name)"
+                        :src="charAvatar.get(name)"
+                        alt=""
+                        loading="lazy"
+                        class="absolute inset-0 size-full object-cover"
+                        @error="(ev) => ev.target.remove()"
+                      />
+                    </span>
+                    <span class="w-full truncate text-center text-[10px] text-muted">
+                      {{ name }}
+                    </span>
+                  </el-checkbox>
 >>>>
 <<<<
-  charCollapsed.value = false
-
-  ElMessage.success('已重置')
+                  <el-check-tag
+                    v-for="name in cardMap.get(s.key)?.chars || []"
+                    :key="`${s.key}-${name}`"
+                    :checked="(cardMap.get(s.key)?.done || []).includes(name)"
+                    class="ah-gift__char"
+                    :class="{ 'opacity-50': !owned.includes(name) }"
+                    :title="name"
+                    @change="toggleSetChar(s, name)"
+                  >
+                    <span
+                      class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
+                    >
+                      <span aria-hidden="true">{{ name.charAt(0) }}</span>
+                      <img
+                        v-if="charAvatar.get(name)"
+                        :src="charAvatar.get(name)"
+                        alt=""
+                        loading="lazy"
+                        class="absolute inset-0 size-full object-cover"
+                        @error="(ev) => ev.target.remove()"
+                      />
+                    </span>
+                    <span class="w-full truncate text-center text-[10px] text-muted">
+                      {{ name }}
+                    </span>
+                  </el-check-tag>
+>>>>
+### src/views/GiftSet.vue
+<<<<
+                  <el-checkbox
+                    v-for="name in cardMap.get(s.key).chars"
+                    :key="`${s.key}-${name}`"
+                    :model-value="cardMap.get(s.key).done.includes(name)"
+                    class="ah-gift__char"
+                    :class="
+                      !owned.includes(name)
+                        ? 'border-line bg-surface opacity-50'
+                        : cardMap.get(s.key).done.includes(name)
+                          ? 'border-accent bg-accent-soft'
+                          : 'border-line-2 bg-surface'
+                    "
+                    :title="name"
+                    @change="toggleSetChar(s, name)"
+                  >
+                    <span
+                      class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
+                    >
+                      <span aria-hidden="true">{{ name.charAt(0) }}</span>
+                      <img
+                        v-if="charAvatar.get(name)"
+                        :src="charAvatar.get(name)"
+                        alt=""
+                        loading="lazy"
+                        class="absolute inset-0 size-full object-cover"
+                        @error="(ev) => ev.target.remove()"
+                      />
+                    </span>
+                    <span class="w-full truncate text-center text-[10px] text-muted">
+                      {{ name }}
+                    </span>
+                  </el-checkbox>
+>>>>
+<<<<
+                  <el-check-tag
+                    v-for="name in cardMap.get(s.key).chars"
+                    :key="`${s.key}-${name}`"
+                    :checked="cardMap.get(s.key).done.includes(name)"
+                    class="ah-gift__char"
+                    :class="{ 'opacity-50': !owned.includes(name) }"
+                    :title="name"
+                    @change="toggleSetChar(s, name)"
+                  >
+                    <span
+                      class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
+                    >
+                      <span aria-hidden="true">{{ name.charAt(0) }}</span>
+                      <img
+                        v-if="charAvatar.get(name)"
+                        :src="charAvatar.get(name)"
+                        alt=""
+                        loading="lazy"
+                        class="absolute inset-0 size-full object-cover"
+                        @error="(ev) => ev.target.remove()"
+                      />
+                    </span>
+                    <span class="w-full truncate text-center text-[10px] text-muted">
+                      {{ name }}
+                    </span>
+                  </el-check-tag>
+>>>>
+### src/views/GiftSet.vue
+<<<<
+/* 角色块用 el-checkbox 拿语义（role=checkbox / aria-checked / 空格切换），
+   外观是头像块：藏掉 EP 自带的勾选框，状态交给外框颜色表达 */
+.ah-gift__char :deep(.el-checkbox__input) {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
 }
 
+.ah-gift__char :deep(.el-checkbox__label) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+/* 勾选框是透明的，焦点环画在整块上，键盘用户才看得见走到哪 */
+.ah-gift__char:focus-within {
+  outline: 2px solid var(--el-color-primary);
+  outline-offset: 1px;
+}
+
+/* 修复：EP checkbox 固定 32px 高会把头像块（32px 图标 + 名字）挤爆，
+   放开高度、去掉 inline-flex 的 30px 右边距，让格子按内容撑成竖长方形 */
+.ah-gift__char {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  justify-self: stretch;
+  min-width: 0;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 4px 0;
+}
+
+/* 与编辑器偏好角色格一致：悬浮提示可移除 */
+.ah-gift__char:hover {
+  border-color: var(--color-danger);
+}
+
+.ah-gift__char :deep(.el-checkbox__label) {
+  padding: 0;
+  gap: 6px;
+}
+>>>>
+<<<<
+/* 角色格：el-check-tag 天生就是「可点亮的块」（button + aria-pressed + 空格切换），
+   这里只把它从「文字胶囊」改成「头像 + 名字」的竖格；选中底色走站点强调色 */
+.ah-gift__char {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 4px 0;
+  background-color: transparent;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
+
+.ah-gift__char.is-checked {
+  background-color: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+}
+
+.ah-gift__char:focus-visible {
+  outline: 2px solid var(--el-color-primary);
+  outline-offset: 1px;
+}
 >>>>
 ### src/views/TalesEditor.vue
 <<<<
-  Upload,
-} from '@element-plus/icons-vue'
-import { useToast } from '../composables/useToast.js'
-import { loadGlobalScript } from '../composables/useData.js'
-
+        <div class="grid min-h-0 flex-1 content-start gap-1 overflow-y-auto p-2">
+          <el-empty v-if="!data" :image-size="56" description="数据未加载，点「重载」或「导入」" />
 >>>>
 <<<<
-  Upload,
-} from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
-import { loadGlobalScript } from '../composables/useData.js'
-
+        <el-scrollbar class="min-h-0 flex-1">
+          <div class="grid content-start gap-1 p-2">
+          <el-empty v-if="!data" :image-size="56" description="数据未加载，点「重载」或「导入」" />
 >>>>
 ### src/views/TalesEditor.vue
 <<<<
-  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
+        </div>
 
-const toast = useToast()
-
-/* ---------- 状态 ---------- */
+        <div class="grid shrink-0 grid-cols-2 gap-2 border-t border-line p-2">
 >>>>
 <<<<
-  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
+        </div>
+        </el-scrollbar>
 
-
-/* ---------- 状态 ---------- */
+        <div class="grid shrink-0 grid-cols-2 gap-2 border-t border-line p-2">
 >>>>
 ### src/views/TalesEditor.vue
 <<<<
-function addEntry() {
-  if (!data.value) {
-    toast.error('数据未加载，请先「重载」或「导入」')
-    return
-  }
+      <section
+        class="min-h-0 overflow-y-auto p-3"
+        :class="mobilePane === 'list' ? 'hidden min-[900px]:block' : 'block'"
+      >
+        <div class="grid gap-3">
 >>>>
 <<<<
-function addEntry() {
-  if (!data.value) {
-    ElMessage.error('数据未加载，请先「重载」或「导入」')
-    return
-  }
->>>>
-### src/views/TalesEditor.vue
-<<<<
-  mobilePane.value = 'list'
-  markDirty()
-  toast.success('已删除')
-}
-
->>>>
-<<<<
-  mobilePane.value = 'list'
-  markDirty()
-  ElMessage.success('已删除')
-}
-
+      <section
+        class="min-h-0"
+        :class="mobilePane === 'list' ? 'hidden min-[900px]:block' : 'block'"
+      >
+        <el-scrollbar class="h-full">
+        <div class="grid gap-3 p-3">
 >>>>
 ### src/views/TalesEditor.vue
 <<<<
-  renumberOpen.value = false
-  markDirty()
-  toast.success(`已重排 ${sorted.length} 条 id`)
-}
-
+        </div>
+      </section>
+    </el-main>
 >>>>
 <<<<
-  renumberOpen.value = false
-  markDirty()
-  ElMessage.success(`已重排 ${sorted.length} 条 id`)
-}
-
+        </div>
+        </el-scrollbar>
+      </section>
+    </el-main>
 >>>>
 ### src/views/TalesEditor.vue
 <<<<
-    clearDirty()
-    clearDraft()
-    toast.success(`已重载 ${entryCount.value} 条`)
-  } catch (err) {
-    toast.error('重载失败：' + err.message)
-  }
+          <el-text v-if="loading" class="ah-text-muted ah-text-block">正在载入…</el-text>
+>>>>
+<<<<
+          <el-skeleton v-if="loading" :rows="4" animated />
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+        <div class="grid min-h-0 flex-1 content-start gap-1 overflow-y-auto p-2">
+          <el-empty v-if="!data" :image-size="56" description="数据未加载，点「重载」或「导入」" />
+>>>>
+<<<<
+        <el-scrollbar class="min-h-0 flex-1">
+          <div class="grid content-start gap-1 p-2">
+          <el-empty v-if="!data" :image-size="56" description="数据未加载，点「重载」或「导入」" />
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+        </div>
+
+        <div class="grid shrink-0 grid-cols-2 gap-2 border-t border-line p-2">
+>>>>
+<<<<
+        </div>
+        </el-scrollbar>
+
+        <div class="grid shrink-0 grid-cols-2 gap-2 border-t border-line p-2">
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+      <section
+        class="min-h-0 overflow-y-auto p-3"
+        :class="mobilePane === 'list' ? 'hidden min-[900px]:block' : 'block'"
+      >
+        <div class="grid gap-3">
+>>>>
+<<<<
+      <section
+        class="min-h-0"
+        :class="mobilePane === 'list' ? 'hidden min-[900px]:block' : 'block'"
+      >
+        <el-scrollbar class="h-full">
+        <div class="grid gap-3 p-3">
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+        </div>
+      </section>
+    </el-main>
+>>>>
+<<<<
+        </div>
+        </el-scrollbar>
+      </section>
+    </el-main>
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+          <el-text v-if="loading" class="ah-text-muted ah-text-block">正在载入…</el-text>
+>>>>
+<<<<
+          <el-skeleton v-if="loading" :rows="4" animated />
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+                <el-checkbox
+                  v-for="name in sortedChars"
+                  :key="name"
+                  class="ah-ed-char"
+                  :title="`移除 ${name}`"
+                  :aria-label="`移除 ${name}`"
+                  @change="removeChar(name)"
+                >
+                  <span
+                    class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
+                  >
+                    <span aria-hidden="true">{{ name.charAt(0) }}</span>
+                    <img
+                      v-if="avatarUrl(name)"
+                      :src="avatarUrl(name)"
+                      alt=""
+                      loading="lazy"
+                      class="absolute inset-0 size-full object-cover"
+                      @error="onImgError"
+                    />
+                  </span>
+                  <span class="w-full truncate text-center text-[10px] text-muted">
+                    {{ name }}
+                  </span>
+                </el-checkbox>
+>>>>
+<<<<
+                <el-check-tag
+                  v-for="name in sortedChars"
+                  :key="name"
+                  class="ah-ed-char"
+                  :title="`移除 ${name}`"
+                  :aria-label="`移除 ${name}`"
+                  @change="removeChar(name)"
+                >
+                  <span
+                    class="relative grid size-8 place-items-center overflow-hidden rounded-ctl bg-thumb text-[10px] font-semibold text-muted"
+                  >
+                    <span aria-hidden="true">{{ name.charAt(0) }}</span>
+                    <img
+                      v-if="avatarUrl(name)"
+                      :src="avatarUrl(name)"
+                      alt=""
+                      loading="lazy"
+                      class="absolute inset-0 size-full object-cover"
+                      @error="onImgError"
+                    />
+                  </span>
+                  <span class="w-full truncate text-center text-[10px] text-muted">
+                    {{ name }}
+                  </span>
+                </el-check-tag>
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+/* 偏好角色格：el-checkbox 竖格外观，与 GiftSet 页面角色格一致 */
+.ah-ed-char {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  justify-self: stretch;
+  min-width: 0;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 4px 0;
+}
+
+.ah-ed-char :deep(.el-checkbox__input) {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ah-ed-char :deep(.el-checkbox__label) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+}
+
+.ah-ed-char:hover {
+  border-color: var(--color-danger);
 }
 >>>>
 <<<<
-    clearDirty()
-    clearDraft()
-    ElMessage.success(`已重载 ${entryCount.value} 条`)
-  } catch (err) {
-    ElMessage.error('重载失败：' + err.message)
-  }
-}
->>>>
-### src/views/TalesEditor.vue
-<<<<
-      clearDirty()
-      saveDraft()
-      toast.success(`已导入 ${entryCount.value} 条`)
-    } catch (err) {
-      toast.error('导入失败：' + err.message)
-    }
-    ev.target.value = ''
->>>>
-<<<<
-      clearDirty()
-      saveDraft()
-      ElMessage.success(`已导入 ${entryCount.value} 条`)
-    } catch (err) {
-      ElMessage.error('导入失败：' + err.message)
-    }
-    ev.target.value = ''
->>>>
-### src/views/TalesEditor.vue
-<<<<
-function startExport() {
-  if (!data.value) {
-    toast.error('数据未加载')
-    return
-  }
->>>>
-<<<<
-function startExport() {
-  if (!data.value) {
-    ElMessage.error('数据未加载')
-    return
-  }
->>>>
-### src/views/TalesEditor.vue
-<<<<
-  clearDirty()
-  clearDraft()
-  toast.success(`已导出 ${FILE_NAME}`)
+/* 偏好角色格：与 GiftSet 页面角色格一致（el-check-tag 竖格，点一下移除） */
+.ah-ed-char {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 4px 0;
+  background-color: transparent;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
 }
 
->>>>
-<<<<
-  clearDirty()
-  clearDraft()
-  ElMessage.success(`已导出 ${FILE_NAME}`)
+.ah-ed-char:focus-visible {
+  outline: 2px solid var(--el-color-primary);
+  outline-offset: 1px;
 }
-
->>>>
-### src/views/TalesEditor.vue
-<<<<
-      applyData(draft)
-      dirty.value = true
-      toast.show('已恢复草稿（尚未导出）', { duration: 3000 })
-    } else {
-      try {
->>>>
-<<<<
-      applyData(draft)
-      dirty.value = true
-      ElMessage({ message: '已恢复草稿（尚未导出）', duration: 3000 })
-    } else {
-      try {
->>>>
-### src/views/TalesEditor.vue
-<<<<
-        applyData(await fetchOnline())
-      } catch (err) {
-        toast.error(`数据加载失败：${err.message}，可用「导入」`)
-      }
-    }
->>>>
-<<<<
-        applyData(await fetchOnline())
-      } catch (err) {
-        ElMessage.error(`数据加载失败：${err.message}，可用「导入」`)
-      }
-    }
->>>>
-### src/views/TalesEditor.vue
-<<<<
-  } catch (e) {
-    loading.value = false
-    toast.error('初始化失败：' + (e?.message || e))
-  }
-})
->>>>
-<<<<
-  } catch (e) {
-    loading.value = false
-    ElMessage.error('初始化失败：' + (e?.message || e))
-  }
-})
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-  Upload,
-} from '@element-plus/icons-vue'
-import { useToast } from '../composables/useToast.js'
-import { loadGlobalScript } from '../composables/useData.js'
-
->>>>
-<<<<
-  Upload,
-} from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
-import { loadGlobalScript } from '../composables/useData.js'
-
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-const CHAR_SPLIT_TEST = /[\s，,、;；]/
-
-const toast = useToast()
-
-/* ---------- 状态 ---------- */
->>>>
-<<<<
-const CHAR_SPLIT_TEST = /[\s，,、;；]/
-
-
-/* ---------- 状态 ---------- */
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-function addSet() {
-  if (!data.value) {
-    toast.error('数据未加载')
-    return
-  }
->>>>
-<<<<
-function addSet() {
-  if (!data.value) {
-    ElMessage.error('数据未加载')
-    return
-  }
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-  markDirty()
-  deleteOpen.value = false
-  toast.success('已删除')
-}
-
->>>>
-<<<<
-  markDirty()
-  deleteOpen.value = false
-  ElMessage.success('已删除')
-}
-
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-  const n = data.value.sets.length
-  if (!n) {
-    toast.error('没有套装可重排')
-    return
-  }
->>>>
-<<<<
-  const n = data.value.sets.length
-  if (!n) {
-    ElMessage.error('没有套装可重排')
-    return
-  }
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-  markDirty()
-  renumberOpen.value = false
-  toast.success(`已重排 ${n} 条 id`)
-}
-
->>>>
-<<<<
-  markDirty()
-  renumberOpen.value = false
-  ElMessage.success(`已重排 ${n} 条 id`)
-}
-
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-    clearDirty()
-    clearDraft()
-    toast.success(`已重载 ${setCount.value} 条`)
-  } catch (err) {
-    toast.error('重载失败：' + err.message)
-  }
-}
->>>>
-<<<<
-    clearDirty()
-    clearDraft()
-    ElMessage.success(`已重载 ${setCount.value} 条`)
-  } catch (err) {
-    ElMessage.error('重载失败：' + err.message)
-  }
-}
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-      clearDirty()
-      saveDraft()
-      toast.success(`已导入 ${setCount.value} 条`)
-    } catch (err) {
-      toast.error('导入失败：' + err.message)
-    }
-    ev.target.value = ''
->>>>
-<<<<
-      clearDirty()
-      saveDraft()
-      ElMessage.success(`已导入 ${setCount.value} 条`)
-    } catch (err) {
-      ElMessage.error('导入失败：' + err.message)
-    }
-    ev.target.value = ''
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-function startExport() {
-  if (!data.value) {
-    toast.error('数据未加载')
-    return
-  }
->>>>
-<<<<
-function startExport() {
-  if (!data.value) {
-    ElMessage.error('数据未加载')
-    return
-  }
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-  clearDirty()
-  clearDraft()
-  toast.success(`已导出 ${FILE_NAME}`)
-}
-
->>>>
-<<<<
-  clearDirty()
-  clearDraft()
-  ElMessage.success(`已导出 ${FILE_NAME}`)
-}
-
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-  const v = urlInput.value.trim()
-  if (!v) {
-    toast.error('请先粘贴图片链接')
-    return
-  }
->>>>
-<<<<
-  const v = urlInput.value.trim()
-  if (!v) {
-    ElMessage.error('请先粘贴图片链接')
-    return
-  }
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-  }
-  if (key === entry.value?.key) {
-    toast.show('URL 未变化，无需重新识别')
-    return
-  }
->>>>
-<<<<
-  }
-  if (key === entry.value?.key) {
-    ElMessage('URL 未变化，无需重新识别')
-    return
-  }
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-  charQuery.value = remaining
-  markDirty()
-  if (bad.length) toast.error('字典中未找到：' + bad.join('、'))
-}
-
->>>>
-<<<<
-  charQuery.value = remaining
-  markDirty()
-  if (bad.length) ElMessage.error('字典中未找到：' + bad.join('、'))
-}
-
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-      applyData(normalizeData(draft))
-      dirty.value = true
-      toast.show('已恢复草稿（尚未导出）', { duration: 3000 })
-    } else {
-      try {
->>>>
-<<<<
-      applyData(normalizeData(draft))
-      dirty.value = true
-      ElMessage({ message: '已恢复草稿（尚未导出）', duration: 3000 })
-    } else {
-      try {
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-        applyData(await fetchOnline())
-      } catch (err) {
-        toast.error(`数据加载失败：${err.message}，可用「导入」`)
-        applyData(normalizeData(null))
-      }
->>>>
-<<<<
-        applyData(await fetchOnline())
-      } catch (err) {
-        ElMessage.error(`数据加载失败：${err.message}，可用「导入」`)
-        applyData(normalizeData(null))
-      }
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-    loading.value = false
-    applyData(normalizeData(null))
-    toast.error('初始化失败：' + (e?.message || e))
-  }
-})
->>>>
-<<<<
-    loading.value = false
-    applyData(normalizeData(null))
-    ElMessage.error('初始化失败：' + (e?.message || e))
-  }
-})
 >>>>
 
 == DELETES ==
-src/components/ToastHost.vue
-src/composables/useToast.js
 
 == CHECKS ==
-! test -e src/components/ToastHost.vue
-! test -e src/composables/useToast.js
-! grep -rq "useToast" src
-! grep -rq "toast\.success" src
-! grep -rq "toast\.error" src
-! grep -rq "toast\.show" src
-! grep -rq "ToastHost" src
-grep -q "ElMessage, ElMessageBox" src/views/Tales.vue
-grep -q "import { ElMessage } from .element-plus." src/views/GiftSet.vue
-grep -q "import { ElMessage } from .element-plus." src/views/TalesEditor.vue
-grep -q "import { ElMessage } from .element-plus." src/views/GiftSetEditor.vue
-grep -q "ElMessage.success" src/views/GiftSet.vue
-grep -q "ElMessage({ message: .已恢复草稿（尚未导出）., duration: 3000 })" src/views/TalesEditor.vue
+grep -q "<el-scrollbar" src/views/Tales.vue
+grep -q "<el-scrollbar" src/views/GiftSet.vue
+[ "$(grep -c "<el-scrollbar" src/views/TalesEditor.vue)" -eq 2 ]
+[ "$(grep -c "<el-scrollbar" src/views/GiftSetEditor.vue)" -eq 2 ]
+! grep -q "flex-1 overflow-y-auto" src/views/Tales.vue
+! grep -q "flex-1 overflow-y-auto" src/views/GiftSet.vue
+! grep -q "content-start gap-1 overflow-y-auto" src/views/TalesEditor.vue
+! grep -q "content-start gap-1 overflow-y-auto" src/views/GiftSetEditor.vue
+! grep -q "min-h-0 overflow-y-auto p-3" src/views/TalesEditor.vue
+! grep -q "min-h-0 overflow-y-auto p-3" src/views/GiftSetEditor.vue
+grep -q "el-skeleton" src/views/Tales.vue
+grep -q "el-skeleton" src/views/GiftSet.vue
+grep -q "el-skeleton" src/views/TalesEditor.vue
+grep -q "el-skeleton" src/views/GiftSetEditor.vue
+[ "$(grep -c "<el-check-tag" src/views/GiftSet.vue)" -eq 3 ]
+grep -q "<el-check-tag" src/views/GiftSetEditor.vue
+! grep -q "<el-checkbox" src/views/GiftSet.vue
+! grep -q "<el-checkbox" src/views/GiftSetEditor.vue
+! grep -q "el-checkbox__input" src/views/GiftSet.vue
+! grep -q "el-checkbox__input" src/views/GiftSetEditor.vue
+grep -q "size=\"large\"" src/views/Tales.vue
+! grep -q "height: var(--el-input-height, 32px)" src/views/Tales.vue
