@@ -6,27 +6,384 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-scroll-fix —— 中间滚动区 h-full 改 flex-1，底部按钮不再被透出
+# 最近一批：ep-default-1 —— 全站回归 EP 默认：首页卡片固定高度 + 恒定半栏（el-col span=12、gutter [12,12]），
+#           顶栏菜单 / 主题按钮改 el-button circle，抽屉回到 EP 默认头部（自带关闭按钮），
+#           el-dialog 的 persistent 换成 EP 的 close-on-click-modal / close-on-press-escape，
+#           另修：首页 el-row 溢出、旅闻点整行无反应、无效 CSS tab-index、角色列表倒序、CHANGELOG 重复条目。
 
 == MOVES ==
 
 == EDITS ==
-### src/views/GiftSet.vue
+### src/views/Home.vue
 <<<<
-<div class="min-h-0 h-full">
->>>>
-<<<<
-<div class="min-h-0 flex-1 overflow-y-auto">
->>>>
+<template>
+  <el-row class="ah-home">
+    <el-col v-for="t in tools" :key="t.path" :xs="24" :sm="12" :md="8" :lg="6">
+      <RouterLink :to="t.path" class="ah-home__link">
+        <el-card shadow="never" class="ah-home__card">
+          <span class="ah-home__icon" aria-hidden="true">
+            <SolarIcon :name="t.meta.icon" :size="18" />
+          </span>
 
+          <div class="ah-home__body">
+            <div class="ah-home__title">{{ t.meta.label }}</div>
+            <div class="ah-home__desc">{{ t.meta.desc }}</div>
+          </div>
+        </el-card>
+      </RouterLink>
+    </el-col>
+  </el-row>
+</template>
+>>>>
+<<<<
+<template>
+  <el-scrollbar class="ah-home__scroll">
+    <el-row class="ah-home" :gutter="[12, 12]">
+      <el-col v-for="t in tools" :key="t.path" :span="12">
+        <RouterLink :to="t.path" class="ah-home__link">
+          <el-card shadow="never" class="ah-home__card">
+            <div class="ah-home__inner">
+              <span class="ah-home__icon" aria-hidden="true">
+                <SolarIcon :name="t.meta.icon" :size="18" />
+              </span>
+
+              <div class="ah-home__body">
+                <div class="ah-home__title">{{ t.meta.label }}</div>
+                <div class="ah-home__desc">{{ t.meta.desc }}</div>
+              </div>
+            </div>
+          </el-card>
+        </RouterLink>
+      </el-col>
+    </el-row>
+  </el-scrollbar>
+</template>
+>>>>
+<<<<
+<style scoped>
+/* 这里只写 Element Plus 不提供的排版细节；
+   颜色、圆角、字号、控件尺寸全部走 EP 变量 */
+.ah-home {
+  padding: 12px;
+  /* el-row 的 gutter 会给 el-row 加负外边距造成横向溢出，改用 column-gap，换行堆叠时的上下间距要自己给 */
+  column-gap: 12px;
+  row-gap: 12px;
+}
+
+.ah-home__link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.ah-home__link:focus-visible {
+  outline: 2px solid var(--el-color-primary);
+  outline-offset: 2px;
+}
+
+.ah-home__card {
+  color: inherit;
+  transition: background-color var(--el-transition-duration-fast);
+}
+
+.ah-home__link:hover .ah-home__card,
+.ah-home__link:focus-visible .ah-home__card {
+  background-color: var(--el-fill-color-dark);
+}
+
+.ah-home__card :deep(.el-card__body) {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.ah-home__icon {
+  display: grid;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--el-border-radius-base);
+  place-items: center;
+  /* 垫色白天黑夜各一色 —— 原版 bg-accent-soft 本来就是这样：
+     白天 12% 陶土橙叠 #faf9f5 = #f4e9e3；黑夜 18% 叠 #1f1e1b = #3e2e27。
+     图标色跟主题走 = 改版前的 accent-strong（白天 #a9583e，黑夜 #cc785c） */
+  background-color: color-mix(in srgb, var(--color-accent) 12%, #faf9f5);
+  color: var(--color-accent-strong);
+}
+
+/* 黑夜垫色单独一档，不能跟白天共用 */
+[data-theme='dark'] .ah-home__icon {
+  background-color: color-mix(in srgb, var(--color-accent) 18%, #1f1e1b);
+}
+
+.ah-home__body {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.ah-home__title {
+  color: var(--el-text-color-primary);
+  font-size: var(--el-font-size-base);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ah-home__desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  color: var(--el-text-color-secondary);
+  font-size: var(--el-font-size-small);
+  overflow: hidden;
+}
+</style>
+>>>>
+<<<<
+<style scoped>
+/* 只写 Element Plus 不提供的三件事：卡片固定高度、图标块尺寸、两行截断。
+   宽度固定半栏由 el-col 的 :span="12" 决定，框间距由 el-row 的 gutter [12, 12] 决定，
+   圆角 / 内边距 / 字号 / 颜色全部走 EP 默认值与站点令牌。 */
+.ah-home__scroll {
+  height: 100%;
+}
+
+.ah-home {
+  padding: 12px;
+}
+
+.ah-home__link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.ah-home__link:focus-visible {
+  outline: 2px solid var(--el-color-primary);
+  outline-offset: 2px;
+}
+
+/* 固定高度：卡片不再随标题长短高低不齐 */
+.ah-home__card {
+  height: 104px;
+  color: inherit;
+  transition: background-color var(--el-transition-duration-fast);
+}
+
+.ah-home__link:hover .ah-home__card,
+.ah-home__link:focus-visible .ah-home__card {
+  background-color: var(--el-fill-color-dark);
+}
+
+/* EP 的 card 体默认不撑满，固定高度必须补这一行 */
+.ah-home__card :deep(.el-card__body) {
+  box-sizing: border-box;
+  height: 100%;
+}
+
+.ah-home__inner {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  height: 100%;
+}
+
+.ah-home__icon {
+  display: grid;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--el-border-radius-base);
+  place-items: center;
+  /* 垫色昼夜各一档：白天 12% 陶土橙叠 #faf9f5，黑夜 18% 叠 #1f1e1b */
+  background-color: color-mix(in srgb, var(--color-accent) 12%, #faf9f5);
+  color: var(--color-accent-strong);
+}
+
+[data-theme='dark'] .ah-home__icon {
+  background-color: color-mix(in srgb, var(--color-accent) 18%, #1f1e1b);
+}
+
+.ah-home__body {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.ah-home__title {
+  color: var(--el-text-color-primary);
+  font-size: var(--el-font-size-base);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ah-home__desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  color: var(--el-text-color-secondary);
+  font-size: var(--el-font-size-small);
+  overflow: hidden;
+}
+</style>
+>>>>
+### src/App.vue
+<<<<
+    <main class="min-h-0 overflow-y-auto">
+>>>>
+<<<<
+    <main class="min-h-0 overflow-hidden">
+>>>>
 ### src/views/Tales.vue
 <<<<
-<div class="min-h-0 h-full overflow-y-auto p-2">
+            :class="row.isDone ? 'opacity-70' : ''"
+            @keydown.enter.prevent="toggle(row)"
 >>>>
 <<<<
-<div class="min-h-0 flex-1 overflow-y-auto p-2">
+            :class="row.isDone ? 'opacity-70' : ''"
+            @click="toggle(row)"
+            @keydown.enter.prevent="toggle(row)"
 >>>>
+<<<<
+            class="ah-tales__row-check"
+            :model-value="row.isDone"
+            @change="toggle(row)"
+>>>>
+<<<<
+            class="ah-tales__row-check"
+            :model-value="row.isDone"
+            @click.stop
+            @change="toggle(row)"
+>>>>
+<<<<
+/* 整列只有容器一个 Tab 位：checkbox 是装饰，不单独占 Tab、也不进无障碍树 */
+.ah-tales__row-check :deep(input) {
+  tab-index: -1;
+}
 
+
+>>>>
+<<<<
+
+>>>>
+### src/views/GiftSet.vue
+<<<<
+        .map(([name]) => name)
+        .reverse()
+>>>>
+<<<<
+        .map(([name]) => name)
+>>>>
+<<<<
+.ah-gift__char {
+  width: 100%;
+}
+
+.ah-gift__char :deep(.el-checkbox__input) {
+>>>>
+<<<<
+.ah-gift__char :deep(.el-checkbox__input) {
+>>>>
+### src/views/TalesEditor.vue
+<<<<
+  Delete,
+  Document,
+  Download,
+>>>>
+<<<<
+  Delete,
+  Download,
+>>>>
+<<<<
+      :title="dirty ? '放弃修改' : '重载线上数据'"
+      width="20rem"
+      :persistent="dirty"
+>>>>
+<<<<
+      :title="dirty ? '放弃修改' : '重载线上数据'"
+      width="20rem"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+>>>>
+<<<<
+      v-model="deleteOpen"
+      title="删除条目"
+      width="20rem"
+      persistent
+>>>>
+<<<<
+      v-model="deleteOpen"
+      title="删除条目"
+      width="20rem"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+>>>>
+<<<<
+      v-model="renumberOpen"
+      title="重排 id"
+      width="20rem"
+      persistent
+>>>>
+<<<<
+      v-model="renumberOpen"
+      title="重排 id"
+      width="20rem"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+  Delete,
+  Document,
+  Download,
+>>>>
+<<<<
+  Delete,
+  Download,
+>>>>
+<<<<
+      :title="dirty ? '放弃修改' : '重载线上数据'"
+      width="20rem"
+      :persistent="dirty"
+>>>>
+<<<<
+      :title="dirty ? '放弃修改' : '重载线上数据'"
+      width="20rem"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+>>>>
+<<<<
+      v-model="deleteOpen"
+      title="删除套装"
+      width="20rem"
+      persistent
+>>>>
+<<<<
+      v-model="deleteOpen"
+      title="删除套装"
+      width="20rem"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+>>>>
+<<<<
+      v-model="renumberOpen"
+      title="重排 id"
+      width="20rem"
+      persistent
+>>>>
+<<<<
+      v-model="renumberOpen"
+      title="重排 id"
+      width="20rem"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+>>>>
 ### CHANGELOG.md
 <<<<
 ### 2026-11-18 · 全站 UI 统一到 Element Plus
@@ -34,38 +391,89 @@
 （滚动条采用三栏整体滚动方案，不固定单栏高度，内容不足不留白、多栏叠加不透出底部）
 
 ### 2026-11-18 · 全站 UI 统一到 Element Plus
-
-- **起因**：四个页面和两个字典编辑器此前各用一套自造控件与原生标签，控件尺寸、焦点环、弹窗行为不统一，不便维护。
-- **经过**：全站交互控件与文本统一迁到 Element Plus——按钮、输入、下拉、弹窗、分段、自动补全、勾选等全部换 EP 组件，功能图标改 `@element-plus/icons-vue`，删除全部自造控件与图标表；页面骨架用 `el-container` / `el-header` / `el-footer` / `el-main`，文本用 `el-text`；逐一修正标题数字间距、角色格竖格与列数自适应、弹窗确认后关闭、内容滚动条收进各栏等细节。
-- **结果**：全站 UI 由 Element Plus 统一驱动，样式与行为一致，后续维护只面对一套组件。
 >>>>
 <<<<
 ### 2026-11-18 · 全站 UI 统一到 Element Plus
-
-（滚动条采用三栏整体滚动方案，不固定单栏高度，内容不足不留白、多栏叠加不透出底部）
-
-### 2026-11-18 · 全站 UI 统一到 Element Plus
-
-- **起因**：四个页面和两个字典编辑器此前各用一套自造控件与原生标签，控件尺寸、焦点环、弹窗行为不统一，不便维护。
-- **经过**：全站交互控件与文本统一迁到 Element Plus——按钮、输入、下拉、弹窗、分段、自动补全、勾选等全部换 EP 组件，功能图标改 `@element-plus/icons-vue`，删除全部自造控件与图标表；页面骨架用 `el-container` / `el-header` / `el-footer` / `el-main`，文本用 `el-text`；逐一修正标题数字间距、角色格竖格与列数自适应、弹窗确认后关闭、内容滚动条收进各栏等细节。
-- **结果**：全站 UI 由 Element Plus 统一驱动，样式与行为一致，后续维护只面对一套组件。
-
-**滚动修复**：赠礼套装、游逸旅闻中间滚动区由 `h-full` 改为 `flex-1`，滚动条收进栏内、底部「重置全部数据」「清空全部记录」不再被透出。
 >>>>
-
-### AGENTS.md
+### src/components/AppNav.vue
 <<<<
-- **最后合并**：`ep-collapse-scroll` —— 赠礼套装三栏的滚动条从外层收进各栏内容区，内容超出各自独立滚动。
+    <button
+      v-if="showMenu"
+      type="button"
+      class="grid size-icon-btn shrink-0 place-items-center rounded-md border border-line-2 bg-surface text-ink hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+      aria-label="打开菜单"
+      @click="$emit('open-menu')"
+    >
+      <SolarIcon name="hamburger-menu" size="20" aria-hidden="true" />
+    </button>
 >>>>
 <<<<
-- **最后合并**：`ep-scroll-fix` —— 赠礼套装、游逸旅闻中间滚动区由 `h-full` 改 `flex-1`，底部按钮不再被透出、内容超高时栏内滚动。
+    <el-button
+      v-if="showMenu"
+      circle
+      aria-label="打开菜单"
+      @click="$emit('open-menu')"
+    >
+      <SolarIcon name="hamburger-menu" size="20" aria-hidden="true" />
+    </el-button>
+>>>>
+<<<<
+    <button
+      type="button"
+      class="grid size-icon-btn shrink-0 place-items-center rounded-md border border-line-2 bg-surface text-ink hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+      :aria-label="themeLabel"
+      @click="toggleTheme"
+    >
+      <SolarIcon :name="theme === 'dark' ? 'moon' : 'sun-2'" :bold="true" size="20" aria-hidden="true" />
+    </button>
+>>>>
+<<<<
+    <el-button circle :aria-label="themeLabel" @click="toggleTheme">
+      <SolarIcon :name="theme === 'dark' ? 'moon' : 'sun-2'" :bold="true" size="20" aria-hidden="true" />
+    </el-button>
+>>>>
+### src/components/AppDrawer.vue
+<<<<
+      size="256px"
+      :with-header="false"
+      aria-label="功能导航"
+      class="ah-drawer"
+    >
+      <div class="flex h-14 shrink-0 items-center border-b border-line px-4">
+        <h2 class="text-heading-5 text-ink">功能导航</h2>
+      </div>
+
+      <nav class="ah-drawer__nav" aria-label="功能菜单">
+>>>>
+<<<<
+      size="256px"
+      title="功能导航"
+      aria-label="功能导航"
+      class="ah-drawer"
+    >
+      <nav class="ah-drawer__nav" aria-label="功能菜单">
 >>>>
 
 == DELETES ==
 
 == CHECKS ==
-! grep -q "h-full" src/views/GiftSet.vue
-grep -q "flex-1 overflow-y-auto" src/views/GiftSet.vue
-! grep -q "h-full overflow-y-auto" src/views/Tales.vue
-grep -q "flex-1 overflow-y-auto p-2" src/views/Tales.vue
-grep -q "ep-scroll-fix" AGENTS.md
+grep -q 'gutter="\[12, 12\]"' src/views/Home.vue
+grep -q '<el-col v-for="t in tools" :key="t.path" :span="12">' src/views/Home.vue
+! grep -q "column-gap" src/views/Home.vue
+grep -q "height: 104px" src/views/Home.vue
+grep -q "ah-home__scroll" src/views/Home.vue
+grep -q "overflow-hidden" src/App.vue
+! grep -q "overflow-y-auto" src/App.vue
+grep -q '@click="toggle(row)"' src/views/Tales.vue
+grep -q "@click.stop" src/views/Tales.vue
+! grep -q "tab-index" src/views/Tales.vue
+! grep -q ".reverse()" src/views/GiftSet.vue
+! grep -q "Document," src/views/TalesEditor.vue
+! grep -q "Document," src/views/GiftSetEditor.vue
+! grep -q "persistent" src/views/TalesEditor.vue
+! grep -q "persistent" src/views/GiftSetEditor.vue
+[ "$(grep -c '2026-11-18' CHANGELOG.md)" -eq 1 ]
+! grep -q "<button" src/components/AppNav.vue
+[ "$(grep -c "<el-button" src/components/AppNav.vue)" -eq 2 ]
+grep -q 'title="功能导航"' src/components/AppDrawer.vue
+! grep -q "with-header" src/components/AppDrawer.vue
