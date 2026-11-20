@@ -1,0 +1,14 @@
+# 依赖与产物
+node_modules/
+dist/
+dist-ssr/
+.vite/
+
+# 编辑器 / 系统
+.DS_Store
+Thumbs.db
+
+# 本地配置与日志
+*.local
+*.log
+npm-debug.log*
