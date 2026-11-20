@@ -7,99 +7,51 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-default-5 —— 跨仓库字典地址收成一处。
-#           前置：先在网页上手动提交 src/config.js（workflow 不能建新文件），再跑本批。
-#           四个页面删掉各自的 IMAGE_DICT_URL 常量，改成 import { IMAGE_DICT_URL } from '../config.js'。
+# 最近一批：ep-gap-fix —— 首页卡片左右没间隔的修复。
+#           根因：el-row 的 gutter 只接受 number，写成 [12, 12] 数组会被当成 NaN
+#           （row 的负 margin 和 col 的 padding 全失效），于是卡片紧贴。
+#           改成 :gutter="12"，垂直间距 EP 不提供，补一行 row-gap: 12px。
 
 == MOVES ==
 
 == EDITS ==
-### src/views/Tales.vue
+### src/views/Home.vue
 <<<<
-const UID_KEY = 'genshin_travelers_tales_uid_v1'
+<el-row class="ah-home" :gutter="[12, 12]">
+>>>>
+<<<<
+<el-row class="ah-home" :gutter="12">
+>>>>
+### src/views/Home.vue
+<<<<
+   宽度固定半栏由 el-col 的 :span="12" 决定，框间距由 el-row 的 gutter [12, 12] 决定，
+   圆角 / 内边距 / 字号 / 颜色全部走 EP 默认值与站点令牌。 */
+.ah-home__scroll {
+  height: 100%;
+}
 
-const IMAGE_DICT_URL =
-  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
+.ah-home {
+  padding: 12px;
+}
+>>>>
+<<<<
+   宽度固定半栏由 el-col 的 :span="12" 决定，水平间距由 el-row 的 gutter 决定；
+   垂直间距 EP 不提供，只能给 el-row 补 row-gap（gutter 只吃 number，写成数组会变 NaN）。
+   圆角 / 内边距 / 字号 / 颜色全部走 EP 默认值与站点令牌。 */
+.ah-home__scroll {
+  height: 100%;
+}
 
-
->>>>
-<<<<
-const UID_KEY = 'genshin_travelers_tales_uid_v1'
-
-
->>>>
-### src/views/GiftSet.vue
-<<<<
-const KEY_UID = 'genshin_homeworld_gift_sets_uid_v1'
-
-const IMAGE_DICT_URL =
-  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
-
-
->>>>
-<<<<
-const KEY_UID = 'genshin_homeworld_gift_sets_uid_v1'
-
-
->>>>
-### src/views/TalesEditor.vue
-<<<<
-const FILE_NAME = DATA_URL.split('/').pop()
-const IMAGE_DICT_URL =
-  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
->>>>
-<<<<
-const FILE_NAME = DATA_URL.split('/').pop()
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-const FILE_NAME = DATA_URL.split('/').pop()
-const IMAGE_DICT_URL =
-  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
->>>>
-<<<<
-const FILE_NAME = DATA_URL.split('/').pop()
->>>>
-### src/views/Tales.vue
-<<<<
-import { loadGlobalScript, loadTalesData } from '../composables/useData.js'
->>>>
-<<<<
-import { loadGlobalScript, loadTalesData } from '../composables/useData.js'
-import { IMAGE_DICT_URL } from '../config.js'
->>>>
-### src/views/GiftSet.vue
-<<<<
-import { loadGlobalScript, loadGiftSetData } from '../composables/useData.js'
->>>>
-<<<<
-import { loadGlobalScript, loadGiftSetData } from '../composables/useData.js'
-import { IMAGE_DICT_URL } from '../config.js'
->>>>
-### src/views/TalesEditor.vue
-<<<<
-import { loadGlobalScript } from '../composables/useData.js'
->>>>
-<<<<
-import { loadGlobalScript } from '../composables/useData.js'
-import { IMAGE_DICT_URL } from '../config.js'
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-import { loadGlobalScript } from '../composables/useData.js'
->>>>
-<<<<
-import { loadGlobalScript } from '../composables/useData.js'
-import { IMAGE_DICT_URL } from '../config.js'
+.ah-home {
+  padding: 12px;
+  row-gap: 12px;
+}
 >>>>
 
 == DELETES ==
 
 == CHECKS ==
-test -e src/config.js
-! grep -rq "const IMAGE_DICT_URL" src/views
-[ "$(grep -c "import { IMAGE_DICT_URL } from '../config.js'" src/views/Tales.vue)" -eq 1 ]
-[ "$(grep -c "import { IMAGE_DICT_URL } from '../config.js'" src/views/GiftSet.vue)" -eq 1 ]
-[ "$(grep -c "import { IMAGE_DICT_URL } from '../config.js'" src/views/TalesEditor.vue)" -eq 1 ]
-[ "$(grep -c "import { IMAGE_DICT_URL } from '../config.js'" src/views/GiftSetEditor.vue)" -eq 1 ]
-[ "$(grep -rl "IMAGE_DICT_URL" src | wc -l | tr -d ' ')" = "5" ]
+grep -q ':gutter="12"' src/views/Home.vue
+! grep -qF ':gutter="[12, 12]"' src/views/Home.vue
+grep -q "row-gap: 12px" src/views/Home.vue
+grep -q "el-col v-for=\"t in tools\" :key=\"t.path\" :span=\"12\"" src/views/Home.vue
