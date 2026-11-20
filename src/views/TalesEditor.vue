@@ -14,12 +14,11 @@ import {
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { loadGlobalScript } from '../composables/useData.js'
+import { IMAGE_DICT_URL } from '../config.js'
 
 const DRAFT_KEY = 'genshin_travelers_tales_editor_draft_v1'
 const DATA_URL = 'data/tales.js'
 const FILE_NAME = DATA_URL.split('/').pop()
-const IMAGE_DICT_URL =
-  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
 
 
 /* ---------- 状态 ---------- */

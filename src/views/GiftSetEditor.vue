@@ -14,12 +14,11 @@ import {
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { loadGlobalScript } from '../composables/useData.js'
+import { IMAGE_DICT_URL } from '../config.js'
 
 const DRAFT_KEY = 'genshin_homeworld_gift_sets_editor_draft_v1'
 const DATA_URL = 'data/gift-set.js'
 const FILE_NAME = DATA_URL.split('/').pop()
-const IMAGE_DICT_URL =
-  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
 
 /* 批量输入分隔符：空格 / 全角逗号 / 半角逗号 / 顿号 / 分号 */
 const CHAR_SPLIT_RE = /[\s，,、;；]+/
