@@ -70,13 +70,19 @@
             .concat(scripts)
             .concat([
               "",
+              "最常见的原因不是代码，而是网络：GitHub Pages 的 CDN 在国内经常被限速或阻断，",
+              "本站首次打开要下载约 1 MB 的脚本，网速一慢就会卡在这里。",
+              "",
+              "请依次尝试：",
+              "  1. 开代理 / VPN 后点下面「重新加载」（一开就好 = 网络问题）",
+              "  2. 换 Wi-Fi 或移动数据再试",
+              "  3. 等一两分钟再刷新（CDN 边缘节点有时会自己恢复）",
+              "",
               "加载失败的脚本：",
-              failed.length ? "  " + failed.join("\n  ") : "  （没有捕获到失败事件）",
+              failed.length ? "  " + failed.join("\n  ") : "  （脚本可能还在下载或被中断，浏览器不会报 error）",
               "",
-              "如果你的脚本路径里没有 /adventurer-handbook/，说明打包的 base 配错了。",
-              "如果路径正确但仍然失败，说明文件没有真正部署上去。",
-              "",
-              "请截图本页反馈。",
+              "开了代理仍然这样才算真问题：确认脚本路径里有 /adventurer-handbook/（没有 = base 配错），",
+              "再看 Actions 的 Deploy 是不是最后一次构建成功。",
             ]);
 
           var pre = document.createElement("pre");
@@ -85,6 +91,19 @@
             "background:#181715;color:#f5f0e8;font:12px/1.7 ui-monospace,monospace;" +
             "white-space:pre-wrap;word-break:break-word";
           pre.textContent = lines.join("\n");
+
+          /* 光提示没用：给一个能点的重试按钮（原来只能手动改地址栏） */
+          var retry = document.createElement("button");
+          retry.textContent = "重新加载";
+          retry.style.cssText =
+            "margin-top:16px;padding:10px 18px;border:1px solid #57534e;border-radius:8px;" +
+            "background:#292524;color:#faf9f5;font:14px system-ui;cursor:pointer";
+          retry.onclick = function () {
+            var base0 = location.href.split("#")[0].split("?")[0];
+            location.replace(base0 + "?t=" + Date.now() + location.hash);
+          };
+          pre.appendChild(retry);
+
           el.appendChild(pre);
         }
 
@@ -115,7 +134,21 @@
           true,
         );
 
-        setTimeout(recover, 4000);
+        /* 首屏要下约 1 MB 脚本，4 秒在慢网下根本不够，会把「慢」误报成「失败」。
+           改成每 500ms 看一眼 #app：挂载了就立刻停，12 秒还没内容才报错 */
+        var waited = 0;
+        var watch = setInterval(function () {
+          waited += 500;
+          var el = document.getElementById("app");
+          if (el && el.children.length > 0 && !el.dataset.fatal) {
+            clearInterval(watch);
+            return;
+          }
+          if (waited >= 12000) {
+            clearInterval(watch);
+            recover();
+          }
+        }, 500);
       })();
     </script>
   </head>
