@@ -7,670 +7,699 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-default-2 —— el-text 回到 EP 真 API：删掉不存在的 el-text / el-text--small / --large / --default
-#           修饰类（EP 2.x 是 size prop，这些类一直没生效，全站「小字」其实都是 14px），
-#           按语义改成 size="small" / size="large"，默认档不写 size；颜色仍由 ah-text-* 桥接令牌。
+# 最近一批：ep-default-3 —— 自造通知条下线，全站改用 Element Plus 的 ElMessage
+#           （删除 ToastHost.vue / useToast.js，4 个页面 37 处调用改成 ElMessage / .success / .error，
+#            「已恢复草稿」这类带 duration 的走对象写法），位置、动画、关闭按钮交给 EP 默认。
 
 == MOVES ==
 
 == EDITS ==
-### src/views/GiftSet.vue
+### src/App.vue
 <<<<
-
-      <div v-else-if="errorMsg" class="grid justify-items-center gap-3 p-8 text-center">
-        <el-text class="el-text el-text--default ah-text-danger font-semibold ah-text-block">数据加载失败</el-text>
-        <el-text class="el-text el-text--small ah-text-muted ah-text-block">{{ errorMsg }}</el-text>
-        <el-button size="small" @click="() => location.reload()">
-          <span>重新加载</span>
->>>>
-<<<<
-
-      <div v-else-if="errorMsg" class="grid justify-items-center gap-3 p-8 text-center">
-        <el-text class="ah-text-danger font-semibold ah-text-block">数据加载失败</el-text>
-        <el-text size="small" class="ah-text-muted ah-text-block">{{ errorMsg }}</el-text>
-        <el-button size="small" @click="() => location.reload()">
-          <span>重新加载</span>
->>>>
-### src/views/GiftSet.vue
-<<<<
-          <el-collapse-item name="char">
-            <template #title>
-              <el-text class="el-text el-text--default ah-text-ink font-semibold">我的角色</el-text>
-              <el-text class="el-text el-text--small ah-text-muted ah-text-gap">{{ owned.length }}</el-text>
-            </template>
-            <div class="grid gap-2">
->>>>
-<<<<
-          <el-collapse-item name="char">
-            <template #title>
-              <el-text class="ah-text-ink font-semibold">我的角色</el-text>
-              <el-text size="small" class="ah-text-muted ah-text-gap">{{ owned.length }}</el-text>
-            </template>
-            <div class="grid gap-2">
->>>>
-### src/views/GiftSet.vue
-<<<<
-          <el-collapse-item v-if="recommendations.length" name="recommend">
-            <template #title>
-              <el-text class="el-text el-text--default ah-text-ink font-semibold">推荐套装</el-text>
-              <el-text class="el-text el-text--small ah-text-muted ah-text-gap">前 {{ recommendations.length }}</el-text>
-            </template>
-            <div class="grid gap-2">
->>>>
-<<<<
-          <el-collapse-item v-if="recommendations.length" name="recommend">
-            <template #title>
-              <el-text class="ah-text-ink font-semibold">推荐套装</el-text>
-              <el-text size="small" class="ah-text-muted ah-text-gap">前 {{ recommendations.length }}</el-text>
-            </template>
-            <div class="grid gap-2">
->>>>
-### src/views/GiftSet.vue
-<<<<
-                <span class="grid min-w-0 flex-1 gap-1">
-                  <span class="truncate text-sm font-medium text-ink">{{ s.name }}</span>
-                  <el-text class="el-text el-text--small ah-text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</el-text>
-                </span>
+import AppDrawer from './components/AppDrawer.vue'
+import ToastHost from './components/ToastHost.vue'
 
 >>>>
 <<<<
-                <span class="grid min-w-0 flex-1 gap-1">
-                  <span class="truncate text-sm font-medium text-ink">{{ s.name }}</span>
-                  <el-text size="small" class="ah-text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</el-text>
-                </span>
+import AppDrawer from './components/AppDrawer.vue'
 
 >>>>
-### src/views/GiftSet.vue
+### src/App.vue
 <<<<
-          <el-collapse-item name="all">
-            <template #title>
-              <el-text class="el-text el-text--default ah-text-ink font-semibold">全部套装</el-text>
-              <el-text class="el-text el-text--small ah-text-muted ah-text-gap">{{ filteredSets.length }} / {{ sets.length }}</el-text>
-            </template>
-            <div class="grid gap-2">
->>>>
-<<<<
-          <el-collapse-item name="all">
-            <template #title>
-              <el-text class="ah-text-ink font-semibold">全部套装</el-text>
-              <el-text size="small" class="ah-text-muted ah-text-gap">{{ filteredSets.length }} / {{ sets.length }}</el-text>
-            </template>
-            <div class="grid gap-2">
->>>>
-### src/views/GiftSet.vue
-<<<<
-                    {{ s.name || '(未命名)' }}
-                  </span>
-                  <el-text class="el-text el-text--small ah-text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</el-text>
-                </span>
+    </main>
 
+    <ToastHost />
+  </div>
 >>>>
 <<<<
-                    {{ s.name || '(未命名)' }}
-                  </span>
-                  <el-text size="small" class="ah-text-muted">{{ s.region }} · {{ typeLabel(s.type) }}</el-text>
-                </span>
-
->>>>
-### src/views/GiftSet.vue
-<<<<
-      :close-on-press-escape="false"
-    >
-      <el-text class="el-text el-text--large ah-text-block">将清空「我拥有的角色」和所有完成记录，此操作不可撤销。</el-text>
-      <template #footer>
-        <el-button @click="resetOpen = false">取消</el-button>
->>>>
-<<<<
-      :close-on-press-escape="false"
-    >
-      <el-text size="large" class="ah-text-block">将清空「我拥有的角色」和所有完成记录，此操作不可撤销。</el-text>
-      <template #footer>
-        <el-button @click="resetOpen = false">取消</el-button>
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-        aria-label="有未导出的修改"
-      ></span>
-      <el-text class="el-text el-text--small ah-text-muted">{{ data ? `${setCount} 条` : '数据未加载' }}</el-text>
-
-      <div class="min-w-0 flex-1"></div>
->>>>
-<<<<
-        aria-label="有未导出的修改"
-      ></span>
-      <el-text size="small" class="ah-text-muted">{{ data ? `${setCount} 条` : '数据未加载' }}</el-text>
-
-      <div class="min-w-0 flex-1"></div>
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-          </el-button>
-
-          <el-text v-if="loading" class="el-text el-text--default ah-text-muted ah-text-block">正在载入…</el-text>
-
-          <el-empty
->>>>
-<<<<
-          </el-button>
-
-          <el-text v-if="loading" class="ah-text-muted ah-text-block">正在载入…</el-text>
-
-          <el-empty
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-          />
-
-          <el-text v-else-if="!entry" class="el-text el-text--default ah-text-muted ah-text-block">
-            从列表选择套装开始编辑，或点「新增套装」
-          </el-text>
->>>>
-<<<<
-          />
-
-          <el-text v-else-if="!entry" class="ah-text-muted ah-text-block">
-            从列表选择套装开始编辑，或点「新增套装」
-          </el-text>
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-                  {{ entry.name || '(未命名套装)' }}
-                </span>
-                <el-text class="el-text el-text--small ah-text-muted">{{ previewSub }}</el-text>
-              </span>
-            </div>
->>>>
-<<<<
-                  {{ entry.name || '(未命名套装)' }}
-                </span>
-                <el-text size="small" class="ah-text-muted">{{ previewSub }}</el-text>
-              </span>
-            </div>
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-            <!-- id -->
-            <div class="grid gap-2">
-              <el-text class="el-text el-text--small ah-text-muted font-medium">id · 可手动改，需唯一</el-text>
-              <div class="flex items-center gap-2">
-                <el-input
->>>>
-<<<<
-            <!-- id -->
-            <div class="grid gap-2">
-              <el-text size="small" class="ah-text-muted font-medium">id · 可手动改，需唯一</el-text>
-              <div class="flex items-center gap-2">
-                <el-input
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-            <!-- 地区 -->
-            <div class="grid gap-2">
-              <el-text class="el-text el-text--small ah-text-muted font-medium">地区 · 输入新值会自动加入列表</el-text>
-              <el-select
-                v-model="entry.region"
->>>>
-<<<<
-            <!-- 地区 -->
-            <div class="grid gap-2">
-              <el-text size="small" class="ah-text-muted font-medium">地区 · 输入新值会自动加入列表</el-text>
-              <el-select
-                v-model="entry.region"
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-            <!-- 图片 URL -->
-            <div class="grid gap-2">
-              <el-text class="el-text el-text--small ah-text-muted font-medium">
-                套装图 URL · 粘贴后自动识别 key / 类型 / 地区
-              </el-text>
->>>>
-<<<<
-            <!-- 图片 URL -->
-            <div class="grid gap-2">
-              <el-text size="small" class="ah-text-muted font-medium">
-                套装图 URL · 粘贴后自动识别 key / 类型 / 地区
-              </el-text>
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-                <el-button class="shrink-0" @click="recognizeUrl">识别</el-button>
-              </div>
-              <el-text v-if="urlHint" class="el-text el-text--small ah-text-block" :class="urlInvalid ? 'text-danger' : 'text-muted'">
-                {{ urlHint }}
-              </el-text>
->>>>
-<<<<
-                <el-button class="shrink-0" @click="recognizeUrl">识别</el-button>
-              </div>
-              <el-text v-if="urlHint" size="small" class="ah-text-block" :class="urlInvalid ? 'text-danger' : 'text-muted'">
-                {{ urlHint }}
-              </el-text>
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-
-            <div class="grid gap-2">
-              <el-text class="el-text el-text--small ah-text-muted">名称</el-text>
-              <el-input
-                v-model="entry.name"
->>>>
-<<<<
-
-            <div class="grid gap-2">
-              <el-text size="small" class="ah-text-muted">名称</el-text>
-              <el-input
-                v-model="entry.name"
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-            <!-- 室内 / 室外：只占内容宽度 -->
-            <div class="grid gap-2">
-              <el-text class="el-text el-text--small ah-text-muted font-medium">室内 / 室外</el-text>
-              <el-segmented
-                v-model="entry.type"
->>>>
-<<<<
-            <!-- 室内 / 室外：只占内容宽度 -->
-            <div class="grid gap-2">
-              <el-text size="small" class="ah-text-muted font-medium">室内 / 室外</el-text>
-              <el-segmented
-                v-model="entry.type"
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-            <!-- 偏好角色 -->
-            <div class="grid gap-2">
-              <el-text class="el-text el-text--small ah-text-muted font-medium">
-                偏好角色 · 支持逗号 / 空格 / 顿号批量输入，点格子可移除
-              </el-text>
->>>>
-<<<<
-            <!-- 偏好角色 -->
-            <div class="grid gap-2">
-              <el-text size="small" class="ah-text-muted font-medium">
-                偏好角色 · 支持逗号 / 空格 / 顿号批量输入，点格子可移除
-              </el-text>
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-      :close-on-press-escape="false"
-    >
-      <el-text class="el-text el-text--large ah-text-block">
-        {{
-          dirty
->>>>
-<<<<
-      :close-on-press-escape="false"
-    >
-      <el-text size="large" class="ah-text-block">
-        {{
-          dirty
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-      :close-on-press-escape="false"
-    >
-      <el-text class="el-text el-text--large ah-text-block">
-        确定删除「{{ entry?.name || '(未命名)' }}」吗？此操作不可撤销。
-      </el-text>
->>>>
-<<<<
-      :close-on-press-escape="false"
-    >
-      <el-text size="large" class="ah-text-block">
-        确定删除「{{ entry?.name || '(未命名)' }}」吗？此操作不可撤销。
-      </el-text>
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-      :close-on-press-escape="false"
-    >
-      <el-text class="el-text el-text--large ah-text-block">
-        将按当前显示顺序重新编号 1 ~ {{ setCount }}，原有 id 会被覆盖。
-      </el-text>
->>>>
-<<<<
-      :close-on-press-escape="false"
-    >
-      <el-text size="large" class="ah-text-block">
-        将按当前显示顺序重新编号 1 ~ {{ setCount }}，原有 id 会被覆盖。
-      </el-text>
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-    <!-- 导出前检查 -->
-    <el-dialog v-model="exportOpen" title="导出前检查" width="24rem">
-      <el-text class="el-text el-text--large ah-text-block">发现 {{ warnings.length }} 项问题：</el-text>
-      <ul class="grid max-h-60 list-disc gap-1 overflow-y-auto pl-5 text-xs text-muted">
-        <li v-for="(w, i) in warnings.slice(0, 30)" :key="i">{{ w }}</li>
->>>>
-<<<<
-    <!-- 导出前检查 -->
-    <el-dialog v-model="exportOpen" title="导出前检查" width="24rem">
-      <el-text size="large" class="ah-text-block">发现 {{ warnings.length }} 项问题：</el-text>
-      <ul class="grid max-h-60 list-disc gap-1 overflow-y-auto pl-5 text-xs text-muted">
-        <li v-for="(w, i) in warnings.slice(0, 30)" :key="i">{{ w }}</li>
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-        还有 {{ warnings.length - 30 }} 项未列出
-      </p>
-      <el-text class="el-text el-text--large ah-text-block">是否继续导出？</el-text>
-      <template #footer>
-        <el-button @click="exportOpen = false">取消</el-button>
->>>>
-<<<<
-        还有 {{ warnings.length - 30 }} 项未列出
-      </p>
-      <el-text size="large" class="ah-text-block">是否继续导出？</el-text>
-      <template #footer>
-        <el-button @click="exportOpen = false">取消</el-button>
+    </main>
+  </div>
 >>>>
 ### src/views/Tales.vue
 <<<<
+<script setup>
+import { computed, onMounted, reactive, ref } from 'vue'
+import { ElMessageBox } from 'element-plus'
+import { Delete, Download, Refresh, Search, Upload } from '@element-plus/icons-vue'
+import { useToast } from '../composables/useToast.js'
+import { loadGlobalScript, loadTalesData } from '../composables/useData.js'
 
-      <div v-else-if="errorMsg" class="grid justify-items-center gap-3 p-8 text-center">
-        <el-text class="el-text el-text--default ah-text-danger font-semibold ah-text-block">数据加载失败</el-text>
-        <el-text class="el-text el-text--small ah-text-muted ah-text-block">{{ errorMsg }}</el-text>
-        <el-button size="small" @click="() => location.reload()">
-          <el-icon><Refresh /></el-icon>
 >>>>
 <<<<
+<script setup>
+import { computed, onMounted, reactive, ref } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { Delete, Download, Refresh, Search, Upload } from '@element-plus/icons-vue'
+import { loadGlobalScript, loadTalesData } from '../composables/useData.js'
 
-      <div v-else-if="errorMsg" class="grid justify-items-center gap-3 p-8 text-center">
-        <el-text class="ah-text-danger font-semibold ah-text-block">数据加载失败</el-text>
-        <el-text size="small" class="ah-text-muted ah-text-block">{{ errorMsg }}</el-text>
-        <el-button size="small" @click="() => location.reload()">
-          <el-icon><Refresh /></el-icon>
 >>>>
-### src/views/TalesEditor.vue
+### src/views/Tales.vue
 <<<<
-        aria-label="有未导出的修改"
-      ></span>
-      <el-text class="el-text el-text--small ah-text-muted">
-        {{ data ? `${entryCount} 条` : '数据未加载' }}
-      </el-text>
->>>>
-<<<<
-        aria-label="有未导出的修改"
-      ></span>
-      <el-text size="small" class="ah-text-muted">
-        {{ data ? `${entryCount} 条` : '数据未加载' }}
-      </el-text>
->>>>
-### src/views/TalesEditor.vue
-<<<<
-          </el-button>
+  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
 
-          <el-text v-if="loading" class="el-text el-text--default ah-text-muted ah-text-block">正在载入…</el-text>
+const toast = useToast()
 
-          <el-empty
+const loading = ref(true)
 >>>>
 <<<<
-          </el-button>
+  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
 
-          <el-text v-if="loading" class="ah-text-muted ah-text-block">正在载入…</el-text>
 
-          <el-empty
+const loading = ref(true)
 >>>>
-### src/views/TalesEditor.vue
+### src/views/Tales.vue
 <<<<
-          />
+  a.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+  toast.success(`已导出 ${done.size} 条记录`)
+}
 
-          <el-text v-else-if="!entry" class="el-text el-text--default ah-text-muted ah-text-block">
-            从列表选择条目开始编辑，或点「新增」
-          </el-text>
 >>>>
 <<<<
-          />
+  a.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+  ElMessage.success(`已导出 ${done.size} 条记录`)
+}
 
-          <el-text v-else-if="!entry" class="ah-text-muted ah-text-block">
-            从列表选择条目开始编辑，或点「新增」
-          </el-text>
 >>>>
-### src/views/TalesEditor.vue
+### src/views/Tales.vue
 <<<<
-                  {{ entry.character || '(未命名角色)' }} · {{ entry.title || '(无标题)' }}
-                </span>
-                <el-text class="el-text el-text--small ah-text-muted">{{ headingSub }}</el-text>
-              </span>
-            </div>
->>>>
-<<<<
-                  {{ entry.character || '(未命名角色)' }} · {{ entry.title || '(无标题)' }}
-                </span>
-                <el-text size="small" class="ah-text-muted">{{ headingSub }}</el-text>
-              </span>
-            </div>
->>>>
-### src/views/TalesEditor.vue
-<<<<
-            <!-- id -->
-            <div class="grid gap-2">
-              <el-text class="el-text el-text--small ah-text-muted font-medium">id · 可手动改，需唯一</el-text>
-              <div class="flex items-center gap-2">
-                <el-input
+      next.forEach((k) => done.add(k))
+      saveDone()
+      toast.success('存档导入成功')
+    } catch {
+      toast.error('导入失败：文件格式不正确')
+    }
+    ev.target.value = ''
 >>>>
 <<<<
-            <!-- id -->
-            <div class="grid gap-2">
-              <el-text size="small" class="ah-text-muted font-medium">id · 可手动改，需唯一</el-text>
-              <div class="flex items-center gap-2">
-                <el-input
+      next.forEach((k) => done.add(k))
+      saveDone()
+      ElMessage.success('存档导入成功')
+    } catch {
+      ElMessage.error('导入失败：文件格式不正确')
+    }
+    ev.target.value = ''
 >>>>
-### src/views/TalesEditor.vue
+### src/views/Tales.vue
 <<<<
-            <!-- 版本 -->
-            <div class="grid gap-2">
-              <el-text class="el-text el-text--small ah-text-muted font-medium">版本 · 输入新值会自动加入列表</el-text>
-              <el-select
-                v-model="entry.version"
->>>>
-<<<<
-            <!-- 版本 -->
-            <div class="grid gap-2">
-              <el-text size="small" class="ah-text-muted font-medium">版本 · 输入新值会自动加入列表</el-text>
-              <el-select
-                v-model="entry.version"
->>>>
-### src/views/TalesEditor.vue
-<<<<
-            <!-- 角色 -->
-            <div class="grid gap-2">
-              <el-text class="el-text el-text--small ah-text-muted font-medium">角色名 · 从字典联想，可自定义</el-text>
-              <div class="flex items-center gap-2">
-                <span
+function confirmClear() {
+  if (done.size === 0) {
+    toast.show('暂无已完成的旅闻')
+    return
+  }
 >>>>
 <<<<
-            <!-- 角色 -->
-            <div class="grid gap-2">
-              <el-text size="small" class="ah-text-muted font-medium">角色名 · 从字典联想，可自定义</el-text>
-              <div class="flex items-center gap-2">
-                <span
+function confirmClear() {
+  if (done.size === 0) {
+    ElMessage('暂无已完成的旅闻')
+    return
+  }
 >>>>
-### src/views/TalesEditor.vue
+### src/views/Tales.vue
 <<<<
-                </el-select>
-              </div>
-              <el-text v-if="showCharWarn" class="el-text el-text--small ah-text-danger ah-text-block">
-                字典中无此角色，主界面将显示首字占位
-              </el-text>
+    localStorage.removeItem(LEGACY_KEY)
+  } catch {}
+  toast.success('已清空完成记录')
+}
+
 >>>>
 <<<<
-                </el-select>
-              </div>
-              <el-text v-if="showCharWarn" size="small" class="ah-text-danger ah-text-block">
-                字典中无此角色，主界面将显示首字占位
-              </el-text>
+    localStorage.removeItem(LEGACY_KEY)
+  } catch {}
+  ElMessage.success('已清空完成记录')
+}
+
 >>>>
-### src/views/TalesEditor.vue
+### src/views/GiftSet.vue
+<<<<
+import { computed, onMounted, reactive, ref } from 'vue'
+import { ArrowDown, ArrowUp, Delete, Download, Search, Upload } from '@element-plus/icons-vue'
+import { useToast } from '../composables/useToast.js'
+import { loadGlobalScript, loadGiftSetData } from '../composables/useData.js'
+
+>>>>
+<<<<
+import { computed, onMounted, reactive, ref } from 'vue'
+import { ArrowDown, ArrowUp, Delete, Download, Search, Upload } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import { loadGlobalScript, loadGiftSetData } from '../composables/useData.js'
+
+>>>>
+### src/views/GiftSet.vue
+<<<<
+   这里按名字前缀兜底 —— 存档里可能还留着旧的「旅行者·冰」，得一并滤掉。 */
+const EXCLUDED = /^旅行者/
+const toast = useToast()
+
+const loading = ref(true)
+>>>>
+<<<<
+   这里按名字前缀兜底 —— 存档里可能还留着旧的「旅行者·冰」，得一并滤掉。 */
+const EXCLUDED = /^旅行者/
+
+const loading = ref(true)
+>>>>
+### src/views/GiftSet.vue
 <<<<
 
-            <div class="grid gap-2">
-              <el-text class="el-text el-text--small ah-text-muted">旅闻名</el-text>
-              <el-input
-                v-model="entry.title"
+  if (!owned.value.includes(name)) {
+    toast.error(`未拥有「${name}」，先去上面的角色栏勾选`)
+    return
+  }
 >>>>
 <<<<
 
-            <div class="grid gap-2">
-              <el-text size="small" class="ah-text-muted">旅闻名</el-text>
-              <el-input
-                v-model="entry.title"
+  if (!owned.value.includes(name)) {
+    ElMessage.error(`未拥有「${name}」，先去上面的角色栏勾选`)
+    return
+  }
 >>>>
-### src/views/TalesEditor.vue
+### src/views/GiftSet.vue
 <<<<
-            >
-              <el-checkbox v-model="entry.hidden" @change="markDirty" />
-              <el-text class="el-text el-text--small ah-text-ink">标记为隐藏旅闻（主界面红色）</el-text>
-            </div>
+function exportArchive() {
+  if (!owned.value.length && !Object.keys(completed.value).length) {
+    toast.error('还没有可导出的记录')
+    return
+  }
+>>>>
+<<<<
+function exportArchive() {
+  if (!owned.value.length && !Object.keys(completed.value).length) {
+    ElMessage.error('还没有可导出的记录')
+    return
+  }
+>>>>
+### src/views/GiftSet.vue
+<<<<
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
 
-            <div class="grid gap-2">
-              <el-text class="el-text el-text--small ah-text-muted">地点</el-text>
-              <el-input
-                v-model="entry.location"
->>>>
-<<<<
-            >
-              <el-checkbox v-model="entry.hidden" @change="markDirty" />
-              <el-text size="small" class="ah-text-ink">标记为隐藏旅闻（主界面红色）</el-text>
-            </div>
+  toast.success('已导出存档')
+}
 
-            <div class="grid gap-2">
-              <el-text size="small" class="ah-text-muted">地点</el-text>
-              <el-input
-                v-model="entry.location"
 >>>>
-### src/views/TalesEditor.vue
 <<<<
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
 
-            <div class="grid gap-2">
-              <el-text class="el-text el-text--small ah-text-muted">触发条件</el-text>
-              <el-input
-                v-model="entry.trigger"
->>>>
-<<<<
+  ElMessage.success('已导出存档')
+}
 
-            <div class="grid gap-2">
-              <el-text size="small" class="ah-text-muted">触发条件</el-text>
-              <el-input
-                v-model="entry.trigger"
 >>>>
-### src/views/TalesEditor.vue
+### src/views/GiftSet.vue
 <<<<
+  charCollapsed.value = owned.value.length > 0
 
-            <div class="grid gap-2">
-              <el-text class="el-text el-text--small ah-text-muted">前置旅闻 · 只填旅闻名</el-text>
-              <el-input
-                v-model="entry.prerequisite"
->>>>
-<<<<
+  toast.success(`已导入：${owned.value.length} 个角色`)
+}
 
-            <div class="grid gap-2">
-              <el-text size="small" class="ah-text-muted">前置旅闻 · 只填旅闻名</el-text>
-              <el-input
-                v-model="entry.prerequisite"
 >>>>
-### src/views/TalesEditor.vue
 <<<<
+  charCollapsed.value = owned.value.length > 0
 
-            <div class="grid gap-2">
-              <el-text class="el-text el-text--small ah-text-muted">描述 · 支持换行</el-text>
-              <el-input
-                v-model="entry.description"
->>>>
-<<<<
+  ElMessage.success(`已导入：${owned.value.length} 个角色`)
+}
 
-            <div class="grid gap-2">
-              <el-text size="small" class="ah-text-muted">描述 · 支持换行</el-text>
-              <el-input
-                v-model="entry.description"
+>>>>
+### src/views/GiftSet.vue
+<<<<
+      importData(reader.result)
+    } catch (err) {
+      toast.error(`导入失败：${err.message}`)
+    }
+    ev.target.value = ''
+>>>>
+<<<<
+      importData(reader.result)
+    } catch (err) {
+      ElMessage.error(`导入失败：${err.message}`)
+    }
+    ev.target.value = ''
+>>>>
+### src/views/GiftSet.vue
+<<<<
+  charCollapsed.value = false
+
+  toast.success('已重置')
+}
+
+>>>>
+<<<<
+  charCollapsed.value = false
+
+  ElMessage.success('已重置')
+}
+
 >>>>
 ### src/views/TalesEditor.vue
 <<<<
-      :close-on-press-escape="false"
-    >
-      <el-text class="el-text el-text--large ah-text-block">
-        {{
-          dirty
+  Upload,
+} from '@element-plus/icons-vue'
+import { useToast } from '../composables/useToast.js'
+import { loadGlobalScript } from '../composables/useData.js'
+
 >>>>
 <<<<
-      :close-on-press-escape="false"
-    >
-      <el-text size="large" class="ah-text-block">
-        {{
-          dirty
->>>>
-### src/views/TalesEditor.vue
-<<<<
-      :close-on-press-escape="false"
-    >
-      <el-text class="el-text el-text--large ah-text-block">
-        确定删除「{{ entry?.character || '?' }} · {{ entry?.title || '?' }}」吗？此操作不可撤销。
-      </el-text>
->>>>
-<<<<
-      :close-on-press-escape="false"
-    >
-      <el-text size="large" class="ah-text-block">
-        确定删除「{{ entry?.character || '?' }} · {{ entry?.title || '?' }}」吗？此操作不可撤销。
-      </el-text>
+  Upload,
+} from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import { loadGlobalScript } from '../composables/useData.js'
+
 >>>>
 ### src/views/TalesEditor.vue
 <<<<
-      :close-on-press-escape="false"
-    >
-      <el-text class="el-text el-text--large ah-text-block">
-        将按当前显示顺序重新编号 1 ~ {{ entryCount }}，原有 id 会被覆盖。
-      </el-text>
+  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
+
+const toast = useToast()
+
+/* ---------- 状态 ---------- */
 >>>>
 <<<<
-      :close-on-press-escape="false"
-    >
-      <el-text size="large" class="ah-text-block">
-        将按当前显示顺序重新编号 1 ~ {{ entryCount }}，原有 id 会被覆盖。
-      </el-text>
->>>>
-### src/views/TalesEditor.vue
-<<<<
-    <!-- 导出前检查 -->
-    <el-dialog v-model="exportOpen" title="导出前检查" width="24rem">
-      <el-text class="el-text el-text--large ah-text-block">发现 {{ warnings.length }} 项问题：</el-text>
-      <ul class="grid max-h-60 list-disc gap-1 overflow-y-auto pl-5 text-xs text-muted">
-        <li v-for="(w, i) in warnings.slice(0, 30)" :key="i">{{ w }}</li>
->>>>
-<<<<
-    <!-- 导出前检查 -->
-    <el-dialog v-model="exportOpen" title="导出前检查" width="24rem">
-      <el-text size="large" class="ah-text-block">发现 {{ warnings.length }} 项问题：</el-text>
-      <ul class="grid max-h-60 list-disc gap-1 overflow-y-auto pl-5 text-xs text-muted">
-        <li v-for="(w, i) in warnings.slice(0, 30)" :key="i">{{ w }}</li>
+  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
+
+
+/* ---------- 状态 ---------- */
 >>>>
 ### src/views/TalesEditor.vue
 <<<<
-        还有 {{ warnings.length - 30 }} 项未列出
-      </p>
-      <el-text class="el-text el-text--large ah-text-block">是否继续导出？</el-text>
-      <template #footer>
-        <el-button @click="exportOpen = false">取消</el-button>
+function addEntry() {
+  if (!data.value) {
+    toast.error('数据未加载，请先「重载」或「导入」')
+    return
+  }
 >>>>
 <<<<
-        还有 {{ warnings.length - 30 }} 项未列出
-      </p>
-      <el-text size="large" class="ah-text-block">是否继续导出？</el-text>
-      <template #footer>
-        <el-button @click="exportOpen = false">取消</el-button>
+function addEntry() {
+  if (!data.value) {
+    ElMessage.error('数据未加载，请先「重载」或「导入」')
+    return
+  }
+>>>>
+### src/views/TalesEditor.vue
+<<<<
+  mobilePane.value = 'list'
+  markDirty()
+  toast.success('已删除')
+}
+
+>>>>
+<<<<
+  mobilePane.value = 'list'
+  markDirty()
+  ElMessage.success('已删除')
+}
+
+>>>>
+### src/views/TalesEditor.vue
+<<<<
+  renumberOpen.value = false
+  markDirty()
+  toast.success(`已重排 ${sorted.length} 条 id`)
+}
+
+>>>>
+<<<<
+  renumberOpen.value = false
+  markDirty()
+  ElMessage.success(`已重排 ${sorted.length} 条 id`)
+}
+
+>>>>
+### src/views/TalesEditor.vue
+<<<<
+    clearDirty()
+    clearDraft()
+    toast.success(`已重载 ${entryCount.value} 条`)
+  } catch (err) {
+    toast.error('重载失败：' + err.message)
+  }
+}
+>>>>
+<<<<
+    clearDirty()
+    clearDraft()
+    ElMessage.success(`已重载 ${entryCount.value} 条`)
+  } catch (err) {
+    ElMessage.error('重载失败：' + err.message)
+  }
+}
+>>>>
+### src/views/TalesEditor.vue
+<<<<
+      clearDirty()
+      saveDraft()
+      toast.success(`已导入 ${entryCount.value} 条`)
+    } catch (err) {
+      toast.error('导入失败：' + err.message)
+    }
+    ev.target.value = ''
+>>>>
+<<<<
+      clearDirty()
+      saveDraft()
+      ElMessage.success(`已导入 ${entryCount.value} 条`)
+    } catch (err) {
+      ElMessage.error('导入失败：' + err.message)
+    }
+    ev.target.value = ''
+>>>>
+### src/views/TalesEditor.vue
+<<<<
+function startExport() {
+  if (!data.value) {
+    toast.error('数据未加载')
+    return
+  }
+>>>>
+<<<<
+function startExport() {
+  if (!data.value) {
+    ElMessage.error('数据未加载')
+    return
+  }
+>>>>
+### src/views/TalesEditor.vue
+<<<<
+  clearDirty()
+  clearDraft()
+  toast.success(`已导出 ${FILE_NAME}`)
+}
+
+>>>>
+<<<<
+  clearDirty()
+  clearDraft()
+  ElMessage.success(`已导出 ${FILE_NAME}`)
+}
+
+>>>>
+### src/views/TalesEditor.vue
+<<<<
+      applyData(draft)
+      dirty.value = true
+      toast.show('已恢复草稿（尚未导出）', { duration: 3000 })
+    } else {
+      try {
+>>>>
+<<<<
+      applyData(draft)
+      dirty.value = true
+      ElMessage({ message: '已恢复草稿（尚未导出）', duration: 3000 })
+    } else {
+      try {
+>>>>
+### src/views/TalesEditor.vue
+<<<<
+        applyData(await fetchOnline())
+      } catch (err) {
+        toast.error(`数据加载失败：${err.message}，可用「导入」`)
+      }
+    }
+>>>>
+<<<<
+        applyData(await fetchOnline())
+      } catch (err) {
+        ElMessage.error(`数据加载失败：${err.message}，可用「导入」`)
+      }
+    }
+>>>>
+### src/views/TalesEditor.vue
+<<<<
+  } catch (e) {
+    loading.value = false
+    toast.error('初始化失败：' + (e?.message || e))
+  }
+})
+>>>>
+<<<<
+  } catch (e) {
+    loading.value = false
+    ElMessage.error('初始化失败：' + (e?.message || e))
+  }
+})
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+  Upload,
+} from '@element-plus/icons-vue'
+import { useToast } from '../composables/useToast.js'
+import { loadGlobalScript } from '../composables/useData.js'
+
+>>>>
+<<<<
+  Upload,
+} from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import { loadGlobalScript } from '../composables/useData.js'
+
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+const CHAR_SPLIT_TEST = /[\s，,、;；]/
+
+const toast = useToast()
+
+/* ---------- 状态 ---------- */
+>>>>
+<<<<
+const CHAR_SPLIT_TEST = /[\s，,、;；]/
+
+
+/* ---------- 状态 ---------- */
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+function addSet() {
+  if (!data.value) {
+    toast.error('数据未加载')
+    return
+  }
+>>>>
+<<<<
+function addSet() {
+  if (!data.value) {
+    ElMessage.error('数据未加载')
+    return
+  }
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+  markDirty()
+  deleteOpen.value = false
+  toast.success('已删除')
+}
+
+>>>>
+<<<<
+  markDirty()
+  deleteOpen.value = false
+  ElMessage.success('已删除')
+}
+
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+  const n = data.value.sets.length
+  if (!n) {
+    toast.error('没有套装可重排')
+    return
+  }
+>>>>
+<<<<
+  const n = data.value.sets.length
+  if (!n) {
+    ElMessage.error('没有套装可重排')
+    return
+  }
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+  markDirty()
+  renumberOpen.value = false
+  toast.success(`已重排 ${n} 条 id`)
+}
+
+>>>>
+<<<<
+  markDirty()
+  renumberOpen.value = false
+  ElMessage.success(`已重排 ${n} 条 id`)
+}
+
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+    clearDirty()
+    clearDraft()
+    toast.success(`已重载 ${setCount.value} 条`)
+  } catch (err) {
+    toast.error('重载失败：' + err.message)
+  }
+}
+>>>>
+<<<<
+    clearDirty()
+    clearDraft()
+    ElMessage.success(`已重载 ${setCount.value} 条`)
+  } catch (err) {
+    ElMessage.error('重载失败：' + err.message)
+  }
+}
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+      clearDirty()
+      saveDraft()
+      toast.success(`已导入 ${setCount.value} 条`)
+    } catch (err) {
+      toast.error('导入失败：' + err.message)
+    }
+    ev.target.value = ''
+>>>>
+<<<<
+      clearDirty()
+      saveDraft()
+      ElMessage.success(`已导入 ${setCount.value} 条`)
+    } catch (err) {
+      ElMessage.error('导入失败：' + err.message)
+    }
+    ev.target.value = ''
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+function startExport() {
+  if (!data.value) {
+    toast.error('数据未加载')
+    return
+  }
+>>>>
+<<<<
+function startExport() {
+  if (!data.value) {
+    ElMessage.error('数据未加载')
+    return
+  }
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+  clearDirty()
+  clearDraft()
+  toast.success(`已导出 ${FILE_NAME}`)
+}
+
+>>>>
+<<<<
+  clearDirty()
+  clearDraft()
+  ElMessage.success(`已导出 ${FILE_NAME}`)
+}
+
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+  const v = urlInput.value.trim()
+  if (!v) {
+    toast.error('请先粘贴图片链接')
+    return
+  }
+>>>>
+<<<<
+  const v = urlInput.value.trim()
+  if (!v) {
+    ElMessage.error('请先粘贴图片链接')
+    return
+  }
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+  }
+  if (key === entry.value?.key) {
+    toast.show('URL 未变化，无需重新识别')
+    return
+  }
+>>>>
+<<<<
+  }
+  if (key === entry.value?.key) {
+    ElMessage('URL 未变化，无需重新识别')
+    return
+  }
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+  charQuery.value = remaining
+  markDirty()
+  if (bad.length) toast.error('字典中未找到：' + bad.join('、'))
+}
+
+>>>>
+<<<<
+  charQuery.value = remaining
+  markDirty()
+  if (bad.length) ElMessage.error('字典中未找到：' + bad.join('、'))
+}
+
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+      applyData(normalizeData(draft))
+      dirty.value = true
+      toast.show('已恢复草稿（尚未导出）', { duration: 3000 })
+    } else {
+      try {
+>>>>
+<<<<
+      applyData(normalizeData(draft))
+      dirty.value = true
+      ElMessage({ message: '已恢复草稿（尚未导出）', duration: 3000 })
+    } else {
+      try {
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+        applyData(await fetchOnline())
+      } catch (err) {
+        toast.error(`数据加载失败：${err.message}，可用「导入」`)
+        applyData(normalizeData(null))
+      }
+>>>>
+<<<<
+        applyData(await fetchOnline())
+      } catch (err) {
+        ElMessage.error(`数据加载失败：${err.message}，可用「导入」`)
+        applyData(normalizeData(null))
+      }
+>>>>
+### src/views/GiftSetEditor.vue
+<<<<
+    loading.value = false
+    applyData(normalizeData(null))
+    toast.error('初始化失败：' + (e?.message || e))
+  }
+})
+>>>>
+<<<<
+    loading.value = false
+    applyData(normalizeData(null))
+    ElMessage.error('初始化失败：' + (e?.message || e))
+  }
+})
 >>>>
 
 == DELETES ==
+src/components/ToastHost.vue
+src/composables/useToast.js
 
 == CHECKS ==
-! grep -rq "el-text--" src
-! grep -rEq 'class="el-text[ "]' src
-grep -q 'size="small"' src/views/Tales.vue
-grep -q 'size="large"' src/views/TalesEditor.vue
-grep -q 'size="large"' src/views/GiftSetEditor.vue
-grep -q 'size="small"' src/views/GiftSet.vue
-grep -q "ah-text-muted" src/views/GiftSet.vue
-grep -q "ah-text-ink" src/views/TalesEditor.vue
+! test -e src/components/ToastHost.vue
+! test -e src/composables/useToast.js
+! grep -rq "useToast" src
+! grep -rq "toast\.success" src
+! grep -rq "toast\.error" src
+! grep -rq "toast\.show" src
+! grep -rq "ToastHost" src
+grep -q "ElMessage, ElMessageBox" src/views/Tales.vue
+grep -q "import { ElMessage } from .element-plus." src/views/GiftSet.vue
+grep -q "import { ElMessage } from .element-plus." src/views/TalesEditor.vue
+grep -q "import { ElMessage } from .element-plus." src/views/GiftSetEditor.vue
+grep -q "ElMessage.success" src/views/GiftSet.vue
+grep -q "ElMessage({ message: .已恢复草稿（尚未导出）., duration: 3000 })" src/views/TalesEditor.vue
