@@ -887,7 +887,7 @@ onBeforeUnmount(() => {
     <el-dialog
       v-model="reloadOpen"
       :title="dirty ? '放弃修改' : '重载线上数据'"
-      width="20rem"
+      width="min(20rem, 90vw)"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
     >
@@ -908,7 +908,7 @@ onBeforeUnmount(() => {
     <el-dialog
       v-model="deleteOpen"
       title="删除条目"
-      width="20rem"
+      width="min(20rem, 90vw)"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
     >
@@ -925,7 +925,7 @@ onBeforeUnmount(() => {
     <el-dialog
       v-model="renumberOpen"
       title="重排 id"
-      width="20rem"
+      width="min(20rem, 90vw)"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
     >
@@ -939,7 +939,7 @@ onBeforeUnmount(() => {
     </el-dialog>
 
     <!-- 导出前检查 -->
-    <el-dialog v-model="exportOpen" title="导出前检查" width="24rem">
+    <el-dialog v-model="exportOpen" title="导出前检查" width="min(24rem, 92vw)">
       <el-text size="large" class="ah-text-block">发现 {{ warnings.length }} 项问题：</el-text>
       <ul class="grid max-h-60 list-disc gap-1 overflow-y-auto pl-5 text-xs text-muted">
         <li v-for="(w, i) in warnings.slice(0, 30)" :key="i">{{ w }}</li>

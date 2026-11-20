@@ -19,6 +19,12 @@
 
 ## 2026 年 11 月
 
+### 2026-11-19 · 全站回归 Element Plus 默认
+
+- **起因**：11-18 那轮只换了组件外壳，很多地方仍按老习惯拧 EP——`el-text` 上写着 EP 2.x 根本不存在的 `el-text--small`（48 处，等于全站小字从来没变小）、`el-dialog` 上写着 Vuetify 的 `persistent`（弹窗照样能被遮罩误关）、`el-row` 不用 `:gutter` 反而手写 `column-gap`（桌面三列时第三列被裁）、顶栏图标按钮用原生 `<button>` 绕开 el-button、通知条是 120 行自造队列。
+- **经过**：四批清单改完。①首页卡片固定 104px 高 + 恒定半栏（`el-col :span="12"`）+ 官方 `:gutter="[12, 12]"`，顶栏两个按钮改 `el-button circle`，抽屉回到 EP 默认头部（自带关闭按钮），6 处 `persistent` 换成 `close-on-click-modal` / `close-on-press-escape`；②`el-text` 48 处按语义改成 `size` prop；③通知条下线换 `ElMessage`（删 `ToastHost.vue` / `useToast.js`）；④6 个滚动区换 `el-scrollbar`、4 处加载态换 `el-skeleton`、4 处角色格换 `el-check-tag`、汇总条改用 `el-tag size="large"`。
+- **结果**：全站控件只剩 EP 原生 + 三处 EP 确实没有的东西（可展开卡片、独立状态点、隐藏 file input）；无效类名 / 无效 prop / 不存在的 CSS 属性清零；首页卡片不再随标题长短高低不齐，旅闻点整行即可切换，窄屏弹窗不再顶边。
+
 ### 2026-11-18 · 全站 UI 统一到 Element Plus
 
 - **起因**：四个页面和两个字典编辑器此前各用一套自造控件与原生标签，控件尺寸、焦点环、弹窗行为不统一，不便维护。

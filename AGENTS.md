@@ -81,7 +81,7 @@
 ├── public/data/           游戏数据 · 运行时加载，不参与编译
 └── src/
     ├── components/        可复用控件
-    ├── composables/       主题 / 通知队列 / 数据加载
+    ├── composables/       主题 / 数据加载
     ├── icons/             UI 图标（Fluent）
     ├── styles/            设计令牌 + 全局基线
     └── views/             页面
@@ -245,7 +245,8 @@ https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js
 
 ### 当前状态（每批合并后更新；下一轮开工先读这段，别去现场探索）
 
-- **最后合并**：`ep-scroll-fix` —— 赠礼套装、游逸旅闻中间滚动区由 `h-full` 改 `flex-1`，底部按钮不再被透出、内容超高时栏内滚动。
+- **最后合并**：`ep-default-4` —— 全站回归 EP 默认：`el-text` 按语义改 `size`（原来 48 处写的是 EP 不存在的修饰类，等于没生效）、抽屉回默认头部（自带关闭按钮）、`el-dialog` 的 `persistent` 换成 `close-on-click-modal` / `close-on-press-escape`、通知条下线换 `ElMessage`（删 `ToastHost.vue` / `useToast.js`）、6 个滚动区换 `el-scrollbar`、4 处加载态换 `el-skeleton`、角色格换 `el-check-tag`；首页卡片固定 104px + 恒半栏。
+- **EP 无对应物、故意自造的三处（别再硬套）**：①套装卡 / 编辑器列表项的「可展开卡片」——`el-collapse` 外层已在用，嵌套会叠两层内边距；`el-menu` 的 `default-active` 不响应式；②编辑器工具栏「未导出修改」的红点——`el-badge` 是绝对定位的 `sup`，必须依附宿主元素；③隐藏 `<input type="file">`——`el-upload` 自带按钮 / 列表 / 进度，只用「读一个文件」时是负偏离。
 - **设计系统已对齐**（唯一真源是 `src/styles/tokens.css`）：颜色 = Claude 全量；字号 / 间距 / 圆角 / 控件高度 / 组件规格 = Notion 全量。刻度 → 9 个组件 → 四个页面 / 编辑器 / Home 都已落地。
 - **已定未做 ①**：字体族换 Notion Sans（= Inter）—— 会牵动一图流 / 视频封面的文字度量，必须单独一批，排在最后。
 - **已定未做 ②**：主仓库 `genshin-guide` 的 `tokens.css` / `base.css` 要跑同一份刻度（两个文件本该逐字节相同，现在分叉了）。
@@ -257,6 +258,6 @@ https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js
 
 可选优化（都不紧急）：
 
-- `public/favicon.ico` 不存在，标签页没有图标
+- `public/favicon.ico` 不存在（**已决定暂不处理**：等确定图标素材再加；加时要把 `index.html` 两行 link 改成 `%BASE_URL%favicon.ico`，否则项目页路径下照样 404）
 - `Field` 组件没有前后缀插槽，搜索框是内联写的，将来可抽成共用
 - 两个编辑器目前只能靠浏览器后退离开，可加一个「返回工具页」按钮
