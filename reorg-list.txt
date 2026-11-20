@@ -7,108 +7,86 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-fix-grid —— 接 ep-fix-scroll（那批只把滚动回退成原生，栅格仍是死的）。
-#   真根因：EP 的 .el-main 自带 display: block，而 EP 的 CSS 不带 @layer，
-#   会压掉 @layer utilities —— <el-main class="grid grid-cols-… grid-rows-…"> 里
-#   grid / grid-cols / grid-rows 全部无效，栏位高度跟着内容走，main 又是 overflow: hidden，
-#   所以超出被裁、拖不动。修法：骨架写进 app.css 的非分层规则 .ah-shell--split > .el-main。
+# 最近一批：fill-fix4 —— 凹陷处看不见的老毛病：暗色 --color-sunken 与 --color-surface 同值
+#   （#1f1e1b），分段轨道 / 选中项 / hover / 已完成底色全都看不出来 → 改成 #2f2b24（比卡片亮一档），
+#   凹陷类表面一律复用它，不再新造令牌；el-segmented 垫色改成「容器卡片色 + 选中项凹槽色 + 字用 ink」，
+#   变量盖在组件上（写 :root 会被 EP 遮住）。同批更新 AGENTS.md / CHANGELOG.md。
 
 == MOVES ==
 
 == EDITS ==
-### src/styles/app.css
+### src/styles/tokens.css
 <<<<
-.ah-uid {
-  width: calc((100% - 16px) / 3);
-  flex: none;
-}
+  --color-sunken: #1f1e1b;
 >>>>
 <<<<
-.ah-uid {
-  width: calc((100% - 16px) / 3);
-  flex: none;
-}
-
-/* ===== 编辑器两栏骨架 =====
-   EP 的 .el-main 自带 display: block，而 EP 的 CSS 不带 @layer ——
-   非分层规则会压掉 @layer utilities，所以 <el-main class="grid grid-cols-…"> 里的
-   grid / grid-cols / grid-rows 全部无效：栏位高度跟着内容走，main 又是 overflow: hidden，
-   结果就是「内容超了被裁、还拖不动」。骨架必须写在这里（非分层）。
-   （同类教训：上面 .ah-uid 的宽度也不能用 Tailwind 的 w-*。） */
-.ah-shell--split > .el-main {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr);
-  padding: 0;
-  overflow: hidden;
-}
-
-.ah-shell--split > .el-main > * {
-  min-width: 0;
-  min-height: 0;
-}
-
+  /* 凹槽类表面（分段菜单轨道 / 选中项 / hover / 已完成底色）一律用它，
+     所以暗色下必须比 surface 亮一档 —— 原来的 #1f1e1b 与 surface 同值，这些地方全看不见 */
+  --color-sunken: #2f2b24;
+>>>>
+### src/styles/app.css
+<<<<
 @media (min-width: 900px) {
   .ah-shell--split > .el-main {
     grid-template-columns: 20rem minmax(0, 1fr);
   }
 }
 >>>>
-### src/views/TalesEditor.vue
 <<<<
-<el-container class="ah-tales ah-shell" direction="vertical">
->>>>
-<<<<
-<el-container class="ah-tales ah-shell ah-shell--split" direction="vertical">
->>>>
-### src/views/TalesEditor.vue
-<<<<
-<el-main class="grid min-h-0 grid-rows-[minmax(0,1fr)] grid-cols-1 min-[900px]:grid-cols-[20rem_minmax(0,1fr)]">
->>>>
-<<<<
-<el-main>
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-<el-container class="ah-gift-ed ah-shell" direction="vertical">
->>>>
-<<<<
-<el-container class="ah-gift-ed ah-shell ah-shell--split" direction="vertical">
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-<el-main class="grid min-h-0 grid-rows-[minmax(0,1fr)] grid-cols-1 min-[900px]:grid-cols-[20rem_minmax(0,1fr)]">
->>>>
-<<<<
-<el-main>
+@media (min-width: 900px) {
+  .ah-shell--split > .el-main {
+    grid-template-columns: 20rem minmax(0, 1fr);
+  }
+}
+
+/* el-segmented 的垫色：EP 在 .el-segmented 自己的选择器里定义过这些变量，
+   写在 :root 会被它遮住，暗色 css-vars 还会再盖一次，所以直接盖在组件上。
+   容器用卡片色（与下面的大框一致），选中项反过来用凹槽色 --color-sunken，靠底色差区分。 */
+.el-segmented {
+  --el-segmented-bg-color: var(--color-surface);
+  --el-segmented-item-selected-bg-color: var(--color-sunken);
+  --el-segmented-item-selected-color: var(--color-ink);
+}
 >>>>
 ### AGENTS.md
 <<<<
-- **最后合并**：`ep-fix-scroll` —— 两个编辑器的滚动区回退原生 `overflow-y: auto`（`el-scrollbar` 在 grid item 里 `height:100%` 会解析成 `auto`，`<section>` 的高度是 stretch 来的 `auto`，wrap 高度永远等于内容高度，所以「内容超了也不出条」）；顺手把首页卡片加到 132px、标题允许折两行、图标改顶部对齐；套装「我的角色」恢复倒序、角色名折行不再省略。
-- **滚动容器选型（血泪）**：`el-scrollbar` 只在「父级高度确定」时可靠——flex item（`flex: 1`）可以，grid item（stretch 出来的 `height: auto`）不行；后者一律用原生 `overflow-y: auto`（`overflow` 用的是 used height，不依赖百分比）。旅闻 / 套装页是 flex 布局，所以它们的 `el-scrollbar` 正常。
+- 图像衬底用 `--color-thumb`（深色下比卡片**亮**）；`--color-sunken` 只用于凹陷（分段轨道、已完成底色）；图片 / 视频预览底用 `--color-preview`（= Claude `surface-dark`）。
 >>>>
 <<<<
-- **最后合并**：`ep-fix-grid` —— 编辑器滚不动的**真根因**修好：EP 的 `.el-main` 自带 `display: block`，而 **EP 的 CSS 不带 `@layer`**，会把 `<el-main class="grid grid-cols-…">` 上的栅格类全部压掉（栏位高度跟着内容走、`main` 又 `overflow: hidden`，于是超出被裁且拖不动）。两栏骨架写进 `app.css` 的非分层规则 `.ah-shell--split > .el-main`；左右两栏滚动用原生 `overflow-y: auto`。
-- **滚动容器选型（血泪）**：`el-scrollbar` 只在「父级高度确定」时可靠——flex item（`flex: 1`）可以，grid 栏位不一定；grid 里一律用原生 `overflow-y: auto`（`overflow` 用 used height，不依赖百分比）。旅闻 / 套装页是 flex 布局，所以它们的 `el-scrollbar` 正常。
-- **Tailwind 在 EP 组件上不生效（同一个坑踩了两次）**：EP 的 CSS 不带 `@layer`，非分层规则会压掉 `@layer utilities`。`el-main` 自带 `display: block`，写 `<el-main class="grid grid-cols-…">` 完全没用。第一次是 `.ah-uid` 的宽度不能用 `w-*`，第二次是编辑器的栅格。**给 EP 组件加任何布局类之前，先想一遍它自己有没有同属性。**
+- 图像衬底用 `--color-thumb`（深色下比卡片**亮**）；`--color-sunken` 只用于凹陷（分段轨道 / 选中项、已完成底色、hover、collapse 底），**不要再为凹陷新造第二个令牌**；图片 / 视频预览底用 `--color-preview`（= Claude `surface-dark`）。暗色下 `--color-sunken` 必须比 `--color-surface` 亮一档（`#2f2b24` vs `#1f1e1b`），否则凹陷处整片看不见。EP 组件自己的变量（`--el-segmented-*` 等）要盖在**组件选择器**上，写 `:root` 会被遮住。
+>>>>
+### AGENTS.md
+<<<<
+- **最后合并**：`ep-fix-grid`
+>>>>
+<<<<
+- **最后合并**：`fill-fix4` —— 凹槽类表面统一复用 `--color-sunken`：暗色值 `#1f1e1b`（与卡片同值，凹陷处看不见）改成 `#2f2b24`（比卡片亮一档）；`el-segmented` 的垫色改成「容器卡片色 + 选中项凹槽色 + 字用 ink」，变量盖在组件上（写 `:root` 会被 EP 遮住）。与攻略工具集同步。
+- **上一批**：`ep-fix-grid`
 >>>>
 ### CHANGELOG.md
 <<<<
-；③两个编辑器手机上「内容超了却没有滚动条」——`el-scrollbar` 的 `height: 100%` 需要父级有确定高度，而 `<section>` 是 grid item（`height: auto` 由 stretch 得到），百分比解析成 `auto`，`wrap` 高度等于内容高度，永远不会滚；改回原生 `overflow-y: auto`（`overflow` 用 used height），`el-main` 的 `grid-rows-[minmax(0,1fr)]` 保留。
+## 2026 年 11 月
+
+
 >>>>
 <<<<
-；③两个编辑器手机上「内容超了却没有滚动条、拖都拖不动」——真根因是 EP 的 `.el-main` 带 `display: block`，而 **EP 的 CSS 不带 `@layer`**，把 `<el-main class="grid grid-cols-…">` 上的 `grid` / `grid-cols` / `grid-rows` 全压掉了：栏位高度跟着内容走，`main` 又是 `overflow: hidden`，超出部分被裁且无法滚动。两栏骨架改到 `app.css` 的非分层规则 `.ah-shell--split > .el-main`，左右两栏的滚动用原生 `overflow-y: auto`。
+## 2026 年 11 月
+
+### 2026-11-21 · 凹陷处看得见了：暗色 `--color-sunken` 调到比卡片亮一档，分段菜单垫色与选中项拉开
+
+- **起因**：夜间模式里分段菜单的轨道、选中项、卡片 hover、已完成底色整片看不见 —— 它们都复用 `--color-sunken`，而暗色下它和 `--color-surface` 是同一个值（`#1f1e1b`）；另外 `el-segmented` 的垫色跟下面的大框融在一起，看不出分区。
+- **经过**：`--color-sunken` 的暗色值 `#1f1e1b` → `#2f2b24`（比卡片亮一档，与攻略工具集同一套）；`el-segmented` 的垫色改成「容器用卡片色 `--color-surface`、选中项反过来用 `--color-sunken`、选中文字用 `--color-ink`」，靠底色差区分。这几条变量是 EP 在组件自己的选择器上定义的，写在 `:root` 会被遮住，所以盖在 `.el-segmented` 上。
+- **结果**：夜间模式下分段菜单轨道、选中项、hover、已完成底色都看得见，分段菜单与下面的大框有明确分界；样式约定（凹陷色复用 sunken、EP 组件级变量怎么盖）写进 `AGENTS.md`。
+
+
 >>>>
 
 == DELETES ==
 
 == CHECKS ==
-grep -q ".ah-shell--split > .el-main" src/styles/app.css
-grep -q "grid-template-rows: minmax(0, 1fr)" src/styles/app.css
-grep -q "ah-shell--split" src/views/TalesEditor.vue
-grep -q "ah-shell--split" src/views/GiftSetEditor.vue
-! grep -q "grid-rows-\[minmax" src/views/TalesEditor.vue
-! grep -q "grid-rows-\[minmax" src/views/GiftSetEditor.vue
-! grep -q "min-\[900px\]:grid-cols" src/views/TalesEditor.vue
-grep -q "ep-fix-grid" AGENTS.md
-grep -q "Tailwind 在 EP 组件上不生效" AGENTS.md
+grep -q "color-sunken: #2f2b24" src/styles/tokens.css
+! grep -q "color-sunken: #1f1e1b" src/styles/tokens.css
+grep -q "el-segmented-item-selected-bg-color: var(--color-sunken)" src/styles/app.css
+grep -q "2026-11-21" CHANGELOG.md
+grep -q "color-sunken: #e8e0d2" src/styles/tokens.css
+grep -q "el-segmented-bg-color: var(--color-surface)" src/styles/app.css
