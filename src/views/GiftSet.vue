@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ArrowDown, ArrowUp, Delete, Download, Search, Upload } from '@element-plus/icons-vue'
-import { useToast } from '../composables/useToast.js'
+import { ElMessage } from 'element-plus'
 import { loadGlobalScript, loadGiftSetData } from '../composables/useData.js'
 
 const KEY_OWNED = 'genshin_homeworld_gift_sets_owned_v1'
@@ -15,7 +15,6 @@ const IMAGE_DICT_URL =
    字典里 order === 1 的就是它们（见下方枚举 dict.characters 那行），
    这里按名字前缀兜底 —— 存档里可能还留着旧的「旅行者·冰」，得一并滤掉。 */
 const EXCLUDED = /^旅行者/
-const toast = useToast()
 
 const loading = ref(true)
 const errorMsg = ref('')
@@ -253,7 +252,7 @@ function toggleSetChar(set, name) {
   if (!set?.key || !name || EXCLUDED.test(name)) return
 
   if (!owned.value.includes(name)) {
-    toast.error(`未拥有「${name}」，先去上面的角色栏勾选`)
+    ElMessage.error(`未拥有「${name}」，先去上面的角色栏勾选`)
     return
   }
   if (!(set.preferredCharacters || []).includes(name)) return
@@ -279,7 +278,7 @@ function onUidInput(val) {
 
 function exportArchive() {
   if (!owned.value.length && !Object.keys(completed.value).length) {
-    toast.error('还没有可导出的记录')
+    ElMessage.error('还没有可导出的记录')
     return
   }
 
@@ -313,7 +312,7 @@ function exportArchive() {
   a.remove()
   setTimeout(() => URL.revokeObjectURL(url), 1000)
 
-  toast.success('已导出存档')
+  ElMessage.success('已导出存档')
 }
 
 function importData(text) {
@@ -357,7 +356,7 @@ function importData(text) {
   charSearch.value = ''
   charCollapsed.value = owned.value.length > 0
 
-  toast.success(`已导入：${owned.value.length} 个角色`)
+  ElMessage.success(`已导入：${owned.value.length} 个角色`)
 }
 
 function onImportFile(ev) {
@@ -368,7 +367,7 @@ function onImportFile(ev) {
     try {
       importData(reader.result)
     } catch (err) {
-      toast.error(`导入失败：${err.message}`)
+      ElMessage.error(`导入失败：${err.message}`)
     }
     ev.target.value = ''
   }
@@ -398,7 +397,7 @@ function doReset() {
   charSearch.value = ''
   charCollapsed.value = false
 
-  toast.success('已重置')
+  ElMessage.success('已重置')
 }
 
 onMounted(async () => {

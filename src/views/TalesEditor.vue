@@ -12,7 +12,7 @@ import {
   Sort,
   Upload,
 } from '@element-plus/icons-vue'
-import { useToast } from '../composables/useToast.js'
+import { ElMessage } from 'element-plus'
 import { loadGlobalScript } from '../composables/useData.js'
 
 const DRAFT_KEY = 'genshin_travelers_tales_editor_draft_v1'
@@ -21,7 +21,6 @@ const FILE_NAME = DATA_URL.split('/').pop()
 const IMAGE_DICT_URL =
   'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
 
-const toast = useToast()
 
 /* ---------- 状态 ---------- */
 const loading = ref(true)
@@ -341,7 +340,7 @@ function moveEntry(delta) {
 
 function addEntry() {
   if (!data.value) {
-    toast.error('数据未加载，请先「重载」或「导入」')
+    ElMessage.error('数据未加载，请先「重载」或「导入」')
     return
   }
   const newId = data.value.entries.reduce((m, x) => Math.max(m, x.id || 0), 0) + 1
@@ -371,7 +370,7 @@ function confirmDelete() {
   isNew.value = false
   mobilePane.value = 'list'
   markDirty()
-  toast.success('已删除')
+  ElMessage.success('已删除')
 }
 
 function doRenumber() {
@@ -386,7 +385,7 @@ function doRenumber() {
   }
   renumberOpen.value = false
   markDirty()
-  toast.success(`已重排 ${sorted.length} 条 id`)
+  ElMessage.success(`已重排 ${sorted.length} 条 id`)
 }
 
 async function doReload() {
@@ -398,9 +397,9 @@ async function doReload() {
     mobilePane.value = 'list'
     clearDirty()
     clearDraft()
-    toast.success(`已重载 ${entryCount.value} 条`)
+    ElMessage.success(`已重载 ${entryCount.value} 条`)
   } catch (err) {
-    toast.error('重载失败：' + err.message)
+    ElMessage.error('重载失败：' + err.message)
   }
 }
 
@@ -416,9 +415,9 @@ function onImportFile(ev) {
       mobilePane.value = 'list'
       clearDirty()
       saveDraft()
-      toast.success(`已导入 ${entryCount.value} 条`)
+      ElMessage.success(`已导入 ${entryCount.value} 条`)
     } catch (err) {
-      toast.error('导入失败：' + err.message)
+      ElMessage.error('导入失败：' + err.message)
     }
     ev.target.value = ''
   }
@@ -427,7 +426,7 @@ function onImportFile(ev) {
 
 function startExport() {
   if (!data.value) {
-    toast.error('数据未加载')
+    ElMessage.error('数据未加载')
     return
   }
   const list = []
@@ -462,7 +461,7 @@ function runExport() {
   exportOpen.value = false
   clearDirty()
   clearDraft()
-  toast.success(`已导出 ${FILE_NAME}`)
+  ElMessage.success(`已导出 ${FILE_NAME}`)
 }
 
 /* 输入新版本自动并入列表 */
@@ -505,12 +504,12 @@ onMounted(async () => {
     if (draft?.entries) {
       applyData(draft)
       dirty.value = true
-      toast.show('已恢复草稿（尚未导出）', { duration: 3000 })
+      ElMessage({ message: '已恢复草稿（尚未导出）', duration: 3000 })
     } else {
       try {
         applyData(await fetchOnline())
       } catch (err) {
-        toast.error(`数据加载失败：${err.message}，可用「导入」`)
+        ElMessage.error(`数据加载失败：${err.message}，可用「导入」`)
       }
     }
 
@@ -518,7 +517,7 @@ onMounted(async () => {
     loading.value = false
   } catch (e) {
     loading.value = false
-    toast.error('初始化失败：' + (e?.message || e))
+    ElMessage.error('初始化失败：' + (e?.message || e))
   }
 })
 
