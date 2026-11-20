@@ -7,148 +7,99 @@
 #   CHECKS   一行一条命令，非 0 即中止
 # 跑法：改这个文件 → 提交 → Actions → Reorg → Run workflow（清单名 = 分支名）
 #
-# 最近一批：ep-default-4 —— 收尾。7 个确认弹窗宽度改 min(20rem, 90vw) / min(24rem, 92vw)，
-#           窄屏不再顶边；三份文档对齐现状：通知队列已下线、最后合并记到本批、
-#           favicon 标成「已决定暂不处理（含将来要改 %BASE_URL%）」、CHANGELOG 补 11-19 一条。
+# 最近一批：ep-default-5 —— 跨仓库字典地址收成一处。
+#           前置：先在网页上手动提交 src/config.js（workflow 不能建新文件），再跑本批。
+#           四个页面删掉各自的 IMAGE_DICT_URL 常量，改成 import { IMAGE_DICT_URL } from '../config.js'。
 
 == MOVES ==
 
 == EDITS ==
+### src/views/Tales.vue
+<<<<
+const UID_KEY = 'genshin_travelers_tales_uid_v1'
+
+const IMAGE_DICT_URL =
+  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
+
+
+>>>>
+<<<<
+const UID_KEY = 'genshin_travelers_tales_uid_v1'
+
+
+>>>>
+### src/views/GiftSet.vue
+<<<<
+const KEY_UID = 'genshin_homeworld_gift_sets_uid_v1'
+
+const IMAGE_DICT_URL =
+  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
+
+
+>>>>
+<<<<
+const KEY_UID = 'genshin_homeworld_gift_sets_uid_v1'
+
+
+>>>>
 ### src/views/TalesEditor.vue
 <<<<
-      :title="dirty ? '放弃修改' : '重载线上数据'"
-      width="20rem"
+const FILE_NAME = DATA_URL.split('/').pop()
+const IMAGE_DICT_URL =
+  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
 >>>>
 <<<<
-      :title="dirty ? '放弃修改' : '重载线上数据'"
-      width="min(20rem, 90vw)"
->>>>
-### src/views/TalesEditor.vue
-<<<<
-      title="删除条目"
-      width="20rem"
->>>>
-<<<<
-      title="删除条目"
-      width="min(20rem, 90vw)"
->>>>
-### src/views/TalesEditor.vue
-<<<<
-      title="重排 id"
-      width="20rem"
->>>>
-<<<<
-      title="重排 id"
-      width="min(20rem, 90vw)"
->>>>
-### src/views/TalesEditor.vue
-<<<<
-<el-dialog v-model="exportOpen" title="导出前检查" width="24rem">
->>>>
-<<<<
-<el-dialog v-model="exportOpen" title="导出前检查" width="min(24rem, 92vw)">
+const FILE_NAME = DATA_URL.split('/').pop()
 >>>>
 ### src/views/GiftSetEditor.vue
 <<<<
-      :title="dirty ? '放弃修改' : '重载线上数据'"
-      width="20rem"
+const FILE_NAME = DATA_URL.split('/').pop()
+const IMAGE_DICT_URL =
+  'https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js'
 >>>>
 <<<<
-      :title="dirty ? '放弃修改' : '重载线上数据'"
-      width="min(20rem, 90vw)"
+const FILE_NAME = DATA_URL.split('/').pop()
+>>>>
+### src/views/Tales.vue
+<<<<
+import { loadGlobalScript, loadTalesData } from '../composables/useData.js'
+>>>>
+<<<<
+import { loadGlobalScript, loadTalesData } from '../composables/useData.js'
+import { IMAGE_DICT_URL } from '../config.js'
+>>>>
+### src/views/GiftSet.vue
+<<<<
+import { loadGlobalScript, loadGiftSetData } from '../composables/useData.js'
+>>>>
+<<<<
+import { loadGlobalScript, loadGiftSetData } from '../composables/useData.js'
+import { IMAGE_DICT_URL } from '../config.js'
+>>>>
+### src/views/TalesEditor.vue
+<<<<
+import { loadGlobalScript } from '../composables/useData.js'
+>>>>
+<<<<
+import { loadGlobalScript } from '../composables/useData.js'
+import { IMAGE_DICT_URL } from '../config.js'
 >>>>
 ### src/views/GiftSetEditor.vue
 <<<<
-      title="删除套装"
-      width="20rem"
+import { loadGlobalScript } from '../composables/useData.js'
 >>>>
 <<<<
-      title="删除套装"
-      width="min(20rem, 90vw)"
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-      title="重排 id"
-      width="20rem"
->>>>
-<<<<
-      title="重排 id"
-      width="min(20rem, 90vw)"
->>>>
-### src/views/GiftSetEditor.vue
-<<<<
-<el-dialog v-model="exportOpen" title="导出前检查" width="24rem">
->>>>
-<<<<
-<el-dialog v-model="exportOpen" title="导出前检查" width="min(24rem, 92vw)">
->>>>
-### AGENTS.md
-<<<<
-    ├── composables/       主题 / 通知队列 / 数据加载
->>>>
-<<<<
-    ├── composables/       主题 / 数据加载
->>>>
-### AGENTS.md
-<<<<
-- **最后合并**：`ep-scroll-fix` —— 赠礼套装、游逸旅闻中间滚动区由 `h-full` 改 `flex-1`，底部按钮不再被透出、内容超高时栏内滚动。
->>>>
-<<<<
-- **最后合并**：`ep-default-4` —— 全站回归 EP 默认：`el-text` 按语义改 `size`（原来 48 处写的是 EP 不存在的修饰类，等于没生效）、抽屉回默认头部（自带关闭按钮）、`el-dialog` 的 `persistent` 换成 `close-on-click-modal` / `close-on-press-escape`、通知条下线换 `ElMessage`（删 `ToastHost.vue` / `useToast.js`）、6 个滚动区换 `el-scrollbar`、4 处加载态换 `el-skeleton`、角色格换 `el-check-tag`；首页卡片固定 104px + 恒半栏。
-- **EP 无对应物、故意自造的三处（别再硬套）**：①套装卡 / 编辑器列表项的「可展开卡片」——`el-collapse` 外层已在用，嵌套会叠两层内边距；`el-menu` 的 `default-active` 不响应式；②编辑器工具栏「未导出修改」的红点——`el-badge` 是绝对定位的 `sup`，必须依附宿主元素；③隐藏 `<input type="file">`——`el-upload` 自带按钮 / 列表 / 进度，只用「读一个文件」时是负偏离。
->>>>
-### AGENTS.md
-<<<<
-- `public/favicon.ico` 不存在，标签页没有图标
->>>>
-<<<<
-- `public/favicon.ico` 不存在（**已决定暂不处理**：等确定图标素材再加；加时要把 `index.html` 两行 link 改成 `%BASE_URL%favicon.ico`，否则项目页路径下照样 404）
->>>>
-### README.md
-<<<<
-    │   ├── components/               布局与导航（抽屉 / 导航 / 通知），交互控件统一走 Element Plus
->>>>
-<<<<
-    │   ├── components/               布局与导航（抽屉 / 导航），交互控件统一走 Element Plus
->>>>
-### README.md
-<<<<
-    │   ├── composables/              主题 / 通知队列 / 数据加载
->>>>
-<<<<
-    │   ├── composables/              主题 / 数据加载
->>>>
-### CHANGELOG.md
-<<<<
-## 2026 年 11 月
-
-### 2026-11-18 · 全站 UI 统一到 Element Plus
->>>>
-<<<<
-## 2026 年 11 月
-
-### 2026-11-19 · 全站回归 Element Plus 默认
-
-- **起因**：11-18 那轮只换了组件外壳，很多地方仍按老习惯拧 EP——`el-text` 上写着 EP 2.x 根本不存在的 `el-text--small`（48 处，等于全站小字从来没变小）、`el-dialog` 上写着 Vuetify 的 `persistent`（弹窗照样能被遮罩误关）、`el-row` 不用 `:gutter` 反而手写 `column-gap`（桌面三列时第三列被裁）、顶栏图标按钮用原生 `<button>` 绕开 el-button、通知条是 120 行自造队列。
-- **经过**：四批清单改完。①首页卡片固定 104px 高 + 恒定半栏（`el-col :span="12"`）+ 官方 `:gutter="[12, 12]"`，顶栏两个按钮改 `el-button circle`，抽屉回到 EP 默认头部（自带关闭按钮），6 处 `persistent` 换成 `close-on-click-modal` / `close-on-press-escape`；②`el-text` 48 处按语义改成 `size` prop；③通知条下线换 `ElMessage`（删 `ToastHost.vue` / `useToast.js`）；④6 个滚动区换 `el-scrollbar`、4 处加载态换 `el-skeleton`、4 处角色格换 `el-check-tag`、汇总条改用 `el-tag size="large"`。
-- **结果**：全站控件只剩 EP 原生 + 三处 EP 确实没有的东西（可展开卡片、独立状态点、隐藏 file input）；无效类名 / 无效 prop / 不存在的 CSS 属性清零；首页卡片不再随标题长短高低不齐，旅闻点整行即可切换，窄屏弹窗不再顶边。
-
-### 2026-11-18 · 全站 UI 统一到 Element Plus
+import { loadGlobalScript } from '../composables/useData.js'
+import { IMAGE_DICT_URL } from '../config.js'
 >>>>
 
 == DELETES ==
 
 == CHECKS ==
-! grep -q 'width="20rem"' src/views/TalesEditor.vue
-! grep -q 'width="20rem"' src/views/GiftSetEditor.vue
-! grep -q 'width="24rem"' src/views/TalesEditor.vue
-! grep -q 'width="24rem"' src/views/GiftSetEditor.vue
-[ "$(grep -c "min(20rem, 90vw)" src/views/TalesEditor.vue)" -eq 3 ]
-[ "$(grep -c "min(20rem, 90vw)" src/views/GiftSetEditor.vue)" -eq 3 ]
-grep -q "2026-11-19" CHANGELOG.md
-[ "$(grep -c "### 2026-11-18" CHANGELOG.md)" -eq 1 ]
-! grep -q "通知队列" AGENTS.md
-! grep -q "通知队列" README.md
-! grep -q "抽屉 / 导航 / 通知" README.md
-grep -q "ep-default-4" AGENTS.md
-grep -q "已决定暂不处理" AGENTS.md
+test -e src/config.js
+! grep -rq "const IMAGE_DICT_URL" src/views
+[ "$(grep -c "import { IMAGE_DICT_URL } from '../config.js'" src/views/Tales.vue)" -eq 1 ]
+[ "$(grep -c "import { IMAGE_DICT_URL } from '../config.js'" src/views/GiftSet.vue)" -eq 1 ]
+[ "$(grep -c "import { IMAGE_DICT_URL } from '../config.js'" src/views/TalesEditor.vue)" -eq 1 ]
+[ "$(grep -c "import { IMAGE_DICT_URL } from '../config.js'" src/views/GiftSetEditor.vue)" -eq 1 ]
+[ "$(grep -rl "IMAGE_DICT_URL" src | wc -l | tr -d ' ')" = "5" ]
