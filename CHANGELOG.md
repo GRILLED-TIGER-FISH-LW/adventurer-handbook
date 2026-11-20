@@ -25,7 +25,7 @@
 - **经过**：四批清单改完。①首页卡片固定 104px 高 + 恒定半栏（`el-col :span="12"`）+ 官方 `:gutter="[12, 12]"`，顶栏两个按钮改 `el-button circle`，抽屉回到 EP 默认头部（自带关闭按钮），6 处 `persistent` 换成 `close-on-click-modal` / `close-on-press-escape`；②`el-text` 48 处按语义改成 `size` prop；③通知条下线换 `ElMessage`（删 `ToastHost.vue` / `useToast.js`）；④6 个滚动区换 `el-scrollbar`、4 处加载态换 `el-skeleton`、4 处角色格换 `el-check-tag`、汇总条改用 `el-tag size="large"`。
 - **结果**：全站控件只剩 EP 原生 + 三处 EP 确实没有的东西（可展开卡片、独立状态点、隐藏 file input）；无效类名 / 无效 prop / 不存在的 CSS 属性清零；首页卡片不再随标题长短高低不齐，旅闻点整行即可切换，窄屏弹窗不再顶边。
 
-**补丁（同日）**：①首页卡片固定高度 104 → 132px、标题允许折两行（半栏放不下「尘歌壶赠礼套装」，原来直接省略成 …）、图标改顶部对齐（标题折行后图标不再上下浮动）；②套装「我的角色」恢复倒序（新角色在前），角色名 4 处改成折行显示；③两个编辑器手机上「内容超了却没有滚动条」——`el-scrollbar` 的 `height: 100%` 需要父级有确定高度，而 `<section>` 是 grid item（`height: auto` 由 stretch 得到），百分比解析成 `auto`，`wrap` 高度等于内容高度，永远不会滚；改回原生 `overflow-y: auto`（`overflow` 用 used height），`el-main` 的 `grid-rows-[minmax(0,1fr)]` 保留。
+**补丁（同日）**：①首页卡片固定高度 104 → 132px、标题允许折两行（半栏放不下「尘歌壶赠礼套装」，原来直接省略成 …）、图标改顶部对齐（标题折行后图标不再上下浮动）；②套装「我的角色」恢复倒序（新角色在前），角色名 4 处改成折行显示；③两个编辑器手机上「内容超了却没有滚动条、拖都拖不动」——真根因是 EP 的 `.el-main` 带 `display: block`，而 **EP 的 CSS 不带 `@layer`**，把 `<el-main class="grid grid-cols-…">` 上的 `grid` / `grid-cols` / `grid-rows` 全压掉了：栏位高度跟着内容走，`main` 又是 `overflow: hidden`，超出部分被裁且无法滚动。两栏骨架改到 `app.css` 的非分层规则 `.ah-shell--split > .el-main`，左右两栏的滚动用原生 `overflow-y: auto`。
 
 ### 2026-11-18 · 全站 UI 统一到 Element Plus
 

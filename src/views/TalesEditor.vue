@@ -527,7 +527,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <el-container class="ah-tales ah-shell" direction="vertical">
+  <el-container class="ah-tales ah-shell ah-shell--split" direction="vertical">
     <!-- 工具条 -->
     <div class="flex items-center gap-2 border-b border-line bg-canvas p-2">
       <span
@@ -565,7 +565,7 @@ onBeforeUnmount(() => {
       />
     </div>
 
-    <el-main class="grid min-h-0 grid-rows-[minmax(0,1fr)] grid-cols-1 min-[900px]:grid-cols-[20rem_minmax(0,1fr)]">
+    <el-main>
       <!-- 左：列表 -->
       <aside
         class="flex min-h-0 flex-col bg-surface-2"
