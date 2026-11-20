@@ -861,7 +861,8 @@ onBeforeUnmount(() => {
           </div>
         </div>
 
-        <div class="grid min-h-0 flex-1 content-start gap-1 overflow-y-auto p-2">
+        <el-scrollbar class="min-h-0 flex-1">
+          <div class="grid content-start gap-1 p-2">
           <el-empty v-if="!data" :image-size="56" description="数据未加载，点「重载」或「导入」" />
           <el-empty
             v-else-if="!sortedSets.length"
@@ -908,6 +909,7 @@ onBeforeUnmount(() => {
             </span>
                     </div>
         </div>
+        </el-scrollbar>
 
         <div class="grid shrink-0 grid-cols-2 gap-2 border-t border-line p-2">
           <el-button size="small" @click="addSet">
@@ -923,10 +925,11 @@ onBeforeUnmount(() => {
 
       <!-- 右：表单 -->
       <section
-        class="min-h-0 overflow-y-auto p-3"
+        class="min-h-0"
         :class="mobilePane === 'list' ? 'hidden min-[900px]:block' : 'block'"
       >
-        <div class="grid gap-3">
+        <el-scrollbar class="h-full">
+        <div class="grid gap-3 p-3">
           <el-button
             v-if="mobilePane === 'form'"
             size="small"
@@ -937,7 +940,7 @@ onBeforeUnmount(() => {
             <span>返回列表</span>
           </el-button>
 
-          <el-text v-if="loading" class="ah-text-muted ah-text-block">正在载入…</el-text>
+          <el-skeleton v-if="loading" :rows="4" animated />
 
           <el-empty
             v-else-if="!data"
@@ -1072,7 +1075,7 @@ onBeforeUnmount(() => {
                 v-if="sortedChars.length"
                 class="grid grid-cols-[repeat(auto-fit,minmax(48px,1fr))] gap-2 rounded-ctl border border-line-2 bg-sunken p-2"
               >
-                <el-checkbox
+                <el-check-tag
                   v-for="name in sortedChars"
                   :key="name"
                   class="ah-ed-char"
@@ -1096,7 +1099,7 @@ onBeforeUnmount(() => {
                   <span class="w-full truncate text-center text-[10px] text-muted">
                     {{ name }}
                   </span>
-                </el-checkbox>
+                </el-check-tag>
               </div>
 
               <el-autocomplete
@@ -1112,6 +1115,7 @@ onBeforeUnmount(() => {
             </div>
           </template>
         </div>
+        </el-scrollbar>
       </section>
     </el-main>
 
@@ -1211,36 +1215,24 @@ onBeforeUnmount(() => {
   flex: 1;
   min-width: 0;
 }
-/* 偏好角色格：el-checkbox 竖格外观，与 GiftSet 页面角色格一致 */
+/* 偏好角色格：与 GiftSet 页面角色格一致（el-check-tag 竖格，点一下移除） */
 .ah-ed-char {
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
-  justify-self: stretch;
-  min-width: 0;
-  height: auto;
-  min-height: 0;
-  margin: 0;
-  padding: 4px 0;
-}
-
-.ah-ed-char :deep(.el-checkbox__input) {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.ah-ed-char :deep(.el-checkbox__label) {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
   width: 100%;
-  padding: 0;
+  padding: 4px 0;
+  background-color: transparent;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
 }
 
-.ah-ed-char:hover {
-  border-color: var(--color-danger);
+.ah-ed-char:focus-visible {
+  outline: 2px solid var(--el-color-primary);
+  outline-offset: 1px;
 }
 
 </style>

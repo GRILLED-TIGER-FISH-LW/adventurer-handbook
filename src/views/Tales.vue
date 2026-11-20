@@ -346,7 +346,7 @@ onMounted(async () => {
           </template>
         </el-input>
 
-        <el-tag class="ah-tales__summary">
+        <el-tag class="ah-tales__summary" size="large">
           <span>已完成&nbsp;</span>
           <span class="tabular-nums">{{ done.size }}</span>
           <span aria-hidden="true">/</span>
@@ -396,8 +396,9 @@ onMounted(async () => {
       </div>
     </el-header>
 
-    <div class="min-h-0 flex-1 overflow-y-auto p-2">
-      <div v-if="loading" class="p-3 text-sm text-muted">正在加载旅闻数据…</div>
+    <el-scrollbar class="min-h-0 flex-1">
+      <div class="p-2">
+      <el-skeleton v-if="loading" class="p-3" :rows="3" animated />
 
       <div v-else-if="errorMsg" class="grid justify-items-center gap-3 p-8 text-center">
         <el-text class="ah-text-danger font-semibold ah-text-block">数据加载失败</el-text>
@@ -485,7 +486,8 @@ onMounted(async () => {
         </div>
         </el-card>
       </div>
-    </div>
+      </div>
+    </el-scrollbar>
 
     <el-footer class="ah-shell__bar ah-shell__bar--bottom safe-bottom">
       <el-button type="danger" class="w-full" @click="confirmClear">
@@ -522,8 +524,6 @@ onMounted(async () => {
   --el-tag-text-color: var(--color-accent-strong);
   flex: none;
   margin-left: auto;
-  height: var(--el-input-height, 32px);
-  padding: 0 8px;
   white-space: nowrap;
 }
 
