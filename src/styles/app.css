@@ -157,3 +157,12 @@ html.dark {
     grid-template-columns: 20rem minmax(0, 1fr);
   }
 }
+
+/* el-segmented 的垫色：EP 在 .el-segmented 自己的选择器里定义过这些变量，
+   写在 :root 会被它遮住，暗色 css-vars 还会再盖一次，所以直接盖在组件上。
+   容器用卡片色（与下面的大框一致），选中项反过来用凹槽色 --color-sunken，靠底色差区分。 */
+.el-segmented {
+  --el-segmented-bg-color: var(--color-surface);
+  --el-segmented-item-selected-bg-color: var(--color-sunken);
+  --el-segmented-item-selected-color: var(--color-ink);
+}
