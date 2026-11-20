@@ -140,6 +140,7 @@ https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js
 ### 令牌
 
 - 颜色、圆角、阴影、缓动都在 `src/styles/tokens.css` 的 `@theme` 块里，**改颜色只改这一个文件**。
+- **控件跟它所在的面同色**：卡片里的控件底一律 `--color-surface`（= `el-card` 的底），靠 `--el-border-color*` 那条描边区分，别用凹槽色 `sunken` 当控件的底；滑块轨道也用同一条描边（`--el-slider-runway-bg-color: var(--el-border-color)`）。选中态优先 EP 默认（`primary` 实心 + 白字），与 `el-radio-button` 一致。
 - **颜色**一律取自 Claude 的 `DESIGN.md` 全量（白天 / 黑夜两套，深色靠 `[data-theme="dark"]` 覆盖）；**字号 / 间距 / 圆角 / 控件高度 / 组件规格**一律取自 Notion 的 `DESIGN.md` 全量。两个 skill 打架时的裁决：**颜色看 Claude，多少 px 看 Notion**。
 - **间距只用数值刻度**：4 / 8 / 12 / 16 / 20 / 24 / 32 / 40 / 48 / 64 / 96 / 120（= `p-1 p-2 p-3 p-4 p-5 p-6 p-8 p-10 p-12 p-16 p-24 p-30`）。**不要写 `--spacing-<名字>`**：`xs/sm/md/lg/xl` 会和 Tailwind 的 `--container-*` 撞名，把 `max-w-md` / `max-w-sm` 打成 16px / 12px（出过"弹窗变竖条"事故）。
 - 字号只用 Notion 的档：`text-micro`(12) / `text-caption`(13) / `text-body-sm`(14) / `text-body-md`(16) / `text-heading-5`(18) / `text-button`(14/500)。`text-[10px]` 是历史豁免（GiftSet 字符格、编辑器列表副行），**别再新增**。
@@ -261,7 +262,8 @@ https://grilled-tiger-fish-lw.github.io/genshin-guide/shared/image-dict.js
 
 ### 当前状态（每批合并后更新；下一轮开工先读这段，别去现场探索）
 
-- **最后合并**：`palette-fix` —— 令牌对齐 Claude 官方七色：`accent` 由手调的 `#cc785c` 换成 Orange `#d97757`（`accent-soft` 12% → 16%）、`success` 换 Green `#788c5d`、新增 `info` Blue `#6a9bcc`；中性色改成「两个纯色之间对半混」（`canvas` = Light+Light Gray、`surface-2`/`sunken`/`line` = Light Gray、`line-2` = Light Gray+Mid Gray），暗色 `canvas` → Dark `#141413`、`sunken` → `#302d27`；删掉调色板外的 `accent-teal` / `accent-amber`。**选中态统一成 accent-soft 垫色 + accent-strong 文字**（抽屉菜单加左侧 2px 竖条），修「选中项看着发灰」；`el-segmented` 轨道用 sunken、选中项用 accent-soft。
+- **最后合并**：`bg-fix` —— 「控件跟所在的面同色」：`el-segmented` 的垫色改回卡片色 `--color-surface`（= 所在 `el-card` 大框的底：白天亮米白、夜里浅黑灰）并补一条和卡片一样的 1px 描边；选中项回到 EP 默认（`primary` 实心 + 白字），与「小字号 / 大字号」那组单选框一致。`el-slider` 轨道改用 `--el-border-color`（= 文本框边框那条）。顺手清掉 `app.css` 里所有 `color-mix`（老浏览器无效值 —— 暗色下 `--el-border-color` 因此坏掉，整套输入框没有边框）与过期的 `--el-color-primary-rgb`（还是旧强调色 `204, 120, 92`）。
+- **上一批**：`palette-fix` —— 令牌对齐 Claude 官方七色：`accent` 由手调的 `#cc785c` 换成 Orange `#d97757`（`accent-soft` 12% → 16%）、`success` 换 Green `#788c5d`、新增 `info` Blue `#6a9bcc`；中性色改成「两个纯色之间对半混」（`canvas` = Light+Light Gray、`surface-2`/`sunken`/`line` = Light Gray、`line-2` = Light Gray+Mid Gray），暗色 `canvas` → Dark `#141413`、`sunken` → `#302d27`；删掉调色板外的 `accent-teal` / `accent-amber`。**选中态统一成 accent-soft 垫色 + accent-strong 文字**（抽屉菜单加左侧 2px 竖条），修「选中项看着发灰」；`el-segmented` 轨道用 sunken、选中项用 accent-soft。
 - **上一批**：`fill-fix4` —— 凹槽类表面统一复用 `--color-sunken`：暗色值 `#1f1e1b`（与卡片同值，凹陷处看不见）改成 `#2f2b24`（比卡片亮一档）；`el-segmented` 的垫色改成「容器卡片色 + 选中项凹槽色 + 字用 ink」，变量盖在组件上（写 `:root` 会被 EP 遮住）。与攻略工具集同步。
 - **上一批**：`ep-fix-grid` —— 编辑器滚不动的**真根因**修好：EP 的 `.el-main` 自带 `display: block`，而 **EP 的 CSS 不带 `@layer`**，会把 `<el-main class="grid grid-cols-…">` 上的栅格类全部压掉（栏位高度跟着内容走、`main` 又 `overflow: hidden`，于是超出被裁且拖不动）。两栏骨架写进 `app.css` 的非分层规则 `.ah-shell--split > .el-main`；左右两栏滚动用原生 `overflow-y: auto`。
 - **滚动容器选型（血泪）**：`el-scrollbar` 只在「父级高度确定」时可靠——flex item（`flex: 1`）可以，grid 栏位不一定；grid 里一律用原生 `overflow-y: auto`（`overflow` 用 used height，不依赖百分比）。旅闻 / 套装页是 flex 布局，所以它们的 `el-scrollbar` 正常。
