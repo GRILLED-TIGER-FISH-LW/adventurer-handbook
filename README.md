@@ -221,8 +221,8 @@
     adventurer-handbook/
     ├── index.html                    入口（主题预置 + 加载守卫）
     ├── src/
-    │   ├── components/               布局与导航（抽屉 / 导航 / 通知），交互控件统一走 Element Plus
-    │   ├── composables/              主题 / 通知队列 / 数据加载
+    │   ├── components/               布局与导航（抽屉 / 导航），交互控件统一走 Element Plus
+    │   ├── composables/              主题 / 数据加载
     │   ├── icons/                    内容标识图标（Solar 图标注册）
     │   ├── styles/                   设计令牌 + 全局基线
     │   └── views/                    页面（首页 / 旅闻 / 套装 / 两个编辑器）
