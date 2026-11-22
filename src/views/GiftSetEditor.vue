@@ -1000,7 +1000,7 @@ onBeforeUnmount(() => {
 
             <!-- 地区 -->
             <div class="grid gap-2">
-              <el-text size="small" class="ah-text-muted font-medium">地区 · 输入新值会自动加入列表</el-text>
+              <el-text size="small" class="ah-text-muted font-medium">地区</el-text>
               <el-select
                 v-model="entry.region"
                 filterable
@@ -1022,9 +1022,7 @@ onBeforeUnmount(() => {
 
             <!-- 图片 URL -->
             <div class="grid gap-2">
-              <el-text size="small" class="ah-text-muted font-medium">
-                套装图 URL · 粘贴后自动识别 key / 类型 / 地区
-              </el-text>
+              <el-text size="small" class="ah-text-muted font-medium">套装图 URL</el-text>
               <div class="flex items-center gap-2">
                 <el-input
                   v-model="urlInput"
@@ -1065,9 +1063,7 @@ onBeforeUnmount(() => {
 
             <!-- 偏好角色 -->
             <div class="grid gap-2">
-              <el-text size="small" class="ah-text-muted font-medium">
-                偏好角色 · 支持逗号 / 空格 / 顿号批量输入，点格子可移除
-              </el-text>
+              <el-text size="small" class="ah-text-muted font-medium">偏好角色</el-text>
 
               <div
                 v-if="sortedChars.length"

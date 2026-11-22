@@ -56,11 +56,23 @@ const tools = router.options.routes.filter((r) => r.meta?.label)
 }
 
 /* 固定高度：卡片不再随标题长短高低不齐 */
+/* 手机：宽:高 严格 3:2；电脑：高度固定成手机端那档（118px）、宽度自适应。
+   行高 / 字号 / 图标 / 内边距一律不动 —— 靠把标题压到 4 字
+   （「尘歌壶赠礼套装」→「赠礼套装」，见 router.js）与描述压到 5 字把内容装进 3:2。 */
 .ah-home__card {
-  /* 半栏宽度下「尘歌壶赠礼套装」要折两行，104px 装不下，加到 132px（仍是固定高度） */
-  height: 132px;
+  aspect-ratio: 3 / 2;
+  min-height: 108px; /* 只为 320px 级老屏兜底；≥360px 时 3:2 本身已经更高 */
+  overflow: hidden;
   color: inherit;
   transition: background-color var(--el-transition-duration-fast);
+}
+
+@media (min-width: 900px) {
+  .ah-home__card {
+    aspect-ratio: auto;
+    height: 118px;
+    min-height: 0;
+  }
 }
 
 .ah-home__link:hover .ah-home__card,
@@ -72,6 +84,7 @@ const tools = router.options.routes.filter((r) => r.meta?.label)
 .ah-home__card :deep(.el-card__body) {
   box-sizing: border-box;
   height: 100%;
+  overflow: hidden; /* EP 默认 auto，3:2 下会冒滚动条 */
 }
 
 .ah-home__inner {

@@ -748,7 +748,7 @@ onBeforeUnmount(() => {
 
             <!-- 版本 -->
             <div class="grid gap-2">
-              <el-text size="small" class="ah-text-muted font-medium">版本 · 输入新值会自动加入列表</el-text>
+              <el-text size="small" class="ah-text-muted font-medium">版本</el-text>
               <el-select
                 v-model="entry.version"
                 filterable
@@ -770,7 +770,7 @@ onBeforeUnmount(() => {
 
             <!-- 角色 -->
             <div class="grid gap-2">
-              <el-text size="small" class="ah-text-muted font-medium">角色名 · 从字典联想，可自定义</el-text>
+              <el-text size="small" class="ah-text-muted font-medium">角色名</el-text>
               <div class="flex items-center gap-2">
                 <span
                   class="relative grid size-7 shrink-0 place-items-center overflow-hidden rounded-ctl border border-line bg-surface text-[10px] font-semibold text-muted"
@@ -821,7 +821,7 @@ onBeforeUnmount(() => {
               class="flex h-[44px] w-fit cursor-pointer items-center gap-2 rounded-md border border-line-2 bg-sunken px-3"
             >
               <el-checkbox v-model="entry.hidden" @change="markDirty" />
-              <el-text size="small" class="ah-text-ink">标记为隐藏旅闻（主界面红色）</el-text>
+              <el-text size="small" class="ah-text-ink">隐藏旅闻</el-text>
             </div>
 
             <div class="grid gap-2">
@@ -968,10 +968,6 @@ onBeforeUnmount(() => {
 
 /* 隐藏标记用 el-checkbox 拿语义（空格切换 / aria-checked），
    外框仍按内容色表达状态，行高对齐控件高度 */
-.ah-tales :deep(.el-checkbox) {
-  margin-right: 8px;
-}
-
 .ah-tales :deep(.el-checkbox__label) {
   padding-left: 2px;
   font-size: 12px;

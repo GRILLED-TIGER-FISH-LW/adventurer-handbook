@@ -13,13 +13,13 @@ const routes = [
     path: '/tales',
     name: 'tales',
     component: () => import('./views/Tales.vue'),
-    meta: { label: '游逸旅闻', desc: '旅闻查询 · 完成记录', icon: 'map-point' },
+    meta: { label: '游逸旅闻', desc: '查询与记录', icon: 'map-point' },
   },
   {
     path: '/gift-set',
     name: 'giftSet',
     component: () => import('./views/GiftSet.vue'),
-    meta: { label: '尘歌壶赠礼套装', desc: '套装进度 · 角色偏好', icon: 'gift' },
+    meta: { label: '赠礼套装', desc: '套装进度', icon: 'gift' },
   },
   {
     path: '/tales-editor',
